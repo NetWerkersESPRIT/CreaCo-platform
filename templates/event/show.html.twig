@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Event Details{% endblock %}
+{% block page_title %}Event Details{% endblock %}
+
+{% block body %}
+<div class="w-full p-6 mx-auto">
+    <div class="flex flex-wrap -mx-3">
+        <div class="w-full max-w-full px-3 shrink-0 md:flex-0 md:w-6/12">
+            <h6 class="mb-0 font-bold capitalize">{{ event.name }}</h6>
+            <p class="mb-0 leading-normal text-sm">{{ event.category }}</p>
+        </div>
+        <div class="w-full max-w-full px-3 text-right shrink-0 md:flex-0 md:w-6/12">
+            <a href="{{ path('event_list') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-gray-900 to-slate-800 hover:shadow-soft-2xl hover:scale-102">Back to List</a>
+            
+             <a href="{{ path('event_manage', {'id': event.id}) }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-cyan-500 to-blue-500 hover:shadow-soft-2xl hover:scale-102">Manage Reservations</a>
+        </div>
+    </div>
+    
+    <div class="flex flex-wrap -mx-3 mt-4">
+        <div class="w-full max-w-full px-3 mb-6 lg:mb-0 lg:w-full lg:flex-none">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="max-w-full px-3 lg:w-1/2 lg:flex-none">
+                            <div class="flex flex-col h-full">
+                                <h5 class="font-bold">Description</h5>
+                                <p class="mb-2 leading-normal text-sm text-slate-500">{{ event.description }}</p>
+                                
+                                <div class="mt-4">
+                                     <h6 class="font-bold text-sm">Details</h6>
+                                     <ul class="list-disc pl-5 text-sm text-slate-500">
+                                        <li><strong>Date:</strong> {{ event.date|date('Y-m-d') }} at {{ event.time|date('H:i') }}</li>
+                                        <li><strong>Type:</strong> {{ event.type }}</li>
+                                        <li><strong>Organizer:</strong> {{ event.organizer }}</li>
+                                        <li><strong>Capacity:</strong> {{ event.capacity ? event.capacity : 'Unlimited' }}</li>
+                                        {% if event.type == 'online' %}
+                                            <li><strong>Platform:</strong> {{ event.platform }}</li>
+                                            <li><strong>Link:</strong> <a href="{{ event.meetingLink }}" class="text-blue-500 hover:text-blue-700">{{ event.meetingLink }}</a></li>
+                                        {% else %}
+                                            <li><strong>Address:</strong> {{ event.address }}</li>
+                                            {% if event.googleMapsLink %}
+                                                <li><strong>Map:</strong> <a href="{{ event.googleMapsLink }}" target="_blank" class="text-blue-500 hover:text-blue-700">View on Maps</a></li>
+                                            {% endif %}
+                                        {% endif %}
+                                     </ul>
+                                </div>
+
+                                <div class="mt-6">
+                                    <a href="{{ path('event_reserve', {'id': event.id}) }}" class="inline-block px-8 py-4 font-bold leading-normal text-center text-white align-middle transition-all bg-blue-500 border-0 rounded-lg cursor-pointer text-sm ease-in shadow-md hover:shadow-lg hover:bg-blue-600">
+                                        Reserve My Spot
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="max-w-full px-3 mt-12 ml-auto text-center lg:mt-0 lg:w-5/12 lg:flex-none">
+                            <div class="h-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl">
+                                <img src="{{ asset('assets/img/shapes/waves-white.svg') }}" class="absolute top-0 hidden w-1/2 h-full lg:block" alt="waves">
+                                <div class="relative flex items-center justify-center h-full">
+                                    <img class="relative z-20 w-full pt-6" src="{{ asset('assets/img/illustrations/rocket-white.png') }}" alt="rocket">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

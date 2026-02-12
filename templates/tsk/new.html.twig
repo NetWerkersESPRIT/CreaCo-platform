@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Idée{% endblock %}
+
+{% block body %}
+    <h1>Créer une nouvelle Idée</h1>
+
+    {{ include('tsk/_form.html.twig') }}
+
+    <a href="{{ path('app_idea_index') }}">Retour à la liste</a>
+{% endblock %}

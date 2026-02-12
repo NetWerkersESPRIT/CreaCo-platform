@@ -1,0 +1,61 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Connexion - CreaCo{% endblock %}
+{% block breadcrumb %}Authentification / Connexion{% endblock %}
+{% block page_title %}Se connecter{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3 justify-center">
+    <div class="w-full max-w-full px-3 lg:w-5/12">
+        <div class="relative flex flex-col min-w-0 mt-12 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl text-center">
+                <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text">Bon retour parmi nous</h3>
+                <p class="mb-0 text-sm">Entrez votre nom d'utilisateur et votre mot de passe pour vous connecter</p>
+            </div>
+            <div class="flex-auto p-6">
+                <form role="form" method="post">
+                    {% if error %}
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <div class="mb-3 text-center">
+                            Vous êtes connecté en tant que {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}" class="font-bold text-fuchsia-500">Se déconnecter</a>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label for="inputUsername" class="mb-2 ml-1 font-bold text-xs text-slate-700">Nom d'utilisateur</label>
+                        <input type="text" value="{{ last_username }}" name="_username" id="inputUsername" class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Nom d'utilisateur" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="inputPassword" class="mb-2 ml-1 font-bold text-xs text-slate-700">Mot de passe</label>
+                        <input type="password" name="_password" id="inputPassword" class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Mot de passe" required>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    {#
+                        Uncomment this section and add a remember_me option below your firewall to enable it.
+                        See https://symfony.com/doc/current/security/remember_me.html
+
+                        <div class="checkbox mb-3">
+                            <label>
+                                <input type="checkbox" name="_remember_me"> Remember me
+                            </label>
+                        </div>
+                    #}
+
+                    <div class="text-center">
+                        <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">Se connecter</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

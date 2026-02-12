@@ -1,0 +1,179 @@
+{% extends './base.html.twig' %}
+
+{% block title %}Toutes les Ressources
+{% endblock %}
+
+{% block breadcrumbs %}
+	<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+		Ressources
+	</li>
+{% endblock %}
+
+{% block page_title %}Gestion des Ressources
+{% endblock %}
+
+{% block body %}
+	<div class="flex flex-wrap -mx-3">
+		<div class="flex-none w-full max-w-full px-3">
+			<div
+				class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+				{# Unified Search Form #}
+				<form id="search-form" method="get" action="{{ path('app_ressource_index') }}" novalidate>
+					<input type="hidden" name="sort" value="{{ sort.field }}">
+					<input type="hidden" name="order" value="{{ sort.order }}">
+				</form>
+
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex flex-col md:flex-row justify-between items-center gap-4">
+					<h6>Toutes les Ressources</h6>
+
+					<div class="flex items-center gap-4">
+						<div class="relative flex flex-wrap items-stretch transition-all rounded-lg ease-soft mr-4" style="min-width: 280px;">
+							<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+								<i class="fas fa-search"></i>
+							</span>
+							<input form="search-form" type="text" name="search" value="{{ search ?? '' }}" class="pl-8 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Recherche globale..."/>
+						</div>
+
+						<button form="search-form" type="submit" class="inline-block px-6 py-3 mr-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-gray-900 to-slate-800 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+							Filtrer
+						</button>
+
+						<a href="{{ path('app_ressource_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+							<i class="fas fa-plus mr-1"></i>
+							Ajouter
+						</a>
+					</div>
+				</div>
+
+				<div class="flex-auto px-0 pt-0 pb-2">
+					<div class="p-0 overflow-x-auto">
+						<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+							<thead class="align-bottom">
+								<tr>
+									<th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'nom', 'order': sort.field == 'nom' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Nom
+											<i class="fas fa-sort{{ sort.field == 'nom' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'cours', 'order': sort.field == 'cours' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Cours
+											<i class="fas fa-sort{{ sort.field == 'cours' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'type', 'order': sort.field == 'type' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Type
+											<i class="fas fa-sort{{ sort.field == 'type' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'date_de_creation', 'order': sort.field == 'date_de_creation' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center justify-center gap-1 cursor-pointer hover:text-slate-600">
+											Créé le
+											<i class="fas fa-sort{{ sort.field == 'date_de_creation' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+								</tr>
+								{# Column Filter Inputs #}
+								<tr>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200">
+										<input form="search-form" type="text" name="nom" value="{{ filters.nom ?? '' }}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Filtrer nom...">
+									</th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200">
+										<input form="search-form" type="text" name="cours" value="{{ filters.cours ?? '' }}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Filtrer cours...">
+									</th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200">
+										<select form="search-form" name="type" class="text-sm focus:shadow-soft-primary-outline leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1 font-normal text-gray-700 outline-none transition-all focus:border-fuchsia-300 focus:outline-none" onchange="document.getElementById('search-form').submit()">
+											<option value="">Tous</option>
+											<option value="PDF" {% if filters.type == 'PDF' %} selected {% endif %}>PDF</option>
+											<option value="IMAGE" {% if filters.type == 'IMAGE' %} selected {% endif %}>Image</option>
+											<option value="VIDEO" {% if filters.type == 'VIDEO' %} selected {% endif %}>Vidéo</option>
+											<option value="FILE" {% if filters.type == 'FILE' %} selected {% endif %}>Fichier</option>
+											<option value="TEXTE" {% if filters.type == 'TEXTE' %} selected {% endif %}>Texte</option>
+										</select>
+									</th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for ressource in ressources %}
+									<tr>
+										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+											<div class="flex px-2 py-1">
+												<div class="flex flex-col justify-center">
+													<h6 class="mb-0 text-sm leading-normal">{{ ressource.nom }}</h6>
+													{% if ressource.type == 'TEXTE' %}
+														<a href="{{ path('app_ressource_show', {'id': ressource.id}) }}" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
+															<i class="fas fa-file-alt mr-1"></i>
+															Voir le contenu
+														</a>
+													{% else %}
+														<a href="{{ ressource.url }}" target="_blank" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
+															<i class="fas fa-external-link-alt mr-1"></i>
+															Voir le fichier
+														</a>
+													{% endif %}
+												</div>
+											</div>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+											<p class="mb-0 text-xs font-semibold leading-tight">{{ ressource.cours ? ressource.cours.titre : 'Aucun' }}</p>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+											{% set badge_color = 'from-slate-600 to-slate-300' %}
+											{% set icon = 'fa-file' %}
+
+											{% if ressource.type == 'PDF' %}
+												{% set badge_color = 'from-red-600 to-red-400' %}
+												{% set icon = 'fa-file-pdf' %}
+											{% elseif ressource.type == 'IMAGE' %}
+												{% set badge_color = 'from-blue-600 to-blue-400' %}
+												{% set icon = 'fa-image' %}
+											{% elseif ressource.type == 'VIDEO' %}
+												{% set badge_color = 'from-purple-600 to-purple-400' %}
+												{% set icon = 'fa-video' %}
+											{% elseif ressource.type == 'TEXTE' %}
+												{% set badge_color = 'from-green-600 to-green-400' %}
+												{% set icon = 'fa-file-alt' %}
+											{% endif %}
+
+											<span class="bg-gradient-to-tl {{ badge_color }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">
+												<i class="fas {{ icon }} mr-1"></i>
+												{{ ressource.type }}
+											</span>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+											<span class="text-xs font-semibold leading-tight text-slate-400">{{ ressource.dateDeCreation ? ressource.dateDeCreation|date('d/m/Y H:i') : '-' }}</span>
+										</td>
+										<td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+											<div class="flex justify-center gap-2">
+												<a href="{{ path('app_ressource_edit', {'id': ressource.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-3 py-1 rounded-lg">
+													<i class="fas fa-edit mr-1"></i>
+													Edit
+												</a>
+												<form method="post" action="{{ path('app_ressource_delete', {'id': ressource.id}) }}" onsubmit="return confirm('Etes vous sur ?');" style="display:inline-block" novalidate>
+													<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ressource.id) }}">
+													<button class="text-xs font-semibold leading-tight text-red-500 bg-gray-100 px-3 py-1 rounded-lg border-0 cursor-pointer">
+														<i class="fas fa-trash mr-1"></i>
+														Delete
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="4" class="p-4 text-center">Aucune ressource trouvée</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

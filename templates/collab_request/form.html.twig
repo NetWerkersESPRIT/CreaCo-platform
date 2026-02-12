@@ -1,0 +1,93 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{% if is_edit %}Modifier{% else %}Nouvelle{% endif %} Demande - CreaCo{% endblock %}
+{% block breadcrumb %}Demandes / Formulaire{% endblock %}
+{% block page_title %}{% if is_edit %}Modification{% else %}Nouvelle Demande{% endif %}{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3 justify-center">
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                <h6>Détails de la Collaboration</h6>
+                <p class="text-sm">Définissez les termes et les objectifs de cette nouvelle collaboration.</p>
+            </div>
+            <div class="flex-auto p-6">
+                {{ form_start(form) }}
+                
+                <div class="mb-4">
+                    {{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.title, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                    <div class="text-red-500 text-xs mt-1">{{ form_errors(form.title) }}</div>
+                </div>
+
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.collaborator, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.collaborator, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.collaborator) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.revisor, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.revisor, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.revisor) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full max-w-full px-3 md:w-4/12">
+                        <div class="mb-4">
+                            {{ form_label(form.budget, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.budget, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.budget) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-4/12">
+                        <div class="mb-4">
+                            {{ form_label(form.startDate, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.startDate, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.startDate) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-4/12">
+                        <div class="mb-4">
+                            {{ form_label(form.endDate, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.endDate, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.endDate) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '4'}}) }}
+                    <div class="text-red-500 text-xs mt-1">{{ form_errors(form.description) }}</div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.deliverables, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.deliverables, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '3'}}) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.paymentTerms, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.paymentTerms, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '3'}}) }}
+                </div>
+
+                <div class="flex justify-end mt-6">
+                    <a href="{{ path('app_collab_request_index') }}" class="inline-block px-6 py-3 mr-3 font-bold text-center text-slate-700 uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft hover:bg-gray-100">Annuler</a>
+                    <button type="submit" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                        Soumettre ma demande
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

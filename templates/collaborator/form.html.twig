@@ -1,0 +1,95 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{% if is_edit %}Modifier{% else %}Ajouter{% endif %} un partenaire - CreaCo{% endblock %}
+{% block breadcrumb %}Collaborateurs / Formulaire{% endblock %}
+{% block page_title %}{% if is_edit %}Modification{% else %}Nouveau Partenaire{% endif %}{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3 justify-center">
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                <h6>Informations du Collaborateur</h6>
+                <p class="text-sm leading-normal">Veuillez remplir les informations concernant votre partenaire externe.</p>
+            </div>
+            <div class="flex-auto p-6">
+                {{ form_start(form) }}
+                
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.companyName, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.companyName, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.companyName) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.name, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.name) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.email, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.email) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.phone, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.phone) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.domain, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.domain, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.address, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.address, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                </div>
+
+                <div class="flex flex-wrap -mx-3">
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.website, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.website, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                            <div class="text-red-500 text-xs mt-1">{{ form_errors(form.website) }}</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-full px-3 md:w-6/12">
+                        <div class="mb-4">
+                            {{ form_label(form.logoFile, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                            {{ form_widget(form.logoFile, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '4'}}) }}
+                </div>
+
+                <div class="flex justify-end mt-6">
+                    <a href="{{ path('app_collaborator_index') }}" class="inline-block px-6 py-3 mr-3 font-bold text-center text-slate-700 uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft hover:bg-gray-100">Annuler</a>
+                    <button type="submit" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                        Enregistrer
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% for collaborator in collaborators %}
+<tr>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex px-2 py-1">
+            <div>
+                <div class="flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-soft-in-out h-9 w-9 rounded-xl bg-gradient-to-tl from-slate-600 to-slate-300">
+                    <i class="ni ni-building"></i>
+                </div>
+            </div>
+            <div class="flex flex-col justify-center">
+                <h6 class="mb-0 text-sm leading-normal">{{ collaborator.companyName }}</h6>
+                <p class="mb-0 text-xs leading-tight text-slate-400">{{ collaborator.name }} ({{ collaborator.email }})</p>
+            </div>
+        </div>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <p class="mb-0 text-xs font-semibold leading-tight">{{ collaborator.domain }}</p>
+    </td>
+    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        {% if collaborator.status == 'ACTIVE' %}
+            <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Actif</span>
+        {% else %}
+            <span class="bg-gradient-to-tl from-slate-600 to-slate-300 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Inactif</span>
+        {% endif %}
+    </td>
+    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <span class="text-xs font-semibold leading-tight text-slate-400">{{ collaborator.createdAt|date('d/m/Y') }}</span>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex items-center justify-center gap-3">
+            <a href="{{ path('app_collaborator_show', {'id': collaborator.id}) }}" class="text-xs font-bold leading-tight text-slate-400 hover:text-fuchsia-500 transition-all flex items-center">
+                <i class="fa fa-eye mr-1"></i> Voir
+            </a>
+            <span class="text-slate-200">/</span>
+            <a href="{{ path('app_collaborator_edit', {'id': collaborator.id}) }}" class="text-xs font-bold leading-tight text-slate-400 hover:text-fuchsia-500 transition-all flex items-center">
+                <i class="fa fa-edit mr-1"></i> Modifier
+            </a>
+        </div>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="5" class="p-4 text-center">Aucun collaborateur trouvé.</td>
+</tr>
+{% endfor %}

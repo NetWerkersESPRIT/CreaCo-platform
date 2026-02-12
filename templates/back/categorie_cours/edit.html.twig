@@ -1,0 +1,50 @@
+{# Modifier une catégorie #}
+{% extends './base.html.twig' %}
+
+{% block title %}
+	Modifier Catégorie
+{% endblock %}
+
+{# Navigation #}
+{% block breadcrumbs %}
+	<li class="text-sm leading-normal">
+		<a class="opacity-50 text-slate-700" href="{{ path('app_categorie_cours_index') }}">Catégories</a>
+	</li>
+	<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+		Modifier
+	</li>
+{% endblock %}
+
+{# Titre de la page #}
+{% block page_title %}
+	Modifier la Catégorie
+{% endblock %}
+
+{# Contenu de la page #}
+{% block body %}
+	<div class="flex flex-wrap -mx-3">
+		<div class="flex-none w-full max-w-full px-3">
+			<div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+					<h6>Modification de :
+						<span class="text-fuchsia-500">{{ categorie_cours.nom }}</span>
+					</h6>
+				</div>
+				<div class="flex-auto p-6">
+					{{ include('back/categorie_cours/_form.html.twig', {'button_label': 'Mettre à jour la catégorie'}) }}
+
+					<div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
+						<a href="{{ path('app_categorie_cours_index') }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-4 py-2 rounded-xl hover:bg-gray-200 transition-all">
+							<i class="fas fa-arrow-left mr-1"></i>
+							Retour à la liste
+						</a>
+						<div class="flex items-center gap-2">
+							<span class="text-xxs font-bold uppercase text-slate-400 mr-2">Zone de danger :</span>
+							{{ include('back/categorie_cours/_delete_form.html.twig') }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

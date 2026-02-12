@@ -1,0 +1,128 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Contrat #{{ contract.contractNumber }} - CreaCo{% endblock %}
+{% block breadcrumb %}Contrats / {{ contract.contractNumber }}{% endblock %}
+{% block page_title %}Consultation du Contrat{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3">
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border h-full">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h6 class="mb-0">Document Contractuel</h6>
+                <div class="flex space-x-2">
+                    <span class="text-xs font-bold text-slate-400">REF: {{ contract.contractNumber }}</span>
+                </div>
+            </div>
+            <div class="flex-auto p-6 bg-slate-100/50 rounded-b-2xl">
+                <!-- Contract Document Container -->
+                <div class="max-w-[750px] mx-auto bg-white shadow-soft-2xl border rounded-sm min-h-[1000px] p-20 flex flex-col">
+                    <div class="flex justify-between border-b pb-4 mb-10">
+                        <div>
+                            <h2 class="text-base font-bold uppercase text-slate-700 tracking-tight">Contrat de Prestation</h2>
+                            <p class="text-[9px] text-slate-400 font-mono mt-0.5 tracking-tighter">REF: {{ contract.contractNumber }}</p>
+                        </div>
+                        <div class="text-right text-[10px] text-slate-400">
+                            <p class="font-bold text-slate-500">CreaCo Ecosystem</p>
+                            <p>{{ contract.createdAt|date('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-12 mb-12">
+                        <div class="p-2 border-l-2 border-slate-100">
+                            <h6 class="text-[9px] font-bold uppercase text-slate-300 mb-2 tracking-widest">Le Prestataire</h6>
+                            <p class="text-xs font-bold text-slate-600">{{ contract.collabRequest.collaborator.companyName }}</p>
+                            <p class="text-[10px] text-slate-400">{{ contract.collabRequest.collaborator.address }}</p>
+                            <p class="text-[10px] text-slate-400">{{ contract.collabRequest.collaborator.email }}</p>
+                        </div>
+                        <div class="p-2 border-l-2 border-slate-100">
+                            <h6 class="text-[9px] font-bold uppercase text-slate-300 mb-1 tracking-widest">Le Client</h6>
+                            <p class="text-xs font-bold text-slate-600">{{ contract.collabRequest.creator ? contract.collabRequest.creator.username : 'Inconnu' }}</p>
+                            <p class="text-[10px] text-slate-400">Représentant CreaCo</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-10">
+                        <h6 class="text-[10px] font-bold border-b pb-1 mb-4 text-slate-400 uppercase tracking-[0.2em]">I. Objet du Contrat</h6>
+                        <p class="text-[11px] leading-relaxed mb-3 text-slate-600">Le présent contrat à pour objet la réalisation de la mission suivante : <span class="font-bold text-slate-700">{{ contract.collabRequest.title }}</span>.</p>
+                        <div class="text-[10px] leading-relaxed text-slate-500 p-4 bg-slate-50/50 rounded border border-slate-100 italic">
+                            {{ contract.collabRequest.description }}
+                        </div>
+                    </div>
+
+                    <div class="mb-10">
+                        <h6 class="text-[10px] font-bold border-b pb-1 mb-4 text-slate-400 uppercase tracking-[0.2em]">II. Modalités Financières & Durée</h6>
+                        <div class="flex justify-between items-end pb-2">
+                            <div class="text-[10px] text-slate-500 space-y-1">
+                                <p>Période : du {{ contract.collabRequest.startDate|date('d/m/Y') }}</p>
+                                <p>Jusqu'au : {{ contract.collabRequest.endDate|date('d/m/Y') }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-400 uppercase font-bold tracking-tighter mb-1">Montant Total</p>
+                                <p class="text-xl font-bold text-slate-700 leading-none">{{ contract.collabRequest.budget|number_format(3, ',', ' ') }} <span class="text-xs font-normal">DT</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer / Signatures -->
+                    <div class="mt-auto pt-16 grid grid-cols-2 gap-16">
+                        <div class="border-t pt-2">
+                            <p class="text-[8px] font-bold uppercase text-slate-300 mb-4 tracking-widest">VISA CLIENT</p>
+                            <div class="text-[10px] font-bold text-slate-400 flex items-center opacity-70">
+                                <i class="ni ni-check-bold text-slate-300 mr-2"></i>
+                                VALIDÉ NUMÉRIQUEMENT
+                            </div>
+                        </div>
+                        <div class="border-t pt-2">
+                            <p class="text-[8px] font-bold uppercase text-slate-300 mb-4 tracking-widest">VISA PRESTATAIRE</p>
+                            {% if contract.signedByCollaborator %}
+                                <div class="relative">
+                                    <div class="text-fuchsia-400 font-bold border border-fuchsia-200 p-2 rounded rotate-[-3deg] text-center w-full max-w-[150px] bg-white/50 text-[9px] uppercase tracking-tighter shadow-soft-sm">
+                                        SIGNÉ PAR {{ contract.collabRequest.collaborator.name|upper }}<br>
+                                        {{ contract.collaboratorSignatureDate|date('d/m/Y H:i') }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-[10px] text-slate-300 italic">En attente de signature...</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="w-full max-w-full px-3 lg:w-4/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6">
+                <h6 class="mb-4">Partagez avec votre partenaire</h6>
+                <p class="text-xs text-slate-500 mb-6">Envoyez ce lien sécurisé à votre collaborateur pour qu'il puisse signer le document directement.</p>
+                
+                <div class="mb-6">
+                    <label class="text-xxs font-bold uppercase text-slate-400 mb-2 block">Lien de signature public</label>
+                    <div class="flex items-center bg-gray-50 p-2 rounded-lg border mb-3">
+                        <input type="text" readonly value="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" class="bg-transparent border-0 text-[10px] w-full outline-none text-slate-600 font-mono" id="signature-url">
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('signature-url').value); alert('Lien copié !')" class="ml-2 text-slate-400 hover:text-fuchsia-500 transition-colors" title="Copier le lien">
+                            <i class="fa fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <a href="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" target="_blank" class="inline-block w-full px-6 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                        <i class="fa fa-external-link mr-2"></i> Accéder à la page
+                    </a>
+                </div>
+
+                <div class="p-4 bg-fuchsia-50 rounded-xl">
+                    <h6 class="text-xs font-bold text-fuchsia-500 uppercase mb-2">Instructions</h6>
+                    <ul class="text-xxs text-slate-600 space-y-1">
+                        <li>1. Copiez le lien ou cliquez sur "Accéder".</li>
+                        <li>2. Envoyez-le par email à votre partenaire.</li>
+                        <li>3. Une fois signé, le document sera à jour.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

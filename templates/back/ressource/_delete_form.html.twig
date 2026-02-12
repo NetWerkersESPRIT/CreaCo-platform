@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('app_ressource_delete', {'id': ressource.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ressource ? Cette action est irréversible.');" novalidate>
+	<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ressource.id) }}">
+	<button class="inline-block px-4 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-red-500 border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:bg-red-600 active:opacity-85 hover:shadow-soft-xs">
+		<i class="fas fa-trash mr-1"></i>
+		Supprimer
+	</button>
+</form>

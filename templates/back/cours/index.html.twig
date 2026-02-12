@@ -1,0 +1,151 @@
+{% extends './base.html.twig' %}
+
+{% block title %}Tous les Cours
+{% endblock %}
+
+{% block breadcrumbs %}
+	<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+		Cours
+	</li>
+{% endblock %}
+
+{% block page_title %}Gestion des Cours
+{% endblock %}
+
+{% block body %}
+	<div class="flex flex-wrap -mx-3">
+		<div class="flex-none w-full max-w-full px-3">
+			<div
+				class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+				{# Unified Search Form #}
+				<form id="search-form" method="get" action="{{ path('app_cours_index') }}" novalidate>
+					<input type="hidden" name="sort" value="{{ sort.field }}">
+					<input type="hidden" name="order" value="{{ sort.order }}">
+				</form>
+
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex flex-col md:flex-row justify-between items-center gap-4">
+					<h6>Toutes les Cours</h6>
+
+					<div class="flex items-center gap-4">
+						<div class="relative flex flex-wrap items-stretch transition-all rounded-lg ease-soft mr-4" style="min-width: 280px;">
+							<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+								<i class="fas fa-search"></i>
+							</span>
+							<input form="search-form" type="text" name="search" value="{{ search ?? '' }}" class="pl-8 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Recherche globale..."/>
+						</div>
+
+						<button form="search-form" type="submit" class="inline-block px-6 py-3 mr-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-gray-900 to-slate-800 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+							Filtrer
+						</button>
+
+						<a href="{{ path('app_cours_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+							<i class="ni ni-fat-add mr-1"></i>
+							Ajouter un Cours
+						</a>
+					</div>
+				</div>
+				<div class="flex-auto px-0 pt-0 pb-2">
+					<div class="p-0 overflow-x-auto">
+						<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+							<thead class="align-bottom">
+								<tr>
+									<th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_cours_index', filters|merge({'sort': 'titre', 'order': sort.field == 'titre' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Titre
+											<i class="fas fa-sort{{ sort.field == 'titre' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_cours_index', filters|merge({'sort': 'category', 'order': sort.field == 'category' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Catégorie
+											<i class="fas fa-sort{{ sort.field == 'category' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_cours_index', filters|merge({'sort': 'description', 'order': sort.field == 'description' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
+											Description
+											<i class="fas fa-sort{{ sort.field == 'description' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
+										<a href="{{ path('app_cours_index', filters|merge({'sort': 'date_de_creation', 'order': sort.field == 'date_de_creation' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center justify-center gap-1 cursor-pointer hover:text-slate-600">
+											Créé le
+											<i class="fas fa-sort{{ sort.field == 'date_de_creation' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
+										</a>
+									</th>
+									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+								</tr>
+								{# Filter Inputs #}
+								<tr>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200">
+										<input form="search-form" type="text" name="titre" value="{{ filters.titre ?? '' }}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Filtrer titre...">
+									</th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200">
+										<input form="search-form" type="text" name="categorie" value="{{ filters.categorie ?? '' }}" class="text-sm focus:shadow-soft-primary-outline leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none" placeholder="Filtrer catégorie...">
+									</th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
+									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for cour in cours %}
+									<tr>
+										<td class="p-2 align-middle bg-transparent border-b shadow-transparent" style="max-width: 250px;">
+											<div class="flex px-2 py-1">
+												<div>
+													{% if cour.image %}
+														<img src="{{ cour.image }}" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-soft-in-out h-9 w-9 rounded-xl" alt="{{ cour.titre }}"/>
+													{% else %}
+														<div class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-soft-in-out h-9 w-9 rounded-xl bg-slate-200 opacity-60">
+															<i class="fas fa-book text-slate-400"></i>
+														</div>
+													{% endif %}
+												</div>
+												<div class="flex flex-col justify-center">
+													<h6 class="mb-0 text-sm leading-normal break-words">{{ cour.titre }}</h6>
+												</div>
+											</div>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b shadow-transparent" style="max-width: 150px;">
+											<p class="mb-0 text-xs font-semibold leading-tight text-blue-500 break-words">{{ cour.categorie ? cour.categorie.nom : 'Aucune' }}</p>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b shadow-transparent" style="max-width: 300px;">
+											<p class="mb-0 text-xs font-semibold break-words" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">{{ cour.description }}</p>
+										</td>
+										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+											<span class="text-xs font-semibold leading-tight text-slate-400">{{ cour.dateDeCreation ? cour.dateDeCreation|date('d/m/Y H:i') : '-' }}</span>
+										</td>
+										<td class="p-2 text-center align-middle bg-transparent border-b shadow-transparent">
+											<div class="flex flex-col items-center gap-2">
+												<a href="{{ path('app_cours_resources', {'id': cour.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-3 py-1 rounded-lg w-full text-center">
+													<i class="ni ni-zoom-split-in mr-1"></i>
+													Ressources
+												</a>
+												<a href="{{ path('app_cours_edit', {'id': cour.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-3 py-1 rounded-lg w-full text-center">
+													<i class="ni ni-settings mr-1 text-xs"></i>
+													Edit
+												</a>
+												<form method="post" action="{{ path('app_cours_delete', {'id': cour.id}) }}" onsubmit="return confirm('Etes vous sur ?');" class="w-full" novalidate>
+													<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ cour.id) }}">
+													<button class="text-xs font-semibold leading-tight text-red-500 bg-gray-100 px-3 py-1 rounded-lg border-0 cursor-pointer w-full">
+														<i class="ni ni-fat-delete mr-1"></i>
+														Delete
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="4" class="p-4 text-center">Aucun cours trouvé</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

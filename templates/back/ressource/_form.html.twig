@@ -1,0 +1,70 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+<div class="mb-4">
+	{{ form_label(form.nom, 'Nom de la ressource', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+	{{ form_widget(form.nom, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+	{{ form_errors(form.nom, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
+</div>
+
+<div class="mb-4">
+	{{ form_label(form.nature, 'Type de ressource', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+	<div class="flex gap-4">
+		{% for child in form.nature %}
+			<label class="inline-flex items-center cursor-pointer">
+				{{ form_widget(child, {'attr': {'class': 'nature-toggle'}}) }}
+				<span class="ml-2 text-sm text-gray-700">{{ child.vars.label }}</span>
+			</label>
+		{% endfor %}
+	</div>
+	{{ form_errors(form.nature, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
+</div>
+
+<div id="file-group" class="mb-4">
+	{{ form_label(form.fichier, 'Fichier (PDF, Image, Video)', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+	{{ form_widget(form.fichier, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+	<p class="mt-1 text-xs text-gray-500 italic">Formats acceptés : PDF, JPG, PNG, MP4</p>
+	{{ form_errors(form.fichier, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
+</div>
+
+<div id="text-group" class="mb-4" style="display: none;">
+	{{ form_label(form.contenu, 'Contenu texte', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+	{{ form_widget(form.contenu, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+	{{ form_errors(form.contenu, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
+</div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+const toggles = document.querySelectorAll('.nature-toggle');
+const fileGroup = document.getElementById('file-group');
+const textGroup = document.getElementById('text-group');
+
+function updateVisibility() {
+const selected = document.querySelector('.nature-toggle:checked').value;
+if (selected === 'fichier') {
+fileGroup.style.display = 'block';
+textGroup.style.display = 'none';
+} else {
+fileGroup.style.display = 'none';
+textGroup.style.display = 'block';
+}
+}
+
+toggles.forEach(t => t.addEventListener('change', updateVisibility));
+updateVisibility();
+});
+</script>
+
+{% if selected_course %}
+	<input type="hidden" name="{{ form.cours.vars.full_name }}" value="{{ selected_course.id }}">
+	{% do form.cours.setRendered %}
+{% else %}
+	<div class="mb-4">
+		{{ form_label(form.cours, 'Cours associé', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+		{{ form_widget(form.cours, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+		{{ form_errors(form.cours, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
+	</div>
+{% endif %}
+
+<button type="submit" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs">
+	{{ button_label|default('Enregistrer') }}
+</button>
+{{ form_end(form) }}

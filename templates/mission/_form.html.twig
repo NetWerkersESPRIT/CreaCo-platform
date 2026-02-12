@@ -1,0 +1,94 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'mission-form'}}) }}
+    {# ... existing form fields ... #}
+    <div class="mb-4">
+        {{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+        {% set title_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.title.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+        {{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Titre de la mission'}}) }}
+        {% if not form.title.vars.valid %}
+            {% for error in form.title.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    {{ form.title.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+        {% set desc_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.description.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+        {{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Description de la mission', 'rows': '5'}}) }}
+        {% if not form.description.vars.valid %}
+            {% for error in form.description.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    {{ form.description.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="flex flex-wrap -mx-3 mb-4">
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.state, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set state_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.state.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.state, {'attr': {'class': state_class}}) }}
+            {% if not form.state.vars.valid %}
+                {% for error in form.state.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        {{ form.state.vars.label }} : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.implementIdea, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set idea_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.implementIdea.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.implementIdea, {'attr': {'class': idea_class}}) }}
+            {% if not form.implementIdea.vars.valid %}
+                {% for error in form.implementIdea.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        Le lien Idée : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
+            {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+{{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ideaSelect = document.querySelector('select[name*="[implementIdea]"]');
+    if (ideaSelect) {
+        // Add the "New Idea" option
+        const newOption = document.createElement('option');
+        newOption.value = 'CREATE_NEW';
+        newOption.text = '++ Créer une nouvelle idée ++';
+        newOption.style.fontWeight = 'bold';
+        newOption.style.color = '#cb0c9f';
+        ideaSelect.appendChild(newOption);
+
+        ideaSelect.addEventListener('change', function() {
+            if (this.value === 'CREATE_NEW') {
+                // Get current form data to preserve it
+                const title = document.querySelector('input[name*="[title]"]').value;
+                const desc = document.querySelector('textarea[name*="[description]"]').value;
+                const state = document.querySelector('select[name*="[state]"]').value;
+
+                const params = new URLSearchParams({
+                    'from_mission': '1',
+                    'm_title': title,
+                    'm_desc': desc,
+                    'm_state': state
+                });
+
+                window.location.href = '{{ path("app_idea_new") }}?' + params.toString();
+            }
+        });
+    }
+});
+</script>

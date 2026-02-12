@@ -1,0 +1,87 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="mb-4">
+        {{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+        {% set title_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.title.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+        {{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Titre de la tâche'}}) }}
+        {% if not form.title.vars.valid %}
+            {% for error in form.title.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    {{ form.title.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+        {% set desc_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.description.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+        {{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Description détaillée', 'rows': '5'}}) }}
+        {% if not form.description.vars.valid %}
+            {% for error in form.description.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    {{ form.description.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="flex flex-wrap -mx-3 mb-4">
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.state, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set state_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.state.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.state, {'attr': {'class': state_class}}) }}
+            {% if not form.state.vars.valid %}
+                {% for error in form.state.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        {{ form.state.vars.label }} : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.timeTlimit, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set time_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.timeTlimit.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.timeTlimit, {'attr': {'class': time_class}}) }}
+            {% if not form.timeTlimit.vars.valid %}
+                {% for error in form.timeTlimit.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        {{ form.timeTlimit.vars.label }} : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3 mb-4">
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.belongTo, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set belong_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.belongTo.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.belongTo, {'attr': {'class': belong_class}}) }}
+            {% if not form.belongTo.vars.valid %}
+                {% for error in form.belongTo.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        {{ form.belongTo.vars.label }} : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+            {{ form_label(form.assumedBy, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+            {% set assumed_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.assumedBy.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+            {{ form_widget(form.assumedBy, {'attr': {'class': assumed_class}}) }}
+            {% if not form.assumedBy.vars.valid %}
+                {% for error in form.assumedBy.vars.errors %}
+                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                        {{ form.assumedBy.vars.label }} : {{ error.message }}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
+            {{ button_label|default('Enregistrer') }}
+        </button>
+    </div>
+{{ form_end(form) }}

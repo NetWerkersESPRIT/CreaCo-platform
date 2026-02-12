@@ -1,0 +1,99 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{{ collaborator.companyName }} - CreaCo{% endblock %}
+{% block breadcrumb %}Collaborateurs / Détails{% endblock %}
+{% block page_title %}{{ collaborator.companyName }}{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3">
+    <div class="w-full max-w-full px-3 lg:w-4/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                <div class="flex flex-wrap -mx-3">
+                    <div class="flex items-center w-full max-w-full px-3 shrink-0 md:w-8/12 md:flex-none">
+                        <h6 class="mb-0">Profil Partenaire</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-auto p-4">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="w-24 h-24 mb-2 overflow-hidden shadow-soft-lg rounded-xl">
+                        <img src="{{ collaborator.logo ? asset('uploads/logos/' ~ collaborator.logo) : asset('assets/dashboard/img/team-1.jpg') }}" class="w-full h-full object-cover" alt="logo" />
+                    </div>
+                    <h5 class="mb-0">{{ collaborator.companyName }}</h5>
+                    <p class="text-sm text-slate-400">{{ collaborator.domain|default('Secteur non défini') }}</p>
+                </div>
+                <ul class="flex flex-col pl-0 mb-0 rounded-lg">
+                    <li class="relative block px-4 py-2 pt-0 pl-0 leading-normal bg-white border-0 rounded-t-lg text-sm text-inherit">
+                        <strong class="text-slate-700">Nom :</strong> &nbsp; {{ collaborator.name }}
+                    </li>
+                    <li class="relative block px-4 py-2 pl-0 leading-normal bg-white border-0 text-sm text-inherit">
+                        <strong class="text-slate-700">Email :</strong> &nbsp; {{ collaborator.email }}
+                    </li>
+                    <li class="relative block px-4 py-2 pl-0 leading-normal bg-white border-0 text-sm text-inherit">
+                        <strong class="text-slate-700">Téléphone :</strong> &nbsp; {{ collaborator.phone|default('N/A') }}
+                    </li>
+                    <li class="relative block px-4 py-2 pl-0 leading-normal bg-white border-0 text-sm text-inherit">
+                        <strong class="text-slate-700">Site :</strong> &nbsp; <a href="{{ collaborator.website }}" class="text-fuchsia-500">{{ collaborator.website|default('N/A') }}</a>
+                    </li>
+                    <li class="relative block px-4 py-2 pl-0 leading-normal bg-white border-0 rounded-b-lg text-sm text-inherit">
+                        <strong class="text-slate-700">Adresse :</strong> &nbsp; {{ collaborator.address|default('N/A') }}
+                    </li>
+                </ul>
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex justify-between">
+                    <a href="{{ path('app_collaborator_edit', {id: collaborator.id}) }}" class="btn bg-gradient-to-tl from-slate-600 to-slate-300 px-4 py-2 text-white rounded-lg text-xs font-bold uppercase">Modifier</a>
+                    <form method="post" action="{{ path('app_collaborator_delete', {id: collaborator.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer ce partenaire ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collaborator.id) }}">
+                        <button class="btn bg-gradient-to-tl from-red-600 to-rose-400 px-4 py-2 text-white rounded-lg text-xs font-bold uppercase">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+                <h6 class="mb-0">Historique des Demandes</h6>
+                <a href="{{ path('app_collab_request_new', {id: collaborator.id}) }}" class="text-xs font-bold text-fuchsia-500 underline">Nouvelle demande</a>
+            </div>
+            <div class="flex-auto p-4">
+                <div class="overflow-x-auto">
+                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 font-bold text-left uppercase align-middle bg-transparent border-b text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Titre</th>
+                                <th class="px-4 py-3 font-bold text-center uppercase align-middle bg-transparent border-b text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Statut</th>
+                                <th class="px-4 py-3 font-bold text-center uppercase align-middle bg-transparent border-b text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Période</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in collaborator.collabRequests %}
+                            <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ path('app_collab_request_show', {id: request.id}) }}'">
+                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap">{{ request.title }}</td>
+                                <td class="p-2 align-middle bg-transparent border-b text-center text-xs">
+                                    <span class="px-2 py-1 rounded-lg text-white font-bold
+                                        {% if request.status == 'PENDING' %}bg-gray-400
+                                        {% elseif request.status == 'APPROVED' %}bg-green-500
+                                        {% elseif request.status == 'REJECTED' %}bg-red-500
+                                        {% else %}bg-blue-500{% endif %}">
+                                        {{ request.status }}
+                                    </span>
+                                </td>
+                                <td class="p-2 align-middle bg-transparent border-b text-center text-xs">
+                                    {{ request.startDate|date('d/m/y') }} - {{ request.endDate|date('d/m/y') }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" class="p-4 text-center">Aucune demande enregistrée.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
