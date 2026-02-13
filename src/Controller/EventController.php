@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\MeetingLinkGenerator;
 use App\Entity\Event;
 use App\Form\EventType;
 use App\Repository\EventRepository;
@@ -25,14 +26,16 @@ final class EventController extends AbstractController
 
 
     #[Route('/event/new', name: 'event_new')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, MeetingLinkGenerator $generator): Response
     {
         $event = new Event();
         $form = $this->createForm(EventType::class, $event);
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($event->getType() === 'online') {
+                $event->setMeetingLink($generator->generateJitsiLink());
+                $event->setPlatform('Jitsi Meet');
+            }
             $em->persist($event);
             $em->flush();
 

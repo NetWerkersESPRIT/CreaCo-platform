@@ -34,8 +34,8 @@ class EventType extends AbstractType
             ->add('time')
             ->add('organizer')
             ->add('isForAllUsers')
-            ->add('meetingLink', null, ['required' => false])
-            ->add('platform', null, ['required' => false])
+            //->add('meetingLink', null, ['required' => false])
+            //->add('platform', null, ['required' => false])
             ->add('address', null, ['required' => false])
             ->add('googleMapsLink')
             ->add('capacity')
@@ -45,7 +45,7 @@ class EventType extends AbstractType
                 'choice_label' => 'username',
                 'multiple' => true,
                 'required' => false,
-                'expanded' => false, // Or true for checkboxes
+                'expanded' => true,
             ])
         ;
     }
