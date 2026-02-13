@@ -16,7 +16,7 @@ final class AdminController extends AbstractController
     #[Route('/admin', name: 'app_admin')]
     public function index(Request $request, UsersRepository $userRepository): Response
     {
-        if ($request->getSession()->get('user_role') !== 'Admin') {
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             $this->addFlash('warning', 'Access restricted to administrators.');
             return $this->redirectToRoute('app_auth');
         }
@@ -31,7 +31,7 @@ final class AdminController extends AbstractController
     #[Route('/admin/{id}/edit', name: 'app_user_edit')]
     public function edit(Users $user, Request $request, EntityManagerInterface $em
     ): Response {
-        if ($request->getSession()->get('user_role') !== 'Admin') {
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
         }
         $form = $this->createForm(UserType::class, $user);
@@ -51,7 +51,7 @@ final class AdminController extends AbstractController
 
     #[Route('/user/delete/{id}', name: 'user_delete')]
     public function delete(Request $request, int $id, EntityManagerInterface $em, UsersRepository $repo): Response {
-        if ($request->getSession()->get('user_role') !== 'Admin') {
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
         }
         $user = $repo->find($id);

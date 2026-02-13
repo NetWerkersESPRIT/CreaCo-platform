@@ -21,58 +21,56 @@ final class AuthController extends AbstractController
         ]);
     }
 
-   #[Route('/login-check', name: 'login_check', methods: ['POST'])]
-public function loginCheck(Request $request, EntityManagerInterface $em): Response
-{
-    $email = $request->request->get('email');
-    $password = $request->request->get('password');
+    #[Route('/login-check', name: 'login_check', methods: ['POST'])]
+    public function loginCheck(Request $request, EntityManagerInterface $em): Response
+    {
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
 
-    $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
+        $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
 
-    // ❌ user not found
-    if (!$user) {
-        $error = 'User not found';
-        return $this->render('auth/index.html.twig', [
-            'error' => $error,
-            'email' => $email
-        ]);
-    }
-
-    // ❌ wrong password
-    if (($password != $user->getPassword())) {
-        $error = 'Invalid password';
-        return $this->render('auth/index.html.twig', [
-            'error' => $error,
-            'email' => $email
-        ]);
-    }
-
-    // ✅ redirect by role
-    if ($user) {
-        $request->getSession()->set('user_id', $user->getId());
-        $request->getSession()->set('user_role', $user->getRole());
-        $request->getSession()->set('username', $user->getUsername());
-        
-        $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
-        
-        switch ($user->getRole()) {
-            case 'Content Creator':
-                return $this->redirectToRoute('app_home');
-
-            case 'Admin':
-                return $this->redirectToRoute('app_admin');
-
-            default:
-                return $this->redirectToRoute('app_home');
+        // ❌ user not found
+        if (!$user) {
+            $error = 'User not found';
+            return $this->render('auth/index.html.twig', [
+                'error' => $error,
+                'email' => $email
+            ]);
         }
+
+        // ❌ wrong password
+        if (($password != $user->getPassword())) {
+            $error = 'Invalid password';
+            return $this->render('auth/index.html.twig', [
+                'error' => $error,
+                'email' => $email
+            ]);
+        }
+
+        // ✅ redirect by role
+        if ($user) {
+            $request->getSession()->set('user_id', $user->getId());
+            $request->getSession()->set('user_role', $user->getRole());
+            $request->getSession()->set('username', $user->getUsername());
+
+            $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
+
+            switch ($user->getRole()) {
+                case 'ROLE_CONTENT_CREATOR':
+                    return $this->redirectToRoute('app_home');
+
+                case 'ROLE_ADMIN':
+                    return $this->redirectToRoute('app_admin');
+
+                default:
+                    return $this->redirectToRoute('app_home');
+            }
+        }
+
+        $error = 'Unknown error';
+        return $this->render('auth/index.html.twig', [
+            'error' => $error,
+            'email' => $email
+        ]);
     }
-
-    $error = 'Unknown error';
-    return $this->render('auth/index.html.twig', [
-        'error' => $error,
-        'email' => $email
-    ]);
 }
-
-}
-

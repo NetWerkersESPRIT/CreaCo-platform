@@ -18,6 +18,7 @@ final class UserController extends AbstractController
         $user = new Users();
         
         $form = $this->createForm(UserType::class, $user);
+        $user->setRole('ROLE_CONTENT_CREATOR');
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -27,7 +28,7 @@ final class UserController extends AbstractController
             
             $user->setGroupId($user->getId());
             $em->flush();
-            return $this->redirectToRoute('app_useradd');
+            return $this->redirectToRoute('app_auth');
         }
 
         return $this->render('user/new.html.twig', [
