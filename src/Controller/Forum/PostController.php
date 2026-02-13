@@ -4,7 +4,6 @@ namespace App\Controller\Forum;
 
 use App\Entity\Post;
 use App\Entity\Users;
-use App\Entity\Notification;
 use App\Form\PostType;
 use App\Repository\PostRepository;
 use App\Repository\UsersRepository;
