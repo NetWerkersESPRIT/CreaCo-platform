@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Users;
 use App\Form\UserType;
+use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,5 +35,16 @@ final class UserController extends AbstractController
         return $this->render('user/new.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/profile', name: 'app_profile')]
+    public function index(Request $request, UsersRepository $userRepository): Response
+    {
+        if (!$request->getSession()) {
+            $this->addFlash('warning', 'Access restricted.');
+            return $this->redirectToRoute('app_auth');
+        }
+
+        return $this->render('user/profile.html.twig');
     }
 }

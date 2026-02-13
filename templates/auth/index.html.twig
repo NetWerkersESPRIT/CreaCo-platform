@@ -44,10 +44,11 @@
             class="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center px-4 py-2 mx-6 my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200 lg:flex-nowrap lg:justify-start">
             <div
               class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
+              <img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-14 h-12">
               <a
-                class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold text-slate-700 lg:ml-0"
-                href="../pages/dashboard.html">
-                Soft UI Dashboard
+                class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold flex justify-center flex-row text-slate-700 lg:ml-0"
+                href="">
+                CreaCo
               </a>
               <button
                 navbar-trigger
@@ -78,33 +79,21 @@
                     <a
                       class="flex items-center px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
                       aria-current="page"
-                      href="../pages/dashboard.html">
+                      >
                       <i class="mr-1 fa fa-chart-pie opacity-60"></i>
-                      Dashboard
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/profile.html">
-                      <i class="mr-1 fa fa-user opacity-60"></i>
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/sign-up.html">
-                      <i class="mr-1 fas fa-user-circle opacity-60"></i>
-                      Sign Up
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/sign-in.html">
-                      <i class="mr-1 fas fa-key opacity-60"></i>
-                      Sign In
+                      <div class="flex flex-row text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400"> 
+                        <p class="mb-0 mr-4">start</p>
+                        <p class="mb-0 mr-4">Build</p>
+                        <p class="mb-0 mr-4">Create</p>
+                        <p class="mb-0 mr-4">Launch</p>
+                        <p class="mb-0 mr-4">Iterate</p>
+                        <p class="mb-0 mr-4">Dare</p>
+                        <p class="mb-0 mr-4">Ship</p>
+                        <p class="mb-0 mr-4">Risk</p>
+                        <p class="mb-0 mr-4">Evolve</p>
+                        <p class="mb-0 mr-4">Flow</p>
+                        <p class="mb-0 mr-4">Become</p>
+                      </div>
                     </a>
                   </li>
                 </ul>
@@ -172,6 +161,10 @@
                         {{ error }}
                       </div>
                       {% endif %}
+                      <div class="text-red-600 font-bold mb-2">
+                        {{ app.flashes('error')|last }}
+                      </div>
+                      <div class="g-recaptcha" data-sitekey="6LePq2osAAAAAHj2F0ojJdZOXfAIg5sHLCKgffv2"></div>
                       <div class="text-center">
                         <button
                           type="submit"
@@ -213,79 +206,21 @@
     <footer class="py-12">
       <div class="container">
         <div class="flex flex-wrap -mx-3">
-          <div
-            class="flex-shrink-0 w-full max-w-full mx-auto mb-6 text-center lg:flex-0 lg:w-8/12">
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Company
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              About Us
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Team
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Products
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Blog
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Pricing
-            </a>
-          </div>
-          <div
-            class="flex-shrink-0 w-full max-w-full mx-auto mt-2 mb-6 text-center lg:flex-0 lg:w-8/12">
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-dribbble"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-twitter"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-instagram"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-pinterest"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-github"></span>
-            </a>
-          </div>
-        </div>
-        <div class="flex flex-wrap -mx-3">
           <div class="w-8/12 max-w-full px-3 mx-auto mt-1 text-center flex-0">
             <p class="mb-0 text-slate-400">
               Copyright ©
               <script>
                 document.write(new Date().getFullYear());
               </script>
-              Soft by Creative Tim.
-              <span class="w-full"> Distributed by ❤️ ThemeWagon </span>
+              NetWorkers.
+              <span class="w-full"> Distributed by ❤️ NetWorkers </span>
             </p>
           </div>
         </div>
       </div>
     </footer>
   </body>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <!-- plugin for scrollbar  -->
   <script src="../assets/js/plugins/perfect-scrollbar.min.js" async></script>
   <!-- main script file  -->

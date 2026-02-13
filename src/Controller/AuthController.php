@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Users;
-use App\Repository\UsersRepository;
+use Symfony\Component\HttpClient\HttpClient;
 
 final class AuthController extends AbstractController
 {
@@ -24,6 +24,29 @@ final class AuthController extends AbstractController
     #[Route('/login-check', name: 'login_check', methods: ['POST'])]
     public function loginCheck(Request $request, EntityManagerInterface $em): Response
     {
+        $token = $request->request->get('g-recaptcha-response');
+
+        if (!$token) {
+            $this->addFlash('error', 'Please verify that you are not a robot.');
+            return $this->redirectToRoute('app_auth');
+        }
+
+        $client = HttpClient::create();
+        $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
+            'body' => [
+                'secret'   => '6LePq2osAAAAAJt8u-OPjMDsH95R5-zAXWtnktyB',
+                'response' => $token,
+                'remoteip' => $request->getClientIp(),
+            ],
+        ]);
+
+        $data = $response->toArray();
+
+        if (!($data['success'] ?? false)) {
+            $this->addFlash('error', 'Captcha verification failed.');
+            return $this->redirectToRoute('app_auth');
+        }
+
         $email = $request->request->get('email');
         $password = $request->request->get('password');
 
