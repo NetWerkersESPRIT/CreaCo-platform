@@ -225,7 +225,7 @@ final class PostController extends AbstractController
         $post->setCommentLock(!$post->isCommentLocked());
         $em->flush();
 
-        $message = $post->isCommentLocked() ? 'Les commentaires ont été désactivés.' : 'Les commentaires ont été activés.';
+        $message = $post->isCommentLocked() ? 'Comment section blocked' : 'Comment section unblocked';
         $this->addFlash('success', $message);
 
         return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
@@ -400,9 +400,10 @@ final class PostController extends AbstractController
 
         $post->setSolution($comment);
         $post->setStatus('solved');
+        $post->setIsCommentLocked(true); // Auto-lock comments when solved
         $em->flush();
 
-        $this->addFlash('success', 'Discussion marquée comme résolue !');
+        $this->addFlash('success', 'Discussion marked as solved and comments locked!');
         return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
     }
 }

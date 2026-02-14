@@ -10,7 +10,8 @@
 {% endblock %}
 
 {% block body %}
-	{% set postUrl = app.request.schemeAndHttpHost ~ app.request.requestUri %}
+	{% set postUrl = absolute_url(path('app_post_show', {'id': post.id})) %}
+
 	<div
 		class="flex flex-wrap -mx-3">
 		<!-- Main Content (Centered & Wide) -->
@@ -118,250 +119,247 @@
 									<i class="fas fa-share-nodes text-slate-400 group-hover:text-purple-700 transition-colors"></i>
 									<span>Share</span>
 								</button>
-								<div id="shareDropdown-{{ post.id }}" class="hidden absolute left-0 bottom-full mb-3 w-48 bg-white border border-gray-100 rounded-2xl shadow-soft-2xl z-50 py-2 animate-fade-in text-left">
-									<button type="button" onclick="copyToClipboard('{{ postUrl }}', 'Link copied to clipboard!', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fas fa-link mr-2 w-4"></i>
-										Copy Link
-									</button>
-									<button type="button" onclick="openEmbedModal('{{ postUrl }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fas fa-code mr-2 w-4"></i>
-										Embed
-									</button>
-								</div>
+								<button type="button" onclick="copyToClipboard('{{ postUrl|e('js') }}', '✅ Link copied!', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+									<i class="fas fa-link mr-2 w-4"></i>
+									Copy Link
+								</button>
+
 							</div>
 						</div>
-
-						<!-- Admin/Owner Actions -->
-						<div class="flex items-center gap-2">
-							{% if isAdmin %}
-								<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.pinned ? 'text-purple-600' : 'text-slate-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.pinned ? 'Unpin' : 'Pin' }}">
-										<i class="fas fa-thumbtack text-xs"></i>
-									</button>
-								</form>
-							{% endif %}
-
-							{% if isAdmin or isPostOwner %}
-								<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Enable comments' : 'Disable comments' }}">
-										<i class="fas {{ post.isCommentLocked ? 'fa-lock-open' : 'fa-lock' }} text-xs"></i>
-									</button>
-								</form>
-
-								<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-purple-600 hover:text-pink-500 transition-all" title="Edit">
-									<i class="fas fa-pencil-alt text-xs"></i>
-								</a>
-								<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this post?')">
-									<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
-										<i class="fas fa-trash-alt text-xs"></i>
-									</button>
-								</form>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Comments Section -->
-			<div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
-				<div class="flex-auto p-6">
-					<div class="mb-6 flex items-center justify-between">
-						<h6 class="font-bold mb-0 text-slate-700">Discussion</h6>
 					</div>
 
-					<!-- Root Comment Form -->
-					{% if not post.isCommentLocked %}
-						<div class="mb-10 bg-gray-50/40 rounded-3xl border border-gray-100/50 p-6 shadow-soft-xs">
-							<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST">
-								<textarea name="body" class="block w-full px-5 py-4 text-sm text-slate-700 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white shadow-soft-xs" rows="3" placeholder="What are your thoughts?" required></textarea>
-								<div class="flex justify-end mt-4">
-									<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
-										Post Comment
-									</button>
-								</div>
+					<!-- Admin/Owner Actions -->
+					<div class="flex items-center gap-2">
+						{% if isAdmin %}
+							<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0">
+								<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.pinned ? 'text-purple-600' : 'text-slate-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.pinned ? 'Unpin' : 'Pin' }}">
+									<i class="fas fa-thumbtack text-xs"></i>
+								</button>
 							</form>
-						</div>
-					{% else %}
-						<div class="mb-8 p-6 bg-orange-50/50 rounded-2xl border border-orange-100 text-center">
-							<i class="fas fa-lock text-orange-600 mb-2"></i>
-							<p class="text-sm font-bold text-orange-800 mb-0">Comments are locked for this discussion.</p>
-						</div>
-					{% endif %}
-
-					<!-- Comments Tree -->
-					<div id="comments-tree" class="space-y-4">
-						{% import _self as macros %}
-						{% for comment in comments %}
-							{{ macros.render_comment(comment, post, app_user, 0) }}
-						{% else %}
-							<div class="text-center py-10 opacity-30">
-								<i class="fas fa-comments text-4xl mb-2"></i>
-								<p class="text-sm font-bold">No comments yet. Be the first to share your thoughts!</p>
-							</div>
-						{% endfor %}
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Share Modal -->
-	<div id="embedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-		<div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-soft-2xl animate-fade-in mx-4 text-left">
-			<div class="flex justify-between items-center mb-4">
-				<h6 class="font-bold mb-0 text-slate-700">Embed Discussion</h6>
-				<button onclick="toggleEmbedModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-					<i class="fas fa-times"></i>
-				</button>
-			</div>
-			<div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4">
-				<code id="embedCode" class="text-xs text-slate-600 break-all select-all">
-					&lt;iframe src="{{ postUrl }}" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;
-				</code>
-			</div>
-			<button onclick="copyToClipboard(document.getElementById('embedCode').innerText, 'Embed code copied!')" class="w-full py-2.5 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
-				Copy Code
-			</button>
-		</div>
-	</div>
-
-	<!-- Toast -->
-	<div id="copyToast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white px-6 py-3 rounded-xl shadow-soft-2xl animate-fade-in-up text-sm font-bold">
-		Link copied to clipboard!
-	</div>
-
-	{% macro render_comment(comment, post, app_user, depth) %}
-		{% import _self as macros %}
-		{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
-		{% set isCommentOwner = app_user and comment.user == app_user %}
-
-		<div
-			class="relative group mt-4">
-			<!-- Thread Line Indicator -->
-			{% if depth > 0 %}
-				<div class="absolute left-[-1.5rem] top-0 bottom-0 w-[1px] bg-slate-100 group-hover:bg-purple-200 transition-colors"></div>
-			{% endif %}
-
-			<div class="flex">
-				<div class="flex-shrink-0 mr-3">
-					<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username : 'Anonymous' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
-				</div>
-				<div class="flex-grow">
-					<div class="flex items-center mb-1">
-						<span class="text-xs font-bold text-slate-700 mr-2">{{ comment.user ? comment.user.username : 'Anonymous' }}</span>
-						<span class="text-[10px] text-slate-400 capitalize">{{ comment.createdAt|date('d/m/Y H:i') }}</span>
-
-						{% if comment.status == 'solution' or post.solution == comment %}
-							<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-green-600 bg-green-100 rounded-lg uppercase">
-								<i class="fas fa-check-circle mr-1"></i>
-								Solution
-							</span>
-						{% endif %}
-					</div>
-
-					<div class="text-sm text-slate-600 leading-relaxed font-normal">
-						{{ comment.body|nl2br }}
-					</div>
-
-					<div
-						class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
-						<!-- Reply -->
-						{% if not post.isCommentLocked and app_user %}
-							<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center group/action">
-								<i class="fas fa-reply mr-2 transition-colors"></i>
-								<span>Reply</span>
-							</button>
 						{% endif %}
 
-						<!-- Edit (Owner only) -->
-						{% if isCommentOwner %}
-							<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-xs font-semibold text-slate-500 hover:text-blue-600 uppercase transition-all flex items-center group/action no-underline">
-								<i class="fas fa-pencil-alt mr-2 transition-colors"></i>
-								<span>Edit</span>
+						{% if isAdmin or isPostOwner %}
+							<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0">
+								<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Enable comments' : 'Disable comments' }}">
+									<i class="fas {{ post.isCommentLocked ? 'fa-lock-open' : 'fa-lock' }} text-xs"></i>
+								</button>
+							</form>
+
+							<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-purple-600 hover:text-pink-500 transition-all" title="Edit">
+								<i class="fas fa-pencil-alt text-xs"></i>
 							</a>
-						{% endif %}
-
-						<!-- Delete (Owner or Admin) -->
-						{% if isCommentOwner or isAdmin %}
-							<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment and all its replies?')">
-								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-								<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center group/action">
-									<i class="fas fa-trash-alt mr-2 transition-colors"></i>
-									<span>Delete</span>
-								</button>
-							</form>
-						{% endif %}
-
-						<!-- Mark Solution -->
-						{% if (isAdmin or (app_user and post.user == app_user)) and post.solution != comment and post.status != 'solved' %}
-							<form action="{{ path('app_comment_solve', {'id': comment.id}) }}" method="POST" class="inline m-0">
-								<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-green-500 uppercase cursor-pointer transition-all flex items-center group/action">
-									<i class="fas fa-check-double mr-2 transition-colors"></i>
-									<span>Solution</span>
+							<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this post?')">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
+								<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
+									<i class="fas fa-trash-alt text-xs"></i>
 								</button>
 							</form>
 						{% endif %}
 					</div>
+				</div>
+			</div>
+		</div>
 
-					<!-- Inline Reply Form -->
-					<div id="reply-form-{{ comment.id }}" class="hidden mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 shadow-soft-xs">
+		<!-- Comments Section -->
+		<div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
+			<div class="flex-auto p-6">
+				<div class="mb-6 flex items-center justify-between">
+					<h6 class="font-bold mb-0 text-slate-700">Discussion</h6>
+				</div>
+
+				<!-- Root Comment Form -->
+				{% if not post.isCommentLocked %}
+					<div class="mb-10 bg-gray-50/40 rounded-3xl border border-gray-100/50 p-6 shadow-soft-xs">
 						<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST">
-							<input type="hidden" name="parent_id" value="{{ comment.id }}">
-							<textarea name="body" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white" rows="2" placeholder="Your reply..." required></textarea>
-							<div class="mt-2 flex justify-end">
+							<textarea name="body" class="block w-full px-5 py-4 text-sm text-slate-700 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white shadow-soft-xs" rows="3" placeholder="What are your thoughts?" required></textarea>
+							<div class="flex justify-end mt-4">
 								<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
-									Reply
+									Post Comment
 								</button>
 							</div>
 						</form>
 					</div>
+				{% else %}
+					<div class="mb-8 p-6 bg-orange-50/50 rounded-2xl border border-orange-100 text-center">
+						<i class="fas fa-lock text-orange-600 mb-2 text-2xl"></i>
+						{% if post.status == 'solved' %}
+							<p class="text-sm font-bold text-orange-800 mb-0">This post is solved and comments are closed.</p>
+						{% else %}
+							<p class="text-sm font-bold text-orange-800 mb-0">The comment section is blocked for this post.</p>
+						{% endif %}
+					</div>
+				{% endif %}
 
-					<!-- Recursive Replies -->
-					{% if comment.replies|length > 0 %}
-						<div class="ml-6 mt-2">
-							{% for reply in comment.replies %}
-								{{ macros.render_comment(reply, post, app_user, depth + 1) }}
-							{% endfor %}
+				<!-- Comments Tree -->
+				<div id="comments-tree" class="space-y-4">
+					{% import _self as macros %}
+					{% for comment in comments %}
+						{{ macros.render_comment(comment, post, app_user, 0) }}
+					{% else %}
+						<div class="text-center py-10 opacity-30">
+							<i class="fas fa-comments text-4xl mb-2"></i>
+							<p class="text-sm font-bold">No comments yet. Be the first to share your thoughts!</p>
 						</div>
-					{% endif %}
+					{% endfor %}
 				</div>
 			</div>
 		</div>
-	{% endmacro %}
+	</div>
+</div>
 
-	<style>
-		@keyframes fadeInUp {
-			from {
-				opacity: 0;
-				transform: translate(-50%, 10px);
-			}
-			to {
-				opacity: 1;
-				transform: translate(-50%, 0);
-			}
-		}
-		.animate-fade-in-up {
-			animation: fadeInUp 0.3s ease-out;
-		}
-		.animate-fade-in {
-			animation: fadeIn 0.2s ease-out;
-		}
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-			}
-			to {
-				opacity: 1;
-			}
-		}
-	</style>
-{% endblock %}
+<!-- Share Modal -->
+<div id="embedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+	<div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-soft-2xl animate-fade-in mx-4 text-left">
+		<div class="flex justify-between items-center mb-4">
+			<h6 class="font-bold mb-0 text-slate-700">Embed Discussion</h6>
+			<button onclick="toggleEmbedModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+				<i class="fas fa-times"></i>
+			</button>
+		</div>
+		<div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4">
+			<code id="embedCode" class="text-xs text-slate-600 break-all select-all">
+				&lt;iframe src="{{ postUrl }}" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;
+			</code>
+		</div>
+		<button onclick="copyToClipboard(document.getElementById('embedCode').innerText, 'Embed code copied!')" class="w-full py-2.5 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
+			Copy Code
+		</button>
+	</div>
+</div>
 
-{% block javascripts %}
-	{{ parent() }}
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
+<!-- Toast -->
+<div id="copyToast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white px-6 py-3 rounded-xl shadow-soft-2xl animate-fade-in-up text-sm font-bold">
+	Link copied to clipboard!
+</div>
+
+{% macro render_comment(comment, post, app_user, depth) %}
+	{% import _self as macros %}
+	{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+	{% set isCommentOwner = app_user and comment.user == app_user %}
+
+	<div
+		class="relative group mt-4">
+		<!-- Thread Line Indicator -->
+		{% if depth > 0 %}
+			<div class="absolute left-[-1.5rem] top-0 bottom-0 w-[1px] bg-slate-100 group-hover:bg-purple-200 transition-colors"></div>
+		{% endif %}
+
+		<div class="flex">
+			<div class="flex-shrink-0 mr-3">
+				<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username : 'Anonymous' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
+			</div>
+			<div class="flex-grow">
+				<div class="flex items-center mb-1">
+					<span class="text-xs font-bold text-slate-700 mr-2">{{ comment.user ? comment.user.username : 'Anonymous' }}</span>
+					<span class="text-[10px] text-slate-400 capitalize">{{ comment.createdAt|date('d/m/Y H:i') }}</span>
+
+					{% if comment.status == 'solution' or post.solution == comment %}
+						<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-green-600 bg-green-100 rounded-lg uppercase">
+							<i class="fas fa-check-circle mr-1"></i>
+							Solution
+						</span>
+					{% endif %}
+				</div>
+
+				<div class="text-sm text-slate-600 leading-relaxed font-normal">
+					{{ comment.body|nl2br }}
+				</div>
+
+				<div
+					class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+					<!-- Reply -->
+					{% if not post.isCommentLocked and app_user %}
+						<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center group/action">
+							<i class="fas fa-reply mr-2 transition-colors"></i>
+							<span>Reply</span>
+						</button>
+					{% endif %}
+
+					<!-- Edit (Owner only) -->
+					{% if isCommentOwner %}
+						<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-xs font-semibold text-slate-500 hover:text-blue-600 uppercase transition-all flex items-center group/action no-underline">
+							<i class="fas fa-pencil-alt mr-2 transition-colors"></i>
+							<span>Edit</span>
+						</a>
+					{% endif %}
+
+					<!-- Delete (Owner or Admin) -->
+					{% if isCommentOwner or isAdmin %}
+						<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment and all its replies?')">
+							<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center group/action">
+								<i class="fas fa-trash-alt mr-2 transition-colors"></i>
+								<span>Delete</span>
+							</button>
+						</form>
+					{% endif %}
+
+					<!-- Mark Solution -->
+					{% if (isAdmin or (app_user and post.user == app_user)) and post.solution != comment and post.status != 'solved' %}
+						<form action="{{ path('app_comment_solve', {'id': comment.id}) }}" method="POST" class="inline m-0">
+							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-green-500 uppercase cursor-pointer transition-all flex items-center group/action">
+								<i class="fas fa-check-double mr-2 transition-colors"></i>
+								<span>Solution</span>
+							</button>
+						</form>
+					{% endif %}
+				</div>
+
+				<!-- Inline Reply Form -->
+				<div id="reply-form-{{ comment.id }}" class="hidden mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 shadow-soft-xs">
+					<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST">
+						<input type="hidden" name="parent_id" value="{{ comment.id }}">
+						<textarea name="body" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white" rows="2" placeholder="Your reply..." required></textarea>
+						<div class="mt-2 flex justify-end">
+							<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
+								Reply
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Recursive Replies -->
+				{% if comment.replies|length > 0 %}
+					<div class="ml-6 mt-2">
+						{% for reply in comment.replies %}
+							{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endmacro %}
+
+<style>
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translate(-50%, 10px);
+		}
+		to {
+			opacity: 1;
+			transform: translate(-50%, 0);
+		}
+	}
+	.animate-fade-in-up {
+		animation: fadeInUp 0.3s ease-out;
+	}
+	.animate-fade-in {
+		animation: fadeIn 0.2s ease-out;
+	}
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+</style>{% endblock %}{% block javascripts %}
+{{ parent() }}
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
 const embedModal = document.getElementById('embedModal');
 const embedCode = document.getElementById('embedCode');
 const copyToast = document.getElementById('copyToast');
@@ -450,5 +448,4 @@ closeEmbedModal();
 }
 });
 });
-	</script>
-{% endblock %}
+</script>{% endblock %}

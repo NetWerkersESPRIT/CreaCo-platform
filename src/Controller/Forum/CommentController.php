@@ -35,7 +35,10 @@ final class CommentController extends AbstractController
     public function new(Post $post, Request $request, EntityManagerInterface $em): Response
     {
         if ($post->isCommentLocked() || $post->getStatus() === 'solved') {
-            $this->addFlash('warning', 'Les commentaires sont désativés.');
+            $message = $post->getStatus() === 'solved' 
+                ? 'This post is solved and comments are closed' 
+                : 'The comment section is blocked';
+            $this->addFlash('warning', $message);
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
