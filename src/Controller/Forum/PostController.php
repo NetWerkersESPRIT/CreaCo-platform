@@ -45,7 +45,7 @@ final class PostController extends AbstractController
             $posts = $qb->orderBy('p.createdAt', 'DESC')->getQuery()->getResult();
         } else {
             if ($isAdmin) {
-                $posts = $repo->findBy([], ['createdAt' => 'DESC']);
+                $posts = $repo->findBy([], ['pinned' => 'DESC', 'createdAt' => 'DESC']);
             } else {
                 $posts = $repo->findPublishedPinnedFirst();
             }
@@ -376,7 +376,7 @@ final class PostController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', $post->isPinned() ? 'Post épinglé !' : 'Post désépinglé.');
-        return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_post_show', ['id' => $post->getId()]));
     }
 
     #[Route('/comment/{id}/solve', name: 'app_comment_solve', methods: ['POST'])]

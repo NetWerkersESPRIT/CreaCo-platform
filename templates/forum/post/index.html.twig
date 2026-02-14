@@ -41,6 +41,12 @@
 											<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-orange-700 bg-orange-100 rounded-lg">Pending</span>
 										{% endif %}
 									{% endif %}
+									{% if post.isPinned() %}
+										<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-white bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-sm">
+											<i class="fas fa-thumbtack mr-1"></i>
+											Pinned
+										</span>
+									{% endif %}
 								</span>
 							</div>
 						</div>
@@ -112,6 +118,16 @@
 								<button type="submit" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-red-100 hover:text-red-700 transition-all border-0 shadow-none cursor-pointer">
 									<i class="fas fa-trash text-xs mr-2"></i>
 									<span class="text-xs font-bold">Delete</span>
+								</button>
+							</form>
+						{% endif %}
+
+						<!-- Pin Button (Admin Only) -->
+						{% if isAdmin %}
+							<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="mb-0">
+								<button type="submit" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-yellow-100 hover:text-yellow-700 transition-all border-0 shadow-none cursor-pointer" title="{{ post.isPinned() ? 'Unpin' : 'Pin' }}">
+									<i class="fas fa-thumbtack text-xs mr-2 {{ post.isPinned() ? 'text-yellow-600' : '' }}"></i>
+									<span class="text-xs font-bold">{{ post.isPinned() ? 'Unpin' : 'Pin' }}</span>
 								</button>
 							</form>
 						{% endif %}
