@@ -91,7 +91,7 @@
                      </div>
                 </div>
             </div>
-
+{#
             <div class="flex flex-wrap -mx-3">
                  <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-0" id="platform-container">
                      <div class="mb-4">
@@ -108,7 +108,7 @@
                      </div>
                 </div>
             </div>
-
+#}
             <div class="flex flex-wrap -mx-3">
                 <div class="w-full max-w-full px-3 shrink-0 md:w-1/3 md:flex-0" id="capacity-container">
                      <div class="mb-4">
@@ -138,6 +138,17 @@
                 <label class="inline-block mb-2 ml-1 font-bold text-xs text-slate-700">Select Target Users</label>
                 {{ form_widget(form.targetUsers, {'attr': {'class': 'focus:shadow-soft-primary-outline min-h-unset text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
                 <div class="text-red-500 text-xs mt-1">{{ form_errors(form.targetUsers) }}</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="inline-block mb-2 ml-1 font-bold text-xs text-slate-700">Event Image</label>
+                {{ form_widget(form.image, {'attr': {'class': 'focus:shadow-soft-primary-outline min-h-unset text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+                <div class="text-red-500 text-xs mt-1">{{ form_errors(form.image) }}</div>
+                {% if form.vars.value.imagePath %}
+                    <div class="mt-2 text-center">
+                        <img src="{{ form.vars.value.imagePath }}" alt="Current Image" class="max-w-xs rounded-lg shadow-soft-xl mx-auto">
+                    </div>
+                {% endif %}
             </div>
 
 
@@ -170,8 +181,35 @@
         // Initial check
         toggleTargetUsers();
 
-        // Listen for changes
-        isForAllUsersCheckbox.addEventListener('change', toggleTargetUsers);
+        // Type toggle logic
+        const typeSelect = document.querySelector('select[name="{{ form.type.vars.full_name }}"]');
+        const platformContainer = document.getElementById('platform-container');
+        const meetingLinkContainer = document.getElementById('meeting-link-container');
+        const addressContainer = document.getElementById('address-container');
+        const googleMapsContainer = document.getElementById('google-maps-container');
+        const capacityContainer = document.getElementById('capacity-container');
+
+        function toggleTypeFields() {
+            const selectedType = typeSelect.value;
+            if (selectedType === 'online') {
+                if(platformContainer) platformContainer.style.display = 'block';
+                if(meetingLinkContainer) meetingLinkContainer.style.display = 'block';
+                if(addressContainer) addressContainer.style.display = 'none';
+                if(googleMapsContainer) googleMapsContainer.style.display = 'none';
+                if(capacityContainer) capacityContainer.style.display = 'none';
+            } else {
+                if(platformContainer) platformContainer.style.display = 'none';
+                if(meetingLinkContainer) meetingLinkContainer.style.display = 'none';
+                if(addressContainer) addressContainer.style.display = 'block';
+                if(googleMapsContainer) googleMapsContainer.style.display = 'block';
+                if(capacityContainer) capacityContainer.style.display = 'block';
+            }
+        }
+
+        if (typeSelect) {
+            toggleTypeFields();
+            typeSelect.addEventListener('change', toggleTypeFields);
+        }
     });
 </script>
 {% endblock %}

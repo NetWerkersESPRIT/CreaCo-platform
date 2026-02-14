@@ -44,10 +44,11 @@
             class="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center px-4 py-2 mx-6 my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200 lg:flex-nowrap lg:justify-start">
             <div
               class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
+              <img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-14 h-12">
               <a
-                class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold text-slate-700 lg:ml-0"
-                href="../pages/dashboard.html">
-                Soft UI Dashboard
+                class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold flex justify-center flex-row text-slate-700 lg:ml-0"
+                href="">
+                CreaCo
               </a>
               <button
                 navbar-trigger
@@ -78,33 +79,21 @@
                     <a
                       class="flex items-center px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
                       aria-current="page"
-                      href="../pages/dashboard.html">
+                      >
                       <i class="mr-1 fa fa-chart-pie opacity-60"></i>
-                      Dashboard
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/profile.html">
-                      <i class="mr-1 fa fa-user opacity-60"></i>
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/sign-up.html">
-                      <i class="mr-1 fas fa-user-circle opacity-60"></i>
-                      Sign Up
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="block px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      href="../pages/sign-in.html">
-                      <i class="mr-1 fas fa-key opacity-60"></i>
-                      Sign In
+                      <div class="flex flex-row text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400"> 
+                        <p class="mb-0 mr-4">start</p>
+                        <p class="mb-0 mr-4">Build</p>
+                        <p class="mb-0 mr-4">Create</p>
+                        <p class="mb-0 mr-4">Launch</p>
+                        <p class="mb-0 mr-4">Iterate</p>
+                        <p class="mb-0 mr-4">Dare</p>
+                        <p class="mb-0 mr-4">Ship</p>
+                        <p class="mb-0 mr-4">Risk</p>
+                        <p class="mb-0 mr-4">Evolve</p>
+                        <p class="mb-0 mr-4">Flow</p>
+                        <p class="mb-0 mr-4">Become</p>
+                      </div>
                     </a>
                   </li>
                 </ul>
@@ -168,14 +157,53 @@
                           aria-describedby="password-addon" />
                       </div>
                       {% if error|default(null) %}
-                    <div class="text-red-600 font-bold mb-2">
-                      {{ error }}
-                    </div>
-                  {% endif %}
+                      <div class="text-red-600 font-bold mb-2">
+                        {{ error }}
+                      </div>
+                      {% endif %}
+                      <div class="text-red-600 font-bold mb-2">
+                        {{ app.flashes('error')|last }}
+                      </div>
+                      <div class="g-recaptcha" data-sitekey="6LePq2osAAAAAHj2F0ojJdZOXfAIg5sHLCKgffv2"></div>
                       <div class="text-center">
+                      <a
+                      class="inline-block w-full px-6 py-1 mb-0 mt-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75"
+                      href="{{ path('login_google') }}">
+                      <svg
+                        width="24px"
+                        height="32px"
+                        viewBox="0 0 64 64"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <g
+                          stroke="none"
+                          stroke-width="1"
+                          fill="none"
+                          fill-rule="evenodd">
+                          <g
+                            transform="translate(3.000000, 2.000000)"
+                            fill-rule="nonzero">
+                            <path
+                              d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267"
+                              fill="#4285F4"></path>
+                            <path
+                              d="M29.4960833,58.9921667 C37.4599129,58.9921667 44.1456164,56.3701671 49.0290201,51.8475849 L39.7213169,44.6372555 C37.2305867,46.3742596 33.887622,47.5868638 29.4960833,47.5868638 C21.6960582,47.5868638 15.0758763,42.4415991 12.7159637,35.3297782 L12.3700541,35.3591501 L3.26524241,42.4054492 L3.14617358,42.736447 C7.9965904,52.3717589 17.959737,58.9921667 29.4960833,58.9921667"
+                              fill="#34A853"></path>
+                            <path
+                              d="M12.7159637,35.3297782 C12.0932812,33.4944915 11.7329116,31.5279353 11.7329116,29.4960833 C11.7329116,27.4640054 12.0932812,25.4976752 12.6832029,23.6623884 L12.6667095,23.2715173 L3.44779955,16.1120237 L3.14617358,16.2554937 C1.14708246,20.2539019 0,24.7439491 0,29.4960833 C0,34.2482175 1.14708246,38.7380388 3.14617358,42.736447 L12.7159637,35.3297782"
+                              fill="#FBBC05"></path>
+                            <path
+                              d="M29.4960833,11.4050769 C35.0347044,11.4050769 38.7707997,13.7975244 40.9011602,15.7968415 L49.2255853,7.66898166 C44.1130815,2.91684746 37.4599129,0 29.4960833,0 C17.959737,0 7.9965904,6.62018183 3.14617358,16.2554937 L12.6832029,23.6623884 C15.0758763,16.5505675 21.6960582,11.4050769 29.4960833,11.4050769"
+                              fill="#EB4335"></path>
+                          </g>
+                        </g>
+                      </svg>
+                      <span class="ml-4">Sign In With Google</span>
+                    </a>
                         <button
                           type="submit"
-                          class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                          class="inline-block w-full px-6 py-3 mt-4 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
                           Sign in
                         </button>
                         <button type="button" onclick="window.location.href='{{ path('app_forgetpassword') }}'" class="mr-3 w-full inline-block px-6 py-3 font-bold text-center bg-gradient-to-tl from-slate-600 to-slate-300 uppercase align-middle transition-all rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-white">Forget password</button>
@@ -213,79 +241,21 @@
     <footer class="py-12">
       <div class="container">
         <div class="flex flex-wrap -mx-3">
-          <div
-            class="flex-shrink-0 w-full max-w-full mx-auto mb-6 text-center lg:flex-0 lg:w-8/12">
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Company
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              About Us
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Team
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Products
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Blog
-            </a>
-            <a
-              href="javascript:;"
-              target="_blank"
-              class="mb-2 mr-4 text-slate-400 sm:mb-0 xl:mr-12">
-              Pricing
-            </a>
-          </div>
-          <div
-            class="flex-shrink-0 w-full max-w-full mx-auto mt-2 mb-6 text-center lg:flex-0 lg:w-8/12">
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-dribbble"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-twitter"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-instagram"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-pinterest"></span>
-            </a>
-            <a href="javascript:;" target="_blank" class="mr-6 text-slate-400">
-              <span class="text-lg fab fa-github"></span>
-            </a>
-          </div>
-        </div>
-        <div class="flex flex-wrap -mx-3">
           <div class="w-8/12 max-w-full px-3 mx-auto mt-1 text-center flex-0">
             <p class="mb-0 text-slate-400">
               Copyright ©
               <script>
                 document.write(new Date().getFullYear());
               </script>
-              Soft by Creative Tim.
-              <span class="w-full"> Distributed by ❤️ ThemeWagon </span>
+              NetWorkers.
+              <span class="w-full"> Distributed by ❤️ NetWorkers </span>
             </p>
           </div>
         </div>
       </div>
     </footer>
   </body>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <!-- plugin for scrollbar  -->
   <script src="../assets/js/plugins/perfect-scrollbar.min.js" async></script>
   <!-- main script file  -->
