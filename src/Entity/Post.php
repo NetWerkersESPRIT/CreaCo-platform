@@ -49,6 +49,9 @@ class Post
     #[ORM\Column(options: ["default" => false])]
     private ?bool $pinned = false;
 
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isCommentLocked = false;
+
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: "La description est obligatoire.")]
     private ?string $content = null;
@@ -166,6 +169,23 @@ class Post
     public function setPinned(bool $pinned): static
     {
         $this->pinned = $pinned;
+        return $this;
+    }
+
+    public function isCommentLocked(): bool
+    {
+        return $this->isCommentLocked;
+    }
+
+    public function setIsCommentLocked(bool $isCommentLocked): static
+    {
+        $this->isCommentLocked = $isCommentLocked;
+        return $this;
+    }
+
+    public function setCommentLock(bool $isCommentLocked): static
+    {
+        $this->isCommentLocked = $isCommentLocked;
         return $this;
     }
 

@@ -18,7 +18,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
- 
+
 #[Route('/forum')]
 // #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class PostController extends AbstractController
@@ -31,21 +31,25 @@ final class PostController extends AbstractController
         $isAdmin = $user instanceof Users && strtolower(trim($user->getRole())) === 'admin';
 
         $repo = $entityManager->getRepository(Post::class);
-        $qb = $repo->createQueryBuilder('p');
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
 
         if ($query) {
+            $qb = $repo->createQueryBuilder('p');
             $qb->where('p.title LIKE :query OR p.content LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
+                ->setParameter('query', '%' . $query . '%');
+            
+            if (!$isAdmin) {
+                $qb->andWhere('p.status IN (:statuses)')
+                    ->setParameter('statuses', ['published', 'solved']);
+            }
+            $posts = $qb->orderBy('p.createdAt', 'DESC')->getQuery()->getResult();
+        } else {
+            if ($isAdmin) {
+                $posts = $repo->findBy([], ['createdAt' => 'DESC']);
+            } else {
+                $posts = $repo->findPublishedPinnedFirst();
+            }
         }
-
-        if (!$isAdmin) {
-            $qb->andWhere('p.status IN (:statuses)')
-               ->setParameter('statuses', ['published', 'solved']);
-        }
-
-        $posts = $qb->orderBy('p.createdAt', 'DESC')
-                    ->getQuery()
-                    ->getResult();
 
         return $this->render('forum/post/index.html.twig', [
             'posts' => $posts,
@@ -63,34 +67,28 @@ final class PostController extends AbstractController
             $now = new \DateTime();
             $post->setCreatedAt($now);
             $post->setUpdatedAt($now);
-            
-         
+
+
             $user = $this->getUser();
-            $isAdmin = $user instanceof Users && strtolower(trim($user->getRole())) === 'admin';
+            if (!$user) {
+                $userId = $request->getSession()->get('user_id');
+                if ($userId) {
+                    $user = $em->getRepository(Users::class)->find($userId);
+                }
+            }
+
+            $isAdmin = false;
+            if ($user instanceof Users) {
+                $post->setUser($user);
+                $isAdmin = strtolower(trim($user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
+            } else {
+                $post->setUser(null);
+            }
 
             if ($isAdmin) {
-                $post->setUser($user);
                 $post->setStatus('published');
             } else {
-                if ($user instanceof Users) {
-                    $post->setUser($user);
-                } else {
-                    $post->setUser(null);
-                }
                 $post->setStatus('pending');
-
-                // Create notifications for all admins
-                $userRepo = $em->getRepository(Users::class);
-                $allUsers = $userRepo->findAll();
-                foreach ($allUsers as $u) {
-                    if (strtolower(trim($u->getRole())) === 'admin') {
-                        $notification = new Notification();
-                        $notification->setUser($u);
-                        $notification->setMessage("Un nouveau post '" . $post->getTitle() . "' est en attente de modération.");
-                        $notification->setRelatedPost($post);
-                        $em->persist($notification);
-                    }
-                }
             }
 
             if ($form->isValid()) {
@@ -99,7 +97,7 @@ final class PostController extends AbstractController
                 if ($imageFile) {
                     $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                     $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                     try {
                         $imageFile->move(
@@ -108,7 +106,7 @@ final class PostController extends AbstractController
                         );
                         $post->setImageName($newFilename);
                     } catch (FileException $e) {
-                         $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                        $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
                     }
                 }
 
@@ -117,7 +115,7 @@ final class PostController extends AbstractController
                 if ($pdfFile) {
                     $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                     $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                     try {
                         $pdfFile->move(
@@ -126,14 +124,43 @@ final class PostController extends AbstractController
                         );
                         $post->setPdfName($newFilename);
                     } catch (FileException $e) {
-                         $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                        $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
                     }
                 }
 
                 $em->persist($post);
+
+                // Notify Admins & Author
+                if ($post->getStatus() === 'pending') {
+                    // Admin Notifications
+                    $admins = $em->getRepository(Users::class)->findBy(['role' => ['ROLE_ADMIN']]);
+                    foreach ($admins as $admin) {
+                        $notification = new \App\Entity\Notification();
+                        $notification->setMessage('New post pending approval: ' . $post->getTitle());
+                        $notification->setIsRead(false);
+                        $notification->setCreatedAt(new \DateTime());
+                        $notification->setUserId($admin);
+                        $em->persist($notification);
+                    }
+
+                    // Author Notification
+                    if ($user instanceof Users) {
+                        $authorNotif = new \App\Entity\Notification();
+                        $authorNotif->setMessage('Your post is waiting for the admin to accept it.');
+                        $authorNotif->setIsRead(false);
+                        $authorNotif->setCreatedAt(new \DateTime());
+                        $authorNotif->setUserId($user);
+                        $em->persist($authorNotif);
+                    }
+                }
+
                 $em->flush();
 
-                $this->addFlash('success', 'Votre message a été publié avec succès !');
+                if ($post->getStatus() === 'pending') {
+                    $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
+                } else {
+                    $this->addFlash('success', 'Votre message a été publié avec succès !');
+                }
 
                 return $this->redirectToRoute('forum_index');
             }
@@ -147,118 +174,52 @@ final class PostController extends AbstractController
     #[Route('/{id}', name: 'app_post_show', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function show(Request $request, Post $post, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
         
+        if (!$user && $userId) {
+            $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
+        }
+
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $session->get('user_role') === 'ROLE_ADMIN';
+        $isOwner = $user && $post->getUser() === $user;
+
+        // Block access to pending/refused posts for unauthorized users
+        if (!in_array($post->getStatus(), ['published', 'solved']) && !$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Ce post est en attente de modération ou a été refusé.');
+        }
+
         $comment = new Comment();
         $commentForm = $this->createForm(CommentType::class, $comment);
         $commentForm->handleRequest($request);
 
-        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
-            $comment->setPost($post);
-            
-            $parentId = $request->request->get('parent_id');
-            if ($parentId) {
-                $parentComment = $em->getRepository(Comment::class)->find($parentId);
-                if ($parentComment) {
-                    $comment->setParentComment($parentComment);
-                }
-            }
-
-            if ($post->isCommentLocked()) {
-                $this->addFlash('warning', 'Les commentaires sont désactivés pour ce post.');
-                return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
-            }
-
-            $user = $this->getUser();
-            if ($user instanceof Users) {
-                 $comment->setUser($user);
-                 $comment->setStatus('visible');
-            } else {
-                 $comment->setUser(null);
-                 $comment->setStatus('pending');
-            }
-
-            $now = new \DateTime();
-            $comment->setCreatedAt($now);
-            $comment->setUpdatedAt($now);
-            $comment->setStatus('visible');
-            $comment->setLikes(0);
-
-            $em->persist($comment);
-            $em->flush();
-
-            $this->addFlash('success', 'Votre commentaire a été ajouté !');
-
-            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
-        }
-
-        if ($request->isMethod('POST') && $request->request->get('comment_body')) {
-            $body = $request->request->get('comment_body');
-            $parentId = $request->request->get('parent_id');
-
-            $reply = new Comment();
-            $reply->setBody($body);
-            $reply->setPost($post);
-            
-            if ($post->isCommentLocked()) {
-                $this->addFlash('warning', 'Les commentaires sont désactivés pour ce post.');
-                return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
-            }
-
-            $user = $this->getUser();
-            if ($user instanceof Users) {
-                $reply->setUser($user);
-                $reply->setStatus('visible');
-            } else {
-                $reply->setUser(null);
-                $reply->setStatus('pending');
-            }
-
-            if ($parentId) {
-                $parentComment = $em->getRepository(Comment::class)->find($parentId);
-                if ($parentComment) {
-                    $reply->setParentComment($parentComment);
-                }
-            }
-
-            $reply->setCreatedAt(new \DateTime());
-            $reply->setStatus('visible');
-            $reply->setLikes(0);
-
-            $em->persist($reply);
-            $em->flush();
-
-            $this->addFlash('success', 'Votre réponse a été ajoutée !');
-            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
-        }
-
-        
-        $comments = $em->getRepository(Comment::class)->findBy(
-            ['post' => $post, 'parentComment' => null],
-            ['createdAt' => 'ASC']
-        );
-
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
-            'comments' => $comments, 
+            'comments' => $em->getRepository(Comment::class)->findBy(
+                ['post' => $post, 'parentComment' => null],
+                ['createdAt' => 'ASC']
+            ),
             'commentForm' => $commentForm->createView(),
         ]);
     }
 
     #[Route('/{id}/toggle-lock', name: 'app_post_toggle_lock', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function toggleLock(Post $post, EntityManagerInterface $em): Response
+    public function toggleLock(Post $post, EntityManagerInterface $em, Request $request): Response
     {
         $user = $this->getUser();
-        if (!$user) {
-            $this->addFlash('danger', 'Veuillez vous connecter.');
-            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        
+        if (!$user && $userId) {
+            $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
         }
 
-        $isAdmin = strtolower(trim($user->getRole())) === 'admin';
-        $isCreator = ($post->getUser() === $user);
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $session->get('user_role') === 'ROLE_ADMIN';
+        $isOwner = $user && $post->getUser() === $user;
 
-        if (!$isAdmin && !$isCreator) {
-            $this->addFlash('danger', 'Action non autorisée. Seul le créateur ou l’admin peut verrouiller les commentaires.');
-            return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        if (!$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Seul le créateur ou l’admin peut verrouiller les commentaires.');
         }
 
         $post->setCommentLock(!$post->isCommentLocked());
@@ -273,10 +234,20 @@ final class PostController extends AbstractController
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
+
+        $user = $this->getUser();
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
         
-        if ($this->getUser() !== $post->getUser()) {
-             $this->addFlash('danger', 'Vous n’êtes pas autorisé à modifier ce post.');
-             return $this->redirectToRoute('forum_index');
+        if (!$user && $userId) {
+            $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
+        }
+
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $session->get('user_role') === 'ROLE_ADMIN';
+        $isOwner = $user && $post->getUser() === $user;
+
+        if (!$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Vous n’êtes pas autorisé à modifier ce post.');
         }
 
         $form = $this->createForm(PostType::class, $post);
@@ -288,7 +259,7 @@ final class PostController extends AbstractController
             /** @var UploadedFile $imageFile */
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
-                
+
                 if ($post->getImageName()) {
                     $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getImageName();
                     if (file_exists($oldPath)) {
@@ -298,7 +269,7 @@ final class PostController extends AbstractController
 
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
@@ -307,14 +278,14 @@ final class PostController extends AbstractController
                     );
                     $post->setImageName($newFilename);
                 } catch (FileException $e) {
-                     $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                    $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
                 }
             }
 
             /** @var UploadedFile $pdfFile */
             $pdfFile = $form->get('pdfFile')->getData();
             if ($pdfFile) {
-                
+
                 if ($post->getPdfName()) {
                     $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getPdfName();
                     if (file_exists($oldPath)) {
@@ -324,7 +295,7 @@ final class PostController extends AbstractController
 
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                 try {
                     $pdfFile->move(
@@ -333,7 +304,7 @@ final class PostController extends AbstractController
                     );
                     $post->setPdfName($newFilename);
                 } catch (FileException $e) {
-                     $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
                 }
             }
 
@@ -353,13 +324,23 @@ final class PostController extends AbstractController
     #[Route('/{id}/delete', name: 'app_post_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $em): Response
     {
+
+        $user = $this->getUser();
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
         
-        if ($this->getUser() !== $post->getUser()) {
-             $this->addFlash('danger', 'Vous n’êtes pas autorisé à supprimer ce post.');
-             return $this->redirectToRoute('forum_index');
+        if (!$user && $userId) {
+            $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->request->get('_token'))) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $session->get('user_role') === 'ROLE_ADMIN';
+        $isOwner = $user && $post->getUser() === $user;
+
+        if (!$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Vous n’êtes pas autorisé à supprimer ce post.');
+        }
+
+        if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
             $em->remove($post);
             $em->flush();
             $this->addFlash('success', 'Le message a été supprimé.');
@@ -369,11 +350,59 @@ final class PostController extends AbstractController
     }
 
     #[Route('/{id}/like', name: 'app_post_like', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function like(Post $post, EntityManagerInterface $em): Response
+    public function like(Post $post, EntityManagerInterface $em, Request $request): Response
     {
-        $post->setLikes($post->getLikes() + 1);
+        $session = $request->getSession();
+        $likedPosts = $session->get('liked_posts', []);
+
+        if (!in_array($post->getId(), $likedPosts)) {
+            $post->setLikes($post->getLikes() + 1);
+            $likedPosts[] = $post->getId();
+            $session->set('liked_posts', $likedPosts);
+            $em->flush();
+        }
+
+        return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_post_show', ['id' => $post->getId()]));
+    }
+
+    #[Route('/{id}/pin', name: 'app_post_pin', methods: ['POST'])]
+    public function pin(Post $post, EntityManagerInterface $em, Request $request): Response
+    {
+        if (!$this->isGranted('ROLE_ADMIN') && $request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Seuls les administrateurs peuvent épingler des posts.');
+        }
+
+        $post->setPinned(!$post->isPinned());
         $em->flush();
 
-        return $this->redirectToRoute('forum_index');
+        $this->addFlash('success', $post->isPinned() ? 'Post épinglé !' : 'Post désépinglé.');
+        return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+    }
+
+    #[Route('/comment/{id}/solve', name: 'app_comment_solve', methods: ['POST'])]
+    public function solve(Comment $comment, EntityManagerInterface $em, Request $request): Response
+    {
+        $post = $comment->getPost();
+        $user = $this->getUser();
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        
+        if (!$user && $userId) {
+            $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
+        }
+
+        $isAdmin = $this->isGranted('ROLE_ADMIN') || $session->get('user_role') === 'ROLE_ADMIN';
+        $isOwner = $user && $post->getUser() === $user;
+
+        if (!$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Seul le propriétaire du post ou un admin peut marquer une solution.');
+        }
+
+        $post->setSolution($comment);
+        $post->setStatus('solved');
+        $em->flush();
+
+        $this->addFlash('success', 'Discussion marquée comme résolue !');
+        return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
     }
 }

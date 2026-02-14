@@ -1,73 +1,61 @@
-      <!-- Navbar -->
-      <nav
-        class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start"
-        navbar-main
-        navbar-scroll="true">
-        <div
-          class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
-          <nav>
-            <ol
-              class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
-              <li class="leading-normal text-sm">
-                <a class="opacity-50 text-slate-700" href="javascript:;"
-                  >Pages</a
-                >
-              </li>
-              <li
-                class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']"
-                aria-current="page">
-                {% block breadcrumb %}Dashboard{% endblock %}
-              </li>
-            </ol>
-            <h6 class="mb-0 font-bold capitalize">{% block page_title %}Dashboard{% endblock %}</h6>
-          </nav>
+<!-- Navbar -->
+<nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
+	<div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
+		<nav>
+			<ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+				<li class="leading-normal text-sm">
+					<a class="opacity-50 text-slate-700" href="javascript:;">Pages</a>
+				</li>
+				<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+					{% block breadcrumb %}Dashboard
+					{% endblock %}
+				</li>
+			</ol>
+			<h6 class="mb-0 font-bold capitalize">
+				{% block page_title %}Dashboard
+				{% endblock %}
+			</h6>
+		</nav>
 
-          <div
-            class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
-            <div class="flex items-center md:ml-auto md:pr-4">
-            </div>
-            <ul
-              class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
-              {% if app_user %}
-              <div class="relative flex min-w-0 mb-6 mt-2 break-words bg-white shadow-soft-xl rounded-xl bg-clip-border">
-                <div class="flex-auto pt-2 pr-4 pl-4 pb-2 flex-col">
-                  <div class="flex flex-wrap -mx-3">
-                    <div class="flex-none max-w-full px-3 pr-6 flex items-center">
-                      <div>
-                        <p class="mb-0 font-sans font-semibold leading-normal text-sm text-purple-700 text-fuchsia-500">Welcome</p>
-                        <h5 class="mb-0 font-bold">
-                          {{ app_user.username }}
-                        </h5>
-                      </div>
-                    </div>
-                    <div class="w-4/12 max-w-full px-3 ml-auto text-right flex-0">
-                      <img
-                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg"
-                        alt="avatar image"
-                        class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-xl"
-                      />
-                  </div>
-                </div>
-              </div>
-               <li class="flex items-center pl-4 xl:hidden">
-                <a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
-                  <div class="w-4.5 overflow-hidden">
-                    <i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                    <i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                    <i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                  </div>
-                </a>
-              </li>
-            </ul>
-            <a href="{{ path('app_logout') }}">
-              <button type="button" class="relative mb-4 bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center hover:scale-102">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                </svg>
-              </button>
-            </a>
-            {% endif %}
-          </div>
-        </div>
-      </nav>
-      <!-- end Navbar -->
+		<div class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
+			<div class="flex items-center md:ml-auto md:pr-4"></div>
+			<ul class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
+				{% if app_user %}
+					<div class="relative flex min-w-0 mb-6 mt-2 break-words bg-white shadow-soft-xl rounded-xl bg-clip-border">
+						<div class="flex-auto pt-2 pr-4 pl-4 pb-2 flex-col">
+							<div class="flex flex-wrap -mx-3">
+								<div class="flex-none max-w-full px-3 pr-6 flex items-center">
+									<div>
+										<p class="mb-0 font-sans font-semibold leading-normal text-sm text-purple-700 text-fuchsia-500">Welcome</p>
+										<h5 class="mb-0 font-bold">
+											{{ app_user.username }}
+										</h5>
+									</div>
+								</div>
+								<div class="w-4/12 max-w-full px-3 ml-auto text-right flex-0">
+									<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="avatar image" class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-xl"/>
+								</div>
+							</div>
+						</div>
+						<li class="flex items-center pl-4 xl:hidden">
+							<a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
+								<div class="w-4.5 overflow-hidden">
+									<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+									<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+									<i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<a href="{{ path('app_logout') }}">
+						<button type="button" class="relative mb-4 bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center hover:scale-102">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-4">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+							</svg>
+						</button>
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	</nav>
+	<!-- end Navbar -->

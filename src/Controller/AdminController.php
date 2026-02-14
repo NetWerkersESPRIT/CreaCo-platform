@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'app_admin')]
-    public function index(Request $request, UsersRepository $userRepository): Response
+    public function index(Request $request, UsersRepository $userRepository, \App\Repository\PostRepository $postRepository): Response
     {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             $this->addFlash('warning', 'Access restricted to administrators.');
@@ -22,9 +22,11 @@ final class AdminController extends AbstractController
         }
 
         $users = $userRepository->findAll();
+        $pendingCount = $postRepository->countPending();
 
         return $this->render('admin/admin.html.twig', [
             'users' => $users,
+            'pendingCount' => $pendingCount,
         ]);
     }
 

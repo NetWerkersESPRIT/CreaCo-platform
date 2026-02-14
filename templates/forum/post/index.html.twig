@@ -33,7 +33,15 @@
 								<img src="https://ui-avatars.com/api/?name={{ post.user ? post.user.username : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
 							</div>
 							<div class="flex flex-col ml-3">
-								<span class="text-xs font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonymous' }}</span>
+								<span class="text-xs font-bold text-slate-700">
+									{{ post.user ? post.user.username : 'Anonymous' }}
+									{% if post.status == 'pending' %}
+										{% set isAdmin = app.session.get('user_role') == 'ROLE_ADMIN' %}
+										{% if isAdmin or (app_user and post.user == app_user) %}
+											<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-orange-700 bg-orange-100 rounded-lg">Pending</span>
+										{% endif %}
+									{% endif %}
+								</span>
 							</div>
 						</div>
 					</div>
@@ -87,7 +95,10 @@
 								Comments</span>
 						</a>
 
-						{% set canManagePost = app.user and post.user == app.user %}
+						{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+						{% set isOwner = app_user and post.user == app_user %}
+						{% set canManagePost = isAdmin or isOwner %}
+
 						{% if canManagePost %}
 							<!-- Edit Button -->
 							<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-purple-100 hover:text-purple-700 transition-all text-decoration-none border-0">
@@ -106,10 +117,23 @@
 						{% endif %}
 
 						<!-- Share -->
-						<button class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer">
-							<i class="fas fa-share text-xs text-slate-500 mr-2"></i>
-							<span class="text-xs font-bold">Share</span>
-						</button>
+						<div class="relative">
+							<button type="button" onclick="event.stopPropagation(); toggleShareMenu('shareDropdown-{{ post.id }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer group">
+								<i class="fas fa-share text-xs text-slate-400 group-hover:text-purple-700 transition-colors mr-2"></i>
+								<span class="text-xs font-bold">Share</span>
+							</button>
+							<div id="shareDropdown-{{ post.id }}" class="hidden absolute left-0 bottom-full mb-2 w-48 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 animate-fade-in text-left">
+								{% set postUrl = url('app_post_show', {id: post.id}) %}
+								<button type="button" onclick="copyToClipboard('{{ postUrl }}', 'Link copied to clipboard!', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+									<i class="fas fa-link mr-2 w-4"></i>
+									Copy Link
+								</button>
+								<button type="button" onclick="openEmbedModal('{{ postUrl }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+									<i class="fas fa-code mr-2 w-4"></i>
+									Embed
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			{% else %}
@@ -121,4 +145,150 @@
 			{% endfor %}
 		</div>
 	</div>
+
+	<!-- Share Modal -->
+	<div id="embedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+		<div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-soft-2xl animate-fade-in mx-4 text-left">
+			<div class="flex justify-between items-center mb-4">
+				<h6 class="font-bold mb-0 text-slate-700">Embed Discussion</h6>
+				<button type="button" onclick="closeEmbedModal()" class="text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 text-left">
+				<code id="embedCode" class="text-xs text-slate-600 break-all select-all"></code>
+			</div>
+			<button type="button" onclick="copyToClipboard(document.getElementById('embedCode').innerText, 'Embed code copied!')" class="w-full py-2.5 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
+				Copy Code
+			</button>
+		</div>
+	</div>
+
+	<!-- Toast -->
+	<div id="copyToast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white px-6 py-3 rounded-xl shadow-soft-2xl animate-fade-in-up text-sm font-bold">
+		Link copied to clipboard!
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const embedModal = document.getElementById('embedModal');
+const embedCode = document.getElementById('embedCode');
+const copyToast = document.getElementById('copyToast');
+
+window.toggleShareMenu = function (id) {
+const dropdown = document.getElementById(id);
+if (dropdown) 
+dropdown.classList.toggle('hidden');
+
+
+
+};
+
+window.openEmbedModal = function (url, dropdownId) {
+if (embedCode) {
+embedCode.innerText = `<iframe src="${url}" width="100%" height="600" frameborder="0"></iframe>`;
+}
+if (embedModal) {
+embedModal.classList.remove('hidden');
+embedModal.classList.add('flex');
+}
+if (dropdownId) {
+const dropdown = document.getElementById(dropdownId);
+if (dropdown) 
+dropdown.classList.add('hidden');
+
+
+
+}
+};
+
+window.closeEmbedModal = function () {
+if (embedModal) {
+embedModal.classList.add('hidden');
+embedModal.classList.remove('flex');
+}
+};
+
+window.copyToClipboard = function (text, message, dropdownId) {
+if (! text) 
+return;
+
+
+
+navigator.clipboard.writeText(text).then(() => {
+if (copyToast) {
+copyToast.innerText = message || 'Link copied to clipboard!';
+copyToast.classList.remove('hidden');
+setTimeout(() => copyToast.classList.add('hidden'), 3000);
+}
+if (dropdownId) {
+const dropdown = document.getElementById(dropdownId);
+if (dropdown) 
+dropdown.classList.add('hidden');
+
+
+
+}
+}).catch(err => {
+console.error('Failed to copy: ', err);
+// Fallback
+const input = document.createElement('textarea');
+input.value = text;
+document.body.appendChild(input);
+input.select();
+document.execCommand('copy');
+document.body.removeChild(input);
+if (copyToast) {
+copyToast.innerText = message || 'Link copied to clipboard!';
+copyToast.classList.remove('hidden');
+setTimeout(() => copyToast.classList.add('hidden'), 3000);
+}
+});
+};
+
+document.addEventListener('click', function (event) {
+const dropdowns = document.querySelectorAll('[id^="shareDropdown-"]');
+dropdowns.forEach(dropdown => {
+const btnId = dropdown.id.replace('shareDropdown-', 'shareButton-'); // Not strictly used but good for logic
+if (!dropdown.contains(event.target)) {
+dropdown.classList.add('hidden');
+}
+});
+
+if (event.target === embedModal) {
+closeEmbedModal();
+}
+});
+});
+	</script>
+
+	<style>
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translate(-50%, 10px);
+			}
+			to {
+				opacity: 1;
+				transform: translate(-50%, 0);
+			}
+		}
+		.animate-fade-in-up {
+			animation: fadeInUp 0.3s ease-out;
+		}
+		.animate-fade-in {
+			animation: fadeIn 0.2s ease-out;
+		}
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+			to {
+				opacity: 1;
+			}
+		}
+	</style>
 {% endblock %}
