@@ -9,6 +9,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class EventType extends AbstractType
 {
@@ -34,8 +36,8 @@ class EventType extends AbstractType
             ->add('time')
             ->add('organizer')
             ->add('isForAllUsers')
-            ->add('meetingLink', null, ['required' => false])
-            ->add('platform', null, ['required' => false])
+            //->add('meetingLink', null, ['required' => false])
+            //->add('platform', null, ['required' => false])
             ->add('address', null, ['required' => false])
             ->add('googleMapsLink')
             ->add('capacity')
@@ -45,7 +47,23 @@ class EventType extends AbstractType
                 'choice_label' => 'username',
                 'multiple' => true,
                 'required' => false,
-                'expanded' => false, // Or true for checkboxes
+                'expanded' => true,
+            ])
+            ->add('image', FileType::class, [
+                'label' => 'Event Image',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPG, PNG, GIF)',
+                    ])
+                ],
             ])
         ;
     }

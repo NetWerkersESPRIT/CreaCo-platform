@@ -5,6 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\MeetingLinkGenerator;
+use App\Service\ImgbbService;
 use App\Entity\Event;
 use App\Form\EventType;
 use App\Repository\EventRepository;
@@ -25,14 +27,23 @@ final class EventController extends AbstractController
 
 
     #[Route('/event/new', name: 'event_new')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, MeetingLinkGenerator $generator, ImgbbService $imgbbService): Response
     {
         $event = new Event();
         $form = $this->createForm(EventType::class, $event);
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $imageUrl = $imgbbService->upload($imageFile);
+                if ($imageUrl) {
+                    $event->setImagePath($imageUrl);
+                }
+            }
+            if ($event->getType() === 'online') {
+                $event->setMeetingLink($generator->generateJitsiLink());
+                $event->setPlatform('Jitsi Meet');
+            }
             $em->persist($event);
             $em->flush();
 
@@ -55,12 +66,19 @@ final class EventController extends AbstractController
     }
 
     #[Route('/event/{id}/edit', name: 'event_edit')]
-    public function edit(Event $event, Request $request, EntityManagerInterface $em): Response
+    public function edit(Event $event, Request $request, EntityManagerInterface $em, ImgbbService $imgbbService): Response
     {
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $imageUrl = $imgbbService->upload($imageFile);
+                if ($imageUrl) {
+                    $event->setImagePath($imageUrl);
+                }
+            }
             $em->persist($event);
             $em->flush();
 
