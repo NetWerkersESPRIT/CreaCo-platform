@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+
 
 final class UserController extends AbstractController
 {
@@ -17,7 +19,7 @@ final class UserController extends AbstractController
     public function createuser(Request $request, EntityManagerInterface $em): Response
     {
         $user = new Users();
-        
+
         $form = $this->createForm(UserType::class, $user);
         $user->setRole('ROLE_CONTENT_CREATOR');
 
@@ -26,7 +28,7 @@ final class UserController extends AbstractController
 
             $em->persist($user);
             $em->flush();
-            
+
             $user->setGroupId($user->getId());
             $em->flush();
             return $this->redirectToRoute('app_auth');
@@ -47,4 +49,20 @@ final class UserController extends AbstractController
 
         return $this->render('user/profile.html.twig');
     }
+
+    #[Route('/signup/google', name: 'google_signup_start')]
+    public function googleSignupStart(ClientRegistry $clientRegistry)
+    {
+        return $clientRegistry
+            ->getClient('google_signup')
+            ->redirect(
+                ['email', 'profile'],
+                ['state' => 'signup']
+            );
+    }
+
+    #[Route('/signup/google/check', name: 'google_signup_check')]
+    public function googleSignupCheck() {}
+
+    
 }
