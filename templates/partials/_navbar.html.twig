@@ -21,41 +21,46 @@
 			<div class="flex items-center md:ml-auto md:pr-4"></div>
 			<ul class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
 				{% if app_user %}
-					<div class="relative flex min-w-0 mb-6 mt-2 break-words bg-white shadow-soft-xl rounded-xl bg-clip-border">
+					<div class="relative flex min-w-0 mb-6 mt-2 break-words bg-white shadow-soft-xl rounded-xl bg-clip-border overflow-hidden">
 						<div class="flex-auto pt-2 pr-4 pl-4 pb-2 flex-col">
-							<div class="flex flex-wrap -mx-3">
+							<div class="flex flex-wrap -mx-3 items-center">
 								<div class="flex-none max-w-full px-3 pr-6 flex items-center">
-									<div>
-										<p class="mb-0 font-sans font-semibold leading-normal text-sm text-purple-700 text-fuchsia-500">Welcome</p>
-										<h5 class="mb-0 font-bold">
+									<div class="flex flex-col">
+										<p class="mb-0 font-sans font-semibold leading-normal text-[10px] text-fuchsia-500 uppercase tracking-wider">Welcome</p>
+										<h5 class="mb-0 font-bold text-sm text-slate-700">
 											{{ app_user.username }}
 										</h5>
 									</div>
 								</div>
-								<div class="w-4/12 max-w-full px-3 ml-auto text-right flex-0">
-									<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="avatar image" class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-xl"/>
+								<div class="w-auto flex-none px-3 ml-auto text-right">
+									<a href="{{ path('app_profile') }}">
+										<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="{{ app_user.username }}" class="inline-flex items-center justify-center w-10 h-10 text-white transition-all duration-200 ease-in-out text-sm rounded-xl hover:scale-105 shadow-soft-xs"/>
+									</a>
 								</div>
 							</div>
 						</div>
-						<li class="flex items-center pl-4 xl:hidden">
-							<a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
-								<div class="w-4.5 overflow-hidden">
-									<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-									<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-									<i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-								</div>
-							</a>
-						</li>
-					</ul>
-					<a href="{{ path('app_logout') }}">
-						<button type="button" class="relative mb-4 bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center hover:scale-102">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-4">
+					</div>
+
+					<li class="flex items-center pl-4 xl:hidden">
+						<a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
+							<div class="w-4.5 overflow-hidden">
+								<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+								<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+								<i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
+							</div>
+						</a>
+					</li>
+
+					<li class="flex items-center pl-4">
+						<a href="{{ path('app_logout') }}" class="relative mb-6 bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl flex h-10 w-10 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-110 transition-all group" title="Sign Out">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="2" stroke="white" class="w-5 h-5">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
 							</svg>
-						</button>
-					</a>
+						</a>
+					</li>
 				{% endif %}
-			</div>
+			</ul>
 		</div>
-	</nav>
-	<!-- end Navbar -->
+	</div>
+</nav>
+<!-- end Navbar -->

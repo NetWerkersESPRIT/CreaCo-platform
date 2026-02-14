@@ -21,8 +21,13 @@ final class AdminController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        $users = $userRepository->findAll();
         $pendingCount = $postRepository->countPending();
+
+        $users = $userRepository->createQueryBuilder('u')
+            ->where('u.role != :role')
+            ->setParameter('role', 'ROLE_ADMIN')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('admin/admin.html.twig', [
             'users' => $users,
@@ -31,7 +36,10 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/{id}/edit', name: 'app_user_edit')]
-    public function edit(Users $user, Request $request, EntityManagerInterface $em
+    public function edit(
+        Users $user,
+        Request $request,
+        EntityManagerInterface $em
     ): Response {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
@@ -52,7 +60,8 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/user/delete/{id}', name: 'user_delete')]
-    public function delete(Request $request, int $id, EntityManagerInterface $em, UsersRepository $repo): Response {
+    public function delete(Request $request, int $id, EntityManagerInterface $em, UsersRepository $repo): Response
+    {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
         }
