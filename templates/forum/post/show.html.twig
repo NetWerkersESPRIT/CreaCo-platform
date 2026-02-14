@@ -10,120 +10,143 @@
 {% endblock %}
 
 {% block body %}
-	{% set postUrl = absolute_url(path('app_post_show', {'id': post.id})) %}
+{# ✅ CRITICAL FIX: Define permissions at TOP of body block for full scope #}
+{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+{% set isPostOwner = app_user and post.user == app_user %}
+{% set postUrl = app.request.schemeAndHttpHost ~ app.request.requestUri %}
 
-	<div
-		class="flex flex-wrap -mx-3">
-		<!-- Main Content (Centered & Wide) -->
-		<div class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
-			<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1">
-				<i class="fas fa-arrow-left mr-1"></i>
-				Back to Forum
-			</a>
+<div
+	class="flex flex-wrap -mx-3">
+	<!-- Main Content (Centered & Wide) -->
+	<div class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
+		<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1">
+			<i class="fas fa-arrow-left mr-1"></i>
+			Back to Forum
+		</a>
 
-			<div
-				class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
-				<!-- Post Header -->
-				<div class="p-6 bg-white border-b-0 rounded-t-2xl">
-					<div class="flex items-center">
-						<div class="bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg p-2 mr-3 shadow-soft-md">
-							<i class="fas fa-quote-left text-white text-xs"></i>
-						</div>
-						<h4 class="mb-0 font-bold text-slate-700">{{ post.title }}</h4>
-						{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
-						{% set isPostOwner = app_user and post.user == app_user %}
+		<div
+			class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
+			<!-- Post Header -->
+			<div class="p-6 bg-white border-b-0 rounded-t-2xl">
+				<div class="flex items-center">
+					<div class="bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg p-2 mr-3 shadow-soft-md">
+						<i class="fas fa-quote-left text-white text-xs"></i>
+					</div>
 
-						{% if post.status == 'pending' %}
-							{% if isAdmin or isPostOwner %}
-								<span class="ml-3 px-3 py-1 text-xs font-bold text-orange-700 bg-orange-100 rounded-pill">
-									<i class="fas fa-clock mr-1"></i>
-									Pending Approval
-								</span>
-							{% endif %}
-						{% endif %}
-						{% if post.pinned %}
-							<span class="ml-3 text-xxs bg-purple-100 text-purple-700 px-2 py-1 rounded-pill font-bold">
-								<i class="fas fa-thumbtack mr-1"></i>
-								Pinned
+					<h4 class="mb-0 font-bold text-slate-700">{{ post.title }}</h4>
+
+					{# ✅ REMOVED DUPLICATE isAdmin/isPostOwner SETS - NOW DEFINED AT TOP #}
+					{% if post.status == 'pending' %}
+						{% if isAdmin or isPostOwner %}
+							<span class="ml-3 px-3 py-1 text-xs font-bold text-orange-700 bg-orange-100 rounded-pill">
+								<i class="fas fa-clock mr-1"></i>
+								Pending Approval
 							</span>
 						{% endif %}
-						{% if post.status == 'solved' %}
-							<span class="ml-3 text-xxs bg-green-100 text-green-700 px-2 py-1 rounded-pill font-bold">
-								<i class="fas fa-check-circle mr-1"></i>
-								Solved
-							</span>
-						{% endif %}
+					{% endif %}
+
+					{% if post.pinned %}
+						<span class="ml-3 text-xxs bg-purple-100 text-purple-700 px-2 py-1 rounded-pill font-bold">
+							<i class="fas fa-thumbtack mr-1"></i>
+							Pinned
+						</span>
+					{% endif %}
+
+					{% if post.status == 'solved' %}
+						<span class="ml-3 text-xxs bg-green-100 text-green-700 px-2 py-1 rounded-pill font-bold">
+							<i class="fas fa-check-circle mr-1"></i>
+							Solved
+						</span>
+					{% endif %}
+				</div>
+			</div>
+
+			{# ✅ FIXED: Pending alert NOW WORKS (variables in scope) #}
+			{% if post.status == 'pending' and not isAdmin %}
+				<div class="px-6 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 flex items-center gap-4 border-y border-white/10">
+					<div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+						<i class="fas fa-clock text-white text-lg animate-pulse"></i>
+					</div>
+					<div class="flex flex-col">
+						<p class="mb-0 text-white font-bold text-sm tracking-tight">
+							Votre publication est en attente de validation par un administrateur.
+						</p>
+						<p class="mb-0 text-white/80 text-xs font-medium">
+							Elle sera visible par tout le monde une fois approuvée.
+						</p>
 					</div>
 				</div>
+			{% endif %}
 
-				<div class="px-6 pb-6">
-					<p class="mb-2 text-xs text-slate-400">
-						Posted by
-						<span class="font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonymous' }}</span>
-						•
-						{{ post.createdAt ? post.createdAt|date('d/m/Y') : '' }}
-					</p>
+			<div class="px-6 pb-6">
+				<p class="mb-2 text-xs text-slate-400">
+					Posted by
+					<span class="font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonymous' }}</span>
+					•
+					{{ post.createdAt ? post.createdAt|date('d/m/Y') : '' }}
+				</p>
 
-					{% if post.imageName %}
-						<div class="mb-6 overflow-hidden rounded-2xl shadow-soft-lg">
-							<img src="{{ asset('uploads/' ~ post.imageName) }}" class="w-full h-auto object-cover max-h-[500px]" alt="post image">
-						</div>
-					{% endif %}
-
-					<div class="post-body text-slate-600 leading-relaxed mb-6 text-lg">
-						{{ post.content|nl2br }}
+				{% if post.imageName %}
+					<div class="mb-6 overflow-hidden rounded-2xl shadow-soft-lg">
+						<img src="{{ asset('uploads/' ~ post.imageName) }}" class="w-full h-auto object-cover max-h-[500px]" alt="post image">
 					</div>
+				{% endif %}
 
-					{% if post.pdfName %}
-						<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
-							<div class="flex items-center">
-								<div class="bg-red-100 p-2 rounded-lg mr-3">
-									<i class="fas fa-file-pdf text-red-600 text-lg"></i>
-								</div>
-								<div>
-									<p class="text-sm font-bold text-slate-700 mb-0">PDF Document</p>
-									<p class="text-xxs text-slate-400 mb-0">Resource attached to discussion</p>
-								</div>
+				<div class="post-body text-slate-600 leading-relaxed mb-6 text-lg">
+					{{ post.content|nl2br }}
+				</div>
+
+				{% if post.pdfName %}
+					<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
+						<div class="flex items-center">
+							<div class="bg-red-100 p-2 rounded-lg mr-3">
+								<i class="fas fa-file-pdf text-red-600 text-lg"></i>
 							</div>
-							<a href="{{ asset('uploads/' ~ post.pdfName) }}" target="_blank" class="px-6 py-2.5 text-xs font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500">
-								<i class="fas fa-eye mr-1"></i>
-								View
-							</a>
+							<div>
+								<p class="text-sm font-bold text-slate-700 mb-0">PDF Document</p>
+								<p class="text-xxs text-slate-400 mb-0">Resource attached to discussion</p>
+							</div>
 						</div>
-					{% endif %}
+						<a href="{{ asset('uploads/' ~ post.pdfName) }}" target="_blank" class="px-6 py-2.5 text-xs font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500">
+							<i class="fas fa-eye mr-1"></i>
+							View
+						</a>
+					</div>
+				{% endif %}
 
-					<div class="mt-8 flex flex-wrap items-center justify-between p-4 bg-gray-50/40 rounded-3xl border border-gray-100/50 gap-4">
-						<div class="flex flex-wrap items-center gap-3">
-							{% set likedPosts = app.session.get('liked_posts', []) %}
-							{% set isLiked = post.id in likedPosts %}
+				<div class="mt-8 flex flex-wrap items-center justify-between p-4 bg-gray-50/40 rounded-3xl border border-gray-100/50 gap-4">
+					<div class="flex flex-wrap items-center gap-3">
+						{% set likedPosts = app.session.get('liked_posts', []) %}
+						{% set isLiked = post.id in likedPosts %}
 
-							<!-- Like Button -->
-							<form action="{{ path('app_post_like', {'id': post.id}) }}" method="POST" class="m-0">
-								<button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all {{ isLiked ? 'text-purple-700' : 'text-slate-600' }} text-xs font-bold uppercase tracking-wider">
-									<i class="{{ isLiked ? 'fas' : 'far' }} fa-thumbs-up {{ isLiked ? 'text-purple-700' : 'text-slate-400' }} transition-colors"></i>
-									<span>{{ post.likes }}
-										Likes</span>
-								</button>
-							</form>
+						<!-- Like Button -->
+						<form action="{{ path('app_post_like', {'id': post.id}) }}" method="POST" class="m-0">
+							<button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all {{ isLiked ? 'text-purple-700' : 'text-slate-600' }} text-xs font-bold uppercase tracking-wider">
+								<i class="{{ isLiked ? 'fas' : 'far' }} fa-thumbs-up {{ isLiked ? 'text-purple-700' : 'text-slate-400' }} transition-colors"></i>
+								<span>{{ post.likes }}
+									Likes</span>
+							</button>
+						</form>
 
-							<!-- Comments Count -->
-							<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
-								<i class="far fa-comment-dots text-slate-400"></i>
-								<span>{{ post.comments|length }}
-									Replies</span>
-							</div>
+						<!-- Comments Count -->
+						<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
+							<i class="far fa-comment-dots text-slate-400"></i>
+							<span>{{ post.comments|length }}
+								Replies</span>
+						</div>
 
-							<!-- Share Button -->
-							<div class="relative">
-								<button id="shareButton-{{ post.id }}" type="button" onclick="event.stopPropagation(); toggleShareMenu('shareDropdown-{{ post.id }}')" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all text-slate-600 text-xs font-bold uppercase tracking-wider group">
-									<i class="fas fa-share-nodes text-slate-400 group-hover:text-purple-700 transition-colors"></i>
-									<span>Share</span>
-								</button>
-								<button type="button" onclick="copyToClipboard('{{ postUrl|e('js') }}', '✅ Link copied!', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-									<i class="fas fa-link mr-2 w-4"></i>
+						<!-- Share Dropdown -->
+						<div class="relative inline-block text-left" id="share-container-{{ post.id }}">
+							<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all text-slate-600 text-xs font-bold uppercase tracking-wider group">
+								<i class="fas fa-share-nodes text-slate-400 group-hover:text-purple-700 transition-colors"></i>
+								<span>Share</span>
+							</button>
+
+							<div id="shareDropdown-{{ post.id }}" class="hidden absolute left-0 mt-2 w-48 bg-white border border-gray-100 shadow-soft-xl rounded-xl z-50 py-2">
+								<button type="button" onclick="copyPageUrl('shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer transition-colors group">
+									<i class="fas fa-link mr-2 w-4 text-purple-700 group-hover:scale-110 transition-transform"></i>
 									Copy Link
 								</button>
-
 							</div>
 						</div>
 					</div>
@@ -148,6 +171,7 @@
 							<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-purple-600 hover:text-pink-500 transition-all" title="Edit">
 								<i class="fas fa-pencil-alt text-xs"></i>
 							</a>
+
 							<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this post?')">
 								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
 								<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
@@ -167,7 +191,18 @@
 					<h6 class="font-bold mb-0 text-slate-700">Discussion</h6>
 				</div>
 
-				<!-- Root Comment Form -->
+				{# ✅ FIXED ORDER: Alerts BEFORE comment form #}
+				{% if post.isCommentLocked %}
+					<div class="mb-8 p-6 bg-orange-50/50 rounded-2xl border border-orange-100 text-center">
+						<i class="fas fa-lock text-orange-600 mb-2 text-2xl"></i>
+						{% if post.status == 'solved' %}
+							<p class="text-sm font-bold text-orange-800 mb-0">This post is solved and comments are closed.</p>
+						{% else %}
+							<p class="text-sm font-bold text-orange-800 mb-0">The comment section is blocked for this post.</p>
+						{% endif %}
+					</div>
+				{% endif %}
+
 				{% if not post.isCommentLocked %}
 					<div class="mb-10 bg-gray-50/40 rounded-3xl border border-gray-100/50 p-6 shadow-soft-xs">
 						<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST">
@@ -179,15 +214,6 @@
 							</div>
 						</form>
 					</div>
-				{% else %}
-					<div class="mb-8 p-6 bg-orange-50/50 rounded-2xl border border-orange-100 text-center">
-						<i class="fas fa-lock text-orange-600 mb-2 text-2xl"></i>
-						{% if post.status == 'solved' %}
-							<p class="text-sm font-bold text-orange-800 mb-0">This post is solved and comments are closed.</p>
-						{% else %}
-							<p class="text-sm font-bold text-orange-800 mb-0">The comment section is blocked for this post.</p>
-						{% endif %}
-					</div>
 				{% endif %}
 
 				<!-- Comments Tree -->
@@ -196,8 +222,9 @@
 					{% for comment in comments %}
 						{{ macros.render_comment(comment, post, app_user, 0) }}
 					{% else %}
-						<div class="text-center py-10 opacity-30">
-							<i class="fas fa-comments text-4xl mb-2"></i>
+						{# ✅ FIXED: Improved visibility of "no comments" message #}
+						<div class="text-center py-10 text-slate-500">
+							<i class="fas fa-comments text-4xl mb-3 opacity-60"></i>
 							<p class="text-sm font-bold">No comments yet. Be the first to share your thoughts!</p>
 						</div>
 					{% endfor %}
@@ -207,52 +234,33 @@
 	</div>
 </div>
 
-<!-- Share Modal -->
-<div id="embedModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-	<div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-soft-2xl animate-fade-in mx-4 text-left">
-		<div class="flex justify-between items-center mb-4">
-			<h6 class="font-bold mb-0 text-slate-700">Embed Discussion</h6>
-			<button onclick="toggleEmbedModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-				<i class="fas fa-times"></i>
-			</button>
-		</div>
-		<div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4">
-			<code id="embedCode" class="text-xs text-slate-600 break-all select-all">
-				&lt;iframe src="{{ postUrl }}" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;
-			</code>
-		</div>
-		<button onclick="copyToClipboard(document.getElementById('embedCode').innerText, 'Embed code copied!')" class="w-full py-2.5 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
-			Copy Code
-		</button>
+<!-- Success Toast Message -->
+<div id="copyToast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] hidden bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl transition-all duration-300 transform border border-slate-700 flex items-center gap-3">
+	<div class="bg-green-500 rounded-full p-1">
+		<i class="fas fa-check text-white text-xs"></i>
 	</div>
-</div>
-
-<!-- Toast -->
-<div id="copyToast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white px-6 py-3 rounded-xl shadow-soft-2xl animate-fade-in-up text-sm font-bold">
-	Link copied to clipboard!
+	<span class="text-sm font-bold tracking-tight">Link copied to clipboard!</span>
 </div>
 
 {% macro render_comment(comment, post, app_user, depth) %}
 	{% import _self as macros %}
+	{# ✅ Use globally defined isAdmin #}
 	{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
 	{% set isCommentOwner = app_user and comment.user == app_user %}
 
-	<div
-		class="relative group mt-4">
-		<!-- Thread Line Indicator -->
+	<div class="relative group mt-4">
 		{% if depth > 0 %}
 			<div class="absolute left-[-1.5rem] top-0 bottom-0 w-[1px] bg-slate-100 group-hover:bg-purple-200 transition-colors"></div>
 		{% endif %}
 
 		<div class="flex">
 			<div class="flex-shrink-0 mr-3">
-				<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username : 'Anonymous' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
+				<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username|url_encode : 'Anonymous' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
 			</div>
 			<div class="flex-grow">
 				<div class="flex items-center mb-1">
 					<span class="text-xs font-bold text-slate-700 mr-2">{{ comment.user ? comment.user.username : 'Anonymous' }}</span>
 					<span class="text-[10px] text-slate-400 capitalize">{{ comment.createdAt|date('d/m/Y H:i') }}</span>
-
 					{% if comment.status == 'solution' or post.solution == comment %}
 						<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-green-600 bg-green-100 rounded-lg uppercase">
 							<i class="fas fa-check-circle mr-1"></i>
@@ -260,56 +268,44 @@
 						</span>
 					{% endif %}
 				</div>
-
 				<div class="text-sm text-slate-600 leading-relaxed font-normal">
 					{{ comment.body|nl2br }}
 				</div>
-
-				<div
-					class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
-					<!-- Reply -->
+				<div class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
 					{% if not post.isCommentLocked and app_user %}
-						<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center group/action">
+						<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center">
 							<i class="fas fa-reply mr-2 transition-colors"></i>
 							<span>Reply</span>
 						</button>
 					{% endif %}
-
-					<!-- Edit (Owner only) -->
 					{% if isCommentOwner %}
-						<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-xs font-semibold text-slate-500 hover:text-blue-600 uppercase transition-all flex items-center group/action no-underline">
+						<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-xs font-semibold text-slate-500 hover:text-blue-600 uppercase transition-all flex items-center no-underline">
 							<i class="fas fa-pencil-alt mr-2 transition-colors"></i>
 							<span>Edit</span>
 						</a>
 					{% endif %}
-
-					<!-- Delete (Owner or Admin) -->
 					{% if isCommentOwner or isAdmin %}
-						<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment and all its replies?')">
+						<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment?')">
 							<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center group/action">
+							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center">
 								<i class="fas fa-trash-alt mr-2 transition-colors"></i>
 								<span>Delete</span>
 							</button>
 						</form>
 					{% endif %}
-
-					<!-- Mark Solution -->
 					{% if (isAdmin or (app_user and post.user == app_user)) and post.solution != comment and post.status != 'solved' %}
 						<form action="{{ path('app_comment_solve', {'id': comment.id}) }}" method="POST" class="inline m-0">
-							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-green-500 uppercase cursor-pointer transition-all flex items-center group/action">
+							<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-green-500 uppercase cursor-pointer transition-all flex items-center">
 								<i class="fas fa-check-double mr-2 transition-colors"></i>
 								<span>Solution</span>
 							</button>
 						</form>
 					{% endif %}
 				</div>
-
-				<!-- Inline Reply Form -->
 				<div id="reply-form-{{ comment.id }}" class="hidden mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 shadow-soft-xs">
 					<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST">
 						<input type="hidden" name="parent_id" value="{{ comment.id }}">
-						<textarea name="body" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white" rows="2" placeholder="Your reply..." required></textarea>
+						<textarea name="body" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all bg-white" rows="2" placeholder="Your reply..." required></textarea>
 						<div class="mt-2 flex justify-end">
 							<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
 								Reply
@@ -317,8 +313,6 @@
 						</div>
 					</form>
 				</div>
-
-				<!-- Recursive Replies -->
 				{% if comment.replies|length > 0 %}
 					<div class="ml-6 mt-2">
 						{% for reply in comment.replies %}
@@ -332,120 +326,98 @@
 {% endmacro %}
 
 <style>
-	@keyframes fadeInUp {
+	#copyToast.show {
+		display: flex !important;
+		animation: toastSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	@keyframes toastSlideUp {
 		from {
 			opacity: 0;
-			transform: translate(-50%, 10px);
+			transform: translate(-50%, 20px);
 		}
 		to {
 			opacity: 1;
 			transform: translate(-50%, 0);
 		}
 	}
-	.animate-fade-in-up {
-		animation: fadeInUp 0.3s ease-out;
-	}
-	.animate-fade-in {
-		animation: fadeIn 0.2s ease-out;
-	}
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-</style>{% endblock %}{% block javascripts %}
-{{ parent() }}
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-const embedModal = document.getElementById('embedModal');
-const embedCode = document.getElementById('embedCode');
+</style>
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		const POST_URL = {{ postUrl|json_encode|raw }};
+
+document.addEventListener('DOMContentLoaded', function () {
 const copyToast = document.getElementById('copyToast');
 
-window.toggleShareMenu = function (id) {
-const dropdown = document.getElementById(id);
-if (dropdown) 
-dropdown.classList.toggle('hidden');
-
-
-
-};
-
-window.openEmbedModal = function (url, dropdownId) {
-if (embedCode) {
-embedCode.innerText = `<iframe src="${url}" width="100%" height="600" frameborder="0"></iframe>`;
-}
-if (embedModal) {
-embedModal.classList.remove('hidden');
-embedModal.classList.add('flex');
-}
-if (dropdownId) {
+window.toggleShareDropdown = function (dropdownId) {
 const dropdown = document.getElementById(dropdownId);
-if (dropdown) 
-dropdown.classList.add('hidden');
-
-
-
-}
-};
-
-window.closeEmbedModal = function () {
-if (embedModal) {
-embedModal.classList.add('hidden');
-embedModal.classList.remove('flex');
-}
-};
-
-window.copyToClipboard = function (text, message, dropdownId) {
-if (! text) 
+if (! dropdown) 
 return;
 
 
+document.querySelectorAll('[id^="shareDropdown-"]').forEach(d => d.classList.add('hidden'));
+dropdown.classList.toggle('hidden');
+};
 
-navigator.clipboard.writeText(text).then(() => {
-if (copyToast) {
-copyToast.innerText = message || 'Link copied to clipboard!';
-copyToast.classList.remove('hidden');
-setTimeout(() => copyToast.classList.add('hidden'), 3000);
-}
-if (dropdownId) {
+window.copyPageUrl = function (dropdownId) {
 const dropdown = document.getElementById(dropdownId);
 if (dropdown) 
 dropdown.classList.add('hidden');
 
 
-
+const copyToClipboard = async () => {
+try {
+if (navigator.clipboard && window.isSecureContext) {
+await navigator.clipboard.writeText(POST_URL);
+return true;
 }
-}).catch(err => {
-console.error('Failed to copy: ', err);
-// Fallback
-const input = document.createElement('textarea');
-input.value = text;
-document.body.appendChild(input);
-input.select();
-document.execCommand('copy');
-document.body.removeChild(input);
-if (copyToast) {
-copyToast.innerText = message || 'Link copied to clipboard!';
+
+const textArea = document.createElement('textarea');
+textArea.value = POST_URL;
+textArea.style.position = 'fixed';
+textArea.style.left = '-9999px';
+document.body.appendChild(textArea);
+textArea.select();
+const success = document.execCommand('copy');
+document.body.removeChild(textArea);
+return success;
+} catch (err) {
+console.error('Copy failed:', err);
+return false;
+}
+};
+
+copyToClipboard().then(success => {
+if (success && copyToast) {
 copyToast.classList.remove('hidden');
-setTimeout(() => copyToast.classList.add('hidden'), 3000);
+copyToast.classList.add('show');
+
+setTimeout(() => {
+copyToast.classList.remove('show');
+setTimeout(() => {
+if (! copyToast.classList.contains('show')) {
+copyToast.classList.add('hidden');
+}
+}, 400);
+}, 3000);
+} else {
+alert('✓ Link copied!\n\n' + POST_URL);
 }
 });
 };
 
-document.addEventListener('click', function (event) {
-const dropdowns = document.querySelectorAll('[id^="shareDropdown-"]');
-dropdowns.forEach(dropdown => {
-if (!dropdown.contains(event.target)) {
-dropdown.classList.add('hidden');
+document.addEventListener('click', (e) => {
+if (!e.target.closest('[id^="share-container-"]')) {
+document.querySelectorAll('[id^="shareDropdown-"]').forEach(d => d.classList.add('hidden'));
 }
 });
 
-if (event.target === embedModal) {
-closeEmbedModal();
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape') {
+document.querySelectorAll('[id^="shareDropdown-"]').forEach(d => d.classList.add('hidden'));
 }
 });
 });
-</script>{% endblock %}
+	</script>
+{% endblock %}

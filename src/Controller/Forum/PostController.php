@@ -42,7 +42,12 @@ final class PostController extends AbstractController
                 $qb->andWhere('p.status IN (:statuses)')
                     ->setParameter('statuses', ['published', 'solved']);
             }
-            $posts = $qb->orderBy('p.createdAt', 'DESC')->getQuery()->getResult();
+            
+            // Apply pinning logic even in search if possible, or just date
+            $posts = $qb->orderBy('p.pinned', 'DESC')
+                       ->addOrderBy('p.createdAt', 'DESC')
+                       ->getQuery()
+                       ->getResult();
         } else {
             if ($isAdmin) {
                 $posts = $repo->findBy([], ['pinned' => 'DESC', 'createdAt' => 'DESC']);
