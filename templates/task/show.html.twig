@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tâche{% endblock %}
+{% block title %}Task{% endblock %}
 
 {% block body %}
     <div class="flex flex-wrap -mx-3 justify-center">
@@ -8,12 +8,12 @@
             <div class="relative flex flex-col min-w-0 mt-6 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
                 <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
                     <div>
-                        <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text">Détails de la Tâche</h3>
-                        <p class="mb-0 text-sm">Aperçu complet des informations de la tâche.</p>
+                        <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text">Task Details</h3>
+                        <p class="mb-0 text-sm">Full overview of task information.</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
-                            <i class="fas fa-edit mr-1"></i> Modifier
+                            <i class="fas fa-edit mr-1"></i> Edit
                         </a>
                         {{ include('task/_delete_form.html.twig') }}
                     </div>
@@ -21,10 +21,10 @@
                 <div class="flex-auto p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">Informations Générales</h6>
+                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">General Information</h6>
                             <div class="space-y-3">
                                 <div>
-                                    <label class="text-xs font-bold text-slate-700 block text-uppercase">Titre</label>
+                                    <label class="text-xs font-bold text-slate-700 block text-uppercase">Title</label>
                                     <span class="text-sm font-semibold">{{ task.title }}</span>
                                 </div>
                                 <div>
@@ -35,27 +35,27 @@
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">Statut et Attribution</h6>
+                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">Status and Assignment</h6>
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center">
-                                    <label class="text-xs font-bold text-slate-700 uppercase">État</label>
+                                    <label class="text-xs font-bold text-slate-700 uppercase">Status</label>
                                     {% set badge_class = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
                                     {% set status_label = task.state %}
                                     {% if task.state == 'todo' %}
                                         {% set badge_class = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
-                                        {% set status_label = 'À faire' %}
+                                        {% set status_label = 'To Do' %}
                                     {% elseif task.state == 'in_progress' %}
                                         {% set badge_class = 'bg-gradient-to-tl from-blue-600 to-cyan-400' %}
-                                        {% set status_label = 'En cours' %}
+                                        {% set status_label = 'In Progress' %}
                                     {% elseif task.state == 'completed' %}
                                         {% set badge_class = 'bg-gradient-to-tl from-green-600 to-lime-400' %}
-                                        {% set status_label = 'Terminé' %}
+                                        {% set status_label = 'Completed' %}
                                     {% endif %}
                                     <span class="{{ badge_class }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ status_label }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <label class="text-xs font-bold text-slate-700 uppercase">Assigné à</label>
-                                    <span class="text-sm font-semibold">{{ task.assumedBy ? task.assumedBy.username : 'Non assigné' }}</span>
+                                    <label class="text-xs font-bold text-slate-700 uppercase">Assigned to</label>
+                                    <span class="text-sm font-semibold">{{ task.assumedBy ? task.assumedBy.username : 'Not assigned' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <label class="text-xs font-bold text-slate-700 uppercase">Mission</label>
@@ -65,14 +65,14 @@
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 md:col-span-2">
-                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">Délais et Dates</h6>
+                            <h6 class="text-xs font-bold text-slate-400 uppercase mb-3">Deadlines and Dates</h6>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="text-xs font-bold text-slate-700 block uppercase">Dernier délai</label>
-                                    <span class="text-sm font-semibold text-red-500"><i class="far fa-calendar-alt mr-1"></i> {{ task.timeTlimit ? task.timeTlimit|date('d F Y, H:i') : 'Pas de limite' }}</span>
+                                    <label class="text-xs font-bold text-slate-700 block uppercase">Last deadline</label>
+                                    <span class="text-sm font-semibold text-red-500"><i class="far fa-calendar-alt mr-1"></i> {{ task.timeTlimit ? task.timeTlimit|date('d F Y, H:i') : 'No limit' }}</span>
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-slate-700 block uppercase">Créé le</label>
+                                    <label class="text-xs font-bold text-slate-700 block uppercase">Created at</label>
                                     <span class="text-sm font-semibold text-slate-500">{{ task.cratedAt ? task.cratedAt|date('d F Y, H:i') : 'N/A' }}</span>
                                 </div>
                             </div>
@@ -81,7 +81,7 @@
 
                     <div class="mt-6 text-center">
                         <a href="{{ path('app_task_index') }}" class="text-sm font-bold text-slate-700 hover:text-fuchsia-500 transition-all">
-                            <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
+                            <i class="fas fa-arrow-left mr-1"></i> Back to list
                         </a>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260212194707 extends AbstractMigration
+final class Version20260214145603 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -30,7 +30,7 @@ final class Version20260212194707 extends AbstractMigration
         $this->addSql('CREATE TABLE event_users (event_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_559814C571F7E88B (event_id), INDEX IDX_559814C567B3B43D (users_id), PRIMARY KEY (event_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE idea (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_used DATETIME DEFAULT NULL, creator_id INT NOT NULL, INDEX IDX_A8BCA4561220EA6 (creator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE idea_users (idea_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_5544963C5B6FEF7D (idea_id), INDEX IDX_5544963C67B3B43D (users_id), PRIMARY KEY (idea_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE mission (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, state VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_update DATETIME DEFAULT NULL, implement_idea_id INT NOT NULL, assigned_by_id INT NOT NULL, INDEX IDX_9067F23CE70560BA (implement_idea_id), INDEX IDX_9067F23C6E6F1246 (assigned_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE mission (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, state VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_update DATETIME DEFAULT NULL, mission_date DATETIME DEFAULT NULL, completed_at DATETIME DEFAULT NULL, implement_idea_id INT NOT NULL, assigned_by_id INT NOT NULL, INDEX IDX_9067F23CE70560BA (implement_idea_id), INDEX IDX_9067F23C6E6F1246 (assigned_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, message LONGTEXT NOT NULL, is_read TINYINT DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL, user_id INT NOT NULL, related_post_id INT DEFAULT NULL, INDEX IDX_BF5476CAA76ED395 (user_id), INDEX IDX_BF5476CA7490C989 (related_post_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, status VARCHAR(50) NOT NULL, refusal_reason LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, pinned TINYINT DEFAULT 0 NOT NULL, content LONGTEXT NOT NULL, tags VARCHAR(255) DEFAULT NULL, image_name VARCHAR(255) DEFAULT NULL, pdf_name VARCHAR(255) DEFAULT NULL, likes INT DEFAULT 0 NOT NULL, solution_id INT DEFAULT NULL, user_id INT DEFAULT NULL, UNIQUE INDEX UNIQ_5A8A6C8D1C0BE183 (solution_id), INDEX IDX_5A8A6C8DA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE reservation (id INT AUTO_INCREMENT NOT NULL, reserved_at DATETIME NOT NULL, status VARCHAR(255) NOT NULL, event_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_42C8495571F7E88B (event_id), INDEX IDX_42C84955A76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');

@@ -85,7 +85,7 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Idée modifiée avec succès !');
+            $this->addFlash('success', 'Idea updated successfully!');
 
             return $this->redirectToRoute('app_idea_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -102,7 +102,7 @@ final class TSKController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $idea->getId(), $request->request->get('_token'))) {
             $entityManager->remove($idea);
             $entityManager->flush();
-            $this->addFlash('success', 'Idée supprimée avec succès !');
+            $this->addFlash('success', 'Idea deleted successfully!');
         }
 
         return $this->redirectToRoute('app_idea_index', [], Response::HTTP_SEE_OTHER);
@@ -113,8 +113,26 @@ final class TSKController extends AbstractController
     #[Route('/mission', name: 'app_mission_index', methods: ['GET'])]
     public function missionIndex(MissionRepository $missionRepository): Response
     {
+        $missions = $missionRepository->findAll();
+
+        $calendarData = [];
+        foreach ($missions as $mission) {
+            $calendarData[] = [
+                'id' => $mission->getId(),
+                'title' => $mission->getTitle(),
+                'start' => $mission->getMissionDate() ? $mission->getMissionDate()->format('Y-m-d') : $mission->getCreatedAt()->format('Y-m-d'),
+                'url' => $this->generateUrl('app_mission_show', ['id' => $mission->getId()]),
+                'backgroundColor' => $mission->getState() === 'completed' ? '#10b981' : ($mission->getState() === 'in_progress' ? '#3b82f6' : '#9333ea'),
+                'borderColor' => $mission->getState() === 'completed' ? '#10b981' : ($mission->getState() === 'in_progress' ? '#3b82f6' : '#9333ea'),
+                'description' => $mission->getDescription(),
+                'state' => $mission->getState(),
+                'idea' => $mission->getImplementIdea() ? $mission->getImplementIdea()->getTitle() : 'N/A',
+            ];
+        }
+
         return $this->render('mission/index.html.twig', [
-            'missions' => $missionRepository->findAll(),
+            'missions' => $missions,
+            'calendar_data' => json_encode($calendarData),
         ]);
     }
 
@@ -141,6 +159,15 @@ final class TSKController extends AbstractController
             $mission->setState($request->query->get('m_state'));
         }
 
+        $dateParam = $request->query->get('date');
+        if ($dateParam) {
+            try {
+                $mission->setMissionDate(new \DateTime($dateParam));
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+
         $form = $this->createForm(MissionType::class, $mission);
         $form->handleRequest($request);
 
@@ -155,7 +182,7 @@ final class TSKController extends AbstractController
             $entityManager->persist($mission);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Mission créée avec succès !');
+            $this->addFlash('success', 'Mission created successfully!');
 
             return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -184,7 +211,7 @@ final class TSKController extends AbstractController
             $mission->setLastUpdate(new \DateTime());
             $entityManager->flush();
 
-            $this->addFlash('success', 'Mission modifiée avec succès !');
+            $this->addFlash('success', 'Mission updated successfully!');
 
             return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -201,7 +228,7 @@ final class TSKController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
-            $this->addFlash('success', 'Mission supprimée avec succès !');
+            $this->addFlash('success', 'Mission deleted successfully!');
         }
 
         return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
@@ -244,7 +271,7 @@ final class TSKController extends AbstractController
             $entityManager->persist($task);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tâche créée avec succès !');
+            $this->addFlash('success', 'Task created successfully!');
 
             return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -272,7 +299,7 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tâche modifiée avec succès !');
+            $this->addFlash('success', 'Task updated successfully!');
 
             return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -289,7 +316,7 @@ final class TSKController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $task->getId(), $request->request->get('_token'))) {
             $entityManager->remove($task);
             $entityManager->flush();
-            $this->addFlash('success', 'Tâche supprimée avec succès !');
+            $this->addFlash('success', 'Task deleted successfully!');
         }
 
         return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
