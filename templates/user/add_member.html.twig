@@ -21,7 +21,7 @@
                 <h6 class="mb-3 mt-2 text-xl">Member Credentials</h6>
               </div>
               <div class="flex-auto p-4">
-                {{ form_start(form) }}
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                   <div class="mb-4">
                     <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Username</label>
                     {{ form_widget(form.username) }}
