@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
+    #[Route('/home', name: 'app_home')]
     public function index(Request $request): Response
     {
         $allowedRoles = ['ROLE_ADMIN', 'ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER'];
