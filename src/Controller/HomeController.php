@@ -12,7 +12,7 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(Request $request): Response
     {
-        $allowedRoles = ['ROLE_CONTENT_CREATOR','ROLE_MANAGER','ROLE_MEMBER'];
+        $allowedRoles = ['ROLE_ADMIN', 'ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER'];
         $userRole = $request->getSession()->get('user_role');
         if (!in_array($userRole, $allowedRoles)) {
             $this->addFlash('warning', 'Access restricted to Visitors.');
