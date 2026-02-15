@@ -18,6 +18,12 @@ final class FrontController extends AbstractController
     #[Route('/front', name: 'app_front_home')]
     public function index(\Symfony\Component\HttpFoundation\Request $request, CategorieCoursRepository $catRepo): Response
     {
+        // Redirection Admin vers Back-office
+        $userRole = $request->getSession()->get('user_role');
+        if ($userRole === 'ROLE_ADMIN') {
+            return $this->redirectToRoute('app_categorie_cours_index');
+        }
+
         $search = $request->query->get('search');
         if ($search) {
              $categories = $catRepo->searchByName($search);
@@ -35,6 +41,12 @@ final class FrontController extends AbstractController
     #[Route('/category/{id}', name: 'app_front_category')]
     public function category(\Symfony\Component\HttpFoundation\Request $request, CategorieCours $category, CoursRepository $coursRepo): Response
     {
+        // Redirection Admin vers Back-office (Liste des cours de la catégorie)
+        $userRole = $request->getSession()->get('user_role');
+        if ($userRole === 'ROLE_ADMIN') {
+            return $this->redirectToRoute('app_categorie_cours_courses', ['id' => $category->getId()]);
+        }
+
         $search = $request->query->get('search');
         $sortParam = $request->query->get('sort', 'titre_ASC');
         
@@ -71,22 +83,28 @@ final class FrontController extends AbstractController
     #[Route('/course/{id}', name: 'app_front_course')]
     public function course(\Symfony\Component\HttpFoundation\Request $request, Cours $course, RessourceRepository $resRepo): Response
     {
+        // Redirection Admin vers Back-office (Détail du cours)
+        $userRole = $request->getSession()->get('user_role');
+        if ($userRole === 'ROLE_ADMIN') {
+            return $this->redirectToRoute('app_cours_show', ['id' => $course->getId()]);
+        }
+        
         $search = $request->query->get('search');
         $type = $request->query->get('type');
-
-        $filters = [
-            'cours' => $course->getId(),
-            'search' => $search,
-            'type' => $type
-        ];
-
-        $ressources = $resRepo->findWithFilters($filters);
-
-        return $this->render('front/course/show.html.twig', [
-            'course' => $course,
-            'ressources' => $ressources,
-            'search' => $search,
-            'current_type' => $type
-        ]);
+ 
+         $filters = [
+             'cours' => $course->getId(),
+             'search' => $search,
+             'type' => $type
+         ];
+ 
+         $ressources = $resRepo->findWithFilters($filters);
+ 
+         return $this->render('front/course/show.html.twig', [
+             'course' => $course,
+             'ressources' => $ressources,
+             'search' => $search,
+             'current_type' => $type
+         ]);
     }
 }
