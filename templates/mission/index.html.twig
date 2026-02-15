@@ -49,6 +49,11 @@
             pointer-events: none;
             z-index: 1;
         }
+        /* Disable plus sign for members */
+        .no-plus .fc-daygrid-day-frame::after,
+        .no-plus .fc-timegrid-col-frame::after {
+            display: none !important;
+        }
         .fc-daygrid-day-frame:hover::after,
         .fc-timegrid-col-frame:hover::after {
             opacity: 0.2;
@@ -91,12 +96,14 @@
                     <div>
                         <h6 class="font-bold">Mission Calendar</h6>
                     </div>
+                    {% if app.session.get('user_role') != 'ROLE_MEMBER' %}
                     <a href="{{ path('app_mission_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
                         <i class="fas fa-plus mr-1"></i> New Mission
                     </a>
+                    {% endif %}
                 </div>
                 <div class="p-6 pt-0">
-                    <div id="calendar" class="mt-4"></div>
+                    <div id="calendar" class="mt-4 {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'no-plus' : '' }}"></div>
                 </div>
             </div>
         </div>
@@ -110,6 +117,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
+            const isMember = {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'true' : 'false' }};
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'en',
@@ -130,6 +139,8 @@
                 },
                 events: {{ calendar_data|raw }},
                 dateClick: function(info) {
+                    // prevent members from creating missions via calendar click
+                    if (isMember) return;
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     const clickedDate = new Date(info.dateStr);

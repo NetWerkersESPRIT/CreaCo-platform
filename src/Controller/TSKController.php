@@ -114,9 +114,28 @@ final class TSKController extends AbstractController
     // --- MISSION ---
 
     #[Route('/mission', name: 'app_mission_index', methods: ['GET'])]
-    public function missionIndex(MissionRepository $missionRepository): Response
+    public function missionIndex(MissionRepository $missionRepository, EntityManagerInterface $entityManager, Request $request): Response
     {
-        $missions = $missionRepository->findAll();
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, only show missions from people with the same group ID
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if ($currentUser && $currentUser->getGroupid()) {
+                $missions = $missionRepository->createQueryBuilder('m')
+                    ->innerJoin('m.assignedBy', 'u')
+                    ->where('u.groupid = :groupId')
+                    ->setParameter('groupId', $currentUser->getGroupid())
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $missions = [];
+            }
+        }
+        else {
+            $missions = $missionRepository->findAll();
+        }
 
         $calendarData = [];
         foreach ($missions as $mission) {
@@ -225,8 +244,19 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/mission/{id}', name: 'app_mission_show', methods: ['GET'])]
-    public function missionShow(Mission $mission): Response
+    public function missionShow(Mission $mission, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to this mission.');
+            }
+        }
+        
         return $this->render('mission/show.html.twig', [
             'mission' => $mission,
         ]);
@@ -235,6 +265,17 @@ final class TSKController extends AbstractController
     #[Route('/mission/{id}/edit', name: 'app_mission_edit', methods: ['GET', 'POST'])]
     public function missionEdit(Request $request, Mission $mission, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to edit this mission.');
+            }
+        }
+        
         $form = $this->createForm(MissionType::class, $mission);
         $form->handleRequest($request);
 
@@ -256,6 +297,17 @@ final class TSKController extends AbstractController
     #[Route('/mission/{id}', name: 'app_mission_delete', methods: ['POST'])]
     public function missionDelete(Request $request, Mission $mission, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to delete this mission.');
+            }
+        }
+        
         if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
@@ -268,10 +320,32 @@ final class TSKController extends AbstractController
     // --- TASK ---
 
     #[Route('/task', name: 'app_task_index', methods: ['GET'])]
-    public function taskIndex(TaskRepository $taskRepository): Response
+    public function taskIndex(TaskRepository $taskRepository, EntityManagerInterface $entityManager, Request $request): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if ($currentUser && $currentUser->getGroupid()) {
+                $tasks = $taskRepository->createQueryBuilder('t')
+                    ->leftJoin('t.belongTo', 'm')
+                    ->leftJoin('m.assignedBy', 'ma')
+                    ->leftJoin('t.issuedBy', 'ib')
+                    ->leftJoin('t.assumedBy', 'ab')
+                    ->where('ma.groupid = :gid OR ib.groupid = :gid OR ab.groupid = :gid')
+                    ->setParameter('gid', $currentUser->getGroupid())
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $tasks = [];
+            }
+        } else {
+            $tasks = $taskRepository->findAll();
+        }
+
         return $this->render('task/index.html.twig', [
-            'tasks' => $taskRepository->findAll(),
+            'tasks' => $tasks,
         ]);
     }
 
@@ -340,8 +414,31 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/task/{id}', name: 'app_task_show', methods: ['GET'])]
-    public function taskShow(Task $task): Response
+    public function taskShow(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                throw $this->createAccessDeniedException('You do not have access to this task.');
+            }
+        }
+
         return $this->render('task/show.html.twig', [
             'task' => $task,
         ]);
@@ -350,6 +447,29 @@ final class TSKController extends AbstractController
     #[Route('/task/{id}/edit', name: 'app_task_edit', methods: ['GET', 'POST'])]
     public function taskEdit(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                throw $this->createAccessDeniedException('You do not have access to edit this task.');
+            }
+        }
+
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
@@ -370,6 +490,31 @@ final class TSKController extends AbstractController
     #[Route('/task/{id}/update-state', name: 'app_task_update_state', methods: ['POST'])]
     public function updateState(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'You do not have permission to update this task'
+                ], Response::HTTP_FORBIDDEN);
+            }
+        }
         $data = json_decode($request->getContent(), true);
         $newState = $data['state'] ?? null;
 
