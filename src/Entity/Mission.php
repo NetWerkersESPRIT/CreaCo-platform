@@ -5,9 +5,12 @@ namespace App\Entity;
 use App\Repository\MissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MissionRepository::class)]
+#[Assert\Callback([self::class, 'validateMissionDate'])]
 class Mission
 {
     #[ORM\Id]
@@ -44,9 +47,16 @@ class Mission
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'belongTo')]
     private Collection $tasks;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $missionDate = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -166,5 +176,45 @@ class Mission
         }
 
         return $this;
+    }
+
+    public function getMissionDate(): ?\DateTimeInterface
+    {
+        return $this->missionDate;
+    }
+
+    public function setMissionDate(?\DateTimeInterface $missionDate): static
+    {
+        $this->missionDate = $missionDate;
+
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTimeImmutable $completedAt): static
+    {
+        $this->completedAt = $completedAt;
+
+        return $this;
+    }
+
+    public static function validateMissionDate(mixed $object, ExecutionContextInterface $context): void
+    {
+        if (!$object instanceof self) {
+            return;
+        }
+
+        $createdAt = $object->getCreatedAt() ?? new \DateTimeImmutable();
+        if ($object->getMissionDate() !== null) {
+            if ($object->getMissionDate() < $createdAt) {
+                $context->buildViolation('La date et l\'heure de la mission ne peuvent pas être antérieures à sa date de création.')
+                    ->atPath('missionDate')
+                    ->addViolation();
+            }
+        }
     }
 }

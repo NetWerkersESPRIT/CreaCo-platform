@@ -21,9 +21,9 @@ class MissionType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Titre',
+                'label' => 'Title',
                 'constraints' => [
-                    new NotBlank(['message' => 'Le titre est obligatoire']),
+                    new NotBlank(['message' => 'Title is required']),
                     new Length(['min' => 3, 'max' => 255]),
                 ],
             ])
@@ -31,27 +31,34 @@ class MissionType extends AbstractType
                 'label' => 'Description',
                 'attr' => ['rows' => 5],
                 'constraints' => [
-                    new NotBlank(['message' => 'La description est obligatoire']),
+                    new NotBlank(['message' => 'Description is required']),
                 ],
             ])
             ->add('state', ChoiceType::class, [
-                'label' => 'État',
+                'label' => 'Status',
                 'choices' => [
-                    'Nouveau' => 'new',
-                    'En cours' => 'in_progress',
-                    'Terminé' => 'completed',
+                    'New' => 'new',
+                    'In Progress' => 'in_progress',
+                    'Completed' => 'completed',
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'L\'état est obligatoire']),
+                    new NotBlank(['message' => 'Status is required']),
                 ],
             ])
             ->add('implementIdea', EntityType::class, [
                 'class' => Idea::class,
                 'choice_label' => 'title',
-                'label' => 'Idée associée',
-                'placeholder' => 'Choisir une idée',
+                'label' => 'Associated Idea',
+                'placeholder' => 'Choose an idea',
                 'constraints' => [
-                    new NotBlank(['message' => 'L\'idée associée est obligatoire']),
+                    new NotBlank(['message' => 'Associated idea is required']),
+                ],
+            ])
+            ->add('missionDate', null, [
+                'label' => 'Mission Deadline',
+                'widget' => 'single_text',
+                'constraints' => [
+                    new NotBlank(['message' => 'Mission deadline is required']),
                 ],
             ])
         ;

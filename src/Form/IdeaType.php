@@ -17,12 +17,12 @@ class IdeaType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Titre',
+                'label' => 'Title',
                 'constraints' => [
-                    new NotBlank(['message' => 'Le titre est obligatoire']),
+                    new NotBlank(['message' => 'Title is required']),
                     new Length([
                         'min' => 3,
-                        'minMessage' => 'Le titre doit faire au moins {{ limit }} caractères',
+                        'minMessage' => 'Title must be at least {{ limit }} characters',
                         'max' => 255,
                     ]),
                 ],
@@ -31,13 +31,13 @@ class IdeaType extends AbstractType
                 'label' => 'Description',
                 'attr' => ['rows' => 5],
                 'constraints' => [
-                    new NotBlank(['message' => 'La description est obligatoire']),
+                    new NotBlank(['message' => 'Description is required']),
                 ],
             ])
             ->add('category', TextType::class, [
-                'label' => 'Catégorie',
+                'label' => 'Category',
                 'constraints' => [
-                    new NotBlank(['message' => 'La catégorie est obligatoire']),
+                    new NotBlank(['message' => 'Category is required']),
                 ],
             ])
         ;

@@ -39,7 +39,7 @@
 		<div
 			class="flex items-center mt-2 grow sm:mt-0 md:mr-0 lg:flex lg:basis-auto justify-between gap-4">
 			<!-- Search Bar (Left Side) - Only on Forum Pages -->
-			<div class="flex items-center">
+			<div class="flex items-center md:ml-auto md:pr-4">
 				{% set currentRoute = app.request.attributes.get('_route') %}
 				{% if currentRoute in ['forum_index', 'app_post_show'] %}
 					<form action="{{ path('forum_index') }}" method="GET" class="relative flex flex-wrap items-stretch w-64 md:w-72 transition-all rounded-xl ease-soft mb-0">
@@ -54,41 +54,49 @@
 			<!-- User Info & Actions (Right Side) -->
 			<ul class="flex flex-row items-center justify-end pl-0 mb-0 list-none gap-4">
 				{% if app_user %}
-					<div class="relative flex min-w-0 break-words bg-white shadow-soft-xl rounded-xl bg-clip-border overflow-hidden">
-						<div class="flex-auto py-2 px-4 flex-col">
-							<div class="flex flex-wrap -mx-3 items-center">
-								<div class="flex-none max-w-full px-3 flex items-center">
-									<div class="flex flex-col">
-										<p class="mb-0 font-sans font-semibold leading-normal text-[10px] text-fuchsia-500 uppercase tracking-wider">Welcome</p>
-										<h5 class="mb-0 font-bold text-sm text-slate-700">
+					<!-- User Card -->
+					<div class="relative flex min-w-0 mb-0 mt-0 bg-white shadow-soft-xl rounded-xl bg-clip-border">
+						<div class="pt-2 pr-4 pl-4 pb-2 flex-col w-md">
+							<div class="flex flex-wrap w-full">
+								<div class="max-w-full px-3 pr-6 flex items-center">
+									<div class="flex flex-col mr-4 text-right">
+										<p class="mb-0 font-sans font-semibold leading-normal text-sm text-fuchsia-500">Welcome</p>
+										<h5 class="mb-0 font-bold text-slate-700">
 											{{ app_user.username }}
 										</h5>
 									</div>
+
+									{% if app_user.role == 'ROLE_ADMIN' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-gray-900 to-slate-800 align-baseline font-bold uppercase leading-none text-white">Admin</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_CONTENT_CREATOR' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-purple-700 to-pink-500 align-baseline font-bold uppercase leading-none text-white">Content Creator</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_MANAGER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-green-600 to-lime-400 align-baseline font-bold uppercase leading-none text-white">Manager</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_MEMBER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-blue-600 to-cyan-400 align-baseline font-bold uppercase leading-none text-white">Member</span>
+									{% endif %}
 								</div>
-								<div class="w-auto flex-none px-3 ml-auto text-right">
+
+								<div class="w-auto max-w-full px-3 ml-auto -mx-3 text-right flex-0 hover:scale-102 transition-all duration-200 ease-in-out hover:border-4 hover:border-pink-500 hover:rounded-xl rounded-full">
 									<a href="{{ path('app_profile') }}">
-										<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="{{ app_user.username }}" class="inline-flex items-center justify-center w-10 h-10 text-white transition-all duration-200 ease-in-out text-sm rounded-xl hover:scale-105 shadow-soft-xs"/>
+										<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="avatar image" class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-full"/>
 									</a>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<li class="flex items-center pl-4 xl:hidden">
-						<a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
-							<div class="w-4.5 overflow-hidden">
-								<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-								<i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-								<i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-							</div>
-						</a>
-					</li>
-
-					<li class="flex items-center">
-						<a href="{{ path('app_logout') }}" class="bg-gradient-to-tl p-2.5 from-red-500 to-pink-500 shadow-soft-2xl flex h-10 w-10 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-110 transition-all group" title="Sign Out">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="2" stroke="white" class="w-5 h-5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15 M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
-							</svg>
+					<!-- Logout Button -->
+					<li>
+						<a href="{{ path('app_logout') }}">
+							<button type="button" class="relative bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-105 transition-transform">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+								</svg>
+							</button>
 						</a>
 					</li>
 				{% endif %}

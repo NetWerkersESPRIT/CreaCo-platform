@@ -3,7 +3,7 @@
     <div class="mb-4">
         {{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
         {% set title_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.title.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-        {{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Titre de la mission'}}) }}
+        {{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Mission title'}}) }}
         {% if not form.title.vars.valid %}
             {% for error in form.title.vars.errors %}
                 <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
@@ -16,7 +16,7 @@
     <div class="mb-4">
         {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
         {% set desc_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.description.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-        {{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Description de la mission', 'rows': '5'}}) }}
+        {{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Mission description', 'rows': '5'}}) }}
         {% if not form.description.vars.valid %}
             {% for error in form.description.vars.errors %}
                 <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
@@ -46,16 +46,29 @@
             {% if not form.implementIdea.vars.valid %}
                 {% for error in form.implementIdea.vars.errors %}
                     <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                        Le lien Idée : {{ error.message }}
+                        Idea connection : {{ error.message }}
                     </label>
                 {% endfor %}
             {% endif %}
         </div>
     </div>
 
+    <div class="mb-4">
+        {{ form_label(form.missionDate, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+        {% set date_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.missionDate.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+        {{ form_widget(form.missionDate, {'attr': {'class': date_class}}) }}
+        {% if not form.missionDate.vars.valid %}
+            {% for error in form.missionDate.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    {{ form.missionDate.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+        {% endif %}
+    </div>
+
     <div class="text-center">
         <button class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
-            {{ button_label|default('Enregistrer') }}
+            {{ button_label|default('Save') }}
         </button>
     </div>
 {{ form_end(form) }}
@@ -67,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add the "New Idea" option
         const newOption = document.createElement('option');
         newOption.value = 'CREATE_NEW';
-        newOption.text = '++ Créer une nouvelle idée ++';
+        newOption.text = '++ Create new idea ++';
         newOption.style.fontWeight = 'bold';
         newOption.style.color = '#cb0c9f';
         ideaSelect.appendChild(newOption);

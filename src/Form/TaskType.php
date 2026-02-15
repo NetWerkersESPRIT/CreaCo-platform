@@ -22,9 +22,9 @@ class TaskType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Titre',
+                'label' => 'Title',
                 'constraints' => [
-                    new NotBlank(['message' => 'Le titre est obligatoire']),
+                    new NotBlank(['message' => 'Title is required']),
                     new Length(['min' => 3, 'max' => 255]),
                 ],
             ])
@@ -32,37 +32,37 @@ class TaskType extends AbstractType
                 'label' => 'Description',
                 'attr' => ['rows' => 5],
                 'constraints' => [
-                    new NotBlank(['message' => 'La description est obligatoire']),
+                    new NotBlank(['message' => 'Description is required']),
                 ],
             ])
             ->add('state', ChoiceType::class, [
-                'label' => 'État',
+                'label' => 'Status',
                 'choices' => [
-                    'À faire' => 'todo',
-                    'En cours' => 'in_progress',
-                    'Terminé' => 'completed',
+                    'To Do' => 'todo',
+                    'In Progress' => 'in_progress',
+                    'Completed' => 'completed',
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'L\'état est obligatoire']),
+                    new NotBlank(['message' => 'Status is required']),
                 ],
             ])
             ->add('timeTlimit', DateTimeType::class, [
-                'label' => 'Date limite',
+                'label' => 'Deadline',
                 'widget' => 'single_text',
                 'required' => false,
             ])
             ->add('belongTo', EntityType::class, [
                 'class' => Mission::class,
                 'choice_label' => 'title',
-                'label' => 'Mission associée',
-                'placeholder' => 'Choisir une mission',
+                'label' => 'Associated Mission',
+                'placeholder' => 'Choose a mission',
                 'required' => false,
             ])
             ->add('assumedBy', EntityType::class, [
                 'class' => Users::class,
                 'choice_label' => 'username',
-                'label' => 'Assigné à',
-                'placeholder' => 'Choisir un éditeur',
+                'label' => 'Assigned To',
+                'placeholder' => 'Choose an editor',
                 'required' => false,
             ])
         ;
