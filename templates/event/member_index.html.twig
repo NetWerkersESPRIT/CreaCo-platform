@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events Marketplace{% endblock %}
+{% block page_title %}Explore Events{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <!-- Search and Filter Header -->
+    <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full max-w-full px-3 flex-0">
+            <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-wrap -mx-3 items-center">
+                        <div class="w-full max-w-full px-3 lg:w-1/3">
+                            <h5 class="mb-0 font-bold">Upcoming Events</h5>
+                            <p class="mb-0 text-sm leading-normal text-slate-400">Tailored events for you.</p>
+                        </div>
+                        
+                        <div class="w-full max-w-full px-3 mt-4 lg:w-1/2 lg:mt-0">
+                            <div class="flex flex-wrap items-center space-x-3">
+                                <div class="flex flex-col flex-1 min-w-[150px]">
+                                    <select id="filter-category" class="text-xs focus:shadow-soft-primary-outline rounded-lg border border-gray-300 px-3 py-2 outline-none">
+                                        <option value="all">All Categories</option>
+                                        <option value="course">Course</option>
+                                        <option value="meeting">Meeting</option>
+                                        <option value="workshop">Workshop</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col flex-1 min-w-[120px]">
+                                    <select id="filter-type" class="text-xs focus:shadow-soft-primary-outline rounded-lg border border-gray-300 px-3 py-2 outline-none">
+                                        <option value="all">All Types</option>
+                                        <option value="online">Online</option>
+                                        <option value="in-person">In-person</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1 min-w-[150px]">
+                                    <input type="text" id="search-event" placeholder="Search event..." class="w-full text-xs focus:shadow-soft-primary-outline rounded-lg border border-gray-300 px-3 py-2 outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full max-w-full px-3 mt-4 lg:w-1/6 lg:mt-0 text-right">
+                            <a href="{{ path('member_reservations') }}" class="inline-block px-4 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:shadow-soft-2xl hover:scale-102">
+                                <i class="fa fa-ticket-alt mr-1"></i> My Events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="flex flex-wrap -mx-3" id="events-grid">
+        {% for event in events %}
+            <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-none event-card" 
+                 data-category="{{ event.category }}" 
+                 data-type="{{ event.type }}" 
+                 data-name="{{ event.name|lower }}">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border h-full transition-all hover:scale-105 duration-300">
+                    <div class="relative">
+                        <a class="block shadow-xl rounded-2xl">
+                            <div class="relative h-48 overflow-hidden rounded-2xl">
+                                {% if event.imagePath %}
+                                    <img src="{{ event.imagePath }}" class="object-cover w-full h-full" alt="{{ event.name }}">
+                                {% else %}
+                                    <div class="flex items-center justify-center w-full h-full bg-gradient-to-tl from-gray-900 to-slate-800">
+                                        <i class="fa fa-calendar text-white text-5xl opacity-20"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="absolute top-0 right-0 p-3">
+                                    <span class="bg-white px-3 py-1 text-xs rounded-lg font-bold text-slate-700 shadow-sm">
+                                        {{ event.category }}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="flex-auto p-4 pt-6">
+                        <p class="mb-1 text-xs font-bold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text uppercase">
+                            {{ event.type }}
+                        </p>
+                        <a href="{{ path('event_show', {'id': event.id}) }}">
+                            <h5 class="mb-2 font-bold">{{ event.name }}</h5>
+                        </a>
+                        <p class="mb-4 text-sm leading-normal text-slate-500 line-clamp-2">
+                            {{ event.description }}
+                        </p>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-slate-700"><i class="far fa-calendar-alt mr-1"></i> {{ event.date|date('M d, Y') }}</span>
+                                <span class="text-xs text-slate-400"><i class="far fa-clock mr-1"></i> {{ event.time|date('H:i') }}</span>
+                            </div>
+                            
+                            {% set isReserved = false %}
+                            {% for res in event.reservations %}
+                                {% if app_user and res.user and res.user.id == app_user.id %}
+                                    {% set isReserved = true %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if isReserved %}
+                                <span class="px-4 py-2 text-xs font-bold text-center text-green-500 uppercase align-middle transition-all bg-transparent border border-green-500 rounded-lg cursor-default leading-pro ease-soft-in">
+                                    Reserved
+                                </span>
+                            {% else %}
+                                <a href="{{ path('event_reserve', {'id': event.id}) }}" class="inline-block px-4 py-2 text-xs font-bold text-center text-blue-500 uppercase align-middle transition-all bg-transparent border border-blue-500 rounded-lg cursor-pointer leading-pro ease-soft-in hover:bg-blue-500 hover:text-white hover:shadow-soft-xs active:opacity-85">
+                                    Join Now
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="w-full px-3">
+                <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border p-6 text-center">
+                    <p class="mb-0">No events available at the moment. Check back later!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryFilter = document.getElementById('filter-category');
+    const typeFilter = document.getElementById('filter-type');
+    const searchInput = document.getElementById('search-event');
+    const cards = document.querySelectorAll('.event-card');
+
+    function filterEvents() {
+        const selectedCategory = categoryFilter.value;
+        const selectedType = typeFilter.value;
+        const searchQuery = searchInput.value.toLowerCase();
+
+        cards.forEach(card => {
+            const category = card.dataset.category;
+            const type = card.dataset.type;
+            const name = card.dataset.name;
+
+            const categoryMatch = (selectedCategory === 'all' || category === selectedCategory);
+            const typeMatch = (selectedType === 'all' || type === selectedType);
+            const searchMatch = (name.includes(searchQuery));
+
+            if (categoryMatch && typeMatch && searchMatch) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    if (categoryFilter) categoryFilter.addEventListener('change', filterEvents);
+    if (typeFilter) typeFilter.addEventListener('change', filterEvents);
+    if (searchInput) searchInput.addEventListener('input', filterEvents);
+});
+</script>
+{% endblock %}
