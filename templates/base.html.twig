@@ -42,28 +42,35 @@
 
 					{# ✅ SUCCESS (Green) #}
 					{% for message in app.flashes('success') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl">
+						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl">
+							{{ message }}
+						</div>
+					{% endfor %}
+
+					{# ⚠️ ERROR (Red) #}
+					{% for message in app.flashes('error') %}
+						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-600 to-pink-500 rounded-lg shadow-soft-xl">
 							{{ message }}
 						</div>
 					{% endfor %}
 
 					{# ⚠️ WARNING (Yellow/Red) #}
 					{% for message in app.flashes('warning') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-500 to-yellow-400 rounded-lg shadow-soft-xl">
+						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-500 to-yellow-400 rounded-lg shadow-soft-xl">
 							{{ message }}
 						</div>
 					{% endfor %}
 
 					{# ⚠️ DANGER / REFUSAL (Orange/Yellow) #}
 					{% for message in app.flashes('danger') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg shadow-soft-xl">
+						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg shadow-soft-xl">
 							{{ message }}
 						</div>
 					{% endfor %}
 
 					{# 🚀 POST APPROVED (Green Strong Pulse) #}
 					{% for message in app.flashes('post_approved') %}
-						<div class="relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
+						<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
 							<i class="fas fa-check-circle mr-2"></i>
 							{{ message }}
 						</div>
@@ -71,7 +78,7 @@
 
 					{# 🛑 POST REFUSED (Red/Orange Strong Pulse) #}
 					{% for message in app.flashes('post_refused') %}
-						<div class="relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-red-600 to-orange-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
+						<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-red-600 to-orange-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
 							<i class="fas fa-exclamation-triangle mr-2"></i>
 							{{ message }}
 						</div>
@@ -85,6 +92,18 @@
 
 			{% block javascripts %}
 				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5" async></script>
+				<script>
+					document.addEventListener('DOMContentLoaded', () => {
+						setTimeout(() => {
+							const alerts = document.querySelectorAll('.flash-alert');
+							alerts.forEach(alert => {
+								alert.style.transition = "opacity 0.5s ease";
+								alert.style.opacity = "0";
+								setTimeout(() => alert.remove(), 500);
+							});
+						}, 1500);
+					});
+				</script>
 			{% endblock %}
 		</body>
 	</html>
