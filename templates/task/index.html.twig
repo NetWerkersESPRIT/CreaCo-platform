@@ -1,93 +1,236 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Task List{% endblock %}
+{% block title %}Task Kanban{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.css">
+    <style>
+        /* Soft UI Dashboards Styles for jKanban */
+        .kanban-container {
+            width: auto !important;
+            display: flex;
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+        .kanban-board {
+            background: #f8f9fa !important;
+            border-radius: 1.5rem !important;
+            padding: 1.25rem !important;
+            margin-right: 0 !important;
+            width: 350px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        }
+        .kanban-board header {
+            padding: 0 0 1rem 0 !important;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+        .kanban-title-board {
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
+            color: #344767 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .kanban-item {
+            background: #ffffff !important;
+            border-radius: 1rem !important;
+            margin-bottom: 1rem !important;
+            padding: 1rem !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid transparent !important;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .kanban-item:hover {
+            border-color: #cb0c9f !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+        /* Locked completed tasks */
+        .kanban-item.task-locked {
+            opacity: 0.7;
+            cursor: not-allowed !important;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        }
+        .kanban-item.task-locked:hover {
+            border-color: #6c757d !important;
+            transform: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        }
+        .kanban-item.task-locked::after {
+            content: '\f023';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            color: #6c757d;
+            font-size: 0.75rem;
+        }
+        .kanban-container * {
+            box-sizing: border-box;
+        }
+        .kanban-board.todo header { border-top: 4px solid #64748b; border-radius: 4px 4px 0 0; }
+        .kanban-board.doing header { border-top: 4px solid #21d4fd; border-radius: 4px 4px 0 0; }
+        .kanban-board.done header { border-top: 4px solid #82d616; border-radius: 4px 4px 0 0; }
+
+        /* Custom Card Content Styling */
+        .task-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .task-card-id { font-size: 0.65rem; font-weight: 700; color: #adb5bd; }
+        .task-card-title { font-size: 0.875rem; font-weight: 600; color: #344767; margin-bottom: 0.25rem; }
+        .task-card-footer { display: flex; align-items: center; font-size: 0.75rem; color: #67748e; margin-top: 0.75rem; }
+        .task-card-badge { padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; background: #f8f9fa; }
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="flex flex-wrap -mx-3 mt-6">
-        <div class="flex-none w-full max-w-full px-3">
-            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-                <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
-                    <div>
-                        <h6 class="font-bold">Task Table</h6>
-                        <p class="text-sm mb-0">List of all recorded tasks</p>
-                    </div>
-                    <a href="{{ path('app_task_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
-                        <i class="fas fa-plus mr-1"></i> New Task
-                    </a>
+        <div class="w-full max-w-full px-3">
+            <div class="flex justify-between items-center mb-8 px-4">
+                <div>
+                    <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text">Project Kanban</h3>
+                    <p class="text-sm mb-0 text-slate-500">Manage tasks with drag-and-drop efficiency.</p>
                 </div>
-                <div class="flex-auto px-0 pt-0 pb-2">
-                    <div class="p-0 overflow-x-auto">
-                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                            <thead class="align-bottom">
-                                <tr>
-                                    <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">ID</th>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Task</th>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Responsible</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Deadline</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for task in tasks %}
-                                    <tr>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex px-4 py-1">
-                                                <span class="text-xs font-bold">{{ task.id }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex flex-col justify-center">
-                                                <h6 class="mb-0 text-sm leading-normal font-semibold">{{ task.title }}</h6>
-                                                <p class="mb-0 text-xs leading-tight text-slate-400">{{ task.belongTo ? task.belongTo.title : 'No mission' }}</p>
-                                            </div>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex items-center">
-                                                <div class="flex flex-col">
-                                                    <h6 class="mb-0 text-xs font-semibold leading-tight">{{ task.assumedBy ? task.assumedBy.username : 'Not assigned' }}</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            {% set badge_class = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
-                                            {% set status_label = task.state %}
-                                            
-                                            {% if task.state == 'todo' %}
-                                                {% set badge_class = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
-                                                {% set status_label = 'To Do' %}
-                                            {% elseif task.state == 'in_progress' %}
-                                                {% set badge_class = 'bg-gradient-to-tl from-blue-600 to-cyan-400' %}
-                                                {% set status_label = 'In Progress' %}
-                                            {% elseif task.state == 'completed' %}
-                                                {% set badge_class = 'bg-gradient-to-tl from-green-600 to-lime-400' %}
-                                                {% set status_label = 'Completed' %}
-                                            {% endif %}
-                                            
-                                            <span class="{{ badge_class }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ status_label }}</span>
-                                        </td>
-                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400">{{ task.timeTlimit ? task.timeTlimit|date('d/m/Y H:i') : 'No deadline' }}</span>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-                                            <a href="{{ path('app_task_show', {'id': task.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-                                                <i class="fas fa-eye text-info"></i> View
-                                            </a>
-                                            <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
-                                                <i class="fas fa-edit text-primary"></i> Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="p-4 text-center text-sm">No tasks found</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <a href="{{ path('app_task_new') }}" class="inline-block px-8 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
+                    <i class="fas fa-plus mr-1"></i> New Task
+                </a>
+            </div>
+
+            <div class="overflow-x-auto pb-6">
+                <div id="myKanban"></div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Build Board Items from Twig
+            const columns = {
+                'todo': [],
+                'in_progress': [],
+                'completed': []
+            };
+
+            {% for task in tasks %}
+                columns["{{ task.state }}"].push({
+                    'id': "{{ task.id }}",
+                    'class': "{{ task.state == 'completed' ? 'task-locked' : '' }}",
+                    'draggable': {{ task.state == 'completed' ? 'false' : 'true' }},
+                    'title': `
+                        <div class="task-card-header">
+                            <span class="task-card-id">#{{ task.id }}</span>
+                            <div class="flex items-center">
+                                <i class="fas fa-user-circle text-slate-300 mr-1" style="font-size: 10px;"></i>
+                                <span class="text-[10px] font-bold text-slate-400 capitalize">{{ task.assumedBy ? task.assumedBy.username|slice(0, 10)|e('js') : 'Not assigned' }}</span>
+                            </div>
+                        </div>
+                        <h6 class="task-card-title">{{ task.title|e('js') }}</h6>
+                        <div class="task-card-footer">
+                            <div class="flex items-center">
+                                <i class="far fa-clock mr-1" style="font-size: 10px;"></i>
+                                <span>{{ task.timeLimit ? task.timeLimit|date('d M') : 'N/A' }}</span>
+                            </div>
+                            <span class="ml-auto task-card-badge">{{ task.belongTo ? task.belongTo.title|slice(0, 10)|e('js') : 'PROJECT' }}</span>
+                        </div>
+                    `,
+                });
+            {% endfor %}
+
+            // Initialize Kanban
+            const kanban = new jKanban({
+                element: '#myKanban',
+                gutter: '15px',
+                widthBoard: '350px',
+                boards: [
+                    {
+                        'id': 'todo',
+                        'title': 'To Do',
+                        'class': 'todo',
+                        'item': columns.todo
+                    },
+                    {
+                        'id': 'in_progress',
+                        'title': 'Doing',
+                        'class': 'doing',
+                        'item': columns.in_progress
+                    },
+                    {
+                        'id': 'completed',
+                        'title': 'Done',
+                        'class': 'done',
+                        'item': columns.completed
+                    }
+                ],
+                click: function (el) {
+                    const taskId = el.getAttribute('data-eid');
+                    window.location.href = `/task/${taskId}`;
+                },
+                dragstart: function (el, source) {
+                    // Prevent dragging completed tasks
+                    if (el.classList.contains('task-locked')) {
+                        return false;
+                    }
+                },
+                dropEl: function (el, target, source, sibling) {
+                    const taskId = el.getAttribute('data-eid');
+                    const newState = target.parentElement.getAttribute('data-id');
+                    
+                    // Prevent moving locked tasks (extra safety check)
+                    if (el.classList.contains('task-locked')) {
+                        console.warn('Cannot move completed tasks');
+                        return false;
+                    }
+                    
+                    console.log(`Updating task ${taskId} to state: ${newState}`);
+
+                    fetch(`/task/${taskId}/update-state`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ state: newState })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('Task state updated successfully');
+                            // If task is now completed, add locked class
+                            if (newState === 'completed') {
+                                el.classList.add('task-locked');
+                                el.setAttribute('draggable', 'false');
+                            }
+                        } else {
+                            console.error('Error updating task state:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                    });
+                },
+                dragendBoard: function (el) {
+                    // Logic for status update could go here
+                }
+            });
+        });
+        setTimeout(() => {
+            const completedBoard = document.querySelector('[data-id="completed"]');
+
+            if (completedBoard) {
+                const completedTasks = completedBoard.querySelectorAll('.kanban-item');
+
+                completedTasks.forEach(el => {
+                    el.classList.add('task-locked');
+                    el.setAttribute('draggable', 'false');
+                });
+            }
+        }, 100);
+    </script>
 {% endblock %}

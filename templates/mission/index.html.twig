@@ -53,6 +53,11 @@
         .fc-timegrid-col-frame:hover::after {
             opacity: 0.2;
         }
+        /* Hide plus sign for past dates */
+        .fc-day-past .fc-daygrid-day-frame::after,
+        .fc-day-past .fc-timegrid-col-frame::after {
+            display: none;
+        }
         /* Ensure events stay on top of the plus sign */
         .fc-daygrid-day-events,
         .fc-timegrid-col-events,
@@ -110,6 +115,8 @@
                 locale: 'en',
                 fixedWeekCount: false,
                 showNonCurrentDates: false,
+                allDaySlot: false,
+                noEventsText: "No missions to display.",
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -123,6 +130,15 @@
                 },
                 events: {{ calendar_data|raw }},
                 dateClick: function(info) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const clickedDate = new Date(info.dateStr);
+                    clickedDate.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("Missions cannot be scheduled in the past.");
+                        return;
+                    }
                     window.location.href = '{{ path("app_mission_new") }}?date=' + info.dateStr;
                 },
                 eventDidMount: function(info) {
