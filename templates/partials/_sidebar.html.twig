@@ -26,6 +26,8 @@
       <div
         class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
         <ul class="flex flex-col pl-0 mb-0">
+{% if app.session.get('user_role') == 'ROLE_CONTENT_CREATOR' or app.session.get('user_role') == 'ROLE_MANAGER' or app.session.get('user_role') == 'ROLE_ADMIN' %}
+
           <li class="mt-0.5 w-full">
             <a
               class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
@@ -37,6 +39,23 @@
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Events</span>
             </a>
           </li>
+{% endif %}
+{% if app.session.get('user_role') == 'ROLE_MEMBER' %}
+          <li class="mt-0.5 w-full">
+            <a
+              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+              href="{{ path('member_event_list') }}">
+              <div
+                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                <i class="ni ni-calendar-grid-58 text-white"></i>
+              </div>
+              <span
+                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+                >Events</span
+              >
+            </a>
+          </li>
+{% endif %}
 <!-- ideas -->
           <li class="mt-0.5 w-full">
             <a
@@ -83,6 +102,56 @@
             </a>
           </li>
 
+          <li class="mt-4 w-full">
+            <h6 class="ml-8 text-xxs font-bold leading-tight uppercase opacity-60 text-slate-500">Community & Learning</h6>
+          </li>
+
+          <li class="mt-0.5 w-full">
+            <a
+              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+              href="{{ path('forum_index') }}">
+              <div
+                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                <i class="ni ni-chat-round text-white"></i>
+              </div>
+              <span
+                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+                >Forum</span
+              >
+            </a>
+          </li>
+
+          <li class="mt-0.5 w-full">
+            <a
+              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+              href="{{ path('app_cours_index') }}">
+              <div
+                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                <i class="ni ni-hat-3 text-white"></i>
+              </div>
+              <span
+                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+                >Courses</span
+              >
+            </a>
+          </li>
+
+          <li class="mt-0.5 w-full">
+            <a
+              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+              href="{{ path('app_collaborator_index') }}">
+              <div
+                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+                <i class="ni ni-badge text-white"></i>
+              </div>
+              <span
+                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+                >Collaborators</span
+              >
+            </a>
+          </li>
+
+          {% if app.session.get('user_role') == 'ROLE_ADMIN' %}
           <li class="w-full mt-4">
             <h6 class="pl-6 ml-2 font-bold leading-tight uppercase text-xxs opacity-60">Admin Collab</h6>
           </li>
@@ -113,6 +182,7 @@
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Contrats</span>
             </a>
           </li>
+          {% endif %}
         </ul>
       </div>
     </aside>

@@ -18,41 +18,41 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Le nom est obligatoire")]
-    #[Assert\Length(min: 3, minMessage: "Le nom doit comporter au moins 3 caractères")]
+    #[Assert\NotBlank(message: "Name is required")]
+    #[Assert\Length(min: 3, minMessage: "Name must be at least 3 characters long")]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "La description est obligatoire")]
-    #[Assert\Length(min: 10, minMessage: "La description doit comporter au moins 10 caractères")]
+    #[Assert\NotBlank(message: "Description is required")]
+    #[Assert\Length(min: 10, minMessage: "Description must be at least 10 characters long")]
     private ?string $description = null;
 
     #[ORM\Column(length: 20)]
-    #[Assert\NotBlank(message: "Le type est obligatoire")]
+    #[Assert\NotBlank(message: "Type is required")]
     private ?string $type = null;
 
     #[ORM\Column(length: 30)]
-    #[Assert\NotBlank(message: "La catégorie est obligatoire")]
+    #[Assert\NotBlank(message: "Category is required")]
     private ?string $category = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotBlank(message: "La date est obligatoire")]
-    #[Assert\GreaterThan("today", message: "La date doit être ultérieure à aujourd'hui")]
+    #[Assert\NotBlank(message: "Date is required")]
+    #[Assert\GreaterThan("today", message: "The date must be later than today")]
     private ?\DateTime $date = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
-    #[Assert\NotBlank(message: "L'heure est obligatoire")]
+    #[Assert\NotBlank(message: "Time is required")]
     private ?\DateTime $time = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "L'organisateur est obligatoire")]
+    #[Assert\NotBlank(message: "Organizer is required")]
     private ?string $organizer = null;
 
     #[ORM\Column]
     private ?bool $isForAllUsers = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(message: "Le lien de réunion doit être une URL valide")]
+    #[Assert\Url(message: "Meeting link must be a valid URL")]
     private ?string $meetingLink = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -62,15 +62,15 @@ class Event
     private ?string $address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(message: "Le lien Google Maps doit être une URL valide")]
+    #[Assert\Url(message: "Google Maps link must be a valid URL")]
     private ?string $googleMapsLink = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\Positive(message: "La capacité doit être un nombre positif")]
+    #[Assert\Positive(message: "Capacity must be a positive number")]
     private ?int $capacity = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "Les informations de contact sont obligatoires")]
+    #[Assert\NotBlank(message: "Contact information is required")]
     private ?string $contact = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -331,5 +331,27 @@ class Event
         $this->imagePath = $imagePath;
 
         return $this;
+    }
+
+    public function getValidatedReservationsCount(): int
+    {
+        $count = 0;
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->getStatus() === 'validated') {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    public function getPendingReservationsCount(): int
+    {
+        $count = 0;
+        foreach ($this->reservations as $reservation) {
+            if ($reservation->getStatus() === 'pending') {
+                $count++;
+            }
+        }
+        return $count;
     }
 }
