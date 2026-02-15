@@ -1,28 +1,29 @@
 {{ form_start(form, {'attr': {'class': 'w-full', 'novalidate': 'novalidate'}}) }}
-    <div class="space-y-6">
-        <!-- Body Field -->
-        <div class="w-full">
-            <label class="mb-2 ml-1 font-bold text-xs text-slate-700 uppercase tracking-wider">Votre message</label>
-            {{ form_widget(form.body, {
+<div
+	class="space-y-6">
+	<!-- Body Field -->
+	<div class="w-full">
+		<label class="mb-2 ml-1 font-bold text-xs text-slate-700 uppercase tracking-wider">Votre message</label>
+		{{ form_widget(form.body, {
                 'attr': {
                     'rows': '6', 
                     'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-xl border border-solid border-gray-200 bg-white bg-clip-padding px-4 py-3 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/10'
                 }
             }) }}
-            <span class="text-xs text-red-500 mt-1 block">{{ form_errors(form.body) }}</span>
-        </div>
-        
+		<span class="text-xs text-red-500 mt-1 block">{{ form_errors(form.body) }}</span>
+	</div>
 
-    </div>
 
-    <div class="mt-8 flex flex-col gap-3">
-        <button type="submit" class="inline-block px-8 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 border-0 rounded-xl cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft text-xs">
-            {{ button_label|default('Enregistrer les modifications') }}
-        </button>
-        {% if form.vars.data.post %}
-            <a href="{{ path('app_post_show', {'id': form.vars.data.post.id}) }}" class="inline-block px-8 py-3 font-bold text-center uppercase align-middle transition-all bg-gray-100 border-0 rounded-xl cursor-pointer shadow-soft-xs hover:bg-gray-200 text-slate-700 text-xs tracking-tight-soft">
-                Annuler
-            </a>
-        {% endif %}
-    </div>
+</div>
+
+<div class="mt-8 flex flex-col gap-3">
+	<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
+		{{ button_label|default('Enregistrer les modifications') }}
+	</button>
+	{% if form.vars.data.post %}
+		<a href="{{ path('app_post_show', {'id': form.vars.data.post.id}) }}" class="inline-block px-8 py-3 font-bold text-center uppercase align-middle transition-all bg-gray-100 border-0 rounded-xl cursor-pointer shadow-soft-xs hover:bg-gray-200 text-slate-700 text-xs tracking-tight-soft">
+			Annuler
+		</a>
+	{% endif %}
+</div>
 {{ form_end(form) }}

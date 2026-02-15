@@ -16,4 +16,8 @@
 
 ###> symfony/asset-mapper ###
 /assets/vendor/
-###< symfony/asset-mapper ###
+
+###< symfony/ranim ###
+
+config/google/credentials.json
+/config/google/token.json

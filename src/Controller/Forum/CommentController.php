@@ -11,102 +11,133 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\OpenAIModerationService;
+
 
 final class CommentController extends AbstractController
 {
-    #[Route('/forum/{id}/comment/new', name: 'app_comment_new', methods: ['GET', 'POST'])]
+    private function getCurrentUser(Request $request, EntityManagerInterface $em): ?Users
+    {
+        $user = $this->getUser();
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        
+        if (!$user && $userId) {
+            return $em->getRepository(Users::class)->find($userId);
+        }
+        
+        return $user instanceof Users ? $user : null;
+    }
+
+    private function isAdmin(Request $request): bool
+    {
+        return $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
+    }
+    #[Route('/forum/{id}/comment/new', name: 'app_comment_new', methods: ['POST'])]
     public function new(Post $post, Request $request, EntityManagerInterface $em): Response
     {
-        
         if ($post->isCommentLocked() || $post->getStatus() === 'solved') {
-            $this->addFlash('warning', 'Les commentaires sont désactivés pour ce post.');
+            $message = $post->getStatus() === 'solved'
+                ? 'This post is solved and comments are closed'
+                : 'The comment section is blocked';
+
+            $this->addFlash('warning', $message);
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
-        $currentUser = $this->getUser();
-        
+        $user = $this->getCurrentUser($request, $em);
+
         $comment = new Comment();
         $comment->setPost($post);
-        if ($currentUser instanceof Users) {
-            $comment->setUser($currentUser);
-            $comment->setStatus('visible');
-        } else {
-            $comment->setUser(null);
-            $comment->setStatus('pending');
-        }
+        $comment->setUser($user);
         $comment->setCreatedAt(new \DateTime());
         $comment->setUpdatedAt(new \DateTime());
         $comment->setLikes(0);
+        $comment->setStatus('visible');
 
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $commentData = $request->request->all('comment');
+            $body = trim($commentData['body'] ?? '');
+
+            if ($body === '') {
+                $this->addFlash('error', 'Le contenu du commentaire est obligatoire.');
+                return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+            }
+
+            $comment->setBody($body);
+
+            $parentId = $request->request->get('parent_id');
+            if ($parentId) {
+                $parent = $em->getRepository(Comment::class)->find($parentId);
+                if ($parent) {
+                    $comment->setParentComment($parent);
+                }
+            }
+
             $em->persist($comment);
             $em->flush();
+
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
-        return $this->render('forum/comment/new.html.twig', [
-            'form' => $form->createView(),
-            'post' => $post,
-        ]);
-    }
+    return $this->render('forum/post/show.html.twig', [
+        'post' => $post,
+        'comments' => $em->getRepository(Comment::class)->findBy(
+            ['post' => $post, 'parentComment' => null],
+            ['createdAt' => 'ASC']
+        ),
+        'commentForm' => $form->createView(),
+    ]);
+}
+
 
     #[Route('/comment/{id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Comment $comment, EntityManagerInterface $em): Response
     {
+        $user = $this->getCurrentUser($request, $em);
+        $isOwner = $user && $comment->getUser() === $user;
+
+        if (!$isOwner) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres commentaires.');
+        }
+
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $comment->setUpdatedAt(new \DateTime());
-
             $em->flush();
-
-            return $this->redirectToRoute('app_post_show', [
-                'id' => $comment->getPost()->getId()
-            ]);
+            return $this->redirectToRoute('app_post_show', ['id' => $comment->getPost()->getId()]);
         }
 
         return $this->render('forum/comment/edit.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
             'comment' => $comment,
         ]);
     }
 
-    #[Route('/comment/{id}', name: 'app_comment_delete', methods: ['POST'])]
+    #[Route('/comment/{id}/delete', name: 'app_comment_delete', methods: ['POST'])]
     public function delete(Request $request, Comment $comment, EntityManagerInterface $em): Response
     {
+        $user = $this->getCurrentUser($request, $em);
+        $isAdmin = $this->isAdmin($request);
+        $isOwner = $user && $comment->getUser() === $user;
+
+        if (!$isAdmin && !$isOwner) {
+            throw $this->createAccessDeniedException('Non autorisé.');
+        }
+
         $postId = $comment->getPost()->getId();
 
         if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
             $em->remove($comment);
             $em->flush();
+            $this->addFlash('success', 'Commentaire supprimé.');
         }
 
         return $this->redirectToRoute('app_post_show', ['id' => $postId]);
-    }
-    #[Route('/comment/{id}/hide', name: 'app_comment_toggle_hide', methods: ['POST'])]
-    public function toggleHide(Comment $comment, EntityManagerInterface $em): Response
-    {
-        
-        $user = $this->getUser();
-        if (!$user) {
-             $this->addFlash('danger', 'Veuillez vous connecter.');
-             return $this->redirectToRoute('app_post_show', ['id' => $comment->getPost()->getId()]);
-        }
-
-        if ($comment->getUser() === $user || $comment->getPost()->getUser() === $user) {
-            $newStatus = ($comment->getStatus() === 'hidden') ? 'visible' : 'hidden';
-            $comment->setStatus($newStatus);
-            $em->flush();
-            $this->addFlash('success', 'Le statut du commentaire a été mis à jour.');
-        } else {
-            $this->addFlash('danger', 'Action non autorisée.');
-        }
-
-        return $this->redirectToRoute('app_post_show', ['id' => $comment->getPost()->getId()]);
     }
 }
