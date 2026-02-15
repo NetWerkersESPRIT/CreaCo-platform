@@ -58,11 +58,88 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user_id')]
     private Collection $notifications;
 
+    /**
+     * @var Collection<int, Post>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
+    private Collection $posts;
+
+    /**
+     * @var Collection<int, Task>
+     */
+    #[ORM\OneToMany(mappedBy: 'assumedBy', targetEntity: Task::class)]
+    private Collection $tasks;
+
+    /**
+     * @var Collection<int, Task>
+     */
+    #[ORM\OneToMany(mappedBy: 'issuedBy', targetEntity: Task::class)]
+    private Collection $tasksIssued;
+
+    /**
+     * @var Collection<int, CollabRequest>
+     */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: CollabRequest::class)]
+    private Collection $collabRequestsCreated;
+
+    /**
+     * @var Collection<int, CollabRequest>
+     */
+    #[ORM\OneToMany(mappedBy: 'revisor', targetEntity: CollabRequest::class)]
+    private Collection $collabRequestsRevised;
+
+    /**
+     * @var Collection<int, Mission>
+     */
+    #[ORM\OneToMany(mappedBy: 'assignedBy', targetEntity: Mission::class)]
+    private Collection $missionsCreated;
+
+    /**
+     * @var Collection<int, Idea>
+     */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Idea::class)]
+    private Collection $ideas;
+
+    /**
+     * @var Collection<int, Idea>
+     */
+    #[ORM\ManyToMany(mappedBy: 'usedBy', targetEntity: Idea::class)]
+    private Collection $ideasUsed;
+
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Contract::class)]
+    private Collection $contracts;
+
+    /**
+     * @var Collection<int, Collaborator>
+     */
+    #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
+    private Collection $collaborators;
+
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
         $this->events = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
+        $this->tasksIssued = new ArrayCollection();
+        $this->collabRequestsCreated = new ArrayCollection();
+        $this->collabRequestsRevised = new ArrayCollection();
+        $this->missionsCreated = new ArrayCollection();
+        $this->ideas = new ArrayCollection();
+        $this->ideasUsed = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
+        $this->collaborators = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,5 +330,92 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getTasksIssued(): Collection
+    {
+        return $this->tasksIssued;
+    }
+
+    /**
+     * @return Collection<int, CollabRequest>
+     */
+    public function getCollabRequestsCreated(): Collection
+    {
+        return $this->collabRequestsCreated;
+    }
+
+    /**
+     * @return Collection<int, CollabRequest>
+     */
+    public function getCollabRequestsRevised(): Collection
+    {
+        return $this->collabRequestsRevised;
+    }
+
+    /**
+     * @return Collection<int, Mission>
+     */
+    public function getMissionsCreated(): Collection
+    {
+        return $this->missionsCreated;
+    }
+
+    /**
+     * @return Collection<int, Idea>
+     */
+    public function getIdeas(): Collection
+    {
+        return $this->ideas;
+    }
+
+    /**
+     * @return Collection<int, Idea>
+     */
+    public function getIdeasUsed(): Collection
+    {
+        return $this->ideasUsed;
+    }
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    /**
+     * @return Collection<int, Collaborator>
+     */
+    public function getCollaborators(): Collection
+    {
+        return $this->collaborators;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
     }
 }
