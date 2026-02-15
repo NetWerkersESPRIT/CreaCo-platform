@@ -36,7 +36,10 @@
     <main
       class="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
       <!-- Navbar -->
-      {% include 'partials/_navbar.html.twig' %}
+      {% embed 'partials/_navbar.html.twig' %}
+        {% block breadcrumb %}{{ parent() }}{% endblock %}
+        {% block page_title %}{{ parent() }}{% endblock %}
+      {% endembed %}
 
       <!-- end Navbar -->
 

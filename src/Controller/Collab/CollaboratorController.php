@@ -17,19 +17,29 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/collaborator')]
-#[IsGranted('ROLE_CONTENT_CREATOR')]
 class CollaboratorController extends AbstractController
 {
     #[Route('/', name: 'app_collaborator_index', methods: ['GET'])]
-    public function index(Request $request, CollaboratorRepository $repository, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function index(Request $request, CollaboratorRepository $repository, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         $search = $request->query->get('q', '');
 
         if (!empty($search)) {
-            $collaborators = $repository->findBySearchQuery($search, $user?->getId() ?? 0);
+            $collaborators = $repository->findBySearchQuery($search, $user->getId());
         } else {
-            $collaborators = $repository->findVisibleForUser($user?->getId() ?? 0);
+            $collaborators = $repository->findVisibleForUser($user->getId());
         }
 
         // Si c'est une requête AJAX, on renvoie uniquement la liste partielle
@@ -46,9 +56,20 @@ class CollaboratorController extends AbstractController
     }
 
     #[Route('/new', name: 'app_collaborator_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         $collaborator = new Collaborator();
         $form = $this->createForm(CollaboratorType::class, $collaborator);
         $form->handleRequest($request);
@@ -69,14 +90,14 @@ class CollaboratorController extends AbstractController
                     );
                     $collaborator->setLogo($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('danger', "Erreur lors de l'upload du logo.");
+                    $this->addFlash('danger', "Error uploading logo.");
                 }
             }
 
             $em->persist($collaborator);
             $em->flush();
 
-            $this->addFlash('success', 'Collaborateur créé avec succès.');
+            $this->addFlash('success', 'Collaborator created successfully.');
 
             return $this->redirectToRoute('app_collaborator_index');
         }
@@ -88,9 +109,20 @@ class CollaboratorController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_collaborator_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Collaborator $collaborator, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function show(Collaborator $collaborator, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if (!$collaborator->isVisibleForUser($user->getId())) {
             throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de voir ce collaborateur.");
@@ -103,9 +135,20 @@ class CollaboratorController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_collaborator_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Collaborator $collaborator, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function edit(Collaborator $collaborator, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($collaborator->getAddedByUserId() !== $user->getId()) {
             throw $this->createAccessDeniedException("Seul le créateur peut modifier ce collaborateur.");
@@ -128,13 +171,13 @@ class CollaboratorController extends AbstractController
                     );
                     $collaborator->setLogo($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('danger', "Erreur lors de l'upload du logo.");
+                    $this->addFlash('danger', "Error uploading logo.");
                 }
             }
 
             $em->flush();
 
-            $this->addFlash('success', 'Collaborateur mis à jour avec succès.');
+            $this->addFlash('success', 'Collaborator updated successfully.');
 
             return $this->redirectToRoute('app_collaborator_index');
         }
@@ -146,9 +189,20 @@ class CollaboratorController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'app_collaborator_delete', methods: ['POST', 'DELETE'], requirements: ['id' => '\d+'])]
-    public function delete(Collaborator $collaborator, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function delete(Collaborator $collaborator, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($collaborator->getAddedByUserId() !== $user->getId()) {
             throw $this->createAccessDeniedException("Seul le créateur peut supprimer ce collaborateur.");
@@ -158,7 +212,7 @@ class CollaboratorController extends AbstractController
         $em->remove($collaborator);
         $em->flush();
 
-        $this->addFlash('success', 'Collaborateur supprimé.');
+        $this->addFlash('success', 'Collaborator deleted.');
 
         return $this->redirectToRoute('app_collaborator_index');
     }

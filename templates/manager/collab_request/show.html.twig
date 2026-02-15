@@ -1,0 +1,179 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Review Request - CreaCo Manager{% endblock %}
+{% block breadcrumb %}Manager / Review / {{ collab_request.title }}{% endblock %}
+{% block page_title %}Evaluation of Collaboration Request{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 mx-auto">
+    <!-- Header Section -->
+    <div class="relative flex items-center p-0 mt-2 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/curved-images/curved0.jpg'); background-position-y: 50%">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
+    </div>
+    
+    <div class="relative flex flex-col flex-auto min-w-0 p-4 mx-6 -mt-16 overflow-hidden break-words border-0 shadow-blur rounded-2xl bg-white/80 bg-clip-border backdrop-blur-2xl backdrop-saturate-200">
+        <div class="flex flex-wrap -mx-3">
+            <div class="flex-none w-auto max-w-full px-3">
+                <div class="text-base ease-soft-in-out h-18.5 w-18.5 relative inline-flex items-center justify-center rounded-xl text-white transition-all duration-200">
+                    <img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/bruce-mars.jpg" alt="profile_image" class="w-full shadow-soft-sm rounded-xl" />
+                </div>
+            </div>
+            <div class="flex-none w-auto max-w-full px-3 my-auto">
+                <div class="h-full">
+                    <h5 class="mb-1">{{ collab_request.title }}</h5>
+                    <p class="mb-0 font-semibold leading-normal text-sm">
+                        Requested by <span class="text-fuchsia-500 font-bold underline">{{ collab_request.creator.username }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="w-full max-w-full px-3 mx-auto mt-4 sm:my-auto sm:mr-0 md:w-1/2 md:flex-none lg:w-4/12">
+                <div class="relative right-0 text-right">
+                    <span class="badge bg-gradient-to-tl from-slate-600 to-slate-300 text-white px-4 py-2 rounded-lg text-xs font-bold transform hover:scale-105 transition-all">
+                        {{ collab_request.status }}
+                    </span>
+                    <p class="text-xs text-slate-400 mt-2">Created: {{ collab_request.createdAt|date('d/m/Y H:i') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="flex flex-wrap mt-6 -mx-3">
+        <!-- Left Column: Details -->
+        <div class="w-full max-w-full px-3 lg:w-8/12">
+            <div class="flex flex-wrap -mx-3">
+                <!-- Partner & Budget Overview -->
+                <div class="w-full max-w-full px-3 mb-6 xl:w-1/2">
+                    <div class="relative flex flex-col min-w-0 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+                        <div class="p-4 pt-6 text-center">
+                            <div class="w-16 h-16 mx-auto text-center bg-center icon bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl rounded-xl">
+                                <i class="ni ni-building text-white opacity-100 text-xl top-31/100 relative"></i>
+                            </div>
+                            <h6 class="mt-4 mb-0 text-center">Partner</h6>
+                            <h5 class="mb-0 font-bold text-slate-700">{{ collab_request.collaborator.companyName }}</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full max-w-full px-3 mb-6 xl:w-1/2">
+                    <div class="relative flex flex-col min-w-0 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+                        <div class="p-4 pt-6 text-center">
+                            <div class="w-16 h-16 mx-auto text-center bg-center icon bg-gradient-to-tl from-green-600 to-lime-400 shadow-soft-2xl rounded-xl">
+                                <i class="ni ni-money-coins text-white opacity-100 text-xl top-31/100 relative"></i>
+                            </div>
+                            <h6 class="mt-4 mb-0 text-center">Budget</h6>
+                            <h5 class="mb-0 font-bold text-slate-700">{{ collab_request.budget|number_format(2, '.', ' ') }} DT</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline & Description -->
+                <div class="w-full max-w-full px-3 mb-6">
+                    <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-gradient-to-tl from-blue-600 to-cyan-400 p-2 rounded-lg mr-3">
+                                    <i class="ni ni-calendar-grid-58 text-white text-xs"></i>
+                                </div>
+                                <h6 class="mb-0">Project Timeline</h6>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-around">
+                                <div class="text-center">
+                                    <p class="text-xxs font-bold uppercase text-slate-400 mb-1">Start Date</p>
+                                    <p class="text-sm font-bold text-slate-700">{{ collab_request.startDate|date('d/m/Y') }}</p>
+                                </div>
+                                <i class="ni ni-bold-right text-slate-300"></i>
+                                <div class="text-center">
+                                    <p class="text-xxs font-bold uppercase text-slate-400 mb-1">End Date</p>
+                                    <p class="text-sm font-bold text-slate-700">{{ collab_request.endDate|date('d/m/Y') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extended Details -->
+                <div class="w-full max-w-full px-3 mb-6">
+                    <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <h6 class="mb-3 text-sm font-bold uppercase text-slate-400 flex items-center italic">
+                                    <i class="ni ni-paper-diploma mr-2 text-fuchsia-500"></i> Description
+                                </h6>
+                                <div class="text-sm leading-relaxed text-slate-600 bg-slate-50/50 p-4 rounded-xl">
+                                    {{ collab_request.description|nl2br }}
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <h6 class="mb-3 text-sm font-bold uppercase text-slate-400 flex items-center italic">
+                                    <i class="ni ni-spaceship mr-2 text-fuchsia-500"></i> Expected Deliverables
+                                </h6>
+                                <div class="text-sm leading-relaxed text-slate-600 p-4 border border-fuchsia-50 rounded-xl bg-fuchsia-50/10">
+                                    {{ collab_request.deliverables|nl2br }}
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <h6 class="mb-3 text-sm font-bold uppercase text-slate-400 flex items-center italic">
+                                    <i class="ni ni-credit-card mr-2 text-fuchsia-500"></i> Payment Terms
+                                </h6>
+                                <div class="text-sm leading-relaxed text-slate-600 p-4 bg-gray-50 rounded-xl">
+                                    {{ collab_request.paymentTerms|nl2br }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Decisions -->
+        <div class="w-full max-w-full px-3 lg:w-4/12">
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6">
+                    <h6 class="mb-4">Review Decision</h6>
+                    
+                    {% if collab_request.status == 'PENDING' %}
+                        <p class="text-xs text-slate-500 mb-6">Take an action on this collaboration proposal. Note that approving will automatically prepare the contract draft.</p>
+                        
+                        <div class="space-y-8">
+                            <form action="{{ path('app_manager_collab_request_approve', {'id': collab_request.id}) }}" method="POST" onsubmit="return confirm('Confirm approval? This will generate a draft contract.')">
+                                <button type="submit" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-gray-900 to-slate-800 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                                    <i class="ni ni-check-bold mr-2"></i> Approve Request
+                                </button>
+                            </form>
+
+                            <a href="{{ path('app_manager_collab_request_modify', {'id': collab_request.id}) }}" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-slate-600 to-slate-300 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                                <i class="ni ni-settings mr-2"></i> Request Modif.
+                            </a>
+
+                            <a href="{{ path('app_manager_collab_request_reject', {'id': collab_request.id}) }}" class="inline-block w-full px-6 py-3 font-bold text-center text-slate-600 uppercase align-middle transition-all border border-solid border-slate-200 rounded-lg cursor-pointer shadow-soft-md bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-white hover:scale-102 hover:shadow-soft-xs hover:bg-slate-50 active:opacity-85">
+                                <i class="ni ni-fat-remove mr-2"></i> Reject Request
+                            </a>
+                        </div>
+{% else %}
+                        <div class="p-4 rounded-xl bg-gray-50 border border-gray-100 text-center">
+                            <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white rounded-circle shadow-soft-sm">
+                                <i class="ni ni-notification-70 text-fuchsia-500"></i>
+                            </div>
+                            <p class="text-xxs font-bold uppercase text-slate-400 mb-1">Current Status</p>
+                            <h6 class="text-sm font-bold text-slate-700 mb-3">{{ collab_request.status }}</h6>
+                            
+                            {% if collab_request.rejectionReason %}
+                                <div class="text-left mt-3 pt-3 border-t">
+                                    <label class="text-xxs font-bold uppercase text-slate-400 block mb-1">Decision Comment</label>
+                                    <p class="text-xs text-slate-600 italic">"{{ collab_request.rejectionReason }}"</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <hr class="h-px my-6 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
+                    
+                    <a href="{{ path('app_manager_collab_request_index') }}" class="inline-block w-full px-6 py-3 font-bold text-center text-slate-500 uppercase align-middle transition-all bg-transparent border border-gray-200 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft hover:bg-gray-50">
+                        <i class="ni ni-bold-left mr-2"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

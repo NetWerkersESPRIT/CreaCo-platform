@@ -1,8 +1,8 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
-{% block title %}Mes Contrats - CreaCo{% endblock %}
-{% block breadcrumb %}Contrats{% endblock %}
-{% block page_title %}Mes Contrats de Collaboration{% endblock %}
+{% block title %}My Contracts - CreaCo{% endblock %}
+{% block breadcrumb %}Contracts{% endblock %}
+{% block page_title %}My Collaboration Contracts{% endblock %}
 
 {% block body %}
 <div class="flex flex-wrap -mx-3">
@@ -10,17 +10,17 @@
     <div class="flex-none w-full max-w-full px-3">
         <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
             <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex justify-between">
-                <h6>Gérer mes contrats</h6>
+                <h6>Manage my contracts</h6>
             </div>
             <div class="flex-auto px-0 pt-0 pb-2">
                 <div class="p-0 overflow-x-auto">
                     <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
                         <thead class="align-bottom">
                             <tr>
-                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Numéro de Contrat</th>
-                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Domaine</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Statut</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Date d'effet</th>
+                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Contract Number</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Domain</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Effective Date</th>
                                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 border-solid shadow-none tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
                             </tr>
                         </thead>
@@ -35,7 +35,7 @@
                                                     #{{ contract.contractNumber }}
                                                 </a>
                                             </h6>
-                                            <p class="mb-0 text-xs leading-tight text-slate-400">Partenaire : {{ contract.collabRequest.collaborator.companyName }}</p>
+                                            <p class="mb-0 text-xs leading-tight text-slate-400">Partner : {{ contract.collabRequest.collaborator.companyName }}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -44,9 +44,9 @@
                                 </td>
                                 <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                     {% if contract.status == 'SIGNED_BY_COLLABORATOR' %}
-                                        <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Signé</span>
+                                        <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Signed</span>
                                     {% elseif contract.status == 'GENERATED' %}
-                                        <span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Prêt à envoyer</span>
+                                        <span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Ready to send</span>
                                     {% else %}
                                         <span class="bg-gray-100 text-slate-400 px-2.5 text-xs rounded-1.8 py-1.4 font-bold uppercase">{{ contract.status }}</span>
                                     {% endif %}
@@ -56,12 +56,12 @@
                                 </td>
                                 <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                     <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="text-xs font-bold text-fuchsia-500 hover:underline">
-                                        Consulter
+                                        View
                                     </a>
                                 </td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="5" class="p-6 text-center text-sm text-slate-400 italic">Vous n'avez aucun contrat pour le moment.</td></tr>
+                            <tr><td colspan="5" class="p-6 text-center text-sm text-slate-400 italic">You don't have any contracts at the moment.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

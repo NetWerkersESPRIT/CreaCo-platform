@@ -1,8 +1,8 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
-{% block title %}Mes Partenaires - CreaCo{% endblock %}
-{% block breadcrumb %}Collaborateurs{% endblock %}
-{% block page_title %}Mes Partenaires{% endblock %}
+{% block title %}My Partners - CreaCo{% endblock %}
+{% block breadcrumb %}Collaborators{% endblock %}
+{% block page_title %}My Partners{% endblock %}
 
 {% block body %}
 <div class="flex flex-wrap -mx-3">
@@ -11,23 +11,23 @@
         <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
             <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-4 flex-grow max-w-2xl">
-                    <h6 class="whitespace-nowrap mr-4">Liste des Collaborateurs</h6>
+                    <h6 class="whitespace-nowrap mr-4">Collaborators List</h6>
                     <form action="{{ path('app_collaborator_index') }}" method="get" class="flex-grow flex items-center">
                         <div class="relative w-full">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                                 <i class="fa fa-search"></i>
                             </span>
-                            <input type="text" name="q" value="{{ searchTerm|default('') }}" class="pl-10 pr-4 py-2 w-full text-sm border-gray-200 rounded-xl focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all border outline-none text-center" placeholder="Rechercher par nom, entreprise, email...">
+                            <input type="text" name="q" value="{{ searchTerm|default('') }}" class="pl-10 pr-4 py-2 w-full text-sm border-gray-200 rounded-xl focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all border outline-none text-center" placeholder="Search by name, company, email...">
                         </div>
                         {% if searchTerm is defined and searchTerm is not empty %}
-                            <a href="{{ path('app_collaborator_index') }}" class="ml-2 text-slate-400 hover:text-red-500" title="Effacer la recherche">
+                            <a href="{{ path('app_collaborator_index') }}" class="ml-2 text-slate-400 hover:text-red-500" title="Clear search">
                                 <i class="fa fa-times-circle text-lg"></i>
                             </a>
                         {% endif %}
                     </form>
                 </div>
                 <a href="{{ path('app_collaborator_new') }}" class="inline-block ml-8 px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-                    <i class="fa fa-plus mr-1"></i> Ajouter un partenaire
+                    <i class="fa fa-plus mr-1"></i> Add a partner
                 </a>
             </div>
             <div class="flex-auto px-0 pt-0 pb-2">
@@ -35,10 +35,10 @@
                     <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
                         <thead class="align-bottom">
                             <tr>
-                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Collaborateur</th>
-                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Domaine</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Statut</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Créé le</th>
+                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Collaborator</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Domain</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created at</th>
                                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 border-solid shadow-none tracking-none whitespace-nowrap text-slate-400 opacity-70 text-center">Actions</th>
                             </tr>
                         </thead>
