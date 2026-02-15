@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Comment;
 use App\Form\CommentType;
+use App\Service\GoogleDriveUploader;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -64,7 +65,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/new', name: 'app_post_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -115,23 +116,24 @@ final class PostController extends AbstractController
                 }
             }
 
-            /** @var UploadedFile $pdfFile */
             $pdfFile = $post->getPdfFile();
-            if ($pdfFile) {
-                $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
+if ($pdfFile) {
+    $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+    $safeFilename = $slugger->slug($originalFilename);
+    $newName = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
-                try {
-                    $pdfFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
-                        $newFilename
-                    );
-                    $post->setPdfName($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
-                }
-            }
+    try {
+        $uploaded = $drive->upload($pdfFile, $newName);
+
+        // ici tu dois stocker le fileId ou le link dans la base
+        $post->setPdfDriveFileId($uploaded['id']);
+        $post->setPdfDriveLink($uploaded['link']);
+
+    } catch (\Throwable $e) {
+        $this->addFlash('danger', 'Erreur Google Drive: '.$e->getMessage());
+        return $this->redirectToRoute('app_post_new');
+    }
+}
 
             $em->persist($post);
 
@@ -238,7 +240,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
     {
 
         $user = $this->getUser();
@@ -291,26 +293,19 @@ final class PostController extends AbstractController
             /** @var UploadedFile $pdfFile */
             $pdfFile = $post->getPdfFile();
             if ($pdfFile) {
-
-                if ($post->getPdfName()) {
-                    $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getPdfName();
-                    if (file_exists($oldPath)) {
-                        unlink($oldPath);
-                    }
-                }
-
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
+                $newName = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                 try {
-                    $pdfFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
-                        $newFilename
-                    );
-                    $post->setPdfName($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                    $uploaded = $drive->upload($pdfFile, $newName);
+                    $post->setPdfDriveFileId($uploaded['id']);
+                    $post->setPdfDriveLink($uploaded['link']);
+                    
+                    // Clear old local name if exists
+                    $post->setPdfName(null);
+                } catch (\Throwable $e) {
+                    $this->addFlash('danger', 'Erreur Google Drive: ' . $e->getMessage());
                 }
             }
 

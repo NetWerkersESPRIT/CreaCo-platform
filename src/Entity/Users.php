@@ -118,6 +118,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
     private Collection $collaborators;
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -133,6 +139,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->ideasUsed = new ArrayCollection();
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -402,5 +409,13 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCollaborators(): Collection
     {
         return $this->collaborators;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
     }
 }

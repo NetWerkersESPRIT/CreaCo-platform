@@ -96,6 +96,12 @@ class Post
     #[ORM\Column(options: ["default" => 0])]
     private int $likes = 0;
 
+    #[ORM\Column(length: 255, nullable: true)]
+private ?string $pdfDriveFileId = null;
+
+#[ORM\Column(length: 255, nullable: true)]
+private ?string $pdfDriveLink = null;
+
     /**
      * @var Collection<int, Comment>
      */
@@ -332,4 +338,26 @@ class Post
         $this->isModerationNotified = $isModerationNotified;
         return $this;
     }
+
+    public function getPdfDriveFileId(): ?string
+{
+    return $this->pdfDriveFileId;
+}
+
+public function setPdfDriveFileId(?string $pdfDriveFileId): static
+{
+    $this->pdfDriveFileId = $pdfDriveFileId;
+    return $this;
+}
+
+public function getPdfDriveLink(): ?string
+{
+    return $this->pdfDriveLink;
+}
+
+public function setPdfDriveLink(?string $pdfDriveLink): static
+{
+    $this->pdfDriveLink = $pdfDriveLink;
+    return $this;
+}
 }

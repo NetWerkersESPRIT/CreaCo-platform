@@ -11,6 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\OpenAIModerationService;
+
 
 final class CommentController extends AbstractController
 {
@@ -35,14 +37,16 @@ final class CommentController extends AbstractController
     public function new(Post $post, Request $request, EntityManagerInterface $em): Response
     {
         if ($post->isCommentLocked() || $post->getStatus() === 'solved') {
-            $message = $post->getStatus() === 'solved' 
-                ? 'This post is solved and comments are closed' 
+            $message = $post->getStatus() === 'solved'
+                ? 'This post is solved and comments are closed'
                 : 'The comment section is blocked';
+
             $this->addFlash('warning', $message);
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
         $user = $this->getCurrentUser($request, $em);
+
         $comment = new Comment();
         $comment->setPost($post);
         $comment->setUser($user);
@@ -58,13 +62,13 @@ final class CommentController extends AbstractController
             $commentData = $request->request->all('comment');
             $body = trim($commentData['body'] ?? '');
 
-            if (empty($body)) {
+            if ($body === '') {
                 $this->addFlash('error', 'Le contenu du commentaire est obligatoire.');
                 return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
             }
 
             $comment->setBody($body);
-            
+
             $parentId = $request->request->get('parent_id');
             if ($parentId) {
                 $parent = $em->getRepository(Comment::class)->find($parentId);
@@ -79,16 +83,16 @@ final class CommentController extends AbstractController
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
-        // If validation fails, stay on the post show page to show errors
-        return $this->render('forum/post/show.html.twig', [
-            'post' => $post,
-            'comments' => $em->getRepository(Comment::class)->findBy(
-                ['post' => $post, 'parentComment' => null],
-                ['createdAt' => 'ASC']
-            ),
-            'commentForm' => $form->createView(),
-        ]);
-    }
+    return $this->render('forum/post/show.html.twig', [
+        'post' => $post,
+        'comments' => $em->getRepository(Comment::class)->findBy(
+            ['post' => $post, 'parentComment' => null],
+            ['createdAt' => 'ASC']
+        ),
+        'commentForm' => $form->createView(),
+    ]);
+}
+
 
     #[Route('/comment/{id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Comment $comment, EntityManagerInterface $em): Response

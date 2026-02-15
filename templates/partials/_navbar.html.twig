@@ -2,17 +2,36 @@
 <nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
 	<div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
 		<nav>
+			{% set breadcrumb_mapping = {
+				'app_home': 'Dashboard',
+				'forum_index': 'Forum',
+				'app_post_show': 'Forum',
+				'app_post_new': 'Forum',
+				'app_post_edit': 'Forum',
+				'admin_post_pending': 'Pending Posts',
+				'admin_post_pending_show': 'Pending Posts',
+				'app_useradd': 'Users',
+				'app_profile': 'Users',
+				'google_signup_start': 'Users',
+				'google_signup_check': 'Users',
+				'app_auth': 'Login'
+			} %}
+			{% set current_route = app.request.attributes.get('_route') %}
+			{% set module_name = breadcrumb_mapping[current_route] ?? 'Dashboard' %}
+
 			<ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
 				<li class="leading-normal text-sm">
 					<a class="opacity-50 text-slate-700" href="javascript:;">Pages</a>
 				</li>
 				<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
-					{% block breadcrumb %}Dashboard
+					{% block breadcrumb %}
+						{{ module_name }}
 					{% endblock %}
 				</li>
 			</ol>
 			<h6 class="mb-0 font-bold capitalize">
-				{% block page_title %}Dashboard
+				{% block page_title %}
+					{{ module_name }}
 				{% endblock %}
 			</h6>
 		</nav>

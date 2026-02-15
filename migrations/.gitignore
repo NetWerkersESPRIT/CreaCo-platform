@@ -1,1 +1,2 @@
-/config/google/*.json
+config/google/credentials.json
+/config/google/token.json

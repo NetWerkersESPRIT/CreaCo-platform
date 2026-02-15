@@ -1,16 +1,20 @@
 parameters:
-
+  
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        bind:
-            $apiKey: '%env(IMGBB_API_KEY)%'
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    bind:
+      $apiKey: '%env(IMGBB_API_KEY)%'
 
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
 
+  App\Service\GoogleDriveUploader:
+    arguments:
+      $googleDriveFolderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'
+      $projectDir: '%kernel.project_dir%'
