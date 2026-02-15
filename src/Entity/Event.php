@@ -73,6 +73,9 @@ class Event
     #[Assert\NotBlank(message: "Les informations de contact sont obligatoires")]
     private ?string $contact = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
     /**
      * @var Collection<int, Reservation>
      */
@@ -314,6 +317,18 @@ class Event
     public function removeTargetUser(Users $targetUser): static
     {
         $this->targetUsers->removeElement($targetUser);
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
 
         return $this;
     }

@@ -18,7 +18,7 @@ final class HomeController extends AbstractController
             $this->addFlash('warning', 'Access restricted to Visitors.');
             return $this->redirectToRoute('app_auth');
         }
-        
+
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
         ]);

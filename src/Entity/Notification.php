@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\NotificationRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
@@ -14,43 +13,22 @@ class Notification
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Users::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Users $user = null;
-
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(length: 255)]
     private ?string $message = null;
 
-    #[ORM\Column(options: ["default" => false])]
-    private ?bool $isRead = false;
+    #[ORM\Column]
+    private ?bool $isRead = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column]
+    private ?\DateTime $createdAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Post::class)]
-    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
-    private ?Post $relatedPost = null;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-        $this->isRead = false;
-    }
+    #[ORM\ManyToOne(inversedBy: 'notifications')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Users $user_id = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUser(): ?Users
-    {
-        return $this->user;
-    }
-
-    public function setUser(?Users $user): static
-    {
-        $this->user = $user;
-        return $this;
     }
 
     public function getMessage(): ?string
@@ -61,6 +39,7 @@ class Notification
     public function setMessage(string $message): static
     {
         $this->message = $message;
+
         return $this;
     }
 
@@ -72,28 +51,31 @@ class Notification
     public function setIsRead(bool $isRead): static
     {
         $this->isRead = $isRead;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
-    public function getRelatedPost(): ?Post
+    public function getUserId(): ?Users
     {
-        return $this->relatedPost;
+        return $this->user_id;
     }
 
-    public function setRelatedPost(?Post $relatedPost): static
+    public function setUserId(?Users $user_id): static
     {
-        $this->relatedPost = $relatedPost;
+        $this->user_id = $user_id;
+
         return $this;
     }
 }

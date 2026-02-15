@@ -4,7 +4,6 @@ namespace App\Controller\Forum;
 
 use App\Entity\Post;
 use App\Entity\Users;
-use App\Entity\Notification;
 use App\Form\PostType;
 use App\Repository\PostRepository;
 use App\Repository\UsersRepository;
@@ -19,7 +18,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
- 
+
 #[Route('/forum')]
 // #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class PostController extends AbstractController
@@ -36,17 +35,17 @@ final class PostController extends AbstractController
 
         if ($query) {
             $qb->where('p.title LIKE :query OR p.content LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
+                ->setParameter('query', '%' . $query . '%');
         }
 
         if (!$isAdmin) {
             $qb->andWhere('p.status IN (:statuses)')
-               ->setParameter('statuses', ['published', 'solved']);
+                ->setParameter('statuses', ['published', 'solved']);
         }
 
         $posts = $qb->orderBy('p.createdAt', 'DESC')
-                    ->getQuery()
-                    ->getResult();
+            ->getQuery()
+            ->getResult();
 
         return $this->render('forum/post/index.html.twig', [
             'posts' => $posts,
@@ -64,8 +63,8 @@ final class PostController extends AbstractController
             $now = new \DateTime();
             $post->setCreatedAt($now);
             $post->setUpdatedAt($now);
-            
-         
+
+
             $user = $this->getUser();
             $isAdmin = $user instanceof Users && strtolower(trim($user->getRole())) === 'admin';
 
@@ -80,18 +79,7 @@ final class PostController extends AbstractController
                 }
                 $post->setStatus('pending');
 
-                // Create notifications for all admins
-                $userRepo = $em->getRepository(Users::class);
-                $allUsers = $userRepo->findAll();
-                foreach ($allUsers as $u) {
-                    if (strtolower(trim($u->getRole())) === 'admin') {
-                        $notification = new Notification();
-                        $notification->setUser($u);
-                        $notification->setMessage("Un nouveau post '" . $post->getTitle() . "' est en attente de modération.");
-                        $notification->setRelatedPost($post);
-                        $em->persist($notification);
-                    }
-                }
+             
             }
 
             if ($form->isValid()) {
@@ -100,7 +88,7 @@ final class PostController extends AbstractController
                 if ($imageFile) {
                     $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                     $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                     try {
                         $imageFile->move(
@@ -109,7 +97,7 @@ final class PostController extends AbstractController
                         );
                         $post->setImageName($newFilename);
                     } catch (FileException $e) {
-                         $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                        $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
                     }
                 }
 
@@ -118,7 +106,7 @@ final class PostController extends AbstractController
                 if ($pdfFile) {
                     $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                     $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                     try {
                         $pdfFile->move(
@@ -127,7 +115,7 @@ final class PostController extends AbstractController
                         );
                         $post->setPdfName($newFilename);
                     } catch (FileException $e) {
-                         $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                        $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
                     }
                 }
 
@@ -148,14 +136,14 @@ final class PostController extends AbstractController
     #[Route('/{id}', name: 'app_post_show', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function show(Request $request, Post $post, EntityManagerInterface $em): Response
     {
-        
+
         $comment = new Comment();
         $commentForm = $this->createForm(CommentType::class, $comment);
         $commentForm->handleRequest($request);
 
         if ($commentForm->isSubmitted() && $commentForm->isValid()) {
             $comment->setPost($post);
-            
+
             $parentId = $request->request->get('parent_id');
             if ($parentId) {
                 $parentComment = $em->getRepository(Comment::class)->find($parentId);
@@ -171,11 +159,11 @@ final class PostController extends AbstractController
 
             $user = $this->getUser();
             if ($user instanceof Users) {
-                 $comment->setUser($user);
-                 $comment->setStatus('visible');
+                $comment->setUser($user);
+                $comment->setStatus('visible');
             } else {
-                 $comment->setUser(null);
-                 $comment->setStatus('pending');
+                $comment->setUser(null);
+                $comment->setStatus('pending');
             }
 
             $now = new \DateTime();
@@ -199,7 +187,7 @@ final class PostController extends AbstractController
             $reply = new Comment();
             $reply->setBody($body);
             $reply->setPost($post);
-            
+
             if ($post->isCommentLocked()) {
                 $this->addFlash('warning', 'Les commentaires sont désactivés pour ce post.');
                 return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
@@ -232,7 +220,7 @@ final class PostController extends AbstractController
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
-        
+
         $comments = $em->getRepository(Comment::class)->findBy(
             ['post' => $post, 'parentComment' => null],
             ['createdAt' => 'ASC']
@@ -240,7 +228,7 @@ final class PostController extends AbstractController
 
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
-            'comments' => $comments, 
+            'comments' => $comments,
             'commentForm' => $commentForm->createView(),
         ]);
     }
@@ -274,10 +262,10 @@ final class PostController extends AbstractController
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
-        
+
         if ($this->getUser() !== $post->getUser()) {
-             $this->addFlash('danger', 'Vous n’êtes pas autorisé à modifier ce post.');
-             return $this->redirectToRoute('forum_index');
+            $this->addFlash('danger', 'Vous n’êtes pas autorisé à modifier ce post.');
+            return $this->redirectToRoute('forum_index');
         }
 
         $form = $this->createForm(PostType::class, $post);
@@ -289,7 +277,7 @@ final class PostController extends AbstractController
             /** @var UploadedFile $imageFile */
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
-                
+
                 if ($post->getImageName()) {
                     $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getImageName();
                     if (file_exists($oldPath)) {
@@ -299,7 +287,7 @@ final class PostController extends AbstractController
 
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
                     $imageFile->move(
@@ -308,14 +296,14 @@ final class PostController extends AbstractController
                     );
                     $post->setImageName($newFilename);
                 } catch (FileException $e) {
-                     $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                    $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
                 }
             }
 
             /** @var UploadedFile $pdfFile */
             $pdfFile = $form->get('pdfFile')->getData();
             if ($pdfFile) {
-                
+
                 if ($post->getPdfName()) {
                     $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getPdfName();
                     if (file_exists($oldPath)) {
@@ -325,7 +313,7 @@ final class PostController extends AbstractController
 
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                 try {
                     $pdfFile->move(
@@ -334,7 +322,7 @@ final class PostController extends AbstractController
                     );
                     $post->setPdfName($newFilename);
                 } catch (FileException $e) {
-                     $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
                 }
             }
 
@@ -354,13 +342,13 @@ final class PostController extends AbstractController
     #[Route('/{id}/delete', name: 'app_post_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $em): Response
     {
-        
+
         if ($this->getUser() !== $post->getUser()) {
-             $this->addFlash('danger', 'Vous n’êtes pas autorisé à supprimer ce post.');
-             return $this->redirectToRoute('forum_index');
+            $this->addFlash('danger', 'Vous n’êtes pas autorisé à supprimer ce post.');
+            return $this->redirectToRoute('forum_index');
         }
 
-        if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
             $em->remove($post);
             $em->flush();
             $this->addFlash('success', 'Le message a été supprimé.');
