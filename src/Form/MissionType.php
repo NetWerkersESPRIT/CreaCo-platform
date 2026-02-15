@@ -7,6 +7,7 @@ use App\Entity\Mission;
 use App\Entity\Users;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -54,9 +55,11 @@ class MissionType extends AbstractType
                     new NotBlank(['message' => 'Associated idea is required']),
                 ],
             ])
-            ->add('missionDate', null, [
+            ->add('missionDate', DateTimeType::class, [
                 'label' => 'Mission Deadline',
-                'widget' => 'single_text',
+                'date_widget' => 'single_text',
+                'time_widget' => 'single_text',
+                'required' => true,
                 'constraints' => [
                     new NotBlank(['message' => 'Mission deadline is required']),
                 ],

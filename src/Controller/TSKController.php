@@ -40,9 +40,12 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $idea->setCreatedAt(new \DateTimeImmutable());
 
-            $creator = $entityManager->getRepository(Users::class)->find(1);
-            if ($creator) {
-                $idea->setCreator($creator);
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+            if ($user) {
+                $idea->setCreator($user);
             }
 
             $entityManager->persist($idea);
@@ -174,15 +177,43 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $mission->setCreatedAt(new \DateTimeImmutable());
 
-            $idea = $mission->getImplementIdea();
-            if ($idea && $idea->getCreator()) {
-                $mission->setAssignedBy($idea->getCreator());
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+            if ($user) {
+                $mission->setAssignedBy($user);
             }
 
             $entityManager->persist($mission);
             $entityManager->flush();
 
             $this->addFlash('success', 'Mission created successfully!');
+
+            // Check if we need to return to task creation
+            $returnTo = $request->query->get('return_to');
+            if ($returnTo === 'task') {
+                // Build redirect URL with mission_id and preserved task data
+                $params = ['mission_id' => $mission->getId()];
+
+                if ($request->query->has('t_title')) {
+                    $params['title'] = $request->query->get('t_title');
+                }
+                if ($request->query->has('t_desc')) {
+                    $params['description'] = $request->query->get('t_desc');
+                }
+                if ($request->query->has('t_date')) {
+                    $params['t_date'] = $request->query->get('t_date');
+                }
+                if ($request->query->has('t_time')) {
+                    $params['t_time'] = $request->query->get('t_time');
+                }
+                if ($request->query->has('t_assumedBy')) {
+                    $params['assumedBy'] = $request->query->get('t_assumedBy');
+                }
+
+                return $this->redirectToRoute('app_task_new', $params, Response::HTTP_SEE_OTHER);
+            }
 
             return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -257,15 +288,41 @@ final class TSKController extends AbstractController
             }
         }
 
+        // Restore task form data from query parameters (when returning from mission creation)
+        if ($request->query->has('title')) {
+            $task->setTitle($request->query->get('title'));
+        }
+        if ($request->query->has('description')) {
+            $task->setDescription($request->query->get('description'));
+        }
+        if ($request->query->has('t_date') && $request->query->has('t_time')) {
+            try {
+                $dateStr = $request->query->get('t_date') . ' ' . $request->query->get('t_time');
+                $task->setTimeLimit(new \DateTime($dateStr));
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+        if ($request->query->has('assumedBy')) {
+            $assumedById = $request->query->get('assumedBy');
+            $assumedBy = $entityManager->getRepository(Users::class)->find($assumedById);
+            if ($assumedBy) {
+                $task->setAssumedBy($assumedBy);
+            }
+        }
+
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $task->setCratedAt(new \DateTimeImmutable());
+            $task->setCreatedAt(new \DateTimeImmutable());
+            $task->setState('todo');
 
-            $issuer = $entityManager->getRepository(Users::class)->find(1);
-            if ($issuer) {
-                $task->setIssuedBy($issuer);
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+            if ($user) {
+                $task->setIssuedBy($user);
             }
 
             $entityManager->persist($task);
@@ -308,6 +365,38 @@ final class TSKController extends AbstractController
             'task' => $task,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/task/{id}/update-state', name: 'app_task_update_state', methods: ['POST'])]
+    public function updateState(Request $request, Task $task, EntityManagerInterface $entityManager): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $newState = $data['state'] ?? null;
+
+        // Prevent completed tasks from being moved back
+        if ($task->getState() === 'completed') {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Completed tasks cannot be moved to other states'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $validStates = ['todo', 'in_progress', 'completed'];
+
+        if ($newState && in_array($newState, $validStates)) {
+            $task->setState($newState);
+
+            // Set completedAt timestamp when task is marked as completed
+            if ($newState === 'completed') {
+                $task->setCompletedAt(new \DateTime());
+            }
+
+            $entityManager->flush();
+
+            return $this->json(['status' => 'success', 'new_state' => $newState]);
+        }
+
+        return $this->json(['status' => 'error', 'message' => 'Invalid state'], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/task/{id}', name: 'app_task_delete', methods: ['POST'])]

@@ -69,11 +69,11 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-xs font-bold text-slate-700 block uppercase">Last deadline</label>
-                                    <span class="text-sm font-semibold text-red-500"><i class="far fa-calendar-alt mr-1"></i> {{ task.timeTlimit ? task.timeTlimit|date('d F Y, H:i') : 'No limit' }}</span>
+                                    <span class="text-sm font-semibold text-red-500"><i class="far fa-calendar-alt mr-1"></i> {{ task.timeLimit ? task.timeLimit|date('d F Y, H:i') : 'No limit' }}</span>
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-700 block uppercase">Created at</label>
-                                    <span class="text-sm font-semibold text-slate-500">{{ task.cratedAt ? task.cratedAt|date('d F Y, H:i') : 'N/A' }}</span>
+                                    <span class="text-sm font-semibold text-slate-500">{{ task.createdAt ? task.createdAt|date('d F Y, H:i') : 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>

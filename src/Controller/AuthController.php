@@ -88,7 +88,6 @@ final class AuthController extends AbstractController
             $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
 
             switch ($user->getRole()) {
-             
                 case 'ROLE_ADMIN':
                     return $this->redirectToRoute('app_admin');
 
