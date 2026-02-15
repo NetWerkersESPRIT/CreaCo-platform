@@ -126,6 +126,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $comments;
 
     /**
+     * @var Collection<int, PostReaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
+    private Collection $reactions;
+
+    /**
      * @var Collection<int, Group>
      */
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
@@ -148,6 +154,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
+        $this->reactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -472,5 +479,13 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, PostReaction>
+     */
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
     }
 }
