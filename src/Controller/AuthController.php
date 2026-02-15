@@ -14,7 +14,7 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 
 final class AuthController extends AbstractController
 {
-    #[Route('/auth', name: 'app_auth')]
+    #[Route('/', name: 'app_auth')]
     public function index(): Response
     {
         return $this->render('auth/index.html.twig', [
