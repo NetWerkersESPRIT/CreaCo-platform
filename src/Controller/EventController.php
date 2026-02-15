@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+use App\Entity\Notification;
+
 final class EventController extends AbstractController
 {
 
@@ -184,6 +186,18 @@ final class EventController extends AbstractController
         $reservation->setStatus('pending');
 
         $em->persist($reservation);
+
+        // Notificationsssssssssssss
+        $managers = $usersRepo->findBy(['role' => ['ROLE_MANAGER', 'ROLE_ADMIN','ROLE_CONTENT_CREATOR']]);
+        foreach ($managers as $manager) {
+            $notification = new Notification();
+            $notification->setMessage("New reservation request for event: " . $event->getName() . " by " . $user->getUsername());
+            $notification->setUserId($manager); // Looking at Notification entity,the field is user_id
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $em->persist($notification);
+        }
+
         $em->flush();
 
         $this->addFlash('success', 'Reservation requested successfully!');
@@ -202,6 +216,19 @@ final class EventController extends AbstractController
     public function updateReservation(\App\Entity\Reservation $reservation, string $status, EntityManagerInterface $em): Response
     {
         $reservation->setStatus($status);
+
+        // Notificationsssssssssssss
+        $member = $reservation->getUser();
+        if ($member) {
+            $notification = new Notification();
+            $statusText = ($status === 'validated') ? 'confirmed' : 'cancelled';
+            $notification->setMessage("Your reservation for " . $reservation->getEvent()->getName() . " has been " . $statusText . ".");
+            $notification->setUserId($member);
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $em->persist($notification);
+        }
+
         $em->flush();
 
         $this->addFlash('success', 'Reservation status updated to ' . $status);

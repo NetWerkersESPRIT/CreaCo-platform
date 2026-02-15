@@ -146,8 +146,14 @@
                 <div class="text-red-500 text-xs mt-1">{{ form_errors(form.image) }}</div>
                 {% if form.vars.value.imagePath %}
                     <div class="mt-2 text-center">
-                        <img src="{{ form.vars.value.imagePath }}" alt="Current Image" class="max-w-xs rounded-lg shadow-soft-xl mx-auto">
+                        <img src="{{ form.vars.value.imagePath }}" 
+                            alt="Current Image" 
+                            class="object-cover rounded-lg shadow-soft-xl mx-auto"
+                            style="width: 350; height: 350px;">
                     </div>
+
+
+
                 {% endif %}
             </div>
 
