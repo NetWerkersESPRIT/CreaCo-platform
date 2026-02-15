@@ -190,6 +190,13 @@
                         return false;
                     }
                     
+                    // Show confirmation if moving to completed state
+                    if (newState === 'completed') {
+                        if (!confirm('Are you sure you want to declare the task as done? this action is irreversable.')) {
+                            return false; // Cancel the drop
+                        }
+                    }
+                    
                     console.log(`Updating task ${taskId} to state: ${newState}`);
 
                     fetch(`/task/${taskId}/update-state`, {

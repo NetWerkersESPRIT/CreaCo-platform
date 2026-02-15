@@ -44,10 +44,6 @@ final class TSKController extends AbstractController
             $userId = $session->get('user_id');
             $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
 
-            if (!$user) {
-                $user = $entityManager->getRepository(Users::class)->find(1);
-            }
-
             if ($user) {
                 $idea->setCreator($user);
             }
@@ -184,10 +180,6 @@ final class TSKController extends AbstractController
             $session = $request->getSession();
             $userId = $session->get('user_id');
             $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-
-            if (!$user) {
-                $user = $entityManager->getRepository(Users::class)->find(1);
-            }
 
             if ($user) {
                 $mission->setAssignedBy($user);
