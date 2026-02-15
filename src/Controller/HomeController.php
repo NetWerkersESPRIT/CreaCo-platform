@@ -15,7 +15,6 @@ final class HomeController extends AbstractController
         $allowedRoles = ['ROLE_ADMIN', 'ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER'];
         $userRole = $request->getSession()->get('user_role');
         if (!in_array($userRole, $allowedRoles)) {
-            $this->addFlash('warning', 'Access restricted to Visitors.');
             return $this->redirectToRoute('app_auth');
         }
 

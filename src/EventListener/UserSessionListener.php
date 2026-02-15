@@ -33,6 +33,22 @@ class UserSessionListener implements EventSubscriberInterface
         // Make user available in all Twig templates as 'app_user'
         $this->twig->addGlobal('app_user', $user);
 
+        $unreadCount = 0;
+        $pendingCount = 0;
+
+        if ($user) {
+            $unreadCount = $request->get('notification_repo', $this->usersRepository->getEntityManager()->getRepository(\App\Entity\Notification::class))
+                ->countUnreadForUser($user);
+            
+            if (strtolower(trim($user->getRole())) === 'role_admin' || $session->get('user_role') === 'ROLE_ADMIN') {
+                $pendingCount = $this->usersRepository->getEntityManager()->getRepository(\App\Entity\Post::class)
+                    ->countPending();
+            }
+        }
+
+        $this->twig->addGlobal('unreadCount', $unreadCount);
+        $this->twig->addGlobal('pendingCount', $pendingCount);
+
         // Optional: Protect all pages except login/forgetpassword
         $route = $request->attributes->get('_route');
         $publicRoutes = ['app_auth', 'login_check', 'app_forgetpassword', 'app_useradd'];
