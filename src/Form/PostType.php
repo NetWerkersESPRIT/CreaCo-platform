@@ -27,35 +27,12 @@ class PostType extends AbstractType
             ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Image (optional)',
-                'mapped' => false,
                 'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                            'image/webp',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
-                    ])
-                ],
                 'attr' => ['class' => 'form-control']
             ])
             ->add('pdfFile', FileType::class, [
                 'label' => 'PDF Document (optional)',
-                'mapped' => false,
                 'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '10M',
-                        'mimeTypes' => [
-                            'application/pdf',
-                            'application/x-pdf',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file',
-                    ])
-                ],
                 'attr' => ['class' => 'form-control']
             ])
             ->add('pinned', CheckboxType::class, [

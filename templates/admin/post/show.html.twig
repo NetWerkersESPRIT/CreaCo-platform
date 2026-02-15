@@ -111,27 +111,33 @@
 					</button>
 				</div>
 
-				<form action="{{ path('admin_post_refuse', {'id': post.id}) }}" method="POST">
-					<div class="mb-6">
-						<textarea name="refusalReason" class="w-full px-4 py-4 text-sm border border-gray-200 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all placeholder:text-slate-300 min-h-[150px] resize-none" required placeholder="Ex: This post contains inappropriate language or is off-topic..."></textarea>
+				{{ form_start(rejectionForm, {'attr': {'id': 'rejection-form', 'novalidate': 'novalidate'}}) }}
+				{{ form_errors(rejectionForm) }}
+				<div class="mb-6">
+					{{ form_widget(rejectionForm.rejectionReason, {'attr': {'class': 'w-full px-4 py-4 text-sm border border-gray-200 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all placeholder:text-slate-300 min-h-[150px] resize-none', 'placeholder': 'Ex: This post contains inappropriate language or is off-topic...'}}) }}
+					<div id="js-rejection-error" class="text-red-600 text-xs mt-2 hidden">Please provide a reason for refusal.</div>
+					<div class="text-xs text-red-500 mt-1">
+						{{ form_errors(rejectionForm.rejectionReason) }}
 					</div>
-					<div class="flex flex-wrap items-center justify-end gap-3">
-						<button type="button" onclick="closeRefusalModal()" class="px-6 py-2.5 text-xs font-bold text-slate-500 uppercase rounded-xl hover:bg-gray-50 transition-all border-0 bg-transparent cursor-pointer">
-							Cancel
-						</button>
-						<button type="submit" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-red-600 to-rose-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
-							<i class="fas fa-times-circle mr-2"></i>
-							Confirm Refusal
-						</button>
+				</div>
+				<div class="flex flex-wrap items-center justify-end gap-3">
+					<button type="button" onclick="closeRefusalModal()" class="px-6 py-2.5 text-xs font-bold text-slate-500 uppercase rounded-xl hover:bg-gray-50 transition-all border-0 bg-transparent cursor-pointer">
+						Cancel
+					</button>
+					<button type="submit" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-red-600 to-rose-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
+						<i class="fas fa-times-circle mr-2"></i>
+						Confirm Refusal
+					</button>
 
-					</div>
-				</form>
+				</div>
+				{{ form_end(rejectionForm) }}
 			</div>
 		</div>
 	</div>
+</div>
 
-	<script>
-		function openRefusalModal() {
+<script>
+	function openRefusalModal() {
 const modal = document.getElementById('refusalModal');
 modal.classList.remove('hidden');
 modal.classList.add('flex');
@@ -142,33 +148,52 @@ const modal = document.getElementById('refusalModal');
 modal.classList.add('hidden');
 modal.classList.remove('flex');
 }
-	</script>
+
+document.addEventListener('DOMContentLoaded', function () {
+const form = document.getElementById('rejection-form');
+if (form) {
+form.addEventListener('submit', function (e) {
+const reasonInput = form.querySelector('textarea');
+const errorDiv = document.getElementById('js-rejection-error');
+
+if (reasonInput && reasonInput.value.trim() === '') {
+e.preventDefault();
+if (errorDiv) {
+errorDiv.classList.remove('hidden');
+}
+reasonInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+} else if (errorDiv) {
+errorDiv.classList.add('hidden');
+}
+});
+}
+});
+</script>
 
 
-	<style>
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-			}
-			to {
-				opacity: 1;
-			}
+<style>
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
 		}
-		@keyframes scaleIn {
-			from {
-				opacity: 0;
-				transform: scale(0.95);
-			}
-			to {
-				opacity: 1;
-				transform: scale(1);
-			}
+		to {
+			opacity: 1;
 		}
-		.animate-fade-in {
-			animation: fadeIn 0.2s ease-out forwards;
+	}
+	@keyframes scaleIn {
+		from {
+			opacity: 0;
+			transform: scale(0.95);
 		}
-		.animate-scale-in {
-			animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		to {
+			opacity: 1;
+			transform: scale(1);
 		}
-	</style>
-{% endblock %}
+	}
+	.animate-fade-in {
+		animation: fadeIn 0.2s ease-out forwards;
+	}
+	.animate-scale-in {
+		animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+</style>{% endblock %}

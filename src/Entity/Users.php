@@ -106,6 +106,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(mappedBy: 'usedBy', targetEntity: Idea::class)]
     private Collection $ideasUsed;
 
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Contract::class)]
+    private Collection $contracts;
+
+    /**
+     * @var Collection<int, Collaborator>
+     */
+    #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
+    private Collection $collaborators;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -119,6 +131,8 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->missionsCreated = new ArrayCollection();
         $this->ideas = new ArrayCollection();
         $this->ideasUsed = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
+        $this->collaborators = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -373,5 +387,20 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getIdeasUsed(): Collection
     {
         return $this->ideasUsed;
+    }
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    /**
+     * @return Collection<int, Collaborator>
+     */
+    public function getCollaborators(): Collection
+    {
+        return $this->collaborators;
     }
 }

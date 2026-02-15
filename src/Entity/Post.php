@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
@@ -52,9 +53,27 @@ class Post
     #[ORM\Column(options: ["default" => false])]
     private bool $isCommentLocked = false;
 
+    #[ORM\Column(options: ["default" => true])]
+    private bool $isModerationNotified = true;
+
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(min: 10, minMessage: "La description doit contenir au moins {{ limit }} caractères.")]
     private ?string $content = null;
+
+    #[Assert\File(
+        maxSize: "5M",
+        mimeTypes: ["image/jpeg", "image/png", "image/webp"],
+        mimeTypesMessage: "Veuillez uploader une image valide (JPEG, PNG, WEBP)"
+    )]
+    private ?UploadedFile $imageFile = null;
+
+    #[Assert\File(
+        maxSize: "10M",
+        mimeTypes: ["application/pdf"],
+        mimeTypesMessage: "Veuillez uploader un fichier PDF valide"
+    )]
+    private ?UploadedFile $pdfFile = null;
 
     #[ORM\OneToOne(targetEntity: Comment::class, cascade: ['persist', 'remove'])]
     private ?Comment $solution = null;
@@ -235,6 +254,28 @@ class Post
         return $this;
     }
 
+    public function getImageFile(): ?UploadedFile
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?UploadedFile $imageFile): static
+    {
+        $this->imageFile = $imageFile;
+        return $this;
+    }
+
+    public function getPdfFile(): ?UploadedFile
+    {
+        return $this->pdfFile;
+    }
+
+    public function setPdfFile(?UploadedFile $pdfFile): static
+    {
+        $this->pdfFile = $pdfFile;
+        return $this;
+    }
+
     public function getLikes(): int
     {
         return $this->likes;
@@ -278,6 +319,17 @@ class Post
     public function setRefusalReason(?string $refusalReason): static
     {
         $this->refusalReason = $refusalReason;
+        return $this;
+    }
+
+    public function isModerationNotified(): bool
+    {
+        return $this->isModerationNotified;
+    }
+
+    public function setIsModerationNotified(bool $isModerationNotified): self
+    {
+        $this->isModerationNotified = $isModerationNotified;
         return $this;
     }
 }

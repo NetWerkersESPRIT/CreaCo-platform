@@ -51,27 +51,43 @@ final class CommentController extends AbstractController
         $comment->setLikes(0);
         $comment->setStatus('visible');
 
-        $body = $request->request->get('body');
-        $parentId = $request->request->get('parent_id');
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
 
-        if (!$body) {
-            $this->addFlash('danger', 'Le commentaire ne peut pas être vide.');
+        if ($form->isSubmitted() && $form->isValid()) {
+            $commentData = $request->request->all('comment');
+            $body = trim($commentData['body'] ?? '');
+
+            if (empty($body)) {
+                $this->addFlash('error', 'Le contenu du commentaire est obligatoire.');
+                return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+            }
+
+            $comment->setBody($body);
+            
+            $parentId = $request->request->get('parent_id');
+            if ($parentId) {
+                $parent = $em->getRepository(Comment::class)->find($parentId);
+                if ($parent) {
+                    $comment->setParentComment($parent);
+                }
+            }
+
+            $em->persist($comment);
+            $em->flush();
+
             return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
         }
 
-        $comment->setBody($body);
-
-        if ($parentId) {
-            $parent = $em->getRepository(Comment::class)->find($parentId);
-            if ($parent) {
-                $comment->setParentComment($parent);
-            }
-        }
-
-        $em->persist($comment);
-        $em->flush();
-
-        return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+        // If validation fails, stay on the post show page to show errors
+        return $this->render('forum/post/show.html.twig', [
+            'post' => $post,
+            'comments' => $em->getRepository(Comment::class)->findBy(
+                ['post' => $post, 'parentComment' => null],
+                ['createdAt' => 'ASC']
+            ),
+            'commentForm' => $form->createView(),
+        ]);
     }
 
     #[Route('/comment/{id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]

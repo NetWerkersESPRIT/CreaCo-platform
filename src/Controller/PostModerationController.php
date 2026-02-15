@@ -40,8 +40,14 @@ class PostModerationController extends AbstractController
             return $this->redirectToRoute('admin_post_pending');
         }
 
+        $rejectionForm = $this->createForm(\App\Form\RejectionReasonType::class, null, [
+            'action' => $this->generateUrl('admin_post_refuse', ['id' => $post->getId()]),
+            'method' => 'POST',
+        ]);
+
         return $this->render('admin/post/show.html.twig', [
             'post' => $post,
+            'rejectionForm' => $rejectionForm->createView(),
         ]);
     }
 
@@ -54,6 +60,7 @@ class PostModerationController extends AbstractController
 
         $post->setStatus('published');
         $post->setRefusalReason(null);
+        $post->setIsModerationNotified(false);
 
         // Notify author
         if ($post->getUser()) {
@@ -68,7 +75,6 @@ class PostModerationController extends AbstractController
         }
 
         $em->flush();
-        $this->addFlash('success', 'Post approved successfully.');
 
         return $this->redirectToRoute('admin_post_pending');
     }
@@ -80,27 +86,40 @@ class PostModerationController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        $reason = $request->request->get('refusalReason');
-        $post->setStatus('refused');
-        $post->setRefusalReason($reason);
-        $post->setUpdatedAt(new \DateTime());
+        // We use the post entity directly, but we only validate the refusalReason
+        // For simplicity, we can use the RejectionReasonType or just check manually,
+        // but user wants isValid(). So we'll use a form.
+        $form = $this->createForm(\App\Form\RejectionReasonType::class);
+        $form->handleRequest($request);
 
-        // Notify author
-        if ($post->getUser()) {
-            $notification = new Notification();
-            $notification->setMessage('Your post "' . $post->getTitle() . '" has been refused: ' . $reason);
-            $notification->setIsRead(false);
-            $notification->setCreatedAt(new \DateTime());
-            $notification->setUserId($post->getUser());
-            // Redirect to their own post to see the reason
-            $notification->setTargetUrl($this->generateUrl('app_post_show', ['id' => $post->getId()]));
-            $em->persist($notification);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $reason = $form->get('rejectionReason')->getData();
+            $post->setStatus('refused');
+            $post->setRefusalReason($reason);
+            $post->setIsModerationNotified(false);
+            $post->setUpdatedAt(new \DateTime());
+
+            // Notify author
+            if ($post->getUser()) {
+                $notification = new Notification();
+                $notification->setMessage('Your post "' . $post->getTitle() . '" has been refused: ' . $reason);
+                $notification->setIsRead(false);
+                $notification->setCreatedAt(new \DateTime());
+                $notification->setUserId($post->getUser());
+                $notification->setTargetUrl($this->generateUrl('app_post_show', ['id' => $post->getId()]));
+                $em->persist($notification);
+            }
+
+            $em->flush();
+
+            return $this->redirectToRoute('admin_post_pending');
         }
 
-        $em->flush();
-        $this->addFlash('danger', 'Post refused and author notified.');
-
-        return $this->redirectToRoute('admin_post_pending');
+        // If invalid, go back to the show page with errors
+        return $this->render('admin/post/show.html.twig', [
+            'post' => $post,
+            'rejectionForm' => $form->createView(),
+        ]);
     }
 
     public function countPending(PostRepository $repo): Response

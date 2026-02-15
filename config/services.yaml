@@ -14,8 +14,3 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # ✅ ADD THIS
-    App\Service\GoogleDriveUploader:
-        arguments:
-            $credentialsPath: '%env(resolve:GOOGLE_DRIVE_CREDENTIALS)%'
-            $folderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'

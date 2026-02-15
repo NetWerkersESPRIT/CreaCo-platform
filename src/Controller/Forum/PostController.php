@@ -56,6 +56,8 @@ final class PostController extends AbstractController
             }
         }
 
+        $this->checkModerationNotifications($entityManager);
+
         return $this->render('forum/post/index.html.twig', [
             'posts' => $posts,
         ]);
@@ -68,11 +70,10 @@ final class PostController extends AbstractController
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $now = new \DateTime();
             $post->setCreatedAt($now);
             $post->setUpdatedAt($now);
-
 
             $user = $this->getUser();
             if (!$user) {
@@ -96,79 +97,77 @@ final class PostController extends AbstractController
                 $post->setStatus('pending');
             }
 
-            if ($form->isValid()) {
-                /** @var UploadedFile $imageFile */
-                $imageFile = $form->get('imageFile')->getData();
-                if ($imageFile) {
-                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+            /** @var UploadedFile $imageFile */
+            $imageFile = $post->getImageFile();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
-                    try {
-                        $imageFile->move(
-                            $this->getParameter('kernel.project_dir') . '/public/uploads',
-                            $newFilename
-                        );
-                        $post->setImageName($newFilename);
-                    } catch (FileException $e) {
-                        $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
-                    }
+                try {
+                    $imageFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $newFilename
+                    );
+                    $post->setImageName($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
                 }
-
-                /** @var UploadedFile $pdfFile */
-                $pdfFile = $form->get('pdfFile')->getData();
-                if ($pdfFile) {
-                    $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
-
-                    try {
-                        $pdfFile->move(
-                            $this->getParameter('kernel.project_dir') . '/public/uploads',
-                            $newFilename
-                        );
-                        $post->setPdfName($newFilename);
-                    } catch (FileException $e) {
-                        $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
-                    }
-                }
-
-                $em->persist($post);
-
-                // Notify Admins & Author
-                if ($post->getStatus() === 'pending') {
-                    // Admin Notifications
-                    $admins = $em->getRepository(Users::class)->findBy(['role' => ['ROLE_ADMIN']]);
-                    foreach ($admins as $admin) {
-                        $notification = new \App\Entity\Notification();
-                        $notification->setMessage('New post pending approval: ' . $post->getTitle());
-                        $notification->setIsRead(false);
-                        $notification->setCreatedAt(new \DateTime());
-                        $notification->setUserId($admin);
-                        $em->persist($notification);
-                    }
-
-                    // Author Notification
-                    if ($user instanceof Users) {
-                        $authorNotif = new \App\Entity\Notification();
-                        $authorNotif->setMessage('Your post is waiting for the admin to accept it.');
-                        $authorNotif->setIsRead(false);
-                        $authorNotif->setCreatedAt(new \DateTime());
-                        $authorNotif->setUserId($user);
-                        $em->persist($authorNotif);
-                    }
-                }
-
-                $em->flush();
-
-                if ($post->getStatus() === 'pending') {
-                    $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
-                } else {
-                    $this->addFlash('success', 'Votre message a été publié avec succès !');
-                }
-
-                return $this->redirectToRoute('forum_index');
             }
+
+            /** @var UploadedFile $pdfFile */
+            $pdfFile = $post->getPdfFile();
+            if ($pdfFile) {
+                $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
+
+                try {
+                    $pdfFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $newFilename
+                    );
+                    $post->setPdfName($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                }
+            }
+
+            $em->persist($post);
+
+            // Notify Admins & Author
+            if ($post->getStatus() === 'pending') {
+                // Admin Notifications
+                $admins = $em->getRepository(Users::class)->findBy(['role' => ['ROLE_ADMIN']]);
+                foreach ($admins as $admin) {
+                    $notification = new \App\Entity\Notification();
+                    $notification->setMessage('New post pending approval: ' . $post->getTitle());
+                    $notification->setIsRead(false);
+                    $notification->setCreatedAt(new \DateTime());
+                    $notification->setUserId($admin);
+                    $em->persist($notification);
+                }
+
+                // Author Notification
+                if ($user instanceof Users) {
+                    $authorNotif = new \App\Entity\Notification();
+                    $authorNotif->setMessage('Your post is waiting for the admin to accept it.');
+                    $authorNotif->setIsRead(false);
+                    $authorNotif->setCreatedAt(new \DateTime());
+                    $authorNotif->setUserId($user);
+                    $em->persist($authorNotif);
+                }
+            }
+
+            $em->flush();
+
+            if ($post->getStatus() === 'pending') {
+                $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
+            } else {
+                $this->addFlash('success', 'Votre message a été publié avec succès !');
+            }
+
+            return $this->redirectToRoute('forum_index');
         }
 
         return $this->render('forum/post/new.html.twig', [
@@ -198,6 +197,8 @@ final class PostController extends AbstractController
         $comment = new Comment();
         $commentForm = $this->createForm(CommentType::class, $comment);
         $commentForm->handleRequest($request);
+
+        $this->checkModerationNotifications($em);
 
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
@@ -262,7 +263,7 @@ final class PostController extends AbstractController
             $post->setUpdatedAt(new \DateTime());
 
             /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('imageFile')->getData();
+            $imageFile = $post->getImageFile();
             if ($imageFile) {
 
                 if ($post->getImageName()) {
@@ -288,7 +289,7 @@ final class PostController extends AbstractController
             }
 
             /** @var UploadedFile $pdfFile */
-            $pdfFile = $form->get('pdfFile')->getData();
+            $pdfFile = $post->getPdfFile();
             if ($pdfFile) {
 
                 if ($post->getPdfName()) {
@@ -410,5 +411,39 @@ final class PostController extends AbstractController
 
         $this->addFlash('success', 'Discussion marked as solved and comments locked!');
         return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
+    }
+    private function checkModerationNotifications(EntityManagerInterface $em): void
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Users) {
+            $request = $this->container->get('request_stack')->getCurrentRequest();
+            if ($request) {
+                $userId = $request->getSession()->get('user_id');
+                if ($userId) {
+                    $user = $em->getRepository(Users::class)->find($userId);
+                }
+            }
+        }
+
+        if (!$user instanceof Users) {
+            return;
+        }
+
+        /** @var \App\Repository\PostRepository $repo */
+        $repo = $em->getRepository(Post::class);
+        $unnotifiedPosts = $repo->findUnnotifiedModerationPosts($user);
+
+        foreach ($unnotifiedPosts as $post) {
+            if ($post->getStatus() === 'published') {
+                $this->addFlash('post_approved', 'Félicitations ! Votre post "' . $post->getTitle() . '" a été approuvé et publié.');
+            } elseif ($post->getStatus() === 'refused') {
+                $this->addFlash('post_refused', 'Désolé, votre post "' . $post->getTitle() . '" a été refusé. Motif : ' . ($post->getRefusalReason() ?? 'Non spécifié'));
+            }
+            $post->setIsModerationNotified(true);
+        }
+
+        if (count($unnotifiedPosts) > 0) {
+            $em->flush();
+        }
     }
 }
