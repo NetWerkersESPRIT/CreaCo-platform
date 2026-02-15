@@ -61,6 +61,9 @@ class Cours
     #[ORM\OneToMany(mappedBy: 'cours', targetEntity: Ressource::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $ressources;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $views = null;
+
     public function __construct()
     {
         $this->ressources = new ArrayCollection();
@@ -184,5 +187,17 @@ class Cours
     public function setUpdateDate(): void
     {
         $this->date_de_modification = new \DateTime();
+    }
+
+    public function getViews(): ?int
+    {
+        return $this->views;
+    }
+
+    public function setViews(?int $views): static
+    {
+        $this->views = $views;
+
+        return $this;
     }
 }

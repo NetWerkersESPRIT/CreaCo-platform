@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}CreaCo - Formations
+{% block title %}CreaCo - Workshops
 {% endblock %}
-{% block page_title %}Formations
+{% block page_title %}Workshops
 {% endblock %}
 
 {% block body %}
@@ -13,8 +13,8 @@
 			<div class="w-full max-w-full px-3">
 				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
 					<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
-						<h6 class="mb-1">Découvrez nos Formations</h6>
-						<p class="text-sm leading-normal text-slate-500">Choisissez une catégorie pour explorer les cours et ressources disponibles.</p>
+						<h6 class="mb-1">Discover our workshops</h6>
+						<p class="text-sm leading-normal text-slate-500">Choose a category to explore available courses and resources.</p>
 					</div>
 					<div class="flex-auto p-6">
 						<form method="get" class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease-soft">
@@ -43,7 +43,7 @@
 								</div>
 								<p class="mb-4 leading-normal text-sm text-slate-500">{{ category.description|length > 100 ? category.description|slice(0, 100) ~ '...' : category.description }}</p>
 								<div class="flex items-center justify-between mt-auto">
-									<span class="text-xs font-semibold uppercase text-slate-400">Voir les cours</span>
+									<span class="text-xs font-semibold uppercase text-slate-400">Explore courses</span>
 									<i class="fas fa-arrow-right text-xs text-slate-400"></i>
 								</div>
 							</div>
@@ -54,7 +54,7 @@
 				<div class="w-full max-w-full px-3">
 					<div class="text-center p-12 bg-white shadow-soft-xl rounded-2xl">
 						<i class="ni ni-box-2 text-4xl text-slate-300 mb-4"></i>
-						<p class="text-lg font-semibold text-slate-500">Aucune catégorie disponible pour le moment.</p>
+						<p class="text-lg font-semibold text-slate-500">No categories available at the moment.</p>
 					</div>
 				</div>
 			{% endfor %}

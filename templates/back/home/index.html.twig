@@ -1,133 +1,141 @@
 {% extends './base.html.twig' %}
 
-{% block title %}Dashboard Admin{% endblock %}
+{% block title %}Admin Dashboard
+{% endblock %}
 
-{% block page_title %}Dashboard Général{% endblock %}
+{% block page_title %}General Dashboard
+{% endblock %}
 
 {% block body %}
-<div class="flex flex-wrap -mx-3">
-  <!-- Categories Card -->
-  <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-    <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="flex-auto p-4">
-        <div class="flex flex-row -mx-3">
-          <div class="flex-none w-2/3 max-w-full px-3">
-            <div>
-              <p class="mb-0 font-sans text-sm font-semibold leading-normal">Catégories</p>
-              <h5 class="mb-0 font-bold">
-                {{ count_categories }}
-                <span class="text-xs leading-normal font-weight-bolder text-lime-500">Modules</span>
-              </h5>
-            </div>
-          </div>
-          <div class="px-3 text-right basis-1/3">
-            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
-              <i class="ni leading-none ni-collection text-lg relative top-3.5 text-white"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+	<div
+		class="flex flex-wrap -mx-3">
+		<!-- Categories Card -->
+		<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+			<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="flex-auto p-4">
+					<div class="flex flex-row -mx-3">
+						<div class="flex-none w-2/3 max-w-full px-3">
+							<div>
+								<p class="mb-0 font-sans text-sm font-semibold leading-normal">Categories</p>
+								<h5 class="mb-0 font-bold">
+									{{ count_categories }}
+									<span class="text-xs leading-normal font-weight-bolder text-lime-500">Modules</span>
+								</h5>
+							</div>
+						</div>
+						<div class="px-3 text-right basis-1/3">
+							<div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+								<i class="ni leading-none ni-collection text-lg relative top-3.5 text-white"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-  <!-- Courses Card -->
-  <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-    <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="flex-auto p-4">
-        <div class="flex flex-row -mx-3">
-          <div class="flex-none w-2/3 max-w-full px-3">
-            <div>
-              <p class="mb-0 font-sans text-sm font-semibold leading-normal">Cours</p>
-              <h5 class="mb-0 font-bold">
-                {{ count_courses }}
-                <span class="text-xs leading-normal font-weight-bolder text-lime-500">Total</span>
-              </h5>
-            </div>
-          </div>
-          <div class="px-3 text-right basis-1/3">
-            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
-              <i class="ni leading-none ni-paper-diploma text-lg relative top-3.5 text-white"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+		<!-- Courses Card -->
+		<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+			<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="flex-auto p-4">
+					<div class="flex flex-row -mx-3">
+						<div class="flex-none w-2/3 max-w-full px-3">
+							<div>
+								<p class="mb-0 font-sans text-sm font-semibold leading-normal">Courses</p>
+								<h5 class="mb-0 font-bold">
+									{{ count_courses }}
+									<span class="text-xs leading-normal font-weight-bolder text-lime-500">Total</span>
+								</h5>
+							</div>
+						</div>
+						<div class="px-3 text-right basis-1/3">
+							<div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+								<i class="ni leading-none ni-paper-diploma text-lg relative top-3.5 text-white"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-  <!-- Resources Card -->
-  <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-    <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="flex-auto p-4">
-        <div class="flex flex-row -mx-3">
-          <div class="flex-none w-2/3 max-w-full px-3">
-            <div>
-              <p class="mb-0 font-sans text-sm font-semibold leading-normal">Ressources</p>
-              <h5 class="mb-0 font-bold">
-                {{ count_resources }}
-                <span class="text-xs leading-normal font-weight-bolder text-lime-500">Fichiers</span>
-              </h5>
-            </div>
-          </div>
-          <div class="px-3 text-right basis-1/3">
-            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
-              <i class="ni leading-none ni-folder-17 text-lg relative top-3.5 text-white"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+		<!-- Resources Card -->
+		<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+			<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="flex-auto p-4">
+					<div class="flex flex-row -mx-3">
+						<div class="flex-none w-2/3 max-w-full px-3">
+							<div>
+								<p class="mb-0 font-sans text-sm font-semibold leading-normal">Resources</p>
+								<h5 class="mb-0 font-bold">
+									{{ count_resources }}
+									<span class="text-xs leading-normal font-weight-bolder text-lime-500">Files</span>
+								</h5>
+							</div>
+						</div>
+						<div class="px-3 text-right basis-1/3">
+							<div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+								<i class="ni leading-none ni-folder-17 text-lg relative top-3.5 text-white"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-  <!-- Users Card -->
-  <div class="w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:w-1/4">
-    <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="flex-auto p-4">
-        <div class="flex flex-row -mx-3">
-          <div class="flex-none w-2/3 max-w-full px-3">
-            <div>
-              <p class="mb-0 font-sans text-sm font-semibold leading-normal">Utilisateurs</p>
-              <h5 class="mb-0 font-bold">
-                {{ count_users }}
-                <span class="text-xs leading-normal font-weight-bolder text-lime-500">Membres</span>
-              </h5>
-            </div>
-          </div>
-          <div class="px-3 text-right basis-1/3">
-            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
-              <i class="ni leading-none ni-circle-08 text-lg relative top-3.5 text-white"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+		<!-- Users Card -->
+		<div class="w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:w-1/4">
+			<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="flex-auto p-4">
+					<div class="flex flex-row -mx-3">
+						<div class="flex-none w-2/3 max-w-full px-3">
+							<div>
+								<p class="mb-0 font-sans text-sm font-semibold leading-normal">Users</p>
+								<h5 class="mb-0 font-bold">
+									{{ count_users }}
+									<span class="text-xs leading-normal font-weight-bolder text-lime-500">Members</span>
+								</h5>
+							</div>
+						</div>
+						<div class="px-3 text-right basis-1/3">
+							<div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+								<i class="ni leading-none ni-circle-08 text-lg relative top-3.5 text-white"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<div class="flex flex-wrap mt-6 -mx-3">
-  <div class="w-full px-3 mb-6 lg:mb-0">
-    <div class="relative flex flex-col min-w-0 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
-        <h6>Bienvenue sur l'interface d'administration CreaCo</h6>
-      </div>
-      <div class="flex-auto p-6">
-        <p class="mb-4">
-          Vous êtes sur l'outil de gestion de contenu. Utilisez la barre latérale pour naviguer entre les différentes sections.
-        </p>
-        <div class="flex flex-wrap -mx-3">
-          <div class="w-full px-3 mb-6 xl:w-full">
-            <div class="p-4 bg-gray-50 rounded-xl">
-              <h6 class="mb-2">Gestion Hiérarchique</h6>
-              <p class="text-sm">
-                Gérez vos <strong>Catégories</strong>, puis descendez dans les <strong>Cours</strong> et enfin les <strong>Ressources</strong> pour une organisation optimale.
-              </p>
-              <a href="{{ path('app_categorie_cours_index') }}" class="mt-4 inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 active:opacity-85">
-                Commencer par les catégories
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+	<div class="flex flex-wrap mt-6 -mx-3">
+		<div class="w-full px-3 mb-6 lg:mb-0">
+			<div class="relative flex flex-col min-w-0 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+					<h6>Welcome to the CreaCo admin interface</h6>
+				</div>
+				<div class="flex-auto p-6">
+					<p class="mb-4">
+						You are using the content management tool. Use the sidebar to navigate between different sections.
+					</p>
+					<div class="flex flex-wrap -mx-3">
+						<div class="w-full px-3 mb-6 xl:w-full">
+							<div class="p-4 bg-gray-50 rounded-xl">
+								<h6 class="mb-2">Hierarchical Management</h6>
+								<p class="text-sm">
+									Manage your
+									<strong>Categories</strong>, then navigate down to
+									<strong>Courses</strong>
+									and finally
+									<strong>Resources</strong>
+									for optimal organization.
+								</p>
+								<a href="{{ path('app_categorie_cours_index') }}" class="mt-4 inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 active:opacity-85">
+									Start with categories
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}

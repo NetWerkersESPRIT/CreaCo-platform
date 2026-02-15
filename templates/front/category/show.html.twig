@@ -13,8 +13,9 @@
 			<div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
 				<nav>
 					<ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+						<li class="text-sm leading-normal"></li>
 						<li class="text-sm leading-normal">
-							<a class="opacity-50 text-slate-700" href="{{ path('app_front_home') }}">Formations</a>
+							<a class="opacity-50 text-slate-700" href="{{ path('app_front_home') }}">Courses</a>
 						</li>
 						<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">{{ category.nom }}</li>
 					</ol>
@@ -37,11 +38,11 @@
 								<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
 									<i class="fas fa-search" aria-hidden="true"></i>
 								</span>
-								<input type="text" name="search" value="{{ search ?? '' }}" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Rechercher un cours..."/>
+								<input type="text" name="search" value="{{ search ?? '' }}" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Search for a course..."/>
 							</div>
 							<select name="sort" onchange="this.form.submit()" class="text-sm focus:shadow-soft-primary-outline ease-soft leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow cursor-pointer">
-								<option value="date_de_creation_DESC" {{ (current_sort ~ '_' ~ current_order) == 'date_de_creation_DESC' ? 'selected' : '' }}>Plus récents</option>
-								<option value="titre_ASC" {{ (current_sort ~ '_' ~ current_order) == 'titre_ASC' ? 'selected' : '' }}>Nom (A-Z)</option>
+								<option value="date_de_creation_DESC" {{ (current_sort ~ '_' ~ current_order) == 'date_de_creation_DESC' ? 'selected' : '' }}>Newest</option>
+								<option value="titre_ASC" {{ (current_sort ~ '_' ~ current_order) == 'titre_ASC' ? 'selected' : '' }}>Name (A-Z)</option>
 							</select>
 						</form>
 					</div>
@@ -78,7 +79,7 @@
 									{{ course.dateDeCreation ? course.dateDeCreation|date('d/m/Y') : '-' }}
 								</span>
 								<a href="{{ path('app_front_course', {'id': course.id}) }}" class="inline-block px-4 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs tracking-tight-rem">
-									Accéder
+									Access
 								</a>
 							</div>
 						</div>
@@ -88,7 +89,7 @@
 				<div class="w-full max-w-full px-3">
 					<div class="text-center p-12 bg-white shadow-soft-xl rounded-2xl border-2 border-dashed border-gray-200">
 						<i class="ni ni-hat-3 text-4xl text-slate-300 mb-4"></i>
-						<p class="text-lg font-semibold text-slate-500">Aucun cours disponible dans cette catégorie.</p>
+						<p class="text-lg font-semibold text-slate-500">No courses available in this category.</p>
 					</div>
 				</div>
 			{% endfor %}

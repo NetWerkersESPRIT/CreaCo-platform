@@ -14,7 +14,7 @@
 				<nav>
 					<ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
 						<li class="text-sm leading-normal">
-							<a class="opacity-50 text-slate-700" href="{{ path('app_front_home') }}">Formations</a>
+							<a class="opacity-50 text-slate-700" href="{{ path('app_front_home') }}">Courses</a>
 						</li>
 						<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']">
 							{% if course.categorie %}
@@ -44,7 +44,7 @@
 						{% endif %}
 						<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 						<div class="absolute bottom-0 left-0 p-6 lg:p-12 text-white">
-							<span class="mb-2 py-1 px-3 rounded-lg bg-white/20 backdrop-blur-sm text-xs font-bold uppercase">{{ course.categorie ? course.categorie.nom : 'Cours' }}</span>
+							<span class="mb-2 py-1 px-3 rounded-lg bg-white/20 backdrop-blur-sm text-xs font-bold uppercase">{{ course.categorie ? course.categorie.nom : 'Course' }}</span>
 							<h1 class="text-3xl lg:text-5xl font-bold mb-2">{{ course.titre }}</h1>
 							<div class="flex items-center gap-4 text-sm font-medium opacity-80">
 								<span>
@@ -54,7 +54,7 @@
 						</div>
 					</div>
 					<div class="p-6">
-						<h6 class="mb-2">A propos ce cours</h6>
+						<h6 class="mb-2">About this course</h6>
 						<p class="leading-relaxed text-slate-600 mb-0">
 							{{ course.description|nl2br }}
 						</p>
@@ -66,7 +66,7 @@
 		<!-- Resources Title -->
 		<div class="flex flex-wrap -mx-3 mb-4">
 			<div class="w-full max-w-full px-3">
-				<h5 class="font-bold">Ressources du cours
+				<h5 class="font-bold">Course Resources
 					<span class="ml-2 text-sm font-semibold text-slate-500 bg-white rounded-lg px-2 py-1 shadow-soft-xs">{{ ressources|length }}</span>
 				</h5>
 			</div>
@@ -107,10 +107,10 @@
 							<div class="flex-auto p-4">
 								<div class="flex items-start justify-between mb-4">
 									<div class="inline-flex items-center justify-center w-12 h-12 text-white rounded-xl shadow-soft-2xl
-																						                                        {% if ressource.type|upper == 'PDF' %}bg-gradient-to-tl from-red-600 to-rose-400
-																						                                        {% elseif ressource.type|upper == 'VIDEO' %}bg-gradient-to-tl from-red-500 to-orange-400
-																						                                        {% elseif ressource.type|upper == 'IMAGE' %}bg-gradient-to-tl from-purple-700 to-pink-500
-																						                                        {% else %}bg-gradient-to-tl from-slate-600 to-slate-300{% endif %}">
+																																	                                        {% if ressource.type|upper == 'PDF' %}bg-gradient-to-tl from-red-600 to-rose-400
+																																	                                        {% elseif ressource.type|upper == 'VIDEO' %}bg-gradient-to-tl from-red-500 to-orange-400
+																																	                                        {% elseif ressource.type|upper == 'IMAGE' %}bg-gradient-to-tl from-purple-700 to-pink-500
+																																	                                        {% else %}bg-gradient-to-tl from-slate-600 to-slate-300{% endif %}">
 										{% if ressource.type|upper == 'PDF' %}
 											<i class="fas fa-file-pdf text-lg"></i>
 										{% elseif ressource.type|upper == 'VIDEO' %}
@@ -125,12 +125,12 @@
 								</div>
 
 								<h6 class="mb-2 font-bold text-slate-700 leading-tight">{{ ressource.nom }}</h6>
-								<p class="text-xs text-slate-500 mb-4">Ajouté le
+								<p class="text-xs text-slate-500 mb-4">Added on
 									{{ ressource.dateDeCreation ? ressource.dateDeCreation|date('d/m/Y') : '-' }}</p>
 
 								<a href="{{ ressource.url }}" target="_blank" class="w-full inline-block px-4 py-2 font-bold text-center uppercase transition-all bg-transparent border border-solid rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-none tracking-tight-rem hover:scale-102 active:opacity-85 border-slate-700 text-slate-700 hover:bg-slate-700 hover:text-white">
 									<i class="fas fa-download mr-1"></i>
-									Ouvrir / Télécharger
+									Open / Download
 								</a>
 							</div>
 						{% endif %}
@@ -141,7 +141,7 @@
 				<div class="w-full max-w-full px-3">
 					<div class="text-center p-12 bg-white shadow-soft-xl rounded-2xl border-2 border-dashed border-gray-200">
 						<i class="ni ni-folder-17 text-4xl text-slate-300 mb-4"></i>
-						<p class="text-lg font-semibold text-slate-500">Aucune ressource disponible pour ce cours.</p>
+						<p class="text-lg font-semibold text-slate-500">No resources available for this course.</p>
 					</div>
 				</div>
 			{% endfor %}

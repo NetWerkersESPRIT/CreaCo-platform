@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard
+{% endblock %}
+
+{% block body %}
+	<div class="w-full px-6 py-6 mx-auto">
+
+		<div
+			class="flex flex-wrap -mx-3">
+			<!-- Analytics Card -->
+			<div class="w-full max-w-full px-3 mb-6">
+				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+					<div class="flex-auto p-4">
+						<div class="flex flex-wrap -mx-3">
+							<div class="max-w-full px-3 lg:w-1/2 lg:flex-none">
+								<div class="flex flex-col h-full">
+									<h5 class="font-bold">Vue d'ensemble des Cours</h5>
+									<p class="mb-5 text-gray-500">
+										<i class="fa fa-arrow-up text-lime-500"></i>
+										<span class="font-bold">Top 5</span>
+										des cours les plus visités
+									</p>
+									<p class="text-sm">Ce graphique montre le nombre total de vues pour vos cours les plus populaires. Utilisez ces données pour comprendre ce qui intéresse vos étudiants.</p>
+								</div>
+							</div>
+							<div class="max-w-full px-3 mt-12 ml-auto text-center lg:mt-0 lg:w-5/12 lg:flex-none">
+								<div class="h-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl">
+									<img src="{{ asset('assets/img/shapes/waves-white.svg') }}" class="absolute top-0 hidden w-1/2 h-full lg:block" alt="waves">
+									<div class="relative flex items-center justify-center h-full">
+										<i class="ni ni-chart-bar-32 text-white text-4xl"></i>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Chart Section -->
+		<div class="flex flex-wrap -mx-3">
+			<div class="w-full max-w-full px-3 mt-0 lg:w-7/12 lg:flex-none">
+				<div class="border-black/12.5 shadow-soft-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+					<div class="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
+						<h6>Nombre de vues par cours</h6>
+					</div>
+					<div class="flex-auto p-4">
+						<div>
+							<canvas id="chart-bars" height="300"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Top List -->
+			<div class="w-full max-w-full px-3 mt-6 lg:mt-0 lg:w-5/12 lg:flex-none">
+				<div class="border-black/12.5 shadow-soft-xl relative flex h-full min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+					<div class="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
+						<h6>Top Cours Populaires</h6>
+					</div>
+					<div class="flex-auto p-4">
+						<ul class="flex flex-col pl-0 mb-0 rounded-lg">
+							{% for course in topCourses %}
+								<li class="relative flex justify-between px-4 py-2 pl-0 mb-2 border-0 border-t-0 text-inherit rounded-xl">
+									<div class="flex items-center">
+										<div class="flex flex-col">
+											<h6 class="mb-1 text-sm font-semibold leading-normal text-slate-700">{{ course.titre }}</h6>
+											<span class="text-xs leading-tight">
+												{{ course.categorie ? course.categorie.nom : 'Non classé' }}
+
+											</span>
+										</div>
+									</div>
+									<div class="flex items-center text-sm font-bold text-gray-700">
+										{{ course.views ?? 0 }}
+										vues
+									</div>
+								</li>
+							{% else %}
+								<li class="text-center text-gray-500">Aucun cours trouvé</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		var courseTitles = {{ courseTitles|raw }};
+var courseViews = {{ courseViews|raw }};
+
+var ctx = document.getElementById("chart-bars").getContext("2d");
+
+new Chart(ctx, {
+type: "bar",
+data: {
+labels: courseTitles,
+datasets: [
+{
+label: "Vues",
+tension: 0.4,
+borderWidth: 0,
+borderRadius: 4,
+borderSkipped: false,
+backgroundColor: "#cb0c9f",
+data: courseViews,
+maxBarThickness: 20
+},
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+display: false
+}
+},
+interaction: {
+intersect: false,
+mode: 'index'
+},
+scales: {
+y: {
+grid: {
+drawBorder: false,
+display: true,
+drawOnChartArea: true,
+drawTicks: false,
+borderDash: [5, 5]
+},
+ticks: {
+display: true,
+padding: 10,
+color: '#b2b9bf',
+font: {
+size: 11,
+family: "Open Sans",
+style: 'normal',
+lineHeight: 2
+}
+}
+},
+x: {
+grid: {
+drawBorder: false,
+display: false,
+drawOnChartArea: false,
+drawTicks: false,
+borderDash: [5, 5]
+},
+ticks: {
+display: true,
+color: '#b2b9bf',
+padding: 10,
+font: {
+size: 11,
+family: "Open Sans",
+style: 'normal',
+lineHeight: 2
+}
+}
+}
+}
+}
+});
+	</script>
+{% endblock %}
