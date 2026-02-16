@@ -26,8 +26,14 @@
 </div>
 
 <div id="text-group" class="mb-4" style="display: none;">
-	{{ form_label(form.contenu, 'Contenu texte', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
-	{{ form_widget(form.contenu, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+	<div class="flex justify-between items-center mb-2">
+		{{ form_label(form.contenu, 'Contenu texte', {'label_attr': {'class': 'text-sm font-bold text-gray-700 m-0'}}) }}
+		<button type="button" id="generate-ai-quiz" class="text-xs bg-gradient-to-tl from-purple-700 to-pink-500 text-white px-2 py-1 rounded-lg hover:opacity-80 transition-all flex items-center">
+			<span id="quiz-btn-text">✨ Generate Quiz</span>
+			<span id="quiz-btn-loader" class="hidden animate-spin ml-1 text-xs">🌀</span>
+		</button>
+	</div>
+	{{ form_widget(form.contenu, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '8'}}) }}
 	{{ form_errors(form.contenu, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
 </div>
 
@@ -36,6 +42,10 @@
 const toggles = document.querySelectorAll('.nature-toggle');
 const fileGroup = document.getElementById('file-group');
 const textGroup = document.getElementById('text-group');
+const quizBtn = document.getElementById('generate-ai-quiz');
+const contentTextarea = document.querySelector('textarea[name*="[contenu]"]');
+const quizBtnText = document.getElementById('quiz-btn-text');
+const quizBtnLoader = document.getElementById('quiz-btn-loader');
 
 function updateVisibility() {
 const selected = document.querySelector('.nature-toggle:checked').value;
@@ -50,6 +60,51 @@ textGroup.style.display = 'block';
 
 toggles.forEach(t => t.addEventListener('change', updateVisibility));
 updateVisibility();
+
+if (quizBtn) {
+quizBtn.addEventListener('click', async function () {
+const content = contentTextarea.value;
+if (! content || content.length < 50) {
+alert('Please enter at least 50 characters of content to generate a quiz.');
+return;
+}
+
+quizBtn.disabled = true;
+quizBtnText.innerText = 'Generating...';
+quizBtnLoader.classList.remove('hidden');
+
+try {
+const response = await fetch('{{ path('api_openai_generate_quiz') }}', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{content: content}
+)
+});
+
+const data = await response.json();
+
+if (data.quiz) {
+if (data.quiz.startsWith('ERROR_')) {
+alert(data.quiz.replace('ERROR_RATE_LIMIT: ', '').replace('ERROR_AUTH: ', ''));
+} else {
+contentTextarea.value += "\n\n--- AI GENERATED QUIZ ---\n" + data.quiz;
+}
+} else if (data.error) {
+alert('Error: ' + data.error);
+}
+} catch (error) {
+console.error('Error generating quiz:', error);
+alert('An error occurred while generating the quiz.');
+} finally {
+quizBtn.disabled = false;
+quizBtnText.innerText = '✨ Generate Quiz';
+quizBtnLoader.classList.add('hidden');
+}
+});
+}
 });
 </script>
 
