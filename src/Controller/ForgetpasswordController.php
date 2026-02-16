@@ -55,7 +55,7 @@ final class ForgetpasswordController extends AbstractController
         });
 
         $emailMessage = (new Email())
-            ->from('ranimyah233@gmail.com')
+            ->from('ahmed.fendi31@gmail.com')
             ->to($user->getEmail())
             ->subject('Password Reset Code')
             ->text('Your reset code is: ' . $storedCode);

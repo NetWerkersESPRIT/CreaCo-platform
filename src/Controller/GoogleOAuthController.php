@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use Google\Client as GoogleClient;
-use Google\Service\Drive;
+use Google\Service\Drive as GoogleDrive;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +49,7 @@ class GoogleOAuthController extends AbstractController
         $client->setScopes([Drive::DRIVE_FILE]);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
-        $client->setRedirectUri('http://127.0.0.1:8001/google/oauth/callback');
+        $client->setRedirectUri('http://127.0.0.1:8000/google/oauth/callback');
 
         return $client;
     }
