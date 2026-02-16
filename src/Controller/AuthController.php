@@ -36,7 +36,7 @@ final class AuthController extends AbstractController
         $client = HttpClient::create();
         $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
             'body' => [
-                'secret'   => '6LePq2osAAAAAJt8u-OPjMDsH95R5-zAXWtnktyB',
+                'secret' => '6LePq2osAAAAAJt8u-OPjMDsH95R5-zAXWtnktyB',
                 'response' => $token,
                 'remoteip' => $request->getClientIp(),
             ],
@@ -64,11 +64,11 @@ final class AuthController extends AbstractController
         }
 
         if ($user->getPassword() === 'GOOGLE_AUTH') {
-        return $this->render('auth/index.html.twig', [
-            'error' => 'This is a Google user. Please login with Google.',
-            'email' => $email
-        ]);
-    }
+            return $this->render('auth/index.html.twig', [
+                'error' => 'This is a Google user. Please login with Google.',
+                'email' => $email
+            ]);
+        }
 
         // ❌ wrong password
         if (($password != $user->getPassword())) {
@@ -83,12 +83,13 @@ final class AuthController extends AbstractController
         if ($user) {
             $request->getSession()->set('user_id', $user->getId());
             $request->getSession()->set('user_role', $user->getRole());
+            $request->getSession()->set('groupid', $user->getGroupid());
             $request->getSession()->set('username', $user->getUsername());
 
             $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
 
             switch ($user->getRole()) {
-             
+
                 case 'ROLE_ADMIN':
                     return $this->redirectToRoute('app_admin');
 
@@ -118,6 +119,6 @@ final class AuthController extends AbstractController
     #[Route('/login/google/check', name: 'login_google_check')]
     public function loginGoogleCheck(): void
     {
-}
+    }
 
 }

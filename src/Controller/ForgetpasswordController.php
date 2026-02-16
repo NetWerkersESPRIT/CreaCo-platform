@@ -18,7 +18,6 @@ use App\Form\VerifyCodeType;
 
 
 final class ForgetpasswordController extends AbstractController
-
 {
     #[Route('/forgetpassword', name: 'app_forgetpassword', methods: ['GET', 'POST'])]
     public function index(): Response
@@ -89,7 +88,7 @@ final class ForgetpasswordController extends AbstractController
             return $this->redirectToRoute('verify_code_form', ['email' => $email]);
         }
 
-        if ((string)$storedCode !== $code) {
+        if ((string) $storedCode !== $code) {
             $this->addFlash('error', 'Invalid code');
             return $this->redirectToRoute('verify_code_form', ['email' => $email]);
         }
@@ -99,7 +98,7 @@ final class ForgetpasswordController extends AbstractController
     }
 
     #[Route('/reset_password', name: 'app_reset_password')]
-    public function resetPassword(Request $request, EntityManagerInterface $em,): Response
+    public function resetPassword(Request $request, EntityManagerInterface $em, ): Response
     {
         $email = $request->get('email');
         $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);

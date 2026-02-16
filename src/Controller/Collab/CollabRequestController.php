@@ -16,13 +16,22 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/collab-request')]
-#[IsGranted('ROLE_CONTENT_CREATOR')]
 class CollabRequestController extends AbstractController
 {
     #[Route('/', name: 'app_collab_request_index', methods: ['GET'])]
-    public function index(CollabRequestRepository $repo, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function index(CollabRequestRepository $repo, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
 
         return $this->render('collab_request/index.html.twig', [
             'requests' => $repo->findBy(['creator' => $user], ['createdAt' => 'DESC']),
@@ -30,9 +39,20 @@ class CollabRequestController extends AbstractController
     }
 
     #[Route('/new/{id?}', name: 'app_collab_request_new', methods: ['GET', 'POST'])]
-    public function new(?Collaborator $collaborator, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function new(?Collaborator $collaborator, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         $collabRequest = new CollabRequest();
         if ($collaborator) {
             $collabRequest->setCollaborator($collaborator);
@@ -47,13 +67,10 @@ class CollabRequestController extends AbstractController
             if ($user) {
                 $collabRequest->setCreator($user);
             }
-            if ($user && $user->getManager()) {
-                $collabRequest->setRevisor($user->getManager());
-            }
             $em->persist($collabRequest);
             $em->flush();
 
-            $this->addFlash('success', 'Demande de collaboration envoyée avec succès.');
+            $this->addFlash('success', 'Collaboration request sent successfully.');
 
             return $this->redirectToRoute('app_collab_request_index');
         }
@@ -66,9 +83,20 @@ class CollabRequestController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_collab_request_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(CollabRequest $collabRequest, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function show(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($collabRequest->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Vous n'êtes pas l'auteur de cette demande.");
@@ -81,9 +109,20 @@ class CollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_collab_request_edit', methods: ['GET', 'POST'])]
-    public function edit(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function edit(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($collabRequest->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Seul l'auteur peut modifier cette demande.");
@@ -100,7 +139,7 @@ class CollabRequestController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $this->addFlash('success', 'Demande de collaboration mise à jour.');
+            $this->addFlash('success', 'Collaboration request updated.');
 
             return $this->redirectToRoute('app_collab_request_index');
         }
@@ -112,9 +151,20 @@ class CollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/cancel', name: 'app_collab_request_cancel', methods: ['POST'])]
-    public function cancel(CollabRequest $collabRequest, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function cancel(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($collabRequest->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Seul l'auteur peut annuler cette demande.");
@@ -128,7 +178,7 @@ class CollabRequestController extends AbstractController
         $collabRequest->setStatus('CANCELLED');
         $em->flush();
 
-        $this->addFlash('warning', 'Demande de collaboration annulée.');
+        $this->addFlash('warning', 'Collaboration request canceled.');
 
         return $this->redirectToRoute('app_collab_request_index');
     }

@@ -1,90 +1,130 @@
 {% extends 'layouts/dashboard.html.twig' %}
 
-{% block title %}Contrat #{{ contract.contractNumber }} - CreaCo{% endblock %}
-{% block breadcrumb %}Contrats / {{ contract.contractNumber }}{% endblock %}
-{% block page_title %}Consultation du Contrat{% endblock %}
+{% block title %}Contract #{{ contract.contractNumber }} - CreaCo{% endblock %}
+{% block breadcrumb %}Contracts / {{ contract.contractNumber }}{% endblock %}
+{% block page_title %}Contract Consultation{% endblock %}
 
 {% block body %}
 <div class="flex flex-wrap -mx-3">
+    <!-- Main Content (Document Preview) -->
     <div class="w-full max-w-full px-3 lg:w-8/12">
         <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border h-full">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h6 class="mb-0">Document Contractuel</h6>
-                <div class="flex space-x-2">
-                    <span class="text-xs font-bold text-slate-400">REF: {{ contract.contractNumber }}</span>
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50/50 rounded-t-2xl">
+                <div>
+                    <h6 class="mb-0 font-bold">Contractual Document</h6>
+                    <p class="text-xs mb-0 text-slate-400">Official collaboration record</p>
+                </div>
+                <div class="text-right">
+                    <span class="bg-white border px-3 py-1 rounded-pill text-xs font-bold text-slate-500 shadow-soft-xxs">
+                        REF: {{ contract.contractNumber }}
+                    </span>
                 </div>
             </div>
-            <div class="flex-auto p-6 bg-slate-100/50 rounded-b-2xl">
-                <!-- Contract Document Container -->
-                <div class="max-w-[750px] mx-auto bg-white shadow-soft-2xl border rounded-sm min-h-[1000px] p-20 flex flex-col">
-                    <div class="flex justify-between border-b pb-4 mb-10">
+            <div class="flex-auto p-6 bg-slate-50/30 rounded-b-2xl">
+                <!-- Contract Visual Container (The "Paper") -->
+                <div class="max-w-[750px] mx-auto bg-white shadow-soft-2xl border-gray-100 border rounded-sm min-h-[1000px] p-16 md:p-20 flex flex-col relative overflow-hidden">
+                    <!-- Decorative Corner -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-50/50 to-transparent -mr-16 -mt-16 rounded-full"></div>
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-start border-b border-gray-100 pb-8 mb-12 relative z-10">
                         <div>
-                            <h2 class="text-base font-bold uppercase text-slate-700 tracking-tight">Contrat de Prestation</h2>
-                            <p class="text-[9px] text-slate-400 font-mono mt-0.5 tracking-tighter">REF: {{ contract.contractNumber }}</p>
+                            <div class="flex items-center mb-2">
+                                <img src="{{ asset('assets/img/logo-ct.png') }}" class="h-8 mr-3 opacity-80" alt="logo">
+                                <h2 class="text-lg font-bold uppercase text-slate-700 tracking-tight mb-0">Service Contract</h2>
+                            </div>
+                            <p class="text-[10px] text-slate-400 font-mono tracking-tighter uppercase px-1">Digital Protocol #{{ contract.contractNumber }}</p>
                         </div>
-                        <div class="text-right text-[10px] text-slate-400">
-                            <p class="font-bold text-slate-500">CreaCo Ecosystem</p>
-                            <p>{{ contract.createdAt|date('d/m/Y') }}</p>
+                        <div class="text-right">
+                            <h6 class="text-xs font-bold text-slate-500 mb-0">CreaCo Ecosystem</h6>
+                            <p class="text-[10px] text-slate-400 mb-0 uppercase tracking-widest">Issuance Date</p>
+                            <p class="text-xs font-bold text-slate-600">{{ contract.createdAt|date('d/m/Y') }}</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-12 mb-12">
-                        <div class="p-2 border-l-2 border-slate-100">
-                            <h6 class="text-[9px] font-bold uppercase text-slate-300 mb-2 tracking-widest">Le Prestataire</h6>
-                            <p class="text-xs font-bold text-slate-600">{{ contract.collabRequest.collaborator.companyName }}</p>
-                            <p class="text-[10px] text-slate-400">{{ contract.collabRequest.collaborator.address }}</p>
-                            <p class="text-[10px] text-slate-400">{{ contract.collabRequest.collaborator.email }}</p>
+                    <!-- Parties Involved -->
+                    <div class="grid grid-cols-2 gap-12 mb-12 relative z-10">
+                        <div class="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <h6 class="text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest border-b border-gray-200 pb-1">The Provider</h6>
+                            <p class="text-sm font-bold text-slate-700 mb-0">{{ contract.collabRequest.collaborator.companyName }}</p>
+                            <p class="text-xs text-slate-500 mb-0">Representative: {{ contract.collaborator.name|default('Official Partner') }}</p>
+                            <p class="text-xs text-slate-400 italic">Validated Partner Entity</p>
                         </div>
-                        <div class="p-2 border-l-2 border-slate-100">
-                            <h6 class="text-[9px] font-bold uppercase text-slate-300 mb-1 tracking-widest">Le Client</h6>
-                            <p class="text-xs font-bold text-slate-600">{{ contract.collabRequest.creator ? contract.collabRequest.creator.username : 'Inconnu' }}</p>
-                            <p class="text-[10px] text-slate-400">Représentant CreaCo</p>
-                        </div>
-                    </div>
-
-                    <div class="mb-10">
-                        <h6 class="text-[10px] font-bold border-b pb-1 mb-4 text-slate-400 uppercase tracking-[0.2em]">I. Objet du Contrat</h6>
-                        <p class="text-[11px] leading-relaxed mb-3 text-slate-600">Le présent contrat à pour objet la réalisation de la mission suivante : <span class="font-bold text-slate-700">{{ contract.collabRequest.title }}</span>.</p>
-                        <div class="text-[10px] leading-relaxed text-slate-500 p-4 bg-slate-50/50 rounded border border-slate-100 italic">
-                            {{ contract.collabRequest.description }}
+                        <div class="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <h6 class="text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest border-b border-gray-200 pb-1">The Client / Emitter</h6>
+                            <p class="text-sm font-bold text-slate-700 mb-0">{{ contract.collabRequest.creator ? contract.collabRequest.creator.username : 'CreaCo Internal' }}</p>
+                            <p class="text-xs text-slate-500 mb-0">Platform Content Curator</p>
+                            <p class="text-xs text-slate-400 italic">CreaCo Verified Account</p>
                         </div>
                     </div>
 
-                    <div class="mb-10">
-                        <h6 class="text-[10px] font-bold border-b pb-1 mb-4 text-slate-400 uppercase tracking-[0.2em]">II. Modalités Financières & Durée</h6>
-                        <div class="flex justify-between items-end pb-2">
-                            <div class="text-[10px] text-slate-500 space-y-1">
-                                <p>Période : du {{ contract.collabRequest.startDate|date('d/m/Y') }}</p>
-                                <p>Jusqu'au : {{ contract.collabRequest.endDate|date('d/m/Y') }}</p>
+                    <!-- Contract Core Body -->
+                    <div class="space-y-10 relative z-10">
+                        <!-- Object Section -->
+                        <section>
+                            <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> Object of the Contract
+                            </h6>
+                            <div class="pl-11">
+                                <p class="text-sm text-slate-600 leading-relaxed mb-3">The object of this contract is the realization of the following mission: <span class="font-bold text-slate-700">{{ contract.collabRequest.title }}</span>.</p>
+                                <div class="text-[11px] leading-relaxed text-slate-500 p-4 bg-slate-50/50 rounded border border-slate-100 italic shadow-soft-xxs">
+                                    {{ contract.collabRequest.description }}
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-xs text-slate-400 uppercase font-bold tracking-tighter mb-1">Montant Total</p>
-                                <p class="text-xl font-bold text-slate-700 leading-none">{{ contract.collabRequest.budget|number_format(3, ',', ' ') }} <span class="text-xs font-normal">DT</span></p>
-                            </div>
-                        </div>
-                    </div>
+                        </section>
 
-                    <!-- Footer / Signatures -->
-                    <div class="mt-auto pt-16 grid grid-cols-2 gap-16">
-                        <div class="border-t pt-2">
-                            <p class="text-[8px] font-bold uppercase text-slate-300 mb-4 tracking-widest">VISA CLIENT</p>
-                            <div class="text-[10px] font-bold text-slate-400 flex items-center opacity-70">
-                                <i class="ni ni-check-bold text-slate-300 mr-2"></i>
-                                VALIDÉ NUMÉRIQUEMENT
-                            </div>
-                        </div>
-                        <div class="border-t pt-2">
-                            <p class="text-[8px] font-bold uppercase text-slate-300 mb-4 tracking-widest">VISA PRESTATAIRE</p>
-                            {% if contract.signedByCollaborator %}
-                                <div class="relative">
-                                    <div class="text-fuchsia-400 font-bold border border-fuchsia-200 p-2 rounded rotate-[-3deg] text-center w-full max-w-[150px] bg-white/50 text-[9px] uppercase tracking-tighter shadow-soft-sm">
-                                        SIGNÉ PAR {{ contract.collabRequest.collaborator.name|upper }}<br>
-                                        {{ contract.collaboratorSignatureDate|date('d/m/Y H:i') }}
+                        <!-- Terms & Financials -->
+                        <div class="grid grid-cols-2 gap-10">
+                            <section>
+                                <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                    <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> Duration Period
+                                </h6>
+                                <div class="pl-11 space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">Effective from:</span>
+                                        <span class="font-bold text-slate-700">{{ contract.collabRequest.startDate|date('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">Terminating on:</span>
+                                        <span class="font-bold text-slate-700">{{ contract.collabRequest.endDate|date('d/m/Y') }}</span>
                                     </div>
                                 </div>
-                            {% else %}
-                                <p class="text-[10px] text-slate-300 italic">En attente de signature...</p>
-                            {% endif %}
+                            </section>
+                            <section>
+                                <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                    <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> Financial Commitment
+                                </h6>
+                                <div class="pl-11">
+                                    <p class="text-2xl font-bold text-slate-800 mb-0">{{ contract.collabRequest.budget|number_format(2, '.', ' ') }} <span class="text-xs font-normal text-slate-400">DT</span></p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Total Contractual Amount</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Footer / Signatures -->
+                        <div class="mt-auto pt-20 grid grid-cols-2 gap-20 relative z-10">
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-[9px] font-bold uppercase text-slate-300 mb-4 tracking-[0.3em]">CLIENT VISA</p>
+                                <div class="h-12 flex items-center">
+                                    <div class="text-[11px] font-bold text-slate-400 flex items-center py-1 px-3 border border-slate-100 rounded-lg bg-slate-50/30">
+                                        <i class="ni ni-check-bold text-green-400 mr-2"></i>
+                                        DIGITALLY VALIDATED
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-100 pt-4 text-right">
+                                <p class="text-[9px] font-bold uppercase text-slate-300 mb-4 tracking-[0.3em]">PROVIDER VISA</p>
+                                <div class="h-12 flex items-center justify-end">
+                                    {% if contract.signedByCollaborator %}
+                                        <div class="px-3 py-2 border-2 border-fuchsia-100 rounded rotate-1 bg-fuchsia-50/20 shadow-soft-xs">
+                                            <p class="text-[10px] font-bold text-fuchsia-500 mb-0 leading-tight uppercase">ELECTRONICALLY SIGNED</p>
+                                            <p class="text-[8px] text-fuchsia-400 mb-0 font-mono">{{ contract.collaboratorSignatureDate|date('d/m/Y H:i') }}</p>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-xs text-slate-300 italic mb-0">Awaiting partner signature...</p>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -92,33 +132,52 @@
         </div>
     </div>
 
-    <!-- Side Panel -->
+    <!-- Side Panel (Sharing Center) -->
     <div class="w-full max-w-full px-3 lg:w-4/12">
         <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
             <div class="p-6">
-                <h6 class="mb-4">Partagez avec votre partenaire</h6>
-                <p class="text-xs text-slate-500 mb-6">Envoyez ce lien sécurisé à votre collaborateur pour qu'il puisse signer le document directement.</p>
+                <div class="flex items-center mb-6">
+                    <div class="bg-gradient-to-tl from-purple-700 to-pink-500 p-2 rounded-lg mr-3 shadow-soft-md">
+                        <i class="ni ni-send text-white text-xs"></i>
+                    </div>
+                    <h6 class="mb-0 font-bold">Sharing Center</h6>
+                </div>
                 
-                <div class="mb-6">
-                    <label class="text-xxs font-bold uppercase text-slate-400 mb-2 block">Lien de signature public</label>
-                    <div class="flex items-center bg-gray-50 p-2 rounded-lg border mb-3">
-                        <input type="text" readonly value="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" class="bg-transparent border-0 text-[10px] w-full outline-none text-slate-600 font-mono" id="signature-url">
-                        <button onclick="navigator.clipboard.writeText(document.getElementById('signature-url').value); alert('Lien copié !')" class="ml-2 text-slate-400 hover:text-fuchsia-500 transition-colors" title="Copier le lien">
-                            <i class="fa fa-copy"></i>
+                <p class="text-xs text-slate-500 mb-6">Distribute this secure link to your collaborator. They can review and sign the document immediately upon access.</p>
+                
+                <div class="mb-8">
+                    <label class="text-[10px] font-bold uppercase text-slate-400 mb-2 block tracking-widest">Secure Signature URL</label>
+                    <div class="flex items-center bg-gray-50 p-2 rounded-xl border border-gray-100 mb-4 transition-all focus-within:border-fuchsia-200">
+                        <input type="text" readonly value="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" class="bg-transparent border-0 text-[10px] w-full outline-none text-slate-600 font-mono px-2" id="signature-url">
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('signature-url').value); alert('Link copied to clipboard!')" class="ml-2 w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-soft-xs text-slate-400 hover:text-fuchsia-500 transition-all hover:scale-110" title="Copy link">
+                            <i class="ni ni-single-copy-04 text-xs"></i>
                         </button>
                     </div>
                     
-                    <a href="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" target="_blank" class="inline-block w-full px-6 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-                        <i class="fa fa-external-link mr-2"></i> Accéder à la page
+                    <a href="{{ url('app_public_contract_signature_view', {contractNumber: contract.contractNumber, token: contract.signatureToken}) }}" target="_blank" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-xl cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-[1.02] hover:shadow-soft-lg active:opacity-85">
+                        <i class="ni ni-curved-next mr-2"></i> Preview Signature Page
                     </a>
                 </div>
 
-                <div class="p-4 bg-fuchsia-50 rounded-xl">
-                    <h6 class="text-xs font-bold text-fuchsia-500 uppercase mb-2">Instructions</h6>
-                    <ul class="text-xxs text-slate-600 space-y-1">
-                        <li>1. Copiez le lien ou cliquez sur "Accéder".</li>
-                        <li>2. Envoyez-le par email à votre partenaire.</li>
-                        <li>3. Une fois signé, le document sera à jour.</li>
+                <!-- Guidance Card -->
+                <div class="p-5 bg-gradient-to-tr from-fuchsia-50 to-white rounded-2xl border border-fuchsia-100 relative overflow-hidden shadow-soft-xxs">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="ni ni-folder-17 text-4xl text-fuchsia-500"></i>
+                    </div>
+                    <h6 class="text-xs font-bold text-fuchsia-600 uppercase mb-3 tracking-widest">Onboarding Guide</h6>
+                    <ul class="text-[11px] text-slate-600 space-y-3 relative z-10">
+                        <li class="flex items-start">
+                            <span class="w-5 h-5 rounded-full bg-white shadow-soft-xxs flex items-center justify-center text-[10px] font-bold text-fuchsia-500 mr-2 shrink-0">1</span>
+                            <span>Transmit the link to your provider via your preferred channel.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-5 h-5 rounded-full bg-white shadow-soft-xxs flex items-center justify-center text-[10px] font-bold text-fuchsia-500 mr-2 shrink-0">2</span>
+                            <span>The provider verifies the details and applies their digital signature.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-5 h-5 rounded-full bg-white shadow-soft-xxs flex items-center justify-center text-[10px] font-bold text-fuchsia-500 mr-2 shrink-0">3</span>
+                            <span>The contract status updates automatically to <strong>Executed</strong>.</span>
+                        </li>
                     </ul>
                 </div>
             </div>

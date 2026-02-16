@@ -15,20 +15,25 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-// #[Route('/manager/collab-request')]
 #[Route('/manager/collab-request')]
-// Access allowed for MANAGERs OR (CONTENT_CREATORs without a manager)
-#[IsGranted('ROLE_MANAGER', message: 'Access denied.')]
 class ManagerCollabRequestController extends AbstractController
 {
     #[Route('/', name: 'app_manager_collab_request_index', methods: ['GET'])]
-    public function index(CollabRequestRepository $repo, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function index(CollabRequestRepository $repo, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
-        // Access allowed for MANAGERs OR (CONTENT_CREATORs without a manager)
-        if (!$this->isGranted('ROLE_MANAGER') && ($user->getManager() !== null)) {
-            throw $this->createAccessDeniedException("Access denied: You have a manager, so you cannot access this.");
+        $session = $request->getSession();
+        $userRole = $session->get('user_role');
+        $userId = $session->get('user_id');
+
+        if (!$userId) {
+            return $this->redirectToRoute('app_auth');
         }
+
+        if ($userRole !== 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès réservé aux managers.");
+        }
+
+        $user = $em->getRepository(Users::class)->find($userId);
 
         // Liste toutes les demandes assignées au manager, PENDING en priorité
         $requests = $repo->findBy(['revisor' => $user], ['status' => 'ASC', 'createdAt' => 'DESC']);
@@ -39,14 +44,24 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_manager_collab_request_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(CollabRequest $collabRequest, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function show(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
-        /*
-        if ($user->getRole() !== 'manager' || $collabRequest->getRevisor() !== $user) {
-            throw $this->createAccessDeniedException("Accès refusé.");
+        $session = $request->getSession();
+        $userRole = $session->get('user_role');
+        $userId = $session->get('user_id');
+
+        if (!$userId) {
+            return $this->redirectToRoute('app_auth');
         }
-        */
+
+        if ($userRole !== 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès réservé aux managers.");
+        }
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if ($collabRequest->getRevisor() !== $user) {
+            throw $this->createAccessDeniedException("Cette demande ne vous est pas assignée.");
+        }
 
         return $this->render('manager/collab_request/show.html.twig', [
             'collab_request' => $collabRequest,
@@ -54,14 +69,20 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/approve', name: 'app_manager_collab_request_approve', methods: ['POST'])]
-    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
-        /*
-        if ($user->getRole() !== 'manager' || $collabRequest->getRevisor() !== $user) {
-            throw $this->createAccessDeniedException("Accès refusé.");
+        $session = $request->getSession();
+        $userRole = $session->get('user_role');
+        $userId = $session->get('user_id');
+
+        if (!$userId || $userRole !== 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Action non autorisée.");
         }
-        */
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if ($collabRequest->getRevisor() !== $user) {
+            throw $this->createAccessDeniedException("Cette demande ne vous est pas assignée.");
+        }
 
         if ($collabRequest->getStatus() !== 'PENDING') {
             throw $this->createAccessDeniedException("Seules les demandes en attente peuvent être approuvées.");
@@ -86,20 +107,26 @@ class ManagerCollabRequestController extends AbstractController
         $em->persist($contract);
         $em->flush();
 
-        $this->addFlash('success', 'La demande a été approuvée et un brouillon de contrat a été généré.');
+        $this->addFlash('success', 'The request has been approved and a draft contract has been generated.');
 
         return $this->redirectToRoute('app_manager_collab_request_index');
     }
 
     #[Route('/{id}/reject', name: 'app_manager_collab_request_reject', methods: ['GET', 'POST'])]
-    public function reject(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function reject(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
-        /*
-        if ($user->getRole() !== 'manager' || $collabRequest->getRevisor() !== $user) {
-            throw $this->createAccessDeniedException("Accès refusé.");
+        $session = $request->getSession();
+        $userRole = $session->get('user_role');
+        $userId = $session->get('user_id');
+
+        if (!$userId || $userRole !== 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Action non autorisée.");
         }
-        */
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if ($collabRequest->getRevisor() !== $user) {
+            throw $this->createAccessDeniedException("Cette demande ne vous est pas assignée.");
+        }
 
         if ($collabRequest->getStatus() !== 'PENDING') {
             throw $this->createAccessDeniedException("Seules les demandes en attente peuvent être rejetées.");
@@ -119,7 +146,7 @@ class ManagerCollabRequestController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('danger', 'La demande de collaboration a été rejetée.');
+            $this->addFlash('danger', 'The collaboration request has been rejected.');
 
             return $this->redirectToRoute('app_manager_collab_request_index');
         }
@@ -131,14 +158,20 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/request-modification', name: 'app_manager_collab_request_modify', methods: ['GET', 'POST'])]
-    public function requestModification(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function requestModification(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
-        /*
-        if ($user->getRole() !== 'manager' || $collabRequest->getRevisor() !== $user) {
-            throw $this->createAccessDeniedException("Accès refusé.");
+        $session = $request->getSession();
+        $userRole = $session->get('user_role');
+        $userId = $session->get('user_id');
+
+        if (!$userId || $userRole !== 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Action non autorisée.");
         }
-        */
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if ($collabRequest->getRevisor() !== $user) {
+            throw $this->createAccessDeniedException("Cette demande ne vous est pas assignée.");
+        }
 
         if ($collabRequest->getStatus() !== 'PENDING') {
             throw $this->createAccessDeniedException("Seul un statut PENDING autorise une demande de modification.");
@@ -153,12 +186,12 @@ class ManagerCollabRequestController extends AbstractController
             $comment = $form->get('rejectionReason')->getData();
 
             $collabRequest->setStatus('MODIFICATION_REQUESTED');
-            $collabRequest->setRejectionReason($comment); // Utilisation du même champ pour stocker le commentaire
+            $collabRequest->setRejectionReason($comment);
             $collabRequest->setRespondedAt(new \DateTime());
 
             $em->flush();
 
-            $this->addFlash('info', 'Une demande de modification a été envoyée au créateur.');
+            $this->addFlash('info', 'A modification request has been sent to the creator.');
 
             return $this->redirectToRoute('app_manager_collab_request_index');
         }

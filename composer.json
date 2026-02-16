@@ -13,6 +13,7 @@
         "google/apiclient": "2.15",
         "knpuniversity/oauth2-client-bundle": "^2.20",
         "league/oauth2-google": "^4.1",
+        "mailjet/mailjet-apiv3-php": "^1.6",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpstan/phpdoc-parser": "^2.3",
         "sendgrid/sendgrid": "^8.1",

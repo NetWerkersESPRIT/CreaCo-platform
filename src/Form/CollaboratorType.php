@@ -20,31 +20,31 @@ class CollaboratorType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom'
+                'label' => 'Name'
             ])
             ->add('companyName', TextType::class, [
-                'label' => "Nom de l'entreprise"
+                'label' => "Company Name"
             ])
             ->add('email', EmailType::class, [
-                'label' => 'Adresse Email'
+                'label' => 'Email Address'
             ])
             ->add('phone', TelType::class, [
-                'label' => 'Téléphone',
+                'label' => 'Phone',
                 'required' => false,
             ])
             ->add('address', TextareaType::class, [
-                'label' => 'Adresse',
+                'label' => 'Address',
                 'required' => false,
             ])
             ->add('website', UrlType::class, [
-                'label' => 'Site Web',
+                'label' => 'Website',
                 'required' => false,
             ])
             ->add('domain', TextType::class, [
-                'label' => 'Domaine',
+                'label' => 'Domain',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'ex: Marketing, Tech, Finance'
+                    'placeholder' => 'e.g.: Marketing, Tech, Finance'
                 ]
             ])
             ->add('description', TextareaType::class, [
@@ -66,7 +66,7 @@ class CollaboratorType extends AbstractType
                             'image/png',
                             'image/webp',
                         ],
-                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPEG, PNG, WEBP)',
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
                     ])
                 ],
             ])
