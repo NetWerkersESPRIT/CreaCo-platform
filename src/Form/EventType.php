@@ -22,13 +22,13 @@ class EventType extends AbstractType
             ->add('type', ChoiceType::class, [
                 'choices' => [
                     'Online' => 'online',
-                    'Présentielle' => 'presentielle',
+                    'In-person' => 'in-person',
                 ],
             ])
             ->add('category', ChoiceType::class, [
                 'choices' => [
-                    'Cours' => 'cours',
-                    'Réunion' => 'réunion',
+                    'Course' => 'course',
+                    'Meeting' => 'meeting',
                     'Workshop' => 'workshop',
                 ],
             ])

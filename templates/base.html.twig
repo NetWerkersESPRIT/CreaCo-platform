@@ -1,90 +1,54 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}"/>
-		<link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}"/>
-		<title>
-			{% block title %}Event Management
-			{% endblock %}
-		</title>
-		<!--     Fonts and icons     -->
-		<link
-		href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="{{ asset('assets/img/apple-icon.png') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}" />
+    <title>{% block title %}Event Management{% endblock %}</title>
+    <!--     Fonts and icons     -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+      rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script
+      src="https://kit.fontawesome.com/42d5adcbca.js"
+      crossorigin="anonymous"></script>
+    <!-- Nucleo Icons -->
+    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+    <!-- Popper -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Main Styling -->
+    <link
+      href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5"
+      rel="stylesheet" />
+    {% block stylesheets %}{% endblock %}
+  </head>
 
-		<!-- ✅ ADDED: Font Awesome CSS (fix icons not showing) -->
-		<link
-		rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <body
+    class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
+    {% include 'partials/_sidebar.html.twig' %}
 
-		<!-- Font Awesome Icons -->
-		<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-		<!-- Nucleo Icons -->
-		<link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet"/>
-		<link
-		href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet"/>
-		<!-- Popper -->
-		<script src="https://unpkg.com/@popperjs/core@2"></script>
-		<!-- Main Styling -->
-		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet"/> {% block stylesheets %}{% endblock %}
-		</head>
+    <main
+      class="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
+      <!-- Navbar -->
+      {% include 'partials/_navbar.html.twig' %}
 
-		<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
-			{% include 'partials/_sidebar.html.twig' %}
+      <!-- end Navbar -->
 
-			<main
-				class="ease-soft-in-out xl:ml-68.5 relative h-full max-h-screen rounded-xl transition-all duration-200">
-				<!-- Navbar -->
-				{% include 'partials/_navbar.html.twig' %}
-
-				<div
-					class="w-full px-6 py-6 mx-auto">
-
-					{# ✅ SUCCESS (Green) #}
-					{% for message in app.flashes('success') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{# ⚠️ WARNING (Yellow/Red) #}
-					{% for message in app.flashes('warning') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-500 to-yellow-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{# ⚠️ DANGER / REFUSAL (Orange/Yellow) #}
-					{% for message in app.flashes('danger') %}
-						<div class="relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{# 🚀 POST APPROVED (Green Strong Pulse) #}
-					{% for message in app.flashes('post_approved') %}
-						<div class="relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
-							<i class="fas fa-check-circle mr-2"></i>
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{# 🛑 POST REFUSED (Red/Orange Strong Pulse) #}
-					{% for message in app.flashes('post_refused') %}
-						<div class="relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-red-600 to-orange-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
-							<i class="fas fa-exclamation-triangle mr-2"></i>
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{% block body %}{% endblock %}
-
-				</div>
-
-			</main>
-
-			{% block javascripts %}
-				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5" async></script>
-			{% endblock %}
-		</body>
-	</html>
+      <div>
+        {% block body %}{% endblock %}
+      </div>
+    </main>
+    
+    {% block javascripts %}
+        <script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5" async></script>
+    {% endblock %}
+  </body>
+</html>
