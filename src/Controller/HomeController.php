@@ -2,6 +2,12 @@
 
 namespace App\Controller;
 
+use App\Repository\UsersRepository;
+use App\Repository\EventRepository;
+use App\Repository\CollaboratorRepository;
+use App\Repository\IdeaRepository;
+use App\Repository\MissionRepository;
+use App\Repository\TaskRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -9,9 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
-    public function index(Request $request, \App\Repository\UsersRepository $userRepo, \App\Repository\EventRepository $eventRepo, \App\Repository\CollaboratorRepository $collabRepo, \App\Repository\IdeaRepository $ideaRepo, \App\Repository\MissionRepository $missionRepo, \App\Repository\TaskRepository $taskRepo): Response
-    {
+    #[Route('/home', name: 'app_home')]
+    public function index(
+        Request $request,
+        UsersRepository $userRepo,
+        EventRepository $eventRepo,
+        CollaboratorRepository $collabRepo,
+        IdeaRepository $ideaRepo,
+        MissionRepository $missionRepo,
+        TaskRepository $taskRepo
+    ): Response {
         $allowedRoles = ['ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_ADMIN'];
         $userRole = $request->getSession()->get('user_role');
         if (!in_array($userRole, $allowedRoles)) {

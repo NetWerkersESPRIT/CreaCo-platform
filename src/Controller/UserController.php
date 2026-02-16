@@ -138,8 +138,17 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $currentPasswordInput = $form->get('currentPassword')->getData();
             $newPassword = $form->get('newPassword')->getData();
+
             if ($newPassword) {
+                if (!$currentPasswordInput || $currentPasswordInput !== $user->getPassword()) {
+                    $this->addFlash('error', 'You must provide your correct current password to set a new one.');
+                    return $this->render('user/edit_profile.html.twig', [
+                        'form' => $form->createView(),
+                        'app_user' => $user
+                    ]);
+                }
                 $user->setPassword($newPassword);
             }
 
