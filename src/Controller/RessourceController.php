@@ -20,6 +20,11 @@ final class RessourceController extends AbstractController
     #[Route(name: 'app_ressource_index', methods: ['GET'])]
     public function index(Request $request, RessourceRepository $ressourceRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         $filters = [
             'search' => $request->query->get('search'),
             'type'   => $request->query->get('type'),
@@ -45,6 +50,11 @@ final class RessourceController extends AbstractController
     #[Route('/new', name: 'app_ressource_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, \App\Repository\CoursRepository $coursRepo, SluggerInterface $slugger): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         $ressource = new Ressource();
         $courseId = $request->query->get('course');
         $selectedCourse = $courseId ? $coursRepo->find($courseId) : null;
@@ -146,8 +156,13 @@ final class RessourceController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_ressource_show', methods: ['GET'])]
-    public function show(Ressource $ressource): Response
+    public function show(Request $request, Ressource $ressource): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/ressource/show.html.twig', [
             'ressource' => $ressource,
         ]);
@@ -156,6 +171,11 @@ final class RessourceController extends AbstractController
     #[Route('/{id}/edit', name: 'app_ressource_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Ressource $ressource, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         $form = $this->createForm(RessourceType::class, $ressource);
         $form->handleRequest($request);
 
@@ -229,6 +249,11 @@ final class RessourceController extends AbstractController
     #[Route('/{id}', name: 'app_ressource_delete', methods: ['POST'])]
     public function delete(Request $request, Ressource $ressource, EntityManagerInterface $entityManager): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$ressource->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ressource);
             $entityManager->flush();

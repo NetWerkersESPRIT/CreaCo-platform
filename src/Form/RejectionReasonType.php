@@ -14,7 +14,7 @@ class RejectionReasonType extends AbstractType
     {
         $builder
             ->add('rejectionReason', TextareaType::class, [
-                'label' => 'Motif du rejet',
+                'label' => 'Rejection reason',
                 'required' => true,
                 'mapped' => false,
                 'attr' => [
@@ -22,7 +22,7 @@ class RejectionReasonType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Veuillez renseigner un motif pour le rejet.',
+                        'message' => 'Please provide a reason for the rejection.',
                     ]),
                 ],
             ])

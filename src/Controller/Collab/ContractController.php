@@ -17,17 +17,22 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/contract')]
-// Access: Managers OR (Content Creators with NO manager)
+// Access fully open (authentication removed)
 class ContractController extends AbstractController
 {
     #[Route('/', name: 'app_contract_index', methods: ['GET'])]
-    public function index(ContractRepository $repo, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function index(ContractRepository $repo, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
 
-        // If user is a Content Creator AND has a manager, they cannot access contracts (handled by manager)
-        if ($this->isGranted('ROLE_CONTENT_CREATOR') && $user->getManager() !== null) {
-            throw $this->createAccessDeniedException("Access denied: Your contracts are managed by your manager.");
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
         }
 
         return $this->render('contract/index.html.twig', [
@@ -36,9 +41,20 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_contract_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Contract $contract, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function show(Contract $contract, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($contract->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Vous n'avez pas accès à ce contrat.");
@@ -51,9 +67,20 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/download', name: 'app_contract_download', methods: ['GET'])]
-    public function download(Contract $contract, EntityManagerInterface $em, #[CurrentUser] ?Users $user): BinaryFileResponse
+    public function download(Contract $contract, EntityManagerInterface $em, Request $request): BinaryFileResponse
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            throw $this->createAccessDeniedException("Non authentifié.");
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($contract->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de télécharger ce contrat.");
@@ -75,9 +102,20 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/sign', name: 'app_contract_sign', methods: ['POST'])]
-    public function sign(Contract $contract, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function sign(Contract $contract, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($contract->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Seul le créateur peut signer ce contrat.");
@@ -94,15 +132,26 @@ class ContractController extends AbstractController
 
         $em->flush();
 
-        $this->addFlash('success', 'Contrat signé avec succès. Il est désormais actif.');
+        $this->addFlash('success', 'Contract signed successfully. It is now active.');
 
         return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
     }
 
     #[Route('/{id}/complete', name: 'app_contract_complete', methods: ['POST'])]
-    public function complete(Contract $contract, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function complete(Contract $contract, EntityManagerInterface $em, Request $request): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($contract->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Accès refusé.");
@@ -120,15 +169,26 @@ class ContractController extends AbstractController
         $contract->setStatus('COMPLETED');
         $em->flush();
 
-        $this->addFlash('success', 'Le contrat a été marqué comme terminé.');
+        $this->addFlash('success', 'Contract marked as finished.');
 
         return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
     }
 
     #[Route('/{id}/terminate', name: 'app_contract_terminate', methods: ['GET', 'POST'])]
-    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em, #[CurrentUser] ?Users $user): Response
+    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em): Response
     {
-        $user = $user ?? $em->getRepository(Users::class)->findOneBy([]);
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $em->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            return $this->redirectToRoute('app_auth');
+        }
+
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
+        }
+
         /*
         if ($contract->getCreator() !== $user) {
             throw $this->createAccessDeniedException("Accès refusé.");
@@ -153,7 +213,7 @@ class ContractController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('danger', 'Le contrat a été résilié.');
+            $this->addFlash('danger', 'Contract has been terminated.');
 
             return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
         }

@@ -20,7 +20,12 @@ class Comment
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: "Le contenu du commentaire est obligatoire.")]
-    #[Assert\Length(min: 2, minMessage: "Le commentaire doit contenir au moins {{ limit }} caractères.")]
+    #[Assert\Length(
+        min: 2, 
+        max: 1000, 
+        minMessage: "Le commentaire doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le commentaire ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $body = null;
 
     #[ORM\Column(length: 50)]
@@ -56,7 +61,7 @@ class Comment
     /**
      * @var Collection<int, self>
      */
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentComment', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentComment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $replies;
 
     public function __construct()

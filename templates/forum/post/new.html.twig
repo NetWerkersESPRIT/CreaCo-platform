@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouveau Message
+{% block title %}New Post
 {% endblock %}
 {% block page_title %}Post
 {% endblock %}
-{% block page_subtitle %}Nouveau
+{% block page_subtitle %}New
 {% endblock %}
 
 {% block body %}
@@ -13,8 +13,8 @@
 		<div class="w-full max-w-full px-3 shrink-0 md:w-8/12 lg:w-6/12 flex-0">
 			<div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
 				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent text-center">
-					<h5 class="font-bold">Créer une nouvelle discussion</h5>
-					<p class="mb-0 text-sm">Posez une question ou partagez vos connaissances avec la communauté</p>
+					<h5 class="font-bold">Create New Discussion</h5>
+					<p class="mb-0 text-sm">Ask a question or share your knowledge with the community</p>
 				</div>
 				<div class="flex-auto p-6">
 					{{ include('forum/post/_form.html.twig') }}

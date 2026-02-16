@@ -208,10 +208,16 @@ class Mission
             return;
         }
 
-        $createdAt = $object->getCreatedAt() ?? new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
+        $createdAt = $object->getCreatedAt() ?? $now;
+
         if ($object->getMissionDate() !== null) {
-            if ($object->getMissionDate() < $createdAt) {
-                $context->buildViolation('La date et l\'heure de la mission ne peuvent pas être antérieures à sa date de création.')
+            // If it's a new object (id is null), we should probably compare with 'now'
+            // to prevent selecting past times during creation.
+            $comparisonDate = ($object->getId() === null) ? $now : $createdAt;
+
+            if ($object->getMissionDate() < $comparisonDate) {
+                $context->buildViolation('The mission date and time cannot be earlier than its creation date.')
                     ->atPath('missionDate')
                     ->addViolation();
             }

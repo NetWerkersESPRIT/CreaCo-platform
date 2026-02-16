@@ -1,56 +1,91 @@
+{# templates/forum/post/show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}
 	{{ post.title }}
-	- Forum CreaCo
+	- CreaCo Forum
 {% endblock %}
+
 {% block page_title %}Post
 {% endblock %}
-{% block page_subtitle %}Discussion détaillée
+{% block page_subtitle %}Detailed Discussion
 {% endblock %}
 
 {% block body %}
+	{% set postUrl = absolute_url(path('app_post_show', {'id': post.id})) %}
+
 	<div
 		class="flex flex-wrap -mx-3">
 		<!-- Main Content (Centered & Wide) -->
-		<div class="w-full max-w-full px-3 lg:w-11/12 mx-auto">
+		<div class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
+
 			<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1">
 				<i class="fas fa-arrow-left mr-1"></i>
-				Retour au Forum
+				Back to Forum
 			</a>
 
 			<div
 				class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
 				<!-- Post Header -->
 				<div class="p-6 bg-white border-b-0 rounded-t-2xl">
+					<div class="flex items-center">
+						<div class="bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg p-2 mr-3 shadow-soft-md">
+							<i class="fas fa-quote-left text-white text-xs"></i>
+						</div>
 
-					<div class="flex flex-wrap items-center justify-between mb-4">
-						<div class="flex items-center">
-							<div class="bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg p-2 mr-3 shadow-soft-md">
-								<i class="fas fa-quote-left text-white text-xs"></i>
-							</div>
-							<h4 class="mb-0 font-bold text-slate-700">{{ post.title }}</h4>
-							{% if post.pinned %}
-								<span class="ml-3 text-xxs bg-gray-100 text-slate-500 px-2 py-1 rounded-pill">
-									<i class="fas fa-thumbtack mr-1"></i>
-									Épinglé
+						<h4 class="mb-0 font-bold text-slate-700">{{ post.title }}</h4>
+
+						{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+						{% set isPostOwner = app_user and post.user == app_user %}
+
+						{% if post.status == 'pending' %}
+							{% if isAdmin or isPostOwner %}
+								<span class="ml-3 px-3 py-1 text-xs font-bold text-orange-700 bg-orange-100 rounded-pill">
+									<i class="fas fa-clock mr-1"></i>
+									Pending Approval
 								</span>
 							{% endif %}
-						</div>
-					</div>
+						{% endif %}
 
-					<div class="flex items-center text-sm mb-6">
-						<p class="mb-0 text-xs text-slate-400">
-							Posté par
-							<span class="font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonyme' }}</span>
-							• Il y a
-							{{ post.createdAt ? post.createdAt|date('d/m/Y') : '' }}
-						</p>
+						{% if post.pinned %}
+							<span class="ml-3 text-xxs bg-purple-100 text-purple-700 px-2 py-1 rounded-pill font-bold">
+								<i class="fas fa-thumbtack mr-1"></i>
+								Pinned
+							</span>
+						{% endif %}
+
+						{% if post.status == 'solved' %}
+							<span class="ml-3 text-xxs bg-green-100 text-green-700 px-2 py-1 rounded-pill font-bold">
+								<i class="fas fa-check-circle mr-1"></i>
+								Solved
+							</span>
+						{% endif %}
 					</div>
 				</div>
 
-				<!-- Post Content -->
-				<div class="flex-auto p-6">
+				{% if post.status == 'pending' and not isAdmin %}
+					<div class="px-6 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 flex items-center gap-4 border-y border-white/10">
+						<div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+							<i class="fas fa-clock text-white text-lg animate-pulse"></i>
+						</div>
+						<div class="flex flex-col">
+							<p class="mb-0 text-white font-bold text-sm tracking-tight">
+								Votre publication est en attente de validation par un administrateur.
+							</p>
+							<p class="mb-0 text-white/80 text-xs font-medium">
+								Elle sera visible par tout le monde une fois approuvée.
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
+				<div class="px-6 pb-6">
+					<p class="mb-2 text-xs text-slate-400">
+						Posted by
+						<span class="font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonymous' }}</span>
+						•
+						{{ post.createdAt ? post.createdAt|date('d/m/Y') : '' }}
+					</p>
 
 					{% if post.imageName %}
 						<div class="mb-6 overflow-hidden rounded-2xl shadow-soft-lg">
@@ -62,61 +97,105 @@
 						{{ post.content|nl2br }}
 					</div>
 
-					{% if post.pdfName %}
+					{# ✅ PDF BLOCK (Drive first, fallback to local) #}
+					{% if post.pdfDriveLink %}
 						<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
 							<div class="flex items-center">
 								<div class="bg-red-100 p-2 rounded-lg mr-3">
 									<i class="fas fa-file-pdf text-red-600 text-lg"></i>
 								</div>
 								<div>
-									<p class="text-sm font-bold text-slate-700 mb-0">Document PDF</p>
-									<p class="text-xxs text-slate-400 mb-0">Ressource jointe à la discussion</p>
+									<p class="text-sm font-bold text-slate-700 mb-0">PDF Document</p>
+									<p class="text-xxs text-slate-400 mb-0">Stored on Google Drive</p>
 								</div>
 							</div>
+
+							<a href="{{ post.pdfDriveLink }}" target="_blank" class="px-6 py-2.5 text-xs font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500">
+								<i class="fas fa-eye mr-1"></i>
+								Voir le PDF
+							</a>
+						</div>
+					{% elseif post.pdfName %}
+						<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
+							<div class="flex items-center">
+								<div class="bg-red-100 p-2 rounded-lg mr-3">
+									<i class="fas fa-file-pdf text-red-600 text-lg"></i>
+								</div>
+								<div>
+									<p class="text-sm font-bold text-slate-700 mb-0">PDF Document</p>
+									<p class="text-xxs text-slate-400 mb-0">Local upload</p>
+								</div>
+							</div>
+
 							<a href="{{ asset('uploads/' ~ post.pdfName) }}" target="_blank" class="px-6 py-2.5 text-xs font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500">
 								<i class="fas fa-eye mr-1"></i>
-								Consulter
+								View
 							</a>
 						</div>
 					{% endif %}
 
+					<div class="mt-8 flex flex-wrap items-center justify-between p-4 bg-gray-50/40 rounded-3xl border border-gray-100/50 gap-4">
+						<div class="flex flex-wrap items-center gap-3">
+							{% set likedPosts = app.session.get('liked_posts', []) %}
+							{% set isLiked = post.id in likedPosts %}
 
-					<!-- Post Footer Actions (Pic Style) -->
-					<div class="mt-8 flex items-center justify-between p-4 bg-gray-50/40 rounded-2xl border border-gray-100/50">
-						<div class="flex items-center space-x-4">
+							<!-- Share Button -->
+							<div class="relative inline-block text-left">
+								<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer group">
+									<i class="fas fa-share text-xs text-slate-400 group-hover:text-purple-700 transition-colors mr-2"></i>
+									<span class="text-xs font-bold">Share</span>
+								</button>
+
+								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+
+									<button type="button" onclick="copyToClipboard('{{ absolute_url(path('app_post_show', {'id': post.id}))|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
+										Copy Link
+									</button>
+								</div>
+							</div>
+
+							<!-- Like Button -->
 							<form action="{{ path('app_post_like', {'id': post.id}) }}" method="POST" class="m-0">
-								<button type="submit" class="flex items-center px-6 py-2 bg-white rounded-xl shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all text-slate-600">
-									<i class="far fa-thumbs-up mr-2 text-purple-700"></i>
-									<span class="font-bold text-xs">{{ post.likes }}
+								<button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all {{ isLiked ? 'text-purple-700' : 'text-slate-600' }} text-xs font-bold uppercase tracking-wider">
+									<i class="{{ isLiked ? 'fas' : 'far' }} fa-thumbs-up {{ isLiked ? 'text-purple-700' : 'text-slate-400' }} transition-colors"></i>
+									<span>{{ post.likes }}
 										Likes</span>
 								</button>
 							</form>
-							<div class="flex items-center px-4 py-2 text-xs text-slate-400 font-bold uppercase tracking-wider">
-								<i class="far fa-comment-dots mr-2 text-slate-400"></i>
-								{{ post.comments|length }}
-								Réponses
+
+							<!-- Comments Count -->
+							<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
+								<i class="far fa-comment-dots text-slate-400"></i>
+								<span>{{ post.comments|length }}
+									Replies</span>
 							</div>
 						</div>
 
-						{% set isAdmin = app.user and app.user.role|lower|trim == 'admin' %}
-						{% set canToggleLock = isAdmin or (app.user and post.user == app.user) %}
-
-						<div class="flex items-center space-x-2">
-							{% if canToggleLock %}
-								<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0">
-									<button type="submit" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Activer les commentaires' : 'Désactiver les commentaires' }}">
-										<i class="fas {{ post.isCommentLocked ? 'fa-lock-open' : 'fa-lock' }} text-xs"></i>
+						<!-- Admin/Owner Actions -->
+						<div class="flex items-center gap-2">
+							{% if isAdmin %}
+								<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0">
+									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.pinned ? 'text-purple-600' : 'text-slate-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.pinned ? 'Unpin' : 'Pin' }}">
+										<i class="fas fa-thumbtack text-xs"></i>
 									</button>
 								</form>
 							{% endif %}
 
-							{% if canManagePost %}
-								<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-soft-xs border border-gray-100 text-purple-600 hover:text-pink-500 transition-all" title="Modifier">
+							{% if isAdmin or isPostOwner %}
+								<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0">
+									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Enable comments' : 'Disable comments' }}">
+										<i class="fas {{ post.isCommentLocked ? 'fa-lock-open' : 'fa-lock' }} text-xs"></i>
+									</button>
+								</form>
+
+								<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-purple-600 hover:text-pink-500 transition-all" title="Edit">
 									<i class="fas fa-pencil-alt text-xs"></i>
 								</a>
-								<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Supprimer ce post ?')">
+
+								<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this post?')">
 									<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
-									<button type="submit" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
+									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
 										<i class="fas fa-trash-alt text-xs"></i>
 									</button>
 								</form>
@@ -128,148 +207,251 @@
 
 			<!-- Comments Section -->
 			<div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
-				<div
-					class="flex-auto p-6">
-					<!-- Comments Header -->
+				<div class="flex-auto p-6">
 					<div class="mb-6 flex items-center justify-between">
-						<h6 class="font-bold mb-0 text-slate-700">Commentaires</h6>
-						<div class="text-xs text-slate-400">Trier par:
-							<span class="font-bold text-slate-700">Plus récents</span>
-						</div>
+						<h6 class="font-bold mb-0 text-slate-700">Discussion</h6>
 					</div>
 
-					<!-- Comment Form (Restyled to match design) -->
 					{% if not post.isCommentLocked %}
 						<div class="mb-10 bg-gray-50/40 rounded-3xl border border-gray-100/50 p-6 shadow-soft-xs">
-							<label class="block mb-4 ml-1 font-bold text-[10px] text-slate-400 uppercase tracking-widest">Ajouter un commentaire</label>
-							{{ form_start(commentForm) }}
-							<div class="mb-4">
-								{{ form_widget(commentForm.body, {
-                                    'attr': {
-                                        'class': 'block w-full px-5 py-4 text-sm text-slate-700 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white shadow-soft-xs',
-                                        'rows': '3',
-                                        'placeholder': 'De quoi souhaitez-vous discuter ?'
-                                    }
-                                }) }}
+							{{ form_start(commentForm, {'action': path('app_comment_new', {'id': post.id}), 'method': 'POST', 'attr': {'novalidate': 'novalidate'}}) }}
+							{{ form_errors(commentForm) }}
+							{{ form_widget(commentForm.body, {'attr': {
+								'class': 'block w-full px-5 py-4 text-sm text-slate-700 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white shadow-soft-xs',
+								'placeholder': 'What are your thoughts?',
+								'rows': '3'
+							}}) }}
+							<div class="text-xs text-red-500 mt-1">
+								{{ form_errors(commentForm.body) }}
 							</div>
-							<div class="flex justify-end">
-								<button type="submit" class="inline-block px-10 py-2.5 text-[11px] font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 border-0 rounded-xl cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft">
-									Répondre
+							<div class="flex justify-end mt-4">
+								<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">
+									Post Comment
 								</button>
 							</div>
 							{{ form_end(commentForm) }}
 						</div>
 					{% else %}
 						<div class="mb-8 p-6 bg-orange-50/50 rounded-2xl border border-orange-100 text-center">
-							<i class="fas fa-comment-slash text-orange-600 mb-2 text-xl"></i>
-							<p class="text-sm font-bold text-orange-800 mb-0">
-								Commentaires désactivés pour ce post.
-							</p>
+							<i class="fas fa-lock text-orange-600 mb-2 text-2xl"></i>
+							{% if post.status == 'solved' %}
+								<p class="text-sm font-bold text-orange-800 mb-0">This post is solved and comments are closed.</p>
+							{% else %}
+								<p class="text-sm font-bold text-orange-800 mb-0">The comment section is blocked for this post.</p>
+							{% endif %}
 						</div>
 					{% endif %}
 
-					<hr
-					class="h-px bg-transparent bg-gradient-to-r from-transparent via-black/5 to-transparent my-10"/>
-
-					<!-- Comments List -->
-					<div id="comments-list">
+					<!-- Comments Tree -->
+					<div id="comments-tree" class="space-y-4">
+						{% import _self as macros %}
 						{% for comment in comments %}
-							{% set isHidden = comment.status == 'hidden' %}
-							{% set canSeeHidden = (app.user and (post.user == app.user or comment.user == app.user)) %}
-
-							{% if not isHidden or canSeeHidden %}
-								<div class="flex mb-8 {% if isHidden %}opacity-50{% endif %}">
-									<div class="flex-shrink-0 mr-4">
-										<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
-									</div>
-									<div class="flex-grow">
-										<div class="flex items-center justify-between mb-1">
-											<div>
-												<span class="text-sm font-bold text-slate-700">{{ comment.user ? comment.user.username : 'Anonyme' }}</span>
-												<span class="text-[10px] text-slate-400 ml-2">{{ comment.createdAt|date('d/m/Y \\à H:i') }}</span>
-											</div>
-											<div class="flex items-center gap-3">
-												{% set isAuthorized = (app.user and (post.user == app.user or comment.user == app.user)) %}
-
-												{% if isAuthorized %}
-													<form action="{{ path('app_comment_toggle_hide', {'id': comment.id}) }}" method="POST" class="inline m-0">
-														<button type="submit" class="bg-transparent border-0 p-0 text-[10px] font-bold text-slate-400 hover:text-orange-500 uppercase cursor-pointer transition-all flex items-center">
-															<i class="fas {{ comment.status == 'hidden' ? 'fa-eye' : 'fa-eye-slash' }} mr-1"></i>
-															{{ comment.status == 'hidden' ? 'Visible' : 'Masquer' }}
-														</button>
-													</form>
-
-													<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-[10px] font-bold text-slate-400 hover:text-purple-600 uppercase transition-all flex items-center">
-														<i class="fas fa-edit mr-1"></i>
-													</a>
-
-													<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Supprimer ce commentaire ?')">
-														<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-														<button type="submit" class="bg-transparent border-0 p-0 text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center">
-															<i class="fas fa-trash-alt mr-1"></i>
-														</button>
-													</form>
-												{% endif %}
-											</div>
-										</div>
-										<div class="text-sm text-slate-600 mb-2">
-											{{ comment.body|nl2br }}
-										</div>
-										<div class="flex items-center text-xxs font-bold text-slate-400">
-											<span class="mr-4 cursor-pointer hover:text-slate-600 transition-colors">
-												<i class="far fa-thumbs-up mr-1 text-xs"></i>
-												{{ comment.likes }}</span>
-											{% if not post.isCommentLocked %}
-												<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xxs font-bold text-slate-400 hover:text-purple-700 uppercase cursor-pointer transition-all">
-													<i class="fas fa-reply mr-1"></i>
-													Répondre
-												</button>
-											{% endif %}
-										</div>
-
-										<!-- Reply Form (Hidden by default) -->
-										<div id="reply-form-{{ comment.id }}" class="hidden mt-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-											<form action="{{ path('app_post_show', {'id': post.id}) }}" method="POST">
-												<input type="hidden" name="parent_id" value="{{ comment.id }}">
-												<textarea name="comment_body" class="block w-full px-4 py-2 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white" rows="2" placeholder="Votre réponse..."></textarea>
-												<div class="mt-2 flex justify-end">
-													<button type="submit" class="px-4 py-1.5 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer">Envoyer</button>
-												</div>
-											</form>
-										</div>
-
-										<!-- Display Replies -->
-										{% if comment.replies|length > 0 %}
-											<div class="mt-6 ml-6 pl-6 border-l-2 border-gray-100">
-												{% for reply in comment.replies %}
-													<div class="flex mb-4">
-														<div class="flex-shrink-0 mr-3">
-															<img src="https://ui-avatars.com/api/?name={{ reply.user ? reply.user.username : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
-														</div>
-														<div class="flex-grow">
-															<div class="flex items-center mb-1">
-																<span class="text-xs font-bold text-slate-700">{{ reply.user ? reply.user.username : 'Anonyme' }}</span>
-																<span class="text-[10px] text-slate-400 ml-2 uppercase">{{ reply.createdAt|date('d/m/Y') }}</span>
-															</div>
-															<div class="text-xs text-slate-600 mb-1">{{ reply.body|nl2br }}</div>
-														</div>
-													</div>
-												{% endfor %}
-											</div>
-										{% endif %}
-									</div>
-								</div>
-							{% endif %}
-							{% if not loop.last and (not isHidden or canSeeHidden) %}<hr class="h-px bg-transparent bg-gradient-to-r from-transparent via-black/5 to-transparent my-6"/>
-							{% endif %}
+							{{ macros.render_comment(comment, post, app_user, 0) }}
 						{% else %}
-							<div class="text-center py-8 opacity-50">
-								<i class="far fa-comment-dots text-4xl mb-3"></i>
-								<p class="text-sm">Aucun commentaire pour le moment.</p>
+							<div class="text-center py-10 opacity-30">
+								<i class="fas fa-comments text-4xl mb-2"></i>
+								<p class="text-sm font-bold">No comments yet. Be the first to share your thoughts!</p>
 							</div>
 						{% endfor %}
 					</div>
 				</div>
 			</div>
+
 		</div>
-	{% endblock %}
+	</div>
+
+	{% macro render_comment(comment, post, app_user, depth) %}
+		{% import _self as macros %}
+		{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+		{% set isCommentOwner = app_user and comment.user == app_user %}
+
+		<div class="relative group mt-4">
+			{% if depth > 0 %}
+				<div class="absolute left-[-1.5rem] top-0 bottom-0 w-[1px] bg-slate-100 group-hover:bg-purple-200 transition-colors"></div>
+			{% endif %}
+
+			<div class="flex">
+				<div class="flex-shrink-0 mr-3">
+					<img src="https://ui-avatars.com/api/?name={{ comment.user ? comment.user.username : 'Anonymous' }}&background=f5f5f5&color=cb0c9f" class="w-8 h-8 rounded-full shadow-soft-xs border border-gray-100" alt="avatar">
+				</div>
+
+				<div class="flex-grow">
+					<div class="flex items-center mb-1">
+						<span class="text-xs font-bold text-slate-700 mr-2">{{ comment.user ? comment.user.username : 'Anonymous' }}</span>
+						<span class="text-[10px] text-slate-400 capitalize">{{ comment.createdAt|date('d/m/Y H:i') }}</span>
+
+						{% if comment.status == 'solution' or post.solution == comment %}
+							<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-green-600 bg-green-100 rounded-lg uppercase">
+								<i class="fas fa-check-circle mr-1"></i>
+								Solution
+							</span>
+						{% endif %}
+					</div>
+
+					<div class="text-sm text-slate-600 leading-relaxed font-normal">
+						{{ comment.body|nl2br }}
+					</div>
+
+					<div class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+						{% if not post.isCommentLocked and app_user %}
+							<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center">
+								<i class="fas fa-reply mr-2 transition-colors"></i>
+								<span>Reply</span>
+							</button>
+						{% endif %}
+
+						{% if isCommentOwner %}
+							<a href="{{ path('app_comment_edit', {'id': comment.id}) }}" class="text-xs font-semibold text-slate-500 hover:text-blue-600 uppercase transition-all flex items-center no-underline">
+								<i class="fas fa-pencil-alt mr-2 transition-colors"></i>
+								<span>Edit</span>
+							</a>
+						{% endif %}
+
+						{% if isCommentOwner or isAdmin %}
+							<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment?')">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+								<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center">
+									<i class="fas fa-trash-alt mr-2 transition-colors"></i>
+									<span>Delete</span>
+								</button>
+							</form>
+						{% endif %}
+
+						{% if (isAdmin or (app_user and post.user == app_user)) and post.solution != comment and post.status != 'solved' %}
+							<form action="{{ path('app_comment_solve', {'id': comment.id}) }}" method="POST" class="inline m-0">
+								<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-green-500 uppercase cursor-pointer transition-all flex items-center">
+									<i class="fas fa-check-double mr-2 transition-colors"></i>
+									<span>Solution</span>
+								</button>
+							</form>
+						{% endif %}
+					</div>
+
+					<div id="reply-form-{{ comment.id }}" class="hidden mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 shadow-soft-xs">
+						<form action="{{ path('app_comment_new', {'id': post.id}) }}" method="POST" onsubmit="return validateReply(this, '{{ comment.id }}')" novalidate="novalidate">
+							<input type="hidden" name="comment[_token]" value="{{ csrf_token('comment') }}">
+							<input type="hidden" name="parent_id" value="{{ comment.id }}">
+
+							<textarea name="comment[body]" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all bg-white" placeholder="Your reply..." rows="2"></textarea>
+
+							<div id="reply-error-{{ comment.id }}" class="text-xs text-red-500 mt-1 hidden">
+								Le contenu de la réponse est obligatoire.
+							</div>
+
+							<div class="mt-2 flex justify-end">
+								<button type="submit" class="px-5 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+									Reply
+								</button>
+							</div>
+						</form>
+					</div>
+
+					{% if comment.replies|length > 0 %}
+						<div class="ml-6 mt-2">
+							{% for reply in comment.replies %}
+								{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% endmacro %}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		function toggleShareDropdown(id) {
+const dropdown = document.getElementById(id);
+if (! dropdown) 
+return;
+
+
+// Close all other dropdowns
+document.querySelectorAll('.share-dropdown-menu').forEach(d => {
+if (d.id !== id) 
+d.classList.add('hidden');
+
+});
+
+dropdown.classList.toggle('hidden');
+}
+
+async function copyToClipboard(text, dropdownId) {
+const dropdown = document.getElementById(dropdownId);
+if (dropdown) 
+dropdown.classList.add('hidden');
+
+
+try {
+if (navigator.clipboard && window.isSecureContext) {
+await navigator.clipboard.writeText(text);
+alert('✅ Link copied to clipboard!');
+} else {
+const textArea = document.createElement("textarea");
+textArea.value = text;
+textArea.style.position = "fixed";
+textArea.style.left = "-9999px";
+textArea.style.top = "0";
+document.body.appendChild(textArea);
+textArea.focus();
+textArea.select();
+document.execCommand('copy');
+document.body.removeChild(textArea);
+alert('✅ Link copied to clipboard!');
+}
+} catch (err) {
+console.error('Copy failed', err);
+}
+}
+
+// Close dropdowns on outside click or ESC
+document.addEventListener('click', function (e) {
+if (! e.target.closest('.relative')) {
+document.querySelectorAll('.share-dropdown-menu').forEach(d => d.classList.add('hidden'));
+}
+});
+
+document.addEventListener('keydown', function (e) {
+if (e.key === 'Escape') {
+document.querySelectorAll('.share-dropdown-menu').forEach(d => d.classList.add('hidden'));
+}
+});
+
+function validateReply(form, id) {
+const textarea = form.querySelector('textarea[name="comment[body]"]');
+const errorDiv = document.getElementById('reply-error-' + id);
+const submitBtn = form.querySelector('button[type="submit"]');
+
+if (textarea.value.trim().length === 0) {
+errorDiv.classList.remove('hidden');
+textarea.classList.add('border-red-500');
+textarea.focus();
+return false;
+}
+
+// Success - show loading state
+errorDiv.classList.add('hidden');
+textarea.classList.remove('border-red-500');
+submitBtn.disabled = true;
+submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+
+return true;
+}
+	</script>
+
+	<style>
+		.animate-fade-in {
+			animation: fadeIn 0.2s ease-out;
+		}
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+			to {
+				opacity: 1;
+			}
+		}
+	</style>
+{% endblock %}

@@ -22,6 +22,11 @@ class CoursController extends AbstractController
     #[Route('/', name: 'app_cours_index', methods: ['GET'])]
     public function index(Request $request, CoursRepository $coursRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         $filters = [
             'search' => $request->query->get('search'),
             'titre'  => $request->query->get('titre'),
@@ -47,6 +52,11 @@ class CoursController extends AbstractController
     #[Route('/new', name: 'app_cours_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, CategorieCoursRepository $categoryRepo, \Symfony\Component\String\Slugger\SluggerInterface $slugger): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // nouvelle instance de cours
         $cours = new Cours();
         $cours->setDateDeCreation(new \DateTime()); // Set creation date
@@ -109,16 +119,26 @@ class CoursController extends AbstractController
     }
     // READ COURS BY ID
     #[Route('/{id}', name: 'app_cours_show', methods: ['GET'])]
-    public function show(Cours $cours): Response
+    public function show(Request $request, Cours $cours): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/cours/show.html.twig', [
             'cours' => $cours,
         ]);
     }
     // READ LISTE DES RESSOURCES D UN COURS SPECIFIQUE 
     #[Route('/{id}/resources', name: 'app_cours_resources', methods: ['GET'])]
-    public function resources(Cours $cours): Response
+    public function resources(Request $request, Cours $cours): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/cours/resources.html.twig', [
             'cours' => $cours,
             'ressources' => $cours->getRessources(),
@@ -128,6 +148,11 @@ class CoursController extends AbstractController
     #[Route('/{id}/edit', name: 'app_cours_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Cours $cours, CoursRepository $coursRepository, \Symfony\Component\String\Slugger\SluggerInterface $slugger): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // creation du formulaire avec données existantes
         $form = $this->createForm(CoursType::class, $cours);
         // traitement requete https
@@ -181,6 +206,11 @@ class CoursController extends AbstractController
     #[Route('/{id}', name: 'app_cours_delete', methods: ['POST'])]
     public function delete(Request $request, Cours $cours, CoursRepository $coursRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // verif de token avant suppression
         if ($this->isCsrfTokenValid('delete'.$cours->getId(), $request->request->get('_token'))) {
             // suppression de la categorie

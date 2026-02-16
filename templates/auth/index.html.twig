@@ -1,265 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="apple-touch-icon"
-      sizes="76x76"
-      href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Soft UI Dashboard Tailwind</title>
-    <!-- Fonts and icons -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
-      rel="stylesheet" />
-    <!-- Font Awesome Icons -->
-    <script
-      src="https://kit.fontawesome.com/42d5adcbca.js"
-      crossorigin="anonymous"></script>
-    <!-- Nucleo Icons -->
-    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
-    <!-- Main Styling -->
-    <link
-      href="../assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5"
-      rel="stylesheet" />
+	<head>
+		<meta charset="UTF-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png"/>
+		<link rel="icon" type="image/png" href="../assets/img/favicon.png"/>
+		<title>Soft UI Dashboard Tailwind</title>
+		<!-- Fonts and icons -->
+		<link
+		href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+		<!-- Font Awesome Icons -->
+		<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+		<!-- Nucleo Icons -->
+		<link href="../assets/css/nucleo-icons.css" rel="stylesheet"/>
+		<link
+		href="../assets/css/nucleo-svg.css" rel="stylesheet"/>
+		<!-- Main Styling -->
+		<link href="../assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5" rel="stylesheet"/><!-- Nepcha Analytics (nepcha.com) -->
+		<!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. --><script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"> </script>
+	</head>
 
-    <!-- Nepcha Analytics (nepcha.com) -->
-    <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
-    <script
-      defer
-      data-site="YOUR_DOMAIN_HERE"
-      src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
-  </head>
-
-  <body
-    class="m-0 font-sans antialiased font-normal bg-white text-start text-base leading-default text-slate-500">
-    <div class="container sticky top-0 z-sticky">
-      <div class="flex flex-wrap -mx-3">
-        <div class="w-full max-w-full px-3 flex-0">
-          <!-- Navbar -->
-          <nav
-            class="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center px-4 py-2 mx-6 my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200 lg:flex-nowrap lg:justify-start">
-            <div
-              class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
-              <img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-14 h-12">
-              <a
-                class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold flex justify-center flex-row text-slate-700 lg:ml-0"
-                href="">
-                CreaCo
-              </a>
-              <button
-                navbar-trigger
-                class="px-3 py-1 ml-2 leading-none transition-all bg-transparent border border-transparent border-solid rounded-lg shadow-none cursor-pointer text-lg ease-soft-in-out lg:hidden"
-                type="button"
-                aria-controls="navigation"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span
-                  class="inline-block mt-2 align-middle bg-center bg-no-repeat bg-cover w-6 h-6 bg-none">
-                  <span
-                    bar1
-                    class="w-5.5 rounded-xs relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
-                  <span
-                    bar2
-                    class="w-5.5 rounded-xs mt-1.75 relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
-                  <span
-                    bar3
-                    class="w-5.5 rounded-xs mt-1.75 relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
-                </span>
-              </button>
-              <div
-                navbar-menu
-                class="items-center flex-grow overflow-hidden transition-all duration-500 ease-soft lg-max:max-h-0 basis-full lg:flex lg:basis-auto">
-                <ul
-                  class="flex flex-col pl-0 mx-auto mb-0 list-none lg:flex-row xl:ml-auto">
-                  <li>
-                    <a
-                      class="flex items-center px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2"
-                      aria-current="page"
-                      >
-                      <i class="mr-1 fa fa-chart-pie opacity-60"></i>
-                      <div class="flex flex-row text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400"> 
-                        <p class="mb-0 mr-4">start</p>
-                        <p class="mb-0 mr-4">Build</p>
-                        <p class="mb-0 mr-4">Create</p>
-                        <p class="mb-0 mr-4">Launch</p>
-                        <p class="mb-0 mr-4">Iterate</p>
-                        <p class="mb-0 mr-4">Dare</p>
-                        <p class="mb-0 mr-4">Ship</p>
-                        <p class="mb-0 mr-4">Risk</p>
-                        <p class="mb-0 mr-4">Evolve</p>
-                        <p class="mb-0 mr-4">Flow</p>
-                        <p class="mb-0 mr-4">Become</p>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-                <!-- online builder btn  -->
-                <!-- <li class="flex items-center">
-                  <a
-                    class="leading-pro ease-soft-in text-fuchsia-500 border-fuchsia-500 text-xs tracking-tight-soft bg-150 bg-x-25 rounded-3.5xl hover:border-fuchsia-500 hover:scale-102 hover:text-fuchsia-500 active:hover:border-fuchsia-500 active:hover:scale-102 active:hover:text-fuchsia-500 active:opacity-85 active:shadow-soft-xs active:bg-fuchsia-500 active:border-fuchsia-500 mr-2 mb-0 inline-block cursor-pointer border border-solid bg-transparent py-2 px-8 text-center align-middle font-bold uppercase shadow-none transition-all hover:bg-transparent hover:opacity-75 hover:shadow-none active:scale-100 active:text-white active:hover:bg-transparent active:hover:opacity-75 active:hover:shadow-none"
-                    target="_blank"
-                    href="https://www.creative-tim.com/builder/soft-ui?ref=navbar-dashboard&amp;_ga=2.76518741.1192788655.1647724933-1242940210.1644448053"
-                    >Online Builder</a
-                  >
-                </li> -->
-              </div>
-            </div>
-          </nav>
-        </div>
-      </div>
-    </div>
-    <main class="mt-0 transition-all duration-200 ease-soft-in-out">
-      <section>
-        <div
-          class="relative flex items-center p-0 overflow-hidden bg-center bg-cover min-h-75-screen">
-          <div class="container z-10">
-            <div class="flex flex-wrap mt-0 -mx-3">
-              <div
-                class="flex flex-col w-full max-w-full px-3 mx-auto md:flex-0 shrink-0 md:w-6/12 lg:w-5/12 xl:w-4/12">
-                <div
-                  class="relative flex flex-col min-w-0 mt-32 break-words bg-transparent border-0 shadow-none rounded-2xl bg-clip-border">
-                  <div
-                    class="p-6 pb-0 mb-0 bg-transparent border-b-0 rounded-t-2xl">
-                    <h3
-                      class="relative z-10 font-bold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">
-                      Welcome back
-                    </h3>
-                    <p class="mb-0">Enter your email and password to sign in</p>
-                  </div>
-                  <div class="flex-auto p-6">
-                    <form role="form" method="POST" action="{{ path('login_check') }}">
-                      <label class="mb-2 ml-1 font-bold text-xs text-slate-700"
-                        >Email</label
-                      >
-                      <div class="mb-4">
-                        <input
-                          name="email"
-                          type="email"
-                          class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow"
-                          placeholder="Email"
-                          aria-label="Email"
-                          aria-describedby="email-addon" />
-                      </div>
-                      <label class="mb-2 ml-1 font-bold text-xs text-slate-700"
-                        >Password</label
-                      >
-                      <div class="mb-4">
-                        <input
-                          name="password"
-                          type="password"
-                          class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow"
-                          placeholder="Password"
-                          aria-label="Password"
-                          aria-describedby="password-addon" />
-                      </div>
-                      {% if error|default(null) %}
-                      <div class="text-red-600 font-bold mb-2">
-                        {{ error }}
-                      </div>
-                      {% endif %}
-                      <div class="text-red-600 font-bold mb-2">
-                        {{ app.flashes('error')|last }}
-                      </div>
-                      <div class="g-recaptcha" data-sitekey="6LePq2osAAAAAHj2F0ojJdZOXfAIg5sHLCKgffv2"></div>
-                      <div class="text-center">
-                      <a
-                      class="inline-block w-full px-6 py-1 mb-0 mt-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75"
-                      href="{{ path('login_google') }}">
-                      <svg
-                        width="24px"
-                        height="32px"
-                        viewBox="0 0 64 64"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd">
-                          <g
-                            transform="translate(3.000000, 2.000000)"
-                            fill-rule="nonzero">
-                            <path
-                              d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267"
-                              fill="#4285F4"></path>
-                            <path
-                              d="M29.4960833,58.9921667 C37.4599129,58.9921667 44.1456164,56.3701671 49.0290201,51.8475849 L39.7213169,44.6372555 C37.2305867,46.3742596 33.887622,47.5868638 29.4960833,47.5868638 C21.6960582,47.5868638 15.0758763,42.4415991 12.7159637,35.3297782 L12.3700541,35.3591501 L3.26524241,42.4054492 L3.14617358,42.736447 C7.9965904,52.3717589 17.959737,58.9921667 29.4960833,58.9921667"
-                              fill="#34A853"></path>
-                            <path
-                              d="M12.7159637,35.3297782 C12.0932812,33.4944915 11.7329116,31.5279353 11.7329116,29.4960833 C11.7329116,27.4640054 12.0932812,25.4976752 12.6832029,23.6623884 L12.6667095,23.2715173 L3.44779955,16.1120237 L3.14617358,16.2554937 C1.14708246,20.2539019 0,24.7439491 0,29.4960833 C0,34.2482175 1.14708246,38.7380388 3.14617358,42.736447 L12.7159637,35.3297782"
-                              fill="#FBBC05"></path>
-                            <path
-                              d="M29.4960833,11.4050769 C35.0347044,11.4050769 38.7707997,13.7975244 40.9011602,15.7968415 L49.2255853,7.66898166 C44.1130815,2.91684746 37.4599129,0 29.4960833,0 C17.959737,0 7.9965904,6.62018183 3.14617358,16.2554937 L12.6832029,23.6623884 C15.0758763,16.5505675 21.6960582,11.4050769 29.4960833,11.4050769"
-                              fill="#EB4335"></path>
-                          </g>
-                        </g>
-                      </svg>
-                      <span class="ml-4">Sign In With Google</span>
-                    </a>
-                        <button
-                          type="submit"
-                          class="inline-block w-full px-6 py-3 mt-4 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-                          Sign in
-                        </button>
-                        <button type="button" onclick="window.location.href='{{ path('app_forgetpassword') }}'" class="mr-3 w-full inline-block px-6 py-3 font-bold text-center bg-gradient-to-tl from-slate-600 to-slate-300 uppercase align-middle transition-all rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-white">Forget password</button>
-                      </div>
-                    </form>
-                  </div>
-                  <div
-                    class="p-6 px-1 pt-0 text-center bg-transparent border-t-0 border-t-solid rounded-b-2xl lg:px-2">
-                    <p class="mx-auto mb-6 leading-normal text-sm">
-                      Don't have an account?
-                      <a
-                        href="{{ path('app_useradd') }}"
-                        class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text"
-                        >Sign up</a
-                      >
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="w-full max-w-full px-3 lg:flex-0 shrink-0 md:w-6/12">
-                <div
-                  class="absolute top-0 hidden w-3/5 h-full -mr-32 overflow-hidden -skew-x-10 -right-40 rounded-bl-xl md:block">
-                  <div
-                    class="absolute inset-x-0 top-0 z-0 h-full -ml-16 bg-cover skew-x-10"
-                    style="
-                      background-image: url('../assets/img/curved-images/curved6.jpg');
-                    "></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer class="py-12">
-      <div class="container">
-        <div class="flex flex-wrap -mx-3">
-          <div class="w-8/12 max-w-full px-3 mx-auto mt-1 text-center flex-0">
-            <p class="mb-0 text-slate-400">
-              Copyright ©
-              <script>
-                document.write(new Date().getFullYear());
-              </script>
-              NetWorkers.
-              <span class="w-full"> Distributed by ❤️ NetWorkers </span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <!-- plugin for scrollbar  -->
-  <script src="../assets/js/plugins/perfect-scrollbar.min.js" async></script>
-  <!-- main script file  -->
-  <script
-    src="../assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5"
-    async></script>
+	<body class="m-0 font-sans antialiased font-normal bg-white text-start text-base leading-default text-slate-500">
+		<div class="container sticky top-0 z-sticky">
+			<div class="flex flex-wrap -mx-3">
+				<div
+					class="w-full max-w-full px-3 flex-0">
+					<!-- Navbar -->
+					<nav class="absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center px-4 py-2 mx-6 my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200 lg:flex-nowrap lg:justify-start">
+						<div class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
+							<img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-14 h-12">
+							<a class="py-2.375 text-sm mr-4 ml-4 whitespace-nowrap font-bold flex justify-center flex-row text-slate-700 lg:ml-0" href="">
+								CreaCo
+							</a>
+							<button navbar-trigger class="px-3 py-1 ml-2 leading-none transition-all bg-transparent border border-transparent border-solid rounded-lg shadow-none cursor-pointer text-lg ease-soft-in-out lg:hidden" type="button" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+								<span class="inline-block mt-2 align-middle bg-center bg-no-repeat bg-cover w-6 h-6 bg-none">
+									<span bar1 class="w-5.5 rounded-xs relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
+									<span bar2 class="w-5.5 rounded-xs mt-1.75 relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
+									<span bar3 class="w-5.5 rounded-xs mt-1.75 relative my-0 mx-auto block h-px bg-gray-600 transition-all duration-300"></span>
+								</span>
+							</button>
+							<div navbar-menu class="items-center flex-grow overflow-hidden transition-all duration-500 ease-soft lg-max:max-h-0 basis-full lg:flex lg:basis-auto">
+								<ul class="flex flex-col pl-0 mx-auto mb-0 list-none lg:flex-row xl:ml-auto">
+									<li>
+										<a class="flex items-center px-4 py-2 mr-2 font-normal transition-all lg-max:opacity-0 duration-250 ease-soft-in-out text-sm text-slate-700 lg:px-2" aria-current="page">
+											<i class="mr-1 fa fa-chart-pie opacity-60"></i>
+											<div class="flex flex-row text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400">
+												<p class="mb-0 mr-4">start</p>
+												<p class="mb-0 mr-4">Build</p>
+												<p class="mb-0 mr-4">Create</p>
+												<p class="mb-0 mr-4">Launch</p>
+												<p class="mb-0 mr-4">Iterate</p>
+												<p class="mb-0 mr-4">Dare</p>
+												<p class="mb-0 mr-4">Ship</p>
+												<p class="mb-0 mr-4">Risk</p>
+												<p class="mb-0 mr-4">Evolve</p>
+												<p class="mb-0 mr-4">Flow</p>
+												<p class="mb-0 mr-4">Become</p>
+											</div>
+										</a>
+									</li>
+								</ul>
+								<!-- online builder btn  -->
+								<!-- <li class="flex items-center">
+																								                  <a
+																								                    class="leading-pro ease-soft-in text-fuchsia-500 border-fuchsia-500 text-xs tracking-tight-soft bg-150 bg-x-25 rounded-3.5xl hover:border-fuchsia-500 hover:scale-102 hover:text-fuchsia-500 active:hover:border-fuchsia-500 active:hover:scale-102 active:hover:text-fuchsia-500 active:opacity-85 active:shadow-soft-xs active:bg-fuchsia-500 active:border-fuchsia-500 mr-2 mb-0 inline-block cursor-pointer border border-solid bg-transparent py-2 px-8 text-center align-middle font-bold uppercase shadow-none transition-all hover:bg-transparent hover:opacity-75 hover:shadow-none active:scale-100 active:text-white active:hover:bg-transparent active:hover:opacity-75 active:hover:shadow-none"
+																								                    target="_blank"
+																								                    href="https://www.creative-tim.com/builder/soft-ui?ref=navbar-dashboard&amp;_ga=2.76518741.1192788655.1647724933-1242940210.1644448053"
+																								                    >Online Builder</a
+																								                  >
+																								                </li> -->
+							</div>
+						</div>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<main class="mt-0 transition-all duration-200 ease-soft-in-out">
+			<section>
+				<div class="relative flex items-center p-0 overflow-hidden bg-center bg-cover min-h-75-screen">
+					<div class="container z-10">
+						<div class="flex flex-wrap mt-0 -mx-3">
+							<div class="flex flex-col w-full max-w-full px-3 mx-auto md:flex-0 shrink-0 md:w-6/12 lg:w-5/12 xl:w-4/12">
+								<div class="relative flex flex-col min-w-0 mt-32 break-words bg-transparent border-0 shadow-none rounded-2xl bg-clip-border">
+									<div class="p-6 pb-0 mb-0 bg-transparent border-b-0 rounded-t-2xl">
+										<h3 class="relative z-10 font-bold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">
+											Welcome back
+										</h3>
+										<p class="mb-0">Enter your email and password to sign in</p>
+									</div>
+									<div class="flex-auto p-6">
+										<form role="form" method="POST" action="{{ path('login_check') }}">
+											<label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email</label>
+											<div class="mb-4">
+												<input name="email" type="email" class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Email" aria-label="Email" aria-describedby="email-addon"/>
+											</div>
+											<label class="mb-2 ml-1 font-bold text-xs text-slate-700">Password</label>
+											<div class="mb-4">
+												<input name="password" type="password" class="focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Password" aria-label="Password" aria-describedby="password-addon"/>
+											</div>
+											{% if error|default(null) %}
+												<div class="text-red-600 font-bold mb-2">
+													{{ error }}
+												</div>
+											{% endif %}
+											<div class="text-red-600 font-bold mb-2">
+												{{ app.flashes('error')|last }}
+											</div>
+											<div class="g-recaptcha" data-sitekey="6LePq2osAAAAAHj2F0ojJdZOXfAIg5sHLCKgffv2"></div>
+											<div class="text-center">
+												<a class="inline-block w-full px-6 py-1 mb-0 mt-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-gray-200 border-solid rounded-lg shadow-none cursor-pointer hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft bg-150 bg-x-25 hover:bg-transparent hover:opacity-75" href="{{ path('login_google') }}">
+													<svg width="24px" height="32px" viewbox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+														<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+															<g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
+																<path d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267" fill="#4285F4"></path>
+																<path d="M29.4960833,58.9921667 C37.4599129,58.9921667 44.1456164,56.3701671 49.0290201,51.8475849 L39.7213169,44.6372555 C37.2305867,46.3742596 33.887622,47.5868638 29.4960833,47.5868638 C21.6960582,47.5868638 15.0758763,42.4415991 12.7159637,35.3297782 L12.3700541,35.3591501 L3.26524241,42.4054492 L3.14617358,42.736447 C7.9965904,52.3717589 17.959737,58.9921667 29.4960833,58.9921667" fill="#34A853"></path>
+																<path d="M12.7159637,35.3297782 C12.0932812,33.4944915 11.7329116,31.5279353 11.7329116,29.4960833 C11.7329116,27.4640054 12.0932812,25.4976752 12.6832029,23.6623884 L12.6667095,23.2715173 L3.44779955,16.1120237 L3.14617358,16.2554937 C1.14708246,20.2539019 0,24.7439491 0,29.4960833 C0,34.2482175 1.14708246,38.7380388 3.14617358,42.736447 L12.7159637,35.3297782" fill="#FBBC05"></path>
+																<path d="M29.4960833,11.4050769 C35.0347044,11.4050769 38.7707997,13.7975244 40.9011602,15.7968415 L49.2255853,7.66898166 C44.1130815,2.91684746 37.4599129,0 29.4960833,0 C17.959737,0 7.9965904,6.62018183 3.14617358,16.2554937 L12.6832029,23.6623884 C15.0758763,16.5505675 21.6960582,11.4050769 29.4960833,11.4050769" fill="#EB4335"></path>
+															</g>
+														</g>
+													</svg>
+													<span class="ml-4">Sign In With Google</span>
+												</a>
+												<button type="submit" class="inline-block w-full px-6 py-3 mt-4 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+													Sign in
+												</button>
+												<button type="button" onclick="window.location.href='{{ path('app_forgetpassword') }}'" class="mr-3 w-full inline-block px-6 py-3 font-bold text-center bg-gradient-to-tl from-slate-600 to-slate-300 uppercase align-middle transition-all rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-white">Forget password</button>
+											</div>
+										</form>
+									</div>
+									<div class="p-6 px-1 pt-0 text-center bg-transparent border-t-0 border-t-solid rounded-b-2xl lg:px-2">
+										<p class="mx-auto mb-6 leading-normal text-sm">
+											Don't have an account?
+											<a href="{{ path('app_useradd') }}" class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">Sign up</a>
+										</p>
+									</div>
+								</div>
+							</div>
+							<div class="w-full max-w-full px-3 lg:flex-0 shrink-0 md:w-6/12">
+								<div class="absolute top-0 hidden w-3/5 h-full -mr-32 overflow-hidden -skew-x-10 -right-40 rounded-bl-xl md:block">
+									<div class="absolute inset-x-0 top-0 z-0 h-full -ml-16 bg-cover skew-x-10" style="
+																														                      background-image: url('../assets/img/curved-images/curved6.jpg');
+																														                    "></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer class="py-12">
+			<div class="container">
+				<div class="flex flex-wrap -mx-3">
+					<div class="w-8/12 max-w-full px-3 mx-auto mt-1 text-center flex-0">
+						<p class="mb-0 text-slate-400">
+							Copyright ©
+							<script>
+								document.write(new Date().getFullYear());
+							</script>
+							NetWorkers.
+							<span class="w-full">
+								Distributed by ❤️ NetWorkers
+							</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</body>
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+	<!-- plugin for scrollbar  -->
+	<script src="../assets/js/plugins/perfect-scrollbar.min.js" async></script>
+	<!-- main script file  -->
+	<script src="../assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5" async></script>
 </html>

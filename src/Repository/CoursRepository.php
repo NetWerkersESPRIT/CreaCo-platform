@@ -30,7 +30,7 @@ class CoursRepository extends ServiceEntityRepository
             ->leftJoin('c.categorie', 'cat')
             ->addSelect('cat');
 
-        // Global Search (Title or Description)
+        // Global Search
         if (!empty($filters['search'])) {
             $qb->andWhere('c.titre LIKE :search OR c.description LIKE :search')
                ->setParameter('search', '%' . $filters['search'] . '%');
@@ -43,11 +43,14 @@ class CoursRepository extends ServiceEntityRepository
         }
 
         if (!empty($filters['categorie'])) {
-             // If numeric, assume ID
             if (is_numeric($filters['categorie'])) {
-                $qb->andWhere('cat.id = :catId')->setParameter('catId', $filters['categorie']);
+                // Use the association directly for ID
+                $qb->andWhere('c.categorie = :catId')
+                   ->setParameter('catId', $filters['categorie']);
             } else {
-                $qb->andWhere('cat.nom LIKE :catName')->setParameter('catName', '%' . $filters['categorie'] . '%');
+                // Use the join alias for name search
+                $qb->andWhere('cat.nom LIKE :catName')
+                   ->setParameter('catName', '%' . $filters['categorie'] . '%');
             }
         }
 
@@ -58,10 +61,12 @@ class CoursRepository extends ServiceEntityRepository
                 $order = 'ASC';
             }
             
-            if (in_array($sort['field'], ['titre', 'date_de_creation', 'description'])) {
-                $qb->orderBy('c.' . $sort['field'], $order);
-            } elseif ($sort['field'] === 'category') {
+            if ($sort['field'] === 'category' || $sort['field'] === 'categorie') {
                 $qb->orderBy('cat.nom', $order);
+            } elseif (property_exists(Cours::class, $sort['field'])) {
+                $qb->orderBy('c.' . $sort['field'], $order);
+            } else {
+                 $qb->orderBy('c.date_de_creation', 'DESC');
             }
         } else {
             $qb->orderBy('c.date_de_creation', 'DESC');

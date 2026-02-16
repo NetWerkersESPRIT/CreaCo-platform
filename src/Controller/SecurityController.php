@@ -13,7 +13,6 @@ class SecurityController extends AbstractController
     public function logout(\Symfony\Component\HttpFoundation\Request $request): Response
     {
         $request->getSession()->clear();
-        $this->addFlash('success', 'You have been logged out.');
         return $this->redirectToRoute('app_auth');
     }
 }

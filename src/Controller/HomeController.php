@@ -2,6 +2,12 @@
 
 namespace App\Controller;
 
+use App\Repository\UsersRepository;
+use App\Repository\EventRepository;
+use App\Repository\CollaboratorRepository;
+use App\Repository\IdeaRepository;
+use App\Repository\MissionRepository;
+use App\Repository\TaskRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

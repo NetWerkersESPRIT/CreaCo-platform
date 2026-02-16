@@ -1,33 +1,35 @@
 {% extends './base.html.twig' %}
 
-{% block title %}Nouvelle Catégorie{% endblock %}
+{% block title %}New Category
+{% endblock %}
 
 {% block breadcrumbs %}
-<li class="text-sm leading-normal">
-    <a class="opacity-50 text-slate-700" href="{{ path('app_categorie_cours_index') }}">Catégories</a>
-</li>
-<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
-    Nouvelle
-</li>
+	<li class="text-sm leading-normal">
+		<a class="opacity-50 text-slate-700" href="{{ path('app_categorie_cours_index') }}">Categories</a>
+	</li>
+	<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+		Nouvelle
+	</li>
 {% endblock %}
 
 {% block body %}
-<div class="flex flex-wrap -mx-3">
-  <div class="flex-none w-full max-w-full px-3">
-    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
-      <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
-        <h6>Ajouter une Catégorie</h6>
-      </div>
-      <div class="flex-auto p-6">
-        {{ include('back/categorie_cours/_form.html.twig') }}
-        
-        <div class="mt-4">
-            <a href="{{ path('app_categorie_cours_index') }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-3 py-1 rounded-lg">
-                <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
-            </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+	<div class="flex flex-wrap -mx-3">
+		<div class="flex-none w-full max-w-full px-3">
+			<div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
+					<h6>Add a new Category</h6>
+				</div>
+				<div class="flex-auto p-6">
+					{{ include('back/categorie_cours/_form.html.twig') }}
+
+					<div class="mt-4">
+						<a href="{{ path('app_categorie_cours_index') }}" class="text-xs font-semibold leading-tight text-slate-400 bg-gray-100 px-3 py-1 rounded-lg">
+							<i class="fas fa-arrow-left mr-1"></i>
+							Back to list
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}

@@ -198,6 +198,18 @@ final class EventController extends AbstractController
             $em->persist($notification);
         }
 
+
+        // Notificationsssssssssssss
+        $managers = $usersRepo->findBy(['role' => ['ROLE_MANAGER', 'ROLE_ADMIN','ROLE_CONTENT_CREATOR']]);
+        foreach ($managers as $manager) {
+            $notification = new Notification();
+            $notification->setMessage("New reservation request for event: " . $event->getName() . " by " . $user->getUsername());
+            $notification->setUserId($manager); // Looking at Notification entity,the field is user_id
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $em->persist($notification);
+        }
+
         $em->flush();
 
         $this->addFlash('success', 'Reservation requested successfully!');

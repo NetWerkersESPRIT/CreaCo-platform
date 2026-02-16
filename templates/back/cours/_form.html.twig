@@ -6,10 +6,72 @@
 </div>
 
 <div class="mb-4">
-	{{ form_label(form.description, 'Description', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
+	<div class="flex justify-between items-center mb-2">
+		{{ form_label(form.description, 'Description', {'label_attr': {'class': 'text-sm font-bold text-gray-700 m-0'}}) }}
+		<button type="button" id="generate-ai-desc" class="text-xs bg-gradient-to-tl from-purple-700 to-pink-500 text-white px-2 py-1 rounded-lg hover:opacity-80 transition-all flex items-center">
+			<span id="ai-btn-text">✨ Generate with AI</span>
+			<span id="ai-btn-loader" class="hidden animate-spin ml-1 text-xs">🌀</span>
+		</button>
+	</div>
 	{{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '4'}}) }}
 	{{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-sm mt-1 block'}}) }}
 </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+const aiBtn = document.getElementById('generate-ai-desc');
+const titleInput = document.querySelector('input[name*="[titre]"]');
+const descTextarea = document.querySelector('textarea[name*="[description]"]');
+const btnText = document.getElementById('ai-btn-text');
+const btnLoader = document.getElementById('ai-btn-loader');
+
+if (aiBtn) {
+aiBtn.addEventListener('click', async function () {
+const title = titleInput.value;
+if (! title) {
+alert('Please enter a course title first to generate a description.');
+return;
+}
+
+// Disable button and show loader
+aiBtn.disabled = true;
+btnText.innerText = 'Generating...';
+btnLoader.classList.remove('hidden');
+
+try {
+const response = await fetch('{{ path('api_openai_generate_description') }}', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{title: title}
+)
+});
+
+const data = await response.json();
+
+if (data.description) {
+if (data.description.startsWith('ERROR_')) {
+alert(data.description.replace('ERROR_RATE_LIMIT: ', '').replace('ERROR_AUTH: ', ''));
+} else {
+descTextarea.value = data.description;
+}
+} else if (data.error) {
+alert('Error: ' + data.error);
+}
+} catch (error) {
+console.error('Error generating description:', error);
+alert('An error occurred while generating the description.');
+} finally { // Re-enable button and hide loader
+aiBtn.disabled = false;
+btnText.innerText = '✨ Generate with AI';
+btnLoader.classList.add('hidden');
+}
+});
+}
+});
+</script>
 
 <div class="mb-4">
 	{{ form_label(form.image, 'Image du cours', {'label_attr': {'class': 'block mb-2 text-sm font-bold text-gray-700'}}) }}
@@ -29,6 +91,6 @@
 {% endif %}
 
 <button class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs">
-	{{ button_label|default('Enregistrer') }}
+	{{ button_label|default('Save') }}
 </button>
 {{ form_end(form) }}

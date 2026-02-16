@@ -1,174 +1,229 @@
-    <!-- sidenav  -->
-    <aside
-      class="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between overflow-y-auto rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
-      <div class="h-19.5">
-        <i
-          class="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden"
-          sidenav-close></i>
-        <a
-          class="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700"
-          href="{{ path('event_list') }}"
-          target="_blank">
-          <img
-            src="{{ asset('assets/img/logocrea.png') }}"
-            class="inline h-full max-w-full transition-all duration-200 ease-nav-brand max-h-8"
-            alt="main_logo" />
-          <span
-            class="ml-1 font-semibold transition-all duration-200 ease-nav-brand"
-            >CreaCo</span
-          >
-        </a>
-      </div>
+<!-- sidenav  -->
+<aside class="max-w-62.5 ease-nav-brand z-990 fixed inset-y-0 my-4 ml-4 block w-full -translate-x-full flex-wrap items-center justify-between rounded-2xl border-0 bg-white p-0 antialiased shadow-none transition-transform duration-200 xl:left-0 xl:translate-x-0 xl:bg-transparent">
+	<div class="h-19.5">
+		<i class="absolute top-0 right-0 hidden p-4 opacity-50 cursor-pointer fas fa-times text-slate-400 xl:hidden" sidenav-close></i>
+		<a class="block px-8 py-6 m-0 text-sm whitespace-nowrap text-slate-700" href="{{ path('app_home') }}" target="_blank">
+			<img src="{{ asset('assets/img/logocrea.png') }}" class="inline h-full max-w-full transition-all duration-200 ease-nav-brand max-h-8" alt="main_logo"/>
+			<span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand">CreaCo</span>
+		</a>
+	</div>
+<<<<<<< HEAD
 
-      <hr
-        class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
+	<hr class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent"/>
 
-      <div
-        class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
-        <ul class="flex flex-col pl-0 mb-0">
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_home') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-shop text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Dashboard</span
-              >
-            </a>
-          </li>
-
-{% if app.session.get('user_role') == 'ROLE_CONTENT_CREATOR' or app.session.get('user_role') == 'ROLE_MANAGER' or app.session.get('user_role') == 'ROLE_ADMIN' %}
-
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('event_list') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-calendar-grid-58 text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Events</span
-              >
-            </a>
-          </li>
-{% endif %}
-{% if app.session.get('user_role') == 'ROLE_MEMBER' %}
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('member_event_list') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-calendar-grid-58 text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Events</span
-              >
-            </a>
-          </li>
-{% endif %}
+=======
+	<hr class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent"/>
+	<!-- ❌ NO SCROLL HERE -->
+>>>>>>> 2961df0841d6f673480afb7b0dfc901c4bdf7bd8
+	<div class="items-center block w-auto h-sidenav grow basis-full">
+		<ul class="flex flex-col pl-0 mb-0">
+			{% set currentRoute = app.request.attributes.get('_route') %}
+      <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute == 'app_home' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_home') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute == 'app_home' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-shop {{ currentRoute == 'app_home' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
+				</a>
+			</li>{#
+    <li class="mt-0.5 w-full">
+      <a
+      class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+      href="{{ path('app_home') }}">
+        <div
+        class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+          <i class="ni ni-shop text-white"></i>
+        </div>
+        <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
+      </a>
+    </li>#}
+    <li class="mt-4 w-full">
+        <h6 class="ml-8 text-xxs font-bold leading-tight uppercase opacity-60 text-slate-500">Workflow Management</h6>
+    </li>
 <!-- ideas -->
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_idea_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-bulb-61 text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Ideas</span
-              >
-            </a>
-          </li>
+          {% if app.session.get('user_role') in ['ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_ADMIN'] %}
+      <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_idea_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_idea_index') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_idea_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-bulb-61 {{ currentRoute starts with 'app_idea_' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Ideas</span>
+				</a>
+			</li>
+          {% endif %}
+<!-- missions -->
+          {#{% if is_granted('ROLE_EDITOR') or is_granted('ROLE_CONTENT_CREATOR') or is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}#}
+      <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_mission_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_mission_index') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_mission_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-briefcase-24 {{ currentRoute starts with 'app_mission_' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Missions</span>
+				</a>
+			</li>
+          {#{% endif %}#}
+<!-- tasks -->
+      <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_task_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_task_index') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_task_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-check-bold {{ currentRoute starts with 'app_task_' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Tasks</span>
+				</a>
+			</li>
+      <li class="mt-4 w-full">
+        <h6 class="ml-8 text-xxs font-bold leading-tight uppercase opacity-60 text-slate-500">Community & Learning</h6>
+      </li>
+			<!-- Events -->
+			{% if app.session.get('user_role') == 'ROLE_CONTENT_CREATOR' or app.session.get('user_role') == 'ROLE_MANAGER' or app.session.get('user_role') == 'ROLE_ADMIN' %}
+        {#<li class="mt-0.5 w-full">
+          <a
+            class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+            href="{{ path('event_list') }}">
+            <div
+              class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+              <i class="ni ni-calendar-grid-58 text-white"></i>
+            </div>
+            <span
+              class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+              >Events</span
+            >
+          </a>
+        </li>#}
+        <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'event_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('event_list') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'event_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-calendar-grid-58 {{ currentRoute starts with 'event_' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Events</span>
+				</a>
+			</li>
+      {% endif %}
+      {% if app.session.get('user_role') == 'ROLE_MEMBER' %}
+        {#<li class="mt-0.5 w-full">
+          <a
+            class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+            href="{{ path('member_event_list') }}">
+            <div
+              class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+              <i class="ni ni-calendar-grid-58 text-white"></i>
+            </div>
+            <span
+              class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"                >Events</span
+            >
+          </a>
+        </li>#}
+        <li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'event_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('member_event_list') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'event_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-calendar-grid-58 {{ currentRoute starts with 'event_' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Events</span>
+				</a>
+			</li>
+      {% endif %}
 
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_mission_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-rocket text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Missions</span
-              >
-            </a>
-          </li>
+			<!-- Events -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'event_list' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('event_list') }}">
+					<div class="{{ currentRoute == 'event_list' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-calendar-grid-58 {{ currentRoute == 'event_list' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Events</span>
+				</a>
+			</li>
 
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_task_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-check-bold text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Tasks</span
-              >
-            </a>
-          </li>
+			<!-- Missions -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'app_mission_index' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('app_mission_index') }}">
+					<div class="{{ currentRoute == 'app_mission_index' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-rocket {{ currentRoute == 'app_mission_index' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Missions</span>
+				</a>
+			</li>
 
-          <li class="mt-4 w-full">
-            <h6 class="ml-8 text-xxs font-bold leading-tight uppercase opacity-60 text-slate-500">Community & Learning</h6>
-          </li>
+			<!-- Tasks -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'app_task_index' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('app_task_index') }}">
+					<div class="{{ currentRoute == 'app_task_index' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-check-bold {{ currentRoute == 'app_task_index' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Tasks</span>
+				</a>
+			</li>
 
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('forum_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-chat-round text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Forum</span
-              >
-            </a>
-          </li>
+			<!-- Forum -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ (currentRoute starts with 'app_post' or currentRoute starts with 'app_forum' or currentRoute starts with 'forum_') ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_forum') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ (currentRoute starts with 'app_post' or currentRoute starts with 'app_forum' or currentRoute starts with 'forum_') ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-chat-round {{ (currentRoute starts with 'app_post' or currentRoute starts with 'app_forum' or currentRoute starts with 'forum_') ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Forum</span>
+				</a>
+			</li>
 
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_cours_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-hat-3 text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Courses</span
-              >
-            </a>
-          </li>
+			<!-- Collaborations, Cours (Authenticated Users) -->
+			{% if app.session.get('user_role') %}
 
-          <li class="mt-0.5 w-full">
-            <a
-              class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-              href="{{ path('app_collaborator_index') }}">
-              <div
-                class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-                <i class="ni ni-badge text-white"></i>
-              </div>
-              <span
-                class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-                >Collaborators</span
-              >
-            </a>
-          </li>
-        </ul>
-      </div>
-    </aside>
-    <!-- end sidenav -->
+				<!-- Collaborations -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_collaborator' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_collaborator_index') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_collaborator' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-briefcase-24 {{ currentRoute starts with 'app_collaborator' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Collaborations</span>
+					</a>
+				</li>
+
+				<!-- Cours -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_cours' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_cours_index') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_cours' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-hat-3 {{ currentRoute starts with 'app_cours' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Cours</span>
+					</a>
+				</li>
+			{% endif %}
+
+			<!-- Notifications -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_notifications' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_notifications') }}">
+					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_notifications' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+						<i class="ni ni-bell-55 {{ currentRoute starts with 'app_notifications' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Notifications</span>
+				</a>
+			</li>
+
+			<!-- Moderation & Admin (Role: Admin) -->
+			{% if app.session.get('user_role') == 'ROLE_ADMIN' %}
+				<li class="w-full mt-4">
+					<h6 class="pl-6 ml-2 text-xs font-bold leading-tight uppercase opacity-60">Admin</h6>
+				</li>
+
+				<!-- Connected Users (Admin) -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_admin') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-single-02 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Connected Users</span>
+					</a>
+				</li>
+
+				<!-- Moderation -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'admin_post_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('admin_post_pending') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'admin_post_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-check-bold {{ currentRoute starts with 'admin_post_' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Post Moderation</span>
+					</a>
+				</li>
+			{% endif %}
+		</ul>
+	</div>
+</aside>
+<!-- end sidenav -->

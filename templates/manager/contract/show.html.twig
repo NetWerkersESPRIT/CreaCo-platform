@@ -1,0 +1,223 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Contract Details - CreaCo Manager{% endblock %}
+{% block breadcrumb %}Manager / Contracts / #{{ contract.contractNumber }}{% endblock %}
+{% block page_title %}Contract Consultation{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3">
+    <!-- Main Content (Document Preview) -->
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50/50 rounded-t-2xl">
+                <div>
+                    <h6 class="mb-0 font-bold">Document Preview</h6>
+                    <p class="text-xs mb-0 text-slate-400">Official collaboration record</p>
+                </div>
+                <div class="text-right">
+                    <span class="bg-white border px-3 py-1 rounded-pill text-xs font-bold text-slate-500 shadow-soft-xxs">
+                        REF: {{ contract.contractNumber }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-auto p-6 bg-slate-50/30 rounded-b-2xl">
+                <!-- Contract Visual Container (The "Paper") -->
+                <div class="max-w-[750px] mx-auto bg-white shadow-soft-2xl border-gray-100 border rounded-sm min-h-[1000px] p-16 md:p-20 flex flex-col relative overflow-hidden">
+                    <!-- Decorative Corner -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-fuchsia-50/50 to-transparent -mr-16 -mt-16 rounded-full"></div>
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-start border-b border-gray-100 pb-8 mb-12 relative z-10">
+                        <div>
+                            <div class="flex items-center mb-2">
+                                <img src="{{ asset('assets/img/logo-ct.png') }}" class="h-8 mr-3 opacity-80" alt="logo">
+                                <h2 class="text-lg font-bold uppercase text-slate-700 tracking-tight mb-0">Service Contract</h2>
+                            </div>
+                            <p class="text-[10px] text-slate-400 font-mono tracking-tighter uppercase px-1">Digital Protocol #{{ contract.contractNumber }}</p>
+                        </div>
+                        <div class="text-right">
+                            <h6 class="text-xs font-bold text-slate-500 mb-0">CreaCo Ecosystem</h6>
+                            <p class="text-[10px] text-slate-400 mb-0 uppercase tracking-widest">Issuance Date</p>
+                            <p class="text-xs font-bold text-slate-600">{{ contract.createdAt|date('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Parties Involved -->
+                    <div class="grid grid-cols-2 gap-12 mb-12 relative z-10">
+                        <div class="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <h6 class="text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest border-b border-gray-200 pb-1">The Provider</h6>
+                            <p class="text-sm font-bold text-slate-700 mb-0">{{ contract.collaborator.companyName }}</p>
+                            <p class="text-xs text-slate-500 mb-0">Representative: {{ contract.collaborator.name|default('Official Partner') }}</p>
+                            <p class="text-xs text-slate-400 italic">Validated Partner Entity</p>
+                        </div>
+                        <div class="p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                            <h6 class="text-[10px] font-bold uppercase text-slate-400 mb-2 tracking-widest border-b border-gray-200 pb-1">The Client / Emitter</h6>
+                            <p class="text-sm font-bold text-slate-700 mb-0">{{ contract.collabRequest.creator ? contract.collabRequest.creator.username : 'CreaCo Internal' }}</p>
+                            <p class="text-xs text-slate-500 mb-0">Platform Content Curator</p>
+                            <p class="text-xs text-slate-400 italic">CreaCo Verified Account</p>
+                        </div>
+                    </div>
+
+                    <!-- Contract Core Body -->
+                    <div class="space-y-10 relative z-10">
+                        <!-- Summary Section -->
+                        <section>
+                            <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> Summary of Mission
+                            </h6>
+                            <div class="pl-11">
+                                <h5 class="text-base font-bold text-slate-800 mb-2">{{ contract.title }}</h5>
+                                <p class="text-sm text-slate-600 leading-relaxed italic">
+                                    "{{ contract.collabRequest.description|nl2br }}"
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- Terms Section -->
+                        <section>
+                            <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> I. Contractual Terms
+                            </h6>
+                            <div class="pl-11 p-5 rounded-2xl bg-slate-50/50 border border-slate-100 text-sm text-slate-600 leading-relaxed shadow-soft-xxs">
+                                {{ contract.terms|nl2br }}
+                            </div>
+                        </section>
+
+                        <!-- Deliverables Section -->
+                        <section>
+                            <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> II. Deliverables
+                            </h6>
+                            <div class="pl-11 text-sm text-slate-600 leading-relaxed">
+                                {{ contract.collabRequest.deliverables|nl2br }}
+                            </div>
+                        </section>
+
+                        <!-- Monetary & Schedule -->
+                        <div class="grid grid-cols-2 gap-10">
+                            <section>
+                                <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                    <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> III. Compensation
+                                </h6>
+                                <div class="pl-11">
+                                    <p class="text-2xl font-bold text-slate-800 mb-0">{{ contract.amount|number_format(2, '.', ' ') }} <span class="text-xs font-normal text-slate-400">DT</span></p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Net Payable Amount</p>
+                                </div>
+                            </section>
+                            <section>
+                                <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                    <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> IV. Duration
+                                </h6>
+                                <div class="pl-11 space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">From:</span>
+                                        <span class="font-bold text-slate-700">{{ contract.startDate|date('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">To:</span>
+                                        <span class="font-bold text-slate-700">{{ contract.endDate|date('d/m/Y') }}</span>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Payment Terms -->
+                        <section>
+                            <h6 class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center">
+                                <span class="w-8 h-[1px] bg-slate-200 mr-3"></span> V. Payment Schedule
+                            </h6>
+                            <div class="pl-11 text-sm text-slate-500 italic">
+                                {{ contract.paymentSchedule|default('Standard payment terms upon delivery validation.')|nl2br }}
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Signatures Footer -->
+                    <div class="mt-auto pt-20 grid grid-cols-2 gap-20 relative z-10">
+                        <div class="border-t border-gray-100 pt-4">
+                            <p class="text-[9px] font-bold uppercase text-slate-300 mb-4 tracking-[0.3em]">Authorized Manager</p>
+                            <div class="h-12 flex items-center">
+                                <div class="text-[11px] font-bold text-slate-400 flex items-center py-1 px-3 border border-slate-100 rounded-lg bg-slate-50/30">
+                                    <i class="ni ni-check-bold text-green-400 mr-2"></i>
+                                    DIGITALLY VALIDATED
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 pt-4 text-right">
+                            <p class="text-[9px] font-bold uppercase text-slate-300 mb-4 tracking-[0.3em]">Partner Agreement</p>
+                            <div class="h-12 flex items-center justify-end">
+                                {% if contract.signedByCollaborator %}
+                                    <div class="px-3 py-2 border-2 border-fuchsia-100 rounded rotate-1 bg-fuchsia-50/20 shadow-soft-xs">
+                                        <p class="text-[10px] font-bold text-fuchsia-500 mb-0 leading-tight uppercase">ELECTRONICALLY SIGNED</p>
+                                        <p class="text-[8px] text-fuchsia-400 mb-0 font-mono">{{ contract.collaboratorSignatureDate|date('d/m/Y H:i') }}</p>
+                                    </div>
+                                {% else %}
+                                    <p class="text-xs text-slate-300 italic mb-0">Awaiting partner signature...</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions Panel (Action Center) -->
+    <div class="w-full max-full px-3 lg:w-4/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6">
+                <div class="flex items-center mb-6">
+                    <div class="bg-gradient-to-tl from-purple-700 to-pink-500 p-2 rounded-lg mr-3 shadow-soft-md">
+                        <i class="ni ni-settings-gear-65 text-white text-xs"></i>
+                    </div>
+                    <h6 class="mb-0 font-bold">Action Center</h6>
+                </div>
+                
+                <!-- Status Badge Premium -->
+                <div class="p-5 rounded-2xl mb-8 border border-gray-100 bg-gray-50/50 shadow-soft-xxs transition-all hover:shadow-soft-xs">
+                    <label class="text-[10px] font-bold uppercase text-slate-400 block mb-2 tracking-widest">Global Status</label>
+                    <div class="flex items-center">
+                        {% if contract.status == 'DRAFT' %}
+                            <span class="bg-gradient-to-tl from-orange-500 to-yellow-400 px-3 py-1 rounded-pill text-[10px] font-bold text-white uppercase shadow-soft-xs">Drafting Mode</span>
+                        {% elseif contract.status == 'SENT' %}
+                            <span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-3 py-1 rounded-pill text-[10px] font-bold text-white uppercase shadow-soft-xs">Active Review</span>
+                        {% elseif contract.status == 'SIGNED_BY_COLLABORATOR' %}
+                            <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-3 py-1 rounded-pill text-[10px] font-bold text-white uppercase shadow-soft-xs">Fully Executed</span>
+                        {% else %}
+                            <span class="bg-slate-100 px-3 py-1 rounded-pill text-[10px] font-bold text-slate-400 uppercase">{{ contract.status }}</span>
+                        {% endif %}
+                    </div>
+                    {% if contract.status == 'SENT' %}
+                        <p class="mt-4 text-[11px] text-slate-500 mb-0 leading-tight">
+                            The document has been transmitted to the provider for final validation and signature.
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                {% if contract.status == 'DRAFT' %}
+                    <div class="space-y-4">
+                        <a href="{{ path('app_manager_contract_edit', {'id': contract.id}) }}" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-xl cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-gray-900 to-slate-800 hover:scale-[1.02] hover:shadow-soft-lg active:opacity-85">
+                            <i class="ni ni-ruler-pencil mr-2"></i> Update Specifications
+                        </a>
+
+                        <form action="{{ path('app_manager_contract_send', {'id': contract.id}) }}" method="POST" onsubmit="return confirm('Officially send this contract to the partner?')">
+                            <button type="submit" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-xl cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-[1.02] hover:shadow-soft-lg active:opacity-85">
+                                <i class="ni ni-paper-plane mr-2"></i> Transmit to Partner
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+
+                <!-- Utility Links -->
+                <div class="mt-10 pt-6 border-t border-gray-100">
+                    <a href="{{ path('app_manager_contract_index') }}" class="flex items-center text-xs font-bold text-slate-500 hover:text-fuchsia-500 transition-colors group">
+                        <i class="ni ni-bold-left mr-2 transform group-hover:-translate-x-1 transition-transform"></i>
+                        Return to Registry
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

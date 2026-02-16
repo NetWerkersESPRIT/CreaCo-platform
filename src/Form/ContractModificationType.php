@@ -15,16 +15,16 @@ class ContractModificationType extends AbstractType
     {
         $builder
             ->add('amount', MoneyType::class, [
-                'label' => 'Montant du contrat',
+                'label' => 'Contract amount',
                 'currency' => 'EUR',
             ])
             ->add('paymentSchedule', TextareaType::class, [
-                'label' => 'Échéancier de paiement',
+                'label' => 'Payment schedule',
                 'required' => false,
                 'attr' => ['rows' => 3]
             ])
             ->add('terms', TextareaType::class, [
-                'label' => 'Conditions générales',
+                'label' => 'General terms',
                 'required' => false,
                 'attr' => ['rows' => 8]
             ])
