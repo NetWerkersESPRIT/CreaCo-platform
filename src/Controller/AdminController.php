@@ -69,10 +69,18 @@ final class AdminController extends AbstractController
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
         }
-        $form = $this->createForm(UserType::class, $user);
+
+        $oldPassword = $user->getPassword();
+        $form = $this->createForm(UserType::class, $user, [
+            'optional_password' => true
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('password')->getData();
+            if (empty($newPassword)) {
+                $user->setPassword($oldPassword);
+            }
             $em->flush();
 
             return $this->redirectToRoute('app_admin');

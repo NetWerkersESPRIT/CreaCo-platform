@@ -14,7 +14,7 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 
 final class AuthController extends AbstractController
 {
-    #[Route('/auth', name: 'app_auth')]
+    #[Route('/', name: 'app_auth')]
     public function index(): Response
     {
         return $this->render('auth/index.html.twig', [
@@ -89,7 +89,10 @@ final class AuthController extends AbstractController
             $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
 
             switch ($user->getRole()) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2961df0841d6f673480afb7b0dfc901c4bdf7bd8
                 case 'ROLE_ADMIN':
                     return $this->redirectToRoute('app_admin');
 

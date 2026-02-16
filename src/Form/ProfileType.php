@@ -41,12 +41,12 @@ class ProfileType extends AbstractType
             ])
             ->add('numtel', TextType::class, [
                 'label' => false,
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Phone Number',
                     'class' => 'mb-4 text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow'
                 ],
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'Please enter a phone number']),
                     new Assert\Regex([
                         'pattern' => '/^\d{8}$/',
                         'message' => 'Please enter a valid 8-digit phone number',
@@ -62,7 +62,6 @@ class ProfileType extends AbstractType
                     'class' => 'mb-4 text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow'
                 ],
                 'constraints' => [
-                    new UserPassword(['message' => 'Wrong current password']),
                 ],
             ])
             ->add('newPassword', RepeatedType::class, [

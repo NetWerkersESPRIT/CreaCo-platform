@@ -40,9 +40,12 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $idea->setCreatedAt(new \DateTimeImmutable());
 
-            $creator = $entityManager->getRepository(Users::class)->find(1);
-            if ($creator) {
-                $idea->setCreator($creator);
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+            if ($user) {
+                $idea->setCreator($user);
             }
 
             $entityManager->persist($idea);
@@ -111,9 +114,28 @@ final class TSKController extends AbstractController
     // --- MISSION ---
 
     #[Route('/mission', name: 'app_mission_index', methods: ['GET'])]
-    public function missionIndex(MissionRepository $missionRepository): Response
+    public function missionIndex(MissionRepository $missionRepository, EntityManagerInterface $entityManager, Request $request): Response
     {
-        $missions = $missionRepository->findAll();
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, only show missions from people with the same group ID
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if ($currentUser && $currentUser->getGroupid()) {
+                $missions = $missionRepository->createQueryBuilder('m')
+                    ->innerJoin('m.assignedBy', 'u')
+                    ->where('u.groupid = :groupId')
+                    ->setParameter('groupId', $currentUser->getGroupid())
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $missions = [];
+            }
+        }
+        else {
+            $missions = $missionRepository->findAll();
+        }
 
         $calendarData = [];
         foreach ($missions as $mission) {
@@ -174,15 +196,43 @@ final class TSKController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $mission->setCreatedAt(new \DateTimeImmutable());
 
-            $idea = $mission->getImplementIdea();
-            if ($idea && $idea->getCreator()) {
-                $mission->setAssignedBy($idea->getCreator());
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+            if ($user) {
+                $mission->setAssignedBy($user);
             }
 
             $entityManager->persist($mission);
             $entityManager->flush();
 
             $this->addFlash('success', 'Mission created successfully!');
+
+            // Check if we need to return to task creation
+            $returnTo = $request->query->get('return_to');
+            if ($returnTo === 'task') {
+                // Build redirect URL with mission_id and preserved task data
+                $params = ['mission_id' => $mission->getId()];
+
+                if ($request->query->has('t_title')) {
+                    $params['title'] = $request->query->get('t_title');
+                }
+                if ($request->query->has('t_desc')) {
+                    $params['description'] = $request->query->get('t_desc');
+                }
+                if ($request->query->has('t_date')) {
+                    $params['t_date'] = $request->query->get('t_date');
+                }
+                if ($request->query->has('t_time')) {
+                    $params['t_time'] = $request->query->get('t_time');
+                }
+                if ($request->query->has('t_assumedBy')) {
+                    $params['assumedBy'] = $request->query->get('t_assumedBy');
+                }
+
+                return $this->redirectToRoute('app_task_new', $params, Response::HTTP_SEE_OTHER);
+            }
 
             return $this->redirectToRoute('app_mission_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -194,8 +244,19 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/mission/{id}', name: 'app_mission_show', methods: ['GET'])]
-    public function missionShow(Mission $mission): Response
+    public function missionShow(Mission $mission, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to this mission.');
+            }
+        }
+        
         return $this->render('mission/show.html.twig', [
             'mission' => $mission,
         ]);
@@ -204,6 +265,17 @@ final class TSKController extends AbstractController
     #[Route('/mission/{id}/edit', name: 'app_mission_edit', methods: ['GET', 'POST'])]
     public function missionEdit(Request $request, Mission $mission, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to edit this mission.');
+            }
+        }
+        
         $form = $this->createForm(MissionType::class, $mission);
         $form->handleRequest($request);
 
@@ -225,6 +297,17 @@ final class TSKController extends AbstractController
     #[Route('/mission/{id}', name: 'app_mission_delete', methods: ['POST'])]
     public function missionDelete(Request $request, Mission $mission, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        
+        // If user is a member, check if mission is from their group
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+                throw $this->createAccessDeniedException('You do not have access to delete this mission.');
+            }
+        }
+        
         if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
@@ -237,10 +320,32 @@ final class TSKController extends AbstractController
     // --- TASK ---
 
     #[Route('/task', name: 'app_task_index', methods: ['GET'])]
-    public function taskIndex(TaskRepository $taskRepository): Response
+    public function taskIndex(TaskRepository $taskRepository, EntityManagerInterface $entityManager, Request $request): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if ($currentUser && $currentUser->getGroupid()) {
+                $tasks = $taskRepository->createQueryBuilder('t')
+                    ->leftJoin('t.belongTo', 'm')
+                    ->leftJoin('m.assignedBy', 'ma')
+                    ->leftJoin('t.issuedBy', 'ib')
+                    ->leftJoin('t.assumedBy', 'ab')
+                    ->where('ma.groupid = :gid OR ib.groupid = :gid OR ab.groupid = :gid')
+                    ->setParameter('gid', $currentUser->getGroupid())
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $tasks = [];
+            }
+        } else {
+            $tasks = $taskRepository->findAll();
+        }
+
         return $this->render('task/index.html.twig', [
-            'tasks' => $taskRepository->findAll(),
+            'tasks' => $tasks,
         ]);
     }
 
@@ -257,15 +362,41 @@ final class TSKController extends AbstractController
             }
         }
 
+        // Restore task form data from query parameters (when returning from mission creation)
+        if ($request->query->has('title')) {
+            $task->setTitle($request->query->get('title'));
+        }
+        if ($request->query->has('description')) {
+            $task->setDescription($request->query->get('description'));
+        }
+        if ($request->query->has('t_date') && $request->query->has('t_time')) {
+            try {
+                $dateStr = $request->query->get('t_date') . ' ' . $request->query->get('t_time');
+                $task->setTimeLimit(new \DateTime($dateStr));
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+        if ($request->query->has('assumedBy')) {
+            $assumedById = $request->query->get('assumedBy');
+            $assumedBy = $entityManager->getRepository(Users::class)->find($assumedById);
+            if ($assumedBy) {
+                $task->setAssumedBy($assumedBy);
+            }
+        }
+
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $task->setCratedAt(new \DateTimeImmutable());
+            $task->setCreatedAt(new \DateTimeImmutable());
+            $task->setState('todo');
 
-            $issuer = $entityManager->getRepository(Users::class)->find(1);
-            if ($issuer) {
-                $task->setIssuedBy($issuer);
+            $session = $request->getSession();
+            $userId = $session->get('user_id');
+            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+            if ($user) {
+                $task->setIssuedBy($user);
             }
 
             $entityManager->persist($task);
@@ -283,8 +414,31 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/task/{id}', name: 'app_task_show', methods: ['GET'])]
-    public function taskShow(Task $task): Response
+    public function taskShow(Task $task, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                throw $this->createAccessDeniedException('You do not have access to this task.');
+            }
+        }
+
         return $this->render('task/show.html.twig', [
             'task' => $task,
         ]);
@@ -293,6 +447,29 @@ final class TSKController extends AbstractController
     #[Route('/task/{id}/edit', name: 'app_task_edit', methods: ['GET', 'POST'])]
     public function taskEdit(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                throw $this->createAccessDeniedException('You do not have access to edit this task.');
+            }
+        }
+
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
@@ -308,6 +485,63 @@ final class TSKController extends AbstractController
             'task' => $task,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/task/{id}/update-state', name: 'app_task_update_state', methods: ['POST'])]
+    public function updateState(Request $request, Task $task, EntityManagerInterface $entityManager): Response
+    {
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+
+        if ($userRole === 'ROLE_MEMBER' && $userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            $allowed = false;
+            if ($currentUser) {
+                $gid = $currentUser->getGroupid();
+                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                    $allowed = true;
+                }
+            }
+            if (!$allowed) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'You do not have permission to update this task'
+                ], Response::HTTP_FORBIDDEN);
+            }
+        }
+        $data = json_decode($request->getContent(), true);
+        $newState = $data['state'] ?? null;
+
+        // Prevent completed tasks from being moved back
+        if ($task->getState() === 'completed') {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Completed tasks cannot be moved to other states'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $validStates = ['todo', 'in_progress', 'completed'];
+
+        if ($newState && in_array($newState, $validStates)) {
+            $task->setState($newState);
+
+            // Set completedAt timestamp when task is marked as completed
+            if ($newState === 'completed') {
+                $task->setCompletedAt(new \DateTime());
+            }
+
+            $entityManager->flush();
+
+            return $this->json(['status' => 'success', 'new_state' => $newState]);
+        }
+
+        return $this->json(['status' => 'error', 'message' => 'Invalid state'], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/task/{id}', name: 'app_task_delete', methods: ['POST'])]
