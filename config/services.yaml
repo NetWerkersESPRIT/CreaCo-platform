@@ -1,20 +1,22 @@
 parameters:
   
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
-    bind:
-      $apiKey: '%env(IMGBB_API_KEY)%'
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $apiKey: '%env(IMGBB_API_KEY)%'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
 
-  App\:
-    resource: '../src/'
-    exclude:
-      - '../src/DependencyInjection/'
-      - '../src/Entity/'
-      - '../src/Kernel.php'
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
 
-  App\Service\GoogleDriveUploader:
-    arguments:
-      $googleDriveFolderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'
-      $projectDir: '%kernel.project_dir%'
+    App\Service\GoogleDriveUploader:
+        arguments:
+            $googleDriveFolderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'
+            $projectDir: '%kernel.project_dir%'

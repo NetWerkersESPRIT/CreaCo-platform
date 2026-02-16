@@ -1,25 +1,179 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Dashboard
+{% endblock %}
 
 {% block body %}
+	<div
+		class="w-full px-6 py-6 mx-auto">
+		<!-- Welcome Section -->
+		<div class="flex flex-wrap -mx-3">
+			<div class="w-full max-w-full px-3 mb-6">
+				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+					<div class="p-6">
+						<h4 class="mb-2 font-bold">Welcome to CreaCo Platform</h4>
+						<p class="text-sm leading-normal text-slate-500">Quick access to all your modules</p>
+					</div>
+				</div>
+			</div>
+		</div>
 
-  <body class="m-0 font-sans text-base antialiased font-normal leading-default bg-gray-50 text-slate-500">
+		<!-- Navigation Cards Grid -->
+		<div
+			class="flex flex-wrap -mx-3">
+			<!-- Events -->
+			<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+				<a href="{{ path('event_list') }}" class="block">
+					<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+						<div class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl">
+									<i class="ni ni-calendar-grid-58 text-white text-2xl"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 font-semibold text-slate-700">Events</h6>
+									<p class="text-xs text-slate-400">Manage events</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
 
-  3NAYNAA Member Dashboard
+			<!-- Missions -->
+			<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+				<a href="{{ path('app_mission_index') }}" class="block">
+					<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+						<div class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-blue-600 to-cyan-400 shadow-soft-2xl">
+									<i class="ni ni-rocket text-white text-2xl"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 font-semibold text-slate-700">Missions</h6>
+									<p class="text-xs text-slate-400">View missions</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
 
+			<!-- Tasks -->
+			<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+				<a href="{{ path('app_task_index') }}" class="block">
+					<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+						<div class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-green-600 to-lime-400 shadow-soft-2xl">
+									<i class="ni ni-check-bold text-white text-2xl"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 font-semibold text-slate-700">Tasks</h6>
+									<p class="text-xs text-slate-400">Manage tasks</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
 
-  </body>
+			<!-- Forum -->
+			<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+				<a href="{{ path('app_forum') }}" class="block">
+					<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+						<div class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-pink-500 to-rose-400 shadow-soft-2xl">
+									<i class="ni ni-chat-round text-white text-2xl"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 font-semibold text-slate-700">Forum</h6>
+									<p class="text-xs text-slate-400">Join discussions</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
 
-  <!-- plugin for charts  -->
-  <script src="./assets/js/plugins/chartjs.min.js" async></script>
-  <!-- plugin for scrollbar  -->
-  <script src="./assets/js/plugins/perfect-scrollbar.min.js" async></script>
-  <!-- github button -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- main script file  -->
-  <script
-    src="./assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5"
-    async></script>
-</html>
+			{% if app.session.get('user_role') %}
+				<!-- Ideas -->
+				<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+					<a href="{{ path('app_idea_index') }}" class="block">
+						<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+							<div class="p-6">
+								<div class="flex items-center gap-4">
+									<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-yellow-600 to-orange-400 shadow-soft-2xl">
+										<i class="ni ni-bulb-61 text-white text-2xl"></i>
+									</div>
+									<div>
+										<h6 class="mb-0 font-semibold text-slate-700">Ideas</h6>
+										<p class="text-xs text-slate-400">Share ideas</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+
+				<!-- Collaborations -->
+				<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+					<a href="{{ path('app_collaborator_index') }}" class="block">
+						<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+							<div class="p-6">
+								<div class="flex items-center gap-4">
+									<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-indigo-600 to-purple-500 shadow-soft-2xl">
+										<i class="ni ni-briefcase-24 text-white text-2xl"></i>
+									</div>
+									<div>
+										<h6 class="mb-0 font-semibold text-slate-700">Collaborations</h6>
+										<p class="text-xs text-slate-400">Work together</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+
+				<!-- Cours -->
+				<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+					<a href="{{ path('app_cours_index') }}" class="block">
+						<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+							<div class="p-6">
+								<div class="flex items-center gap-4">
+									<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-teal-600 to-emerald-400 shadow-soft-2xl">
+										<i class="ni ni-hat-3 text-white text-2xl"></i>
+									</div>
+									<div>
+										<h6 class="mb-0 font-semibold text-slate-700">Cours</h6>
+										<p class="text-xs text-slate-400">Browse courses</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+			{% endif %}
+
+			<!-- Notifications -->
+			<div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 xl:w-1/4">
+				<a href="{{ path('app_notifications') }}" class="block">
+					<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:scale-102 transition-transform duration-200">
+						<div class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-tl from-red-600 to-pink-400 shadow-soft-2xl">
+									<i class="ni ni-bell-55 text-white text-2xl"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 font-semibold text-slate-700">Notifications</h6>
+									<p class="text-xs text-slate-400">View alerts</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
 {% endblock %}

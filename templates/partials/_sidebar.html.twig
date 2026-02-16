@@ -8,13 +8,41 @@
 		</a>
 	</div>
 
-	<hr
-	class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent"/>
+	<hr class="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent"/>
 
-	<!-- ❌ NO SCROLL HERE -->
 	<div class="items-center block w-auto h-sidenav grow basis-full">
 		<ul class="flex flex-col pl-0 mb-0">
 			{% set currentRoute = app.request.attributes.get('_route') %}
+
+			<!-- Events -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'event_list' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('event_list') }}">
+					<div class="{{ currentRoute == 'event_list' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-calendar-grid-58 {{ currentRoute == 'event_list' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Events</span>
+				</a>
+			</li>
+
+			<!-- Missions -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'app_mission_index' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('app_mission_index') }}">
+					<div class="{{ currentRoute == 'app_mission_index' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-rocket {{ currentRoute == 'app_mission_index' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Missions</span>
+				</a>
+			</li>
+
+			<!-- Tasks -->
+			<li class="mt-0.5 w-full">
+				<a class="py-2.7 {{ currentRoute == 'app_task_index' ? 'bg-white shadow-soft-xl' : '' }} text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100" href="{{ path('app_task_index') }}">
+					<div class="{{ currentRoute == 'app_task_index' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }} mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all">
+						<i class="ni ni-check-bold {{ currentRoute == 'app_task_index' ? 'text-white' : 'text-slate-700' }}"></i>
+					</div>
+					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Tasks</span>
+				</a>
+			</li>
 
 			<!-- Forum -->
 			<li class="mt-0.5 w-full">

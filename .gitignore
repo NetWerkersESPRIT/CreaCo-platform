@@ -21,3 +21,6 @@
 
 config/google/credentials.json
 /config/google/token.json
+###< symfony/asset-mapper ###
+
+
