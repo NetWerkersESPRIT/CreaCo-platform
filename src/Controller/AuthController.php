@@ -24,84 +24,10 @@ final class AuthController extends AbstractController
     }
 
     #[Route('/login-check', name: 'login_check', methods: ['POST'])]
-    public function loginCheck(Request $request, EntityManagerInterface $em): Response
+    public function loginCheck(): void
     {
-        $token = $request->request->get('g-recaptcha-response');
-
-        if (!$token) {
-            $this->addFlash('error', 'Please verify that you are not a robot.');
-            return $this->redirectToRoute('app_auth');
-        }
-
-        $client = HttpClient::create();
-        $response = $client->request('POST', 'https://www.google.com/recaptcha/api/siteverify', [
-            'body' => [
-                'secret' => '6LePq2osAAAAAJt8u-OPjMDsH95R5-zAXWtnktyB',
-                'response' => $token,
-                'remoteip' => $request->getClientIp(),
-            ],
-        ]);
-
-        $data = $response->toArray();
-
-        if (!($data['success'] ?? false)) {
-            $this->addFlash('error', 'Captcha verification failed.');
-            return $this->redirectToRoute('app_auth');
-        }
-
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
-
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
-
-        // ❌ user not found
-        if (!$user) {
-            $error = 'User not found';
-            return $this->render('auth/index.html.twig', [
-                'error' => $error,
-                'email' => $email
-            ]);
-        }
-
-        if ($user->getPassword() === 'GOOGLE_AUTH') {
-            return $this->render('auth/index.html.twig', [
-                'error' => 'This is a Google user. Please login with Google.',
-                'email' => $email
-            ]);
-        }
-
-        // ❌ wrong password
-        if (($password != $user->getPassword())) {
-            $error = 'Invalid password';
-            return $this->render('auth/index.html.twig', [
-                'error' => $error,
-                'email' => $email
-            ]);
-        }
-
-        // ✅ redirect by role
-        if ($user) {
-            $request->getSession()->set('user_id', $user->getId());
-            $request->getSession()->set('user_role', $user->getRole());
-            $request->getSession()->set('groupid', $user->getGroupid());
-            $request->getSession()->set('username', $user->getUsername());
-
-            $this->addFlash('success', 'Welcome back, ' . $user->getUsername() . '!');
-
-            switch ($user->getRole()) {
-                case 'ROLE_ADMIN':
-                    return $this->redirectToRoute('app_admin');
-
-                default:
-                    return $this->redirectToRoute('app_home');
-            }
-        }
-
-        $error = 'Unknown error';
-        return $this->render('auth/index.html.twig', [
-            'error' => $error,
-            'email' => $email
-        ]);
+        // This method will be intercepted by the LoginFormAuthenticator
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
     #[Route('/login/google', name: 'login_google')]
