@@ -1,47 +1,230 @@
 {% extends './base.html.twig' %}
 
-{% block title %}Cours
-{% endblock %}
+{% block title %}{{ cours.titre }}{% endblock %}
 
 {% block body %}
-	<h1>Cours</h1>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- En-tête du cours -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h1>{{ cours.titre }}</h1>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info">{{ cours.categorie.nom }}</span>
+                        <small class="text-muted">
+                            <i class="fas fa-eye"></i> {{ cours.views ?? 0 }} vues
+                        </small>
+                    </div>
+                </div>
+                {% if cours.image %}
+                <div class="text-center p-3">
+                    <img src="{{ cours.image }}" alt="{{ cours.titre }}" class="img-fluid rounded" style="max-height: 400px;">
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5>Description</h5>
+                    <p>{{ cours.description }}</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> 
+                                Créé le {{ cours.dateDeCreation ? cours.dateDeCreation|date('d/m/Y') : 'N/A' }}
+                            </small>
+                        </div>
+                        {% if cours.dateDeModification %}
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-edit"></i> 
+                                Modifié le {{ cours.dateDeModification|date('d/m/Y') }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-	<table class="table">
-		<tbody>
-			<tr>
-				<th>Id</th>
-				<td>{{ cour.id }}</td>
-			</tr>
-			<tr>
-				<th>Title</th>
-				<td>{{ cour.titre }}</td>
-			</tr>
-			<tr>
-				<th>Description</th>
-				<td>{{ cour.description }}</td>
-			</tr>
-			<tr>
-				<th>Image</th>
-				<td>{{ cour.image }}</td>
-			</tr>
-			<tr>
-				<th>Category</th>
-				<td>{{ cour.categorie ? cour.categorie.nom : '' }}</td>
-			</tr>
-			<tr>
-				<th>Created at</th>
-				<td>{{ cour.dateDeCreation ? cour.dateDeCreation|date('d/m/Y H:i') : '-' }}</td>
-			</tr>
-			<tr>
-				<th>Last modified</th>
-				<td>{{ cour.dateDeModification ? cour.dateDeModification|date('d/m/Y H:i') : '-' }}</td>
-			</tr>
-		</tbody>
-	</table>
+            <!-- Ressources du cours -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-book"></i> Ressources du cours</h5>
+                    <span class="badge bg-secondary">{{ cours.ressources|length }} ressource(s)</span>
+                </div>
+                <div class="card-body">
+                    {% if cours.ressources|length > 0 %}
+                        <div class="row">
+                            {% for ressource in cours.ressources %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title">{{ ressource.nom }}</h6>
+                                                <span class="badge bg-secondary">{{ ressource.type ?: 'FILE' }}</span>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                                        type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ path('app_content_ressource_view', {'id': ressource.id}) }}">
+                                                            <i class="fas fa-eye"></i> Vue détaillée
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    {% if ressource.url %}
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ ressource.url }}" target="_blank">
+                                                            <i class="fas fa-external-link-alt"></i> Ouvrir
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    
+                                                    {% if ressource.contenu %}
+                                                    <li>
+                                                        <button class="dropdown-item" onclick="viewContent({{ ressource.id }})">
+                                                            <i class="fas fa-file-alt"></i> Consulter
+                                                        </button>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if ressource.contenu %}
+                                            <p class="card-text small text-muted mt-2">
+                                                {{ ressource.contenu|slice(0, 100) }}...
+                                            </p>
+                                        {% endif %}
+                                        
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar-plus"></i>
+                                                Ajoutée le {{ ressource.dateDeCreation ? ressource.dateDeCreation|date('d/m/Y') : 'N/A' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune ressource disponible pour ce cours.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-	<a href="{{ path('app_cours_index') }}">back to list</a>
+        <div class="col-md-4">
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_cours_resources', {'id': cours.id}) }}" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i> Voir toutes les ressources
+                        </a>
+                        
+                        {% if is_granted('ROLE_CONTENT_CREATOR') %}
+                        <a href="{{ path('app_ressource_new', {'course': cours.id}) }}" 
+                           class="btn btn-outline-success">
+                            <i class="fas fa-plus"></i> Ajouter une ressource
+                        </a>
+                        {% endif %}
+                        
+                        {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_cours_edit', {'id': cours.id}) }}" 
+                           class="btn btn-outline-warning">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        {{ include('back/cours/_delete_form.html.twig') }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-	<a href="{{ path('app_cours_edit', {'id': cour.id}) }}">edit</a>
+            <!-- Widget Gamification -->
+            {% if app.user %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-gamepad"></i> Gamification</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-star fa-2x text-warning"></i>
+                        <h6 class="mt-2">Points gagnés</h6>
+                        <h4 class="text-primary">+5</h4>
+                        <small class="text-muted">Pour avoir visité ce cours</small>
+                    </div>
+                    <a href="{{ path('app_gamification_dashboard') }}" 
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-chart-line"></i> Voir mon profil
+                    </a>
+                </div>
+            </div>
+            {% endif %}
 
-	{{ include('back/cours/_delete_form.html.twig') }}
+            <!-- Cours similaires -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-graduation-cap"></i> Dans la même catégorie</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">
+                        Autres cours dans la catégorie "{{ cours.categorie.nom }}" 
+                        pourraient vous intéresser.
+                    </p>
+                    <a href="{{ path('app_cours_index', {'categorie': cours.categorie.nom}) }}" 
+                       class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-search"></i> Explorer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour afficher le contenu -->
+<div class="modal fade" id="contentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contenu de la ressource</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="contentBody">
+                <!-- Le contenu sera chargé ici -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewContent(ressourceId) {
+    // Ici vous pourriez charger le contenu via AJAX
+    // Pour l'instant, nous allons juste afficher un message
+    document.getElementById('contentBody').innerHTML = 
+        '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+    
+    const modal = new bootstrap.Modal(document.getElementById('contentModal'));
+    modal.show();
+    
+    // Simuler le chargement du contenu
+    setTimeout(() => {
+        document.getElementById('contentBody').innerHTML = 
+            '<p>Le contenu de cette ressource sera affiché ici.</p>';
+    }, 500);
+}
+</script>
 {% endblock %}

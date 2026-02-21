@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ressource.nom }} - PDF{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">
+                            <i class="fas fa-file-pdf text-danger"></i> 
+                            {{ ressource.nom }}
+                        </h3>
+                        <small class="text-muted">
+                            Cours: <a href="{{ path('app_cours_show', {'id': ressource.cours.id}) }}">{{ ressource.cours.titre }}</a>
+                        </small>
+                    </div>
+                    <div>
+                        <span class="badge bg-danger">PDF</span>
+                        <a href="{{ path('app_cours_show', {'id': ressource.cours.id}) }}" 
+                           class="btn btn-outline-secondary btn-sm ms-2">
+                            <i class="fas fa-arrow-left"></i> Retour au cours
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if ressource.url %}
+                    <div class="pdf-viewer">
+                        <iframe src="{{ ressource.url }}" 
+                                style="width: 100%; height: 80vh; border: none;"
+                                title="{{ ressource.nom }}">
+                        </iframe>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning m-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Le fichier PDF n'est pas disponible.
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if ressource.contenu %}
+                            <h6>Informations complémentaires</h6>
+                            <div class="p-2 bg-light rounded">
+                                {{ ressource.contenu|nl2br }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 text-end">
+                            {% if ressource.url %}
+                            <a href="{{ ressource.url }}" download="{{ ressource.nom }}" 
+                               class="btn btn-danger">
+                                <i class="fas fa-download"></i> Télécharger le PDF
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
