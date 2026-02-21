@@ -15,11 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-<<<<<<< HEAD
-=======
 use App\Entity\Notification;
 
->>>>>>> 2961df0841d6f673480afb7b0dfc901c4bdf7bd8
 final class EventController extends AbstractController
 {
 
@@ -191,7 +188,7 @@ final class EventController extends AbstractController
         $em->persist($reservation);
 
         // Notificationsssssssssssss
-        $managers = $usersRepo->findBy(['role' => ['ROLE_MANAGER', 'ROLE_ADMIN','ROLE_CONTENT_CREATOR']]);
+        $managers = $usersRepo->findBy(['role' => ['ROLE_MANAGER', 'ROLE_ADMIN', 'ROLE_CONTENT_CREATOR']]);
         foreach ($managers as $manager) {
             $notification = new Notification();
             $notification->setMessage("New reservation request for event: " . $event->getName() . " by " . $user->getUsername());
