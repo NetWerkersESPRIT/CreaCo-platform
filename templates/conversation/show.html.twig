@@ -1,0 +1,359 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Discussion de refus -
+	{{ conversation.post.title }}
+{% endblock %}
+
+{% block body %}
+	<div class="flex flex-wrap -mx-3 items-center justify-center py-8">
+		<div class="w-full max-w-full px-3 lg:w-9/12 mx-auto">
+
+			<a href="{{ path('app_post_show', {'id': conversation.post.id}) }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1 no-underline">
+				<i class="fas fa-arrow-left mr-1"></i>
+				Retour au Post
+			</a>
+
+			<div
+				class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border overflow-hidden">
+				<!-- Header -->
+				<div class="p-5 bg-white border-b border-gray-100">
+					<div class="flex items-center justify-between">
+						<div class="flex items-center">
+							<div class="w-12 h-12 rounded-2xl bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-md flex items-center justify-center mr-4">
+								<i class="fas fa-comments text-white text-sm"></i>
+							</div>
+							<div>
+								<h5 class="mb-0 font-bold text-slate-700">Discussion:
+									{{ conversation.post.title }}</h5>
+								<p class="mb-0 text-xs text-slate-400 font-bold uppercase tracking-wider">
+									Thread avec
+									{{ isAdmin ? conversation.ownerUser.username : 'Admin Moderation' }}
+								</p>
+							</div>
+						</div>
+						<span class="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-pill font-bold shadow-soft-xs">
+							Post Refusé
+						</span>
+					</div>
+				</div>
+
+				<!-- Chat Area -->
+				<div id="chat-box" class="flex-auto overflow-y-auto bg-slate-50/50 px-8 py-6" style="height: calc(100vh - 280px); scrollbar-width: thin;">
+					<div class="flex flex-col gap-6" id="messages-container">
+						{% for message in messages %}
+							{% set isMe = message.senderUser.id == app.session.get('user_id') %}
+
+							<div class="flex {{ isMe ? 'justify-end' : 'justify-start' }} animate-fade-in message-item" data-id="{{ message.id }}" {{ isMe ? 'src-me="true"' : '' }}>
+								<div
+									class="max-w-[85%] min-w-[120px]">
+									<!-- Bubble Container -->
+									<div class="relative group">
+										<div class="p-4 rounded-2xl {{ isMe ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-tr-none shadow-soft-md' : 'bg-white text-slate-600 border border-gray-100 rounded-tl-none shadow-soft-sm' }}">
+
+											{% if not isMe %}
+												<p class="mb-2 text-xs font-bold {{ message.senderUser.role == 'ROLE_ADMIN' ? 'text-purple-700' : 'text-slate-500' }} uppercase">
+													{{ message.senderUser.username }}
+													{% if message.senderUser.role == 'ROLE_ADMIN' %}
+														<span class="text-[10px] bg-purple-100 px-2 py-0.5 rounded-md ml-1">ADMIN</span>
+													{% endif %}
+												</p>
+											{% endif %}
+
+											<p class="text-sm leading-snug whitespace-pre-wrap">{{ message.content }}</p>
+											<div class="mt-2 flex items-center {{ isMe ? 'justify-end' : 'justify-start' }} gap-3">
+												<span class="text-[10px] font-bold {{ isMe ? 'text-white/80' : 'text-slate-400' }}">
+													{{ message.createdAt|date('H:i') }}
+												</span>
+												{% if isMe %}
+													<i class="fas fa-check-double text-[10px] {{ message.isRead ? 'text-blue-300' : 'text-white/50' }} read-status" title="{{ message.isRead ? 'Lu' : 'Envoyé' }}"></i>
+												{% endif %}
+											</div>
+										</div>
+
+										<!-- Full Date on Hover -->
+										<div class="absolute {{ isMe ? 'right-full mr-3' : 'left-full ml-3' }} top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-800 text-white text-xxs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none shadow-xl">
+											{{ message.createdAt|date('d M Y H:i') }}
+										</div>
+									</div>
+								</div>
+							</div>
+						{% else %}
+							<div class="text-center py-24 opacity-30" id="empty-state">
+								<i class="fas fa-comments text-6xl mb-4 text-slate-300"></i>
+								<p class="text-lg font-bold text-slate-500">Aucun message pour le moment.</p>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+
+				<!-- Input Area -->
+				<div class="p-5 bg-white border-t border-gray-100">
+					<form id="chat-form" class="relative flex items-end gap-3">
+						<div class="flex-grow relative">
+							<textarea name="content" id="message-input" class="block w-full px-5 py-4 text-base text-slate-700 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all bg-white shadow-soft-xs" placeholder="Écrivez votre réponse ici..." rows="1" required style="resize: none; min-height: 56px; max-height: 200px;"></textarea>
+						</div>
+						<button type="submit" id="send-btn" class="bg-gradient-to-tl from-purple-700 to-pink-500 text-white min-w-[56px] h-14 rounded-2xl flex items-center justify-center shadow-soft-md hover:scale-105 active:scale-95 transition-all border-0 cursor-pointer group disabled:opacity-70 disabled:cursor-not-allowed">
+							<div id="btn-content" class="flex items-center px-4 gap-2">
+								<span class="text-sm font-bold uppercase tracking-wider hidden sm:inline">Envoyer</span>
+								<i class="fas fa-paper-plane text-sm group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+							</div>
+							<div id="btn-loading" class="hidden">
+								<i class="fas fa-circle-notch fa-spin"></i>
+							</div>
+						</button>
+					</form>
+					<div id="error-message" class="hidden mt-2 text-xs font-bold text-red-500 px-2 animate-fade-in">
+						<i class="fas fa-exclamation-circle mr-1"></i>
+						<span>Erreur lors de l'envoi.</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		#chat-box::-webkit-scrollbar {
+			width: 6px;
+		}
+		#chat-box::-webkit-scrollbar-track {
+			background: transparent;
+		}
+		#chat-box::-webkit-scrollbar-thumb {
+			background-color: #cbd5e1;
+			border-radius: 10px;
+		}
+		.animate-fade-in {
+			animation: chatFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		@keyframes chatFadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(15px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	</style>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const chatBox = document.getElementById('chat-box');
+const messagesContainer = document.getElementById('messages-container');
+const messageInput = document.getElementById('message-input');
+const form = document.getElementById('chat-form');
+const sendBtn = document.getElementById('send-btn');
+const btnContent = document.getElementById('btn-content');
+const btnLoading = document.getElementById('btn-loading');
+const errorMsg = document.getElementById('error-message');
+const emptyState = document.getElementById('empty-state');
+
+const currentUserId = {{ app.session.get('user_id') }};
+const conversationId = {{ conversation.id }};
+
+// Initialize lastId from existing messages
+const messageItems = document.querySelectorAll('.message-item');
+let lastId = 0;
+if (messageItems.length > 0) {
+lastId = parseInt(messageItems[messageItems.length - 1].dataset.id);
+}
+
+// Scroll to bottom helper
+const scrollToBottom = () => {
+chatBox.scrollTo({top: chatBox.scrollHeight, behavior: 'smooth'});
+};
+
+// Initial scroll
+chatBox.scrollTop = chatBox.scrollHeight;
+
+// Auto-expand textarea
+messageInput.addEventListener('input', function () {
+this.style.height = 'auto';
+const newHeight = Math.min(this.scrollHeight, 200);
+this.style.height = newHeight + 'px';
+this.style.overflowY = this.scrollHeight > 200 ? 'auto' : 'hidden';
+});
+
+// Submit form handler
+form.addEventListener('submit', async function (e) {
+e.preventDefault();
+const content = messageInput.value.trim();
+if (! content) 
+return;
+
+
+
+// Loading state
+sendBtn.disabled = true;
+btnContent.classList.add('hidden');
+btnLoading.classList.remove('hidden');
+errorMsg.classList.add('hidden');
+
+try {
+const formData = new FormData();
+formData.append('content', content);
+
+const response = await fetch (`/messages/conversation/${conversationId}/send`, {
+method: 'POST',
+body: formData
+});
+
+if (! response.ok) 
+throw new Error('Failed to send');
+
+
+
+const data = await response.json();
+
+// Append message to UI
+appendMessage(data, true);
+
+// Update lastId if this message ID is newer
+if (data.id > lastId) 
+lastId = data.id;
+
+
+
+// Clear input
+messageInput.value = '';
+messageInput.style.height = '56px';
+
+if (emptyState) 
+emptyState.remove();
+
+
+
+scrollToBottom();
+
+} catch (error) {
+console.error(error);
+errorMsg.classList.remove('hidden');
+} finally {
+sendBtn.disabled = false;
+btnContent.classList.remove('hidden');
+btnLoading.classList.add('hidden');
+}
+});
+
+// Live Polling Function
+async function pollNewMessages() {
+try {
+const response = await fetch(`/messages/conversation/${conversationId}/since?lastId=${lastId}`);
+if (response.ok) {
+const data = await response.json();
+const newMessages = data.messages;
+const fetchedLastReadId = data.lastReadId;
+
+// Update read status for my own messages
+if (fetchedLastReadId > 0) {
+const readStatuses = document.querySelectorAll('.message-item[src-me="true"] .read-status');
+readStatuses.forEach(statusIcon => {
+const msgId = parseInt(statusIcon.closest('.message-item').dataset.id);
+if (msgId <= fetchedLastReadId) {
+statusIcon.classList.remove('text-white/50');
+statusIcon.classList.add('text-blue-400');
+statusIcon.title = 'Lu';
+}
+});
+}
+
+if (newMessages.length > 0) {
+newMessages.forEach(msg => {
+if (!msg.isMe) {
+appendMessage(msg, false);
+}
+if (msg.id > lastId) 
+lastId = msg.id;
+
+
+});
+
+if (emptyState && newMessages.length > 0) 
+emptyState.remove();
+
+
+scrollToBottom();
+}
+}
+} catch (e) {
+console.error('Polling error:', e);
+}
+}
+
+// Start polling every 3 seconds
+setInterval(pollNewMessages, 3000);
+
+function appendMessage(data, isMe) {
+const div = document.createElement('div');
+div.className = `flex ${
+isMe ? 'justify-end' : 'justify-start'
+} animate-fade-in message-item`;
+div.dataset.id = data.id;
+if (isMe) 
+div.setAttribute('src-me', 'true');
+
+
+
+const bubbleClass = isMe ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-tr-none shadow-soft-md' : 'bg-white text-slate-600 border border-gray-100 rounded-tl-none shadow-soft-sm';
+const alignmentClass = isMe ? 'justify-end' : 'justify-start';
+const textMutedClass = isMe ? 'text-white/80' : 'text-slate-400';
+const datePositionClass = isMe ? 'right-full mr-3' : 'left-full ml-3';
+
+div.innerHTML = `
+        <div class="max-w-[85%] min-w-[120px]">
+            <div class="relative group">
+                <div class="p-4 rounded-2xl ${bubbleClass}">
+                    ${
+! isMe ? `
+                        <p class="mb-2 text-xs font-bold ${
+data.isAdmin ? 'text-purple-700' : 'text-slate-500'
+} uppercase">
+                            ${
+data.sender
+}
+                            ${
+data.isAdmin ? '<span class="text-[10px] bg-purple-100 px-2 py-0.5 rounded-md ml-1">ADMIN</span>' : ''
+}
+                        </p>
+                    ` : ''
+}
+                    <p class="text-sm leading-snug whitespace-pre-wrap">${
+escapeHTML(data.content)
+}</p>
+                    <div class="mt-2 flex items-center ${alignmentClass} gap-3">
+                        <span class="text-[10px] font-bold ${textMutedClass}">${
+data.createdAt
+}</span>
+                        ${
+isMe ? `<i class="fas fa-check-double text-[10px] text-white/50 read-status" title="Envoyé"></i>` : ''
+}
+                    </div>
+                </div>
+                <div class="absolute ${datePositionClass} top-1/2 -translate-y-1/2 px-3 py-1.5 bg-slate-800 text-white text-xxs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none shadow-xl">
+                    ${
+data.fullDate
+}
+                </div>
+            </div>
+        </div>
+    `;
+messagesContainer.appendChild(div);
+}
+
+function escapeHTML(str) {
+const p = document.createElement('p');
+p.textContent = str;
+return p.innerHTML;
+}
+
+// Submit on Enter (Shift+Enter for newline)
+messageInput.addEventListener('keydown', function (e) {
+if (e.key === 'Enter' && ! e.shiftKey) {
+e.preventDefault();
+form.dispatchEvent(new Event('submit'));
+}
+});
+});
+	</script>
+{% endblock %}

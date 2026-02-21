@@ -49,7 +49,7 @@ class GoogleOAuthController extends AbstractController
         $client->setScopes([Drive::DRIVE_FILE]);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
-        $client->setRedirectUri('http://127.0.0.1:8001/google/oauth/callback');
+        $client->setRedirectUri('http://127.0.0.1:8000/google/oauth/callback');
 
         return $client;
     }

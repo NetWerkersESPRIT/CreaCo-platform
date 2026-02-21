@@ -60,6 +60,13 @@
 								Solved
 							</span>
 						{% endif %}
+
+						{% if post.status == 'refused' %}
+							<span class="ml-3 text-xxs bg-red-100 text-red-700 px-2 py-1 rounded-pill font-bold">
+								<i class="fas fa-times-circle mr-1"></i>
+								Refused
+							</span>
+						{% endif %}
 					</div>
 				</div>
 
@@ -76,6 +83,29 @@
 								Elle sera visible par tout le monde une fois approuvée.
 							</p>
 						</div>
+					</div>
+				{% elseif post.status == 'refused' %}
+					<div class="px-6 py-4 bg-red-50 border-y border-red-100 flex items-center justify-between gap-4">
+						<div class="flex items-center gap-4">
+							<div class="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+								<i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+							</div>
+							<div class="flex flex-col">
+								<p class="mb-0 text-red-800 font-bold text-sm tracking-tight">
+									Post refusé
+								</p>
+								<p class="mb-0 text-red-600 text-xs font-medium">
+									Raison :
+									{{ post.refusalReason ?: 'Non spécifiée' }}
+								</p>
+							</div>
+						</div>
+						{% if isPostOwner and post.conversation %}
+							<a href="{{ path('app_conversation_show', {'id': post.conversation.id}) }}" class="px-4 py-2 text-xs font-bold text-white uppercase bg-red-600 rounded-lg shadow-md hover:bg-red-700 transition-all no-underline">
+								<i class="fas fa-comments mr-1"></i>
+								Contacter l'admin
+							</a>
+						{% endif %}
 					</div>
 				{% endif %}
 
@@ -368,10 +398,12 @@ if (! dropdown)
 return;
 
 
+
 // Close all other dropdowns
 document.querySelectorAll('.share-dropdown-menu').forEach(d => {
 if (d.id !== id) 
 d.classList.add('hidden');
+
 
 });
 
@@ -382,6 +414,7 @@ async function copyToClipboard(text, dropdownId) {
 const dropdown = document.getElementById(dropdownId);
 if (dropdown) 
 dropdown.classList.add('hidden');
+
 
 
 try {

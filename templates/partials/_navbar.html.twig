@@ -89,6 +89,32 @@
 						</div>
 					</div>
 
+					<!-- Global Notification Bell -->
+					<li class="relative flex items-center pr-2">
+						<p class="hidden transform-dropdown-show"></p>
+						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
+							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
+								<i class="fixed-plugin-button-nav cursor-pointer fa fa-bell"></i>
+								<!-- Notification Badge -->
+								<span id="notif-badge" class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+							</div>
+						</a>
+
+						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
+							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
+								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
+							</div>
+							<div
+								id="notif-list-container" class="max-h-64 overflow-y-auto">
+								<!-- Notifications will be loaded here via JS -->
+								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">Aucune notification</div>
+							</div>
+							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
+								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">Voir tout</a>
+							</div>
+						</ul>
+					</li>
+
 					<!-- Logout Button -->
 					<li>
 						<a href="{{ path('app_logout') }}">

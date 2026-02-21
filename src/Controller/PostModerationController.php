@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Entity\Notification;
+use App\Entity\Conversation;
+use App\Entity\Message;
 use App\Entity\Users;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -101,16 +103,45 @@ class PostModerationController extends AbstractController
 
             // Notify author
             if ($post->getUser()) {
+                // Get current admin user from session or security
+                /** @var Users|null $admin */
+                $admin = $em->getRepository(Users::class)->find($request->getSession()->get('user_id'));
+
+                // Handle Conversation
+                $conversation = $post->getConversation();
+                if (!$conversation) {
+                    $conversation = new Conversation();
+                    $conversation->setPost($post);
+                    $conversation->setOwnerUser($post->getUser());
+                    if ($admin) {
+                        $conversation->setAdminUser($admin);
+                    }
+                    $em->persist($conversation);
+                }
+
+                // Create first message
+                $message = new Message();
+                $message->setConversation($conversation);
+                $message->setSenderUser($admin);
+                $message->setContent("Post refusé: " . $reason);
+                $em->persist($message);
+
                 $notification = new Notification();
                 $notification->setMessage('Your post "' . $post->getTitle() . '" has been refused: ' . $reason);
                 $notification->setIsRead(false);
                 $notification->setCreatedAt(new \DateTime());
                 $notification->setUserId($post->getUser());
-                $notification->setTargetUrl($this->generateUrl('app_post_show', ['id' => $post->getId()]));
                 $em->persist($notification);
-            }
+                
+                // Flush once to ensure conversation and notification are persisted
+                $em->flush();
 
-            $em->flush();
+                // Now that we have an ID for the conversation, set the target URL and flush again
+                $notification->setTargetUrl($this->generateUrl('app_conversation_show', ['id' => $conversation->getId()]));
+                $em->flush();
+            } else {
+                $em->flush();
+            }
 
             return $this->redirectToRoute('admin_post_pending');
         }

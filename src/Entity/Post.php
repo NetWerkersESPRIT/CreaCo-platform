@@ -108,6 +108,9 @@ private ?string $pdfDriveLink = null;
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $comments;
 
+    #[ORM\OneToOne(mappedBy: 'post', targetEntity: Conversation::class, cascade: ['persist', 'remove'])]
+    private ?Conversation $conversation = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -358,6 +361,23 @@ public function getPdfDriveLink(): ?string
 public function setPdfDriveLink(?string $pdfDriveLink): static
 {
     $this->pdfDriveLink = $pdfDriveLink;
+    return $this;
+}
+
+public function getConversation(): ?Conversation
+{
+    return $this->conversation;
+}
+
+public function setConversation(Conversation $conversation): static
+{
+    // set the owning side of the relation if necessary
+    if ($conversation->getPost() !== $this) {
+        $conversation->setPost($this);
+    }
+
+    $this->conversation = $conversation;
+
     return $this;
 }
 }

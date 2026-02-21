@@ -1,79 +1,102 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Notifications
-{% endblock %}
-{% block page_title %}Notifications
-{% endblock %}
-{% block breadcrumb %}User / Notifications
+{% block title %}Mes Notifications
 {% endblock %}
 
 {% block body %}
-	<div class="flex flex-wrap -mx-3">
-		<div class="flex-none w-full max-w-full px-3">
-			<div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-				<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex items-center justify-between">
-					<h6>Your Notifications</h6>
-					{% if notifications|length > 0 %}
-						<form action="{{ path('app_notifications_mark_all_seen') }}" method="POST" class="m-0">
-							<button type="submit" class="px-6 py-2 text-xs font-bold text-slate-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all uppercase border-0 cursor-pointer">
-								Mark all as seen
-							</button>
-						</form>
-					{% endif %}
-				</div>
-				<div class="flex-auto px-0 pt-0 pb-2">
-					<div class="p-0 overflow-x-auto">
-						<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-							<tbody>
-								{% for notification in notifications %}
-									<tr onclick="window.location.href='{{ path('app_notification_read', {id: notification.id}) }}'" class="hover:bg-gray-50/80 transition-all cursor-pointer group {{ notification.isRead ? 'opacity-60' : 'bg-white' }}">
-										<td class="p-4 align-middle bg-transparent border-b shadow-transparent relative">
-											{% if not notification.isRead %}
-												<div class="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-full shadow-soft-md"></div>
-											{% endif %}
-											<div class="flex px-2 py-1">
-												<div class="mr-4 flex items-center">
-													<div class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tl
-																													{% if 'approved' in notification.message|lower %}from-green-600 to-lime-400
-																													{% elseif 'refused' in notification.message|lower %}from-red-600 to-rose-400
-																													{% elseif 'waiting' in notification.message|lower or 'pending' in notification.message|lower %}from-orange-500 to-yellow-400
-																													{% else %}from-purple-700 to-pink-500{% endif %}
-																													text-white shadow-soft-2xl group-hover:scale-110 transition-transform">
-														<i class="fas
-																														{% if 'approved' in notification.message|lower %}fa-check-circle
-																														{% elseif 'refused' in notification.message|lower %}fa-times-circle
-																														{% elseif 'waiting' in notification.message|lower or 'pending' in notification.message|lower %}fa-clock
-																														{% else %}fa-bell{% endif %}"></i>
-													</div>
-												</div>
-												<div class="flex flex-col justify-center">
-													<h6 class="mb-0 text-sm {{ notification.isRead ? 'font-normal text-slate-500' : 'font-bold text-slate-700' }} leading-tight">
-														{{ notification.message }}
-													</h6>
-													<p class="mb-0 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">
-														<i class="far fa-clock mr-1"></i>
-														{{ notification.createdAt|date('M j, Y • g:i a') }}
-													</p>
-												</div>
-											</div>
-										</td>
-										<td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-right">
-											<i class="fas fa-chevron-right text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-										</td>
-									</tr>
-								{% else %}
-									<tr>
-										<td colspan="2" class="p-12 text-center text-slate-400 font-bold uppercase tracking-wider text-xs">
-											<i class="fas fa-bell-slash text-5xl mb-4 opacity-20 block"></i>
-											No notifications yet
-										</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-						</table>
+	<div class="flex flex-wrap -mx-3 items-center justify-center py-8">
+		<div class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
+			<div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+					<div class="flex flex-wrap -mx-3">
+						<div class="flex items-center w-full max-w-full px-3 shrink-0 md:w-8/12 md:flex-none">
+							<h6 class="mb-0 font-bold">Toutes mes Notifications</h6>
+						</div>
 					</div>
+				</div>
+				<div class="flex-auto p-6">
+					<ul class="flex flex-col pl-0 mb-0 rounded-lg">
+						{% for notification in notifications %}
+							<li class="relative flex p-4 mb-3 border-0 rounded-2xl transition-all duration-300 {{ notification.isRead ? 'bg-gray-50 opacity-60' : 'bg-white shadow-soft-sm border border-fuchsia-50' }}" id="notif-{{ notification.id }}">
+								<div class="flex flex-col w-full">
+									<div class="flex items-start justify-between">
+										<div class="flex items-center">
+											<div class="w-10 h-10 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-md flex items-center justify-center mr-4 shrink-0">
+												<i class="fas {{ notification.type == 'MESSAGE' ? 'fa-envelope' : 'fa-bell' }} text-white text-xs"></i>
+											</div>
+											<div>
+												<p class="mb-0 text-sm font-bold text-slate-700 leading-tight">{{ notification.message }}</p>
+												<p class="mb-0 text-xxs text-slate-400 font-semibold uppercase mt-1">
+													<i class="far fa-clock mr-1"></i>
+													{{ notification.createdAt|date('d M Y H:i') }}
+												</p>
+											</div>
+										</div>
+										<div class="flex flex-col items-end gap-2 ml-4">
+											{% if not notification.isRead %}
+												<span class="badge-new bg-gradient-to-tl from-purple-700 to-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-soft-xs">Nouveau</span>
+											{% endif %}
+										</div>
+									</div>
+									<div class="flex items-center justify-between mt-4">
+										<div>
+											{% if notification.targetUrl %}
+												<a href="{{ notification.targetUrl }}" class="text-xs font-bold text-purple-700 hover:text-pink-500 transition-all uppercase no-underline flex items-center gap-1" onclick="markAsRead({{ notification.id }})">
+													<i class="fas fa-arrow-right text-[10px]"></i>
+													Voir les détails
+												</a>
+											{% endif %}
+										</div>
+										{% if not notification.isRead %}
+											<button onclick="markAsRead({{ notification.id }}, this)" class="btn-mark-read text-[10px] font-bold text-slate-400 hover:text-purple-700 transition-all uppercase border-0 bg-transparent cursor-pointer tracking-wide flex items-center gap-1">
+												<i class="fas fa-check"></i>
+												Marquer comme lu
+											</button>
+										{% endif %}
+									</div>
+								</div>
+							</li>
+						{% else %}
+							<div class="text-center py-24 opacity-30">
+								<i class="fas fa-bell-slash text-6xl mb-4 text-slate-300"></i>
+								<p class="text-lg font-bold text-slate-500 uppercase tracking-wider">Aucune notification</p>
+							</div>
+						{% endfor %}
+					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
+
+	<script>
+		async function markAsRead(id, btn) {
+try {
+const response = await fetch (`/notifications/api/${id}/read`, {method: 'POST'});
+if (response.ok) {
+const li = document.getElementById (`notif-${id}`);
+if (li) {
+li.classList.remove('bg-white', 'shadow-soft-sm', 'border', 'border-fuchsia-50');
+li.classList.add('bg-gray-50', 'opacity-60');
+
+const badge = li.querySelector('.badge-new');
+if (badge) 
+badge.classList.add('hidden');
+
+
+// If user clicked the button, remove it
+if (btn) {
+btn.classList.add('hidden');
+} else { // If they clicked the link, the button should also disappear if they come back
+const actionBtn = li.querySelector('.btn-mark-read');
+if (actionBtn) 
+actionBtn.classList.add('hidden');
+
+}
+}
+}
+} catch (e) {
+console.error('Error marking as read', e);
+}
+}
+	</script>
 {% endblock %}
