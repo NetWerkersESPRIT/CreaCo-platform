@@ -40,6 +40,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $points = 0;
+
     /**
      * @var Collection<int, Reservation>
      */
@@ -417,5 +420,28 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getComments(): Collection
     {
         return $this->comments;
+    }
+
+    public function getPoints(): ?int
+    {
+        return $this->points ?? 0;
+    }
+
+    public function setPoints(?int $points): static
+    {
+        $this->points = $points;
+        return $this;
+    }
+
+    public function addPoints(int $points): static
+    {
+        $this->points = ($this->points ?? 0) + $points;
+        return $this;
+    }
+
+    public function removePoints(int $points): static
+    {
+        $this->points = max(0, ($this->points ?? 0) - $points);
+        return $this;
     }
 }

@@ -81,34 +81,51 @@ final class FrontController extends AbstractController
 
     // READ LISTE DES RESSOURCES PAR COURS (avec filtrage par type et recherche)
     #[Route('/course/{id}', name: 'app_front_course')]
-    public function course(\Symfony\Component\HttpFoundation\Request $request, Cours $course, RessourceRepository $resRepo, \Doctrine\ORM\EntityManagerInterface $em): Response
+    public function course(
+        \Symfony\Component\HttpFoundation\Request $request,
+        Cours $course,
+        RessourceRepository $resRepo,
+        \Doctrine\ORM\EntityManagerInterface $em,
+        \App\Service\GamificationService $gamificationService = null
+    ): Response
     {
         // Redirection Admin vers Back-office (Détail du cours)
         $userRole = $request->getSession()->get('user_role');
         if ($userRole === 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_cours_show', ['id' => $course->getId()]);
         }
-        
+
         // INCREMENT VIEW COUNT
         $course->setViews(($course->getViews() ?? 0) + 1);
         $em->flush();
 
         $search = $request->query->get('search');
         $type = $request->query->get('type');
- 
+
          $filters = [
              'cours' => $course->getId(),
              'search' => $search,
              'type' => $type
          ];
- 
+
          $ressources = $resRepo->findWithFilters($filters);
- 
+
+         // Get user progress for this course
+         $progressData = null;
+         $userId = $request->getSession()->get('user_id');
+         if ($userId && $gamificationService) {
+             $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
+             if ($user) {
+                 $progressData = $gamificationService->getUserCourseProgress($user, $course);
+             }
+         }
+
          return $this->render('front/course/show.html.twig', [
              'course' => $course,
              'ressources' => $ressources,
              'search' => $search,
-             'current_type' => $type
+             'current_type' => $type,
+             'progress' => $progressData
          ]);
     }
 }
