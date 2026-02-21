@@ -168,6 +168,44 @@ final class RessourceController extends AbstractController
         ]);
     }
 
+    #[Route('/view/{id}', name: 'app_ressource_view', methods: ['GET'])]
+    public function view(
+        Request $request,
+        Ressource $ressource,
+        EntityManagerInterface $entityManager,
+        \App\Service\GamificationService $gamificationService
+    ): Response
+    {
+        // Check if user is authenticated (ROLE_CONTENT_CREATOR, ROLE_MANAGER, ROLE_MEMBER, ROLE_ADMIN)
+        $allowedRoles = ['ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_ADMIN'];
+        $userRole = $request->getSession()->get('user_role');
+
+        if (!in_array($userRole, $allowedRoles)) {
+            throw $this->createAccessDeniedException('Access denied. You must be logged in to view resources.');
+        }
+
+        // Get current user
+        $userId = $request->getSession()->get('user_id');
+        $user = $userId ? $entityManager->getRepository(\App\Entity\Users::class)->find($userId) : null;
+
+        if ($user) {
+            // Mark resource as opened and award points
+            $result = $gamificationService->markResourceAsOpened($user, $ressource);
+
+            if ($result['first_open']) {
+                $this->addFlash('success', sprintf(
+                    'Félicitations ! Vous avez gagné %d points ! Total: %d points',
+                    $result['points_earned'],
+                    $result['total_points']
+                ));
+            }
+        }
+
+        return $this->render('front/ressource/view.html.twig', [
+            'ressource' => $ressource,
+        ]);
+    }
+
     #[Route('/{id}/edit', name: 'app_ressource_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Ressource $ressource, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
