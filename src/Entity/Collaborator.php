@@ -62,7 +62,7 @@ class Collaborator
     #[ORM\Column]
     private bool $isPublic = false;
 
-    #[ORM\ManyToOne(targetEntity: Users::class)]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'collaborators')]
     #[ORM\JoinColumn(name: "added_by_user_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Users $addedBy = null;
 

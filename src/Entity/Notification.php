@@ -26,6 +26,9 @@ class Notification
     #[ORM\JoinColumn(nullable: false)]
     private ?Users $user_id = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $targetUrl = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class Notification
     public function setUserId(?Users $user_id): static
     {
         $this->user_id = $user_id;
+
+        return $this;
+    }
+
+    public function getTargetUrl(): ?string
+    {
+        return $this->targetUrl;
+    }
+
+    public function setTargetUrl(?string $targetUrl): static
+    {
+        $this->targetUrl = $targetUrl;
 
         return $this;
     }

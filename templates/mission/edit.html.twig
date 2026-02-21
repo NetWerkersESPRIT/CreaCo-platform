@@ -17,10 +17,37 @@
                         <a href="{{ path('app_mission_index') }}" class="text-sm font-bold text-slate-700 hover:text-fuchsia-500 transition-all">
                             <i class="fas fa-arrow-left mr-1"></i> Back to list
                         </a>
-                        {{ include('mission/_delete_form.html.twig') }}
+                        {% if is_granted('ROLE_ADMIN') or app.user == mission.assignedBy %}
+                        <button type="button" onclick="confirmDeleteMission('{{ path('app_mission_delete', {'id': mission.id}) }}', '{{ mission.title }}')" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-red-600 to-red-400">
+                            <i class="fas fa-trash-alt mr-1"></i> Delete
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function confirmDeleteMission(deleteUrl, missionTitle) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to delete '" + missionTitle + "'. This action cannot be undone!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#cb0c9f',
+        cancelButtonColor: '#8392ab',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = deleteUrl;
+        }
+    })
+}
+</script>
 {% endblock %}

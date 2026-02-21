@@ -55,12 +55,31 @@
 
     <div class="mb-4">
         {{ form_label(form.missionDate, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-        {% set date_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.missionDate.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-        {{ form_widget(form.missionDate, {'attr': {'class': date_class}}) }}
+        <div class="flex flex-wrap -mx-3">
+            <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+                {% set date_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.missionDate.date.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+                {{ form_widget(form.missionDate.date, {'attr': {'class': date_class, 'placeholder': 'Select Date'}}) }}
+            </div>
+            <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+                {% set time_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.missionDate.time.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+                {{ form_widget(form.missionDate.time, {'attr': {'class': time_class, 'placeholder': 'Select Time'}}) }}
+            </div>
+        </div>
         {% if not form.missionDate.vars.valid %}
             {% for error in form.missionDate.vars.errors %}
                 <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
                     {{ form.missionDate.vars.label }} : {{ error.message }}
+                </label>
+            {% endfor %}
+            {# Also show errors for subfields if any #}
+            {% for error in form.missionDate.date.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    Date : {{ error.message }}
+                </label>
+            {% endfor %}
+            {% for error in form.missionDate.time.vars.errors %}
+                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+                    Time : {{ error.message }}
                 </label>
             {% endfor %}
         {% endif %}
@@ -77,16 +96,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ideaSelect = document.querySelector('select[name*="[implementIdea]"]');
     if (ideaSelect) {
-        // Add the "New Idea" option
-        const newOption = document.createElement('option');
-        newOption.value = 'CREATE_NEW';
-        newOption.text = '++ Create new idea ++';
-        newOption.style.fontWeight = 'bold';
-        newOption.style.color = '#cb0c9f';
-        ideaSelect.appendChild(newOption);
+        // Add "Create New Idea" option
+        const createOption = document.createElement('option');
+        createOption.value = '__create_new__';
+        createOption.textContent = '➕ Create New Idea';
+        createOption.style.fontWeight = 'bold';
+        createOption.style.color = '#9333ea';
+        ideaSelect.insertBefore(createOption, ideaSelect.firstChild.nextSibling);
 
         ideaSelect.addEventListener('change', function() {
-            if (this.value === 'CREATE_NEW') {
+            if (this.value === '__create_new__') {
                 // Get current form data to preserve it
                 const title = document.querySelector('input[name*="[title]"]').value;
                 const desc = document.querySelector('textarea[name*="[description]"]').value;

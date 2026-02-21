@@ -35,20 +35,10 @@ class TaskType extends AbstractType
                     new NotBlank(['message' => 'Description is required']),
                 ],
             ])
-            ->add('state', ChoiceType::class, [
-                'label' => 'Status',
-                'choices' => [
-                    'To Do' => 'todo',
-                    'In Progress' => 'in_progress',
-                    'Completed' => 'completed',
-                ],
-                'constraints' => [
-                    new NotBlank(['message' => 'Status is required']),
-                ],
-            ])
-            ->add('timeTlimit', DateTimeType::class, [
+            ->add('timeLimit', DateTimeType::class, [
                 'label' => 'Deadline',
-                'widget' => 'single_text',
+                'date_widget' => 'single_text',
+                'time_widget' => 'single_text',
                 'required' => false,
             ])
             ->add('belongTo', EntityType::class, [

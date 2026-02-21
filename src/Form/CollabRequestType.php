@@ -23,15 +23,15 @@ class CollabRequestType extends AbstractType
             ->add('collaborator', EntityType::class, [
                 'class' => Collaborator::class,
                 'choice_label' => 'companyName',
-                'label' => 'Partenaire concerné',
-                'placeholder' => 'Sélectionnez un partenaire',
+                'label' => 'Concerned partner',
+                'placeholder' => 'Select a partner',
                 'required' => true,
             ])
             ->add('title', TextType::class, [
-                'label' => 'Titre de la demande'
+                'label' => 'Request title'
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description détaillée',
+                'label' => 'Detailed description',
                 'attr' => ['rows' => 8]
             ])
             ->add('budget', MoneyType::class, [
@@ -40,34 +40,34 @@ class CollabRequestType extends AbstractType
                 'required' => false,
             ])
             ->add('startDate', DateType::class, [
-                'label' => 'Date de début',
+                'label' => 'Start date',
                 'widget' => 'single_text',
             ])
             ->add('endDate', DateType::class, [
-                'label' => 'Date de fin',
+                'label' => 'End date',
                 'widget' => 'single_text',
             ])
             ->add('deliverables', TextareaType::class, [
-                'label' => 'Livrables attendus',
+                'label' => 'Expected deliverables',
                 'required' => false,
                 'attr' => [
                     'rows' => 5,
-                    'placeholder' => 'Décrivez les livrables attendus'
+                    'placeholder' => 'Describe the expected deliverables'
                 ]
             ])
             ->add('paymentTerms', TextareaType::class, [
-                'label' => 'Conditions de paiement',
+                'label' => 'Payment terms',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'placeholder' => 'ex: 50% au démarrage, 50% à la livraison'
+                    'placeholder' => 'e.g.: 50% at start, 50% on delivery'
                 ]
             ])
             ->add('revisor', EntityType::class, [
                 'class' => Users::class,
                 'choice_label' => 'username',
-                'label' => 'Sélectionnez un manager pour révision',
-                'placeholder' => 'Choisissez un manager',
+                'label' => 'Select a manager for revision',
+                'placeholder' => 'Choose a manager',
                 'required' => true,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('u')

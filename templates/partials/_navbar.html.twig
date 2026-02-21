@@ -1,75 +1,133 @@
-      <nav
-        class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start"
-        navbar-main
-        navbar-scroll="true">
-        <div
-          class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
-          <nav>
-            <ol
-              class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
-              <li class="leading-normal text-sm">
-                <a class="opacity-50 text-slate-700" href="javascript:;"
-                  >Pages</a
-                >
-              </li>
-              <li
-                class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']"
-                aria-current="page">
-                {% block breadcrumb %}Dashboard{% endblock %}
-              </li>
-            </ol>
-            <h6 class="mb-0 font-bold capitalize">{% block page_title %}Dashboard{% endblock %}</h6>
-          </nav>
+<!-- Navbar -->
+<nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
+	<div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
+		<nav>
+			{% set breadcrumb_mapping = {
+				'app_home': 'Dashboard',
+				'forum_index': 'Forum',
+				'app_post_show': 'Forum',
+				'app_post_new': 'Forum',
+				'app_post_edit': 'Forum',
+				'admin_post_pending': 'Pending Posts',
+				'admin_post_pending_show': 'Pending Posts',
+				'app_useradd': 'Users',
+				'app_profile': 'Users',
+				'google_signup_start': 'Users',
+				'google_signup_check': 'Users',
+				'app_auth': 'Login'
+			} %}
+			{% set current_route = app.request.attributes.get('_route') %}
+			{% set module_name = breadcrumb_mapping[current_route] ?? 'Dashboard' %}
 
-          <div
-            class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
-            <div class="flex items-center md:ml-auto md:pr-4">
-            </div>
-            <ul
-              class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
-              {% if app_user %}
-              <div class="relative flex min-w-0 mb-6 mt-2 bg-white shadow-soft-xl rounded-xl bg-clip-border">
-                <div class="pt-2 pr-4 pl-4 pb-2 flex-col w-md">
-                  <div class="flex flex-wrap w-full">
-                    <div class="max-w-full px-3 pr-6 flex items-center w-screen">
-                      <div class="flex flex-col">
-                        <p class="mb-0 font-sans font-semibold leading-normal text-sm text-purple-700 text-fuchsia-500">Welcome</p>
-                        <h5 class="mb-0 px-font-bold">
-                          {{ app_user.username }}
-                        </h5>
-                      </div>
-                    </div>
-                    <div class="w-4/12 max-w-full px-3 ml-auto text-right flex-0">
-                    <a
-                      href="{{ path('app_profile') }}">
-                      <img
-                        src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg"
-                        alt="avatar image"
-                        class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-xl"
-                      />
-                      </a>
-                  </div>
-                </div>
-              </div>
-               <li class="flex items-center pl-4 xl:hidden">
-                <a href="javascript:;" class="block p-0 text-sm transition-all ease-nav-brand text-slate-500" sidenav-trigger>
-                  <div class="w-4.5 overflow-hidden">
-                    <i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                    <i class="ease-soft mb-0.75 relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                    <i class="ease-soft relative block h-0.5 rounded-sm bg-slate-500 transition-all"></i>
-                  </div>
-                </a>
-              </li>
-            </ul>
-            <a href="{{ path('app_logout') }}">
-              <button type="button" class="relative mb-4 bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-102">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-                </svg>
-              </button>
-            </a>
-            {% endif %}
-          </div>
-        </div>
-      </nav>
-      <!-- end Navbar -->
+			<ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+				<li class="leading-normal text-sm">
+					<a class="opacity-50 text-slate-700" href="javascript:;">Pages</a>
+				</li>
+				<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+					{% block breadcrumb %}
+						{{ module_name }}
+					{% endblock %}
+				</li>
+			</ol>
+			<h6 class="mb-0 font-bold capitalize">
+				{% block page_title %}
+					{{ module_name }}
+				{% endblock %}
+			</h6>
+		</nav>
+
+		<div
+			class="flex items-center mt-2 grow sm:mt-0 md:mr-0 lg:flex lg:basis-auto justify-between gap-4">
+			<!-- Search Bar (Left Side) - Only on Forum Pages -->
+			<div class="flex items-center md:ml-auto md:pr-4">
+				{% set currentRoute = app.request.attributes.get('_route') %}
+				{% if currentRoute in ['forum_index', 'app_post_show'] %}
+					<form action="{{ path('forum_index') }}" method="GET" class="relative flex flex-wrap items-stretch w-64 md:w-72 transition-all rounded-xl ease-soft mb-0">
+						<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+							<i class="fas fa-search" aria-hidden="true"></i>
+						</span>
+						<input type="text" name="q" value="{{ app.request.query.get('q') }}" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative block min-w-0 flex-auto rounded-xl border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow shadow-soft-xs" placeholder="Search forum..."/>
+					</form>
+				{% endif %}
+			</div>
+
+			<!-- User Info & Actions (Right Side) -->
+			<ul class="flex flex-row items-center justify-end pl-0 mb-0 list-none gap-4">
+				{% if app_user %}
+					<!-- User Card -->
+					<div class="relative flex min-w-0 mb-0 mt-0 bg-white shadow-soft-xl rounded-xl bg-clip-border">
+						<div class="pt-2 pr-4 pl-4 pb-2 flex-col w-md">
+							<div class="flex flex-wrap w-full">
+								<div class="max-w-full px-3 pr-6 flex items-center">
+									<div class="flex flex-col mr-4 text-right">
+										<p class="mb-0 font-sans font-semibold leading-normal text-sm text-fuchsia-500">Welcome</p>
+										<h5 class="mb-0 font-bold text-slate-700">
+											{{ app_user.username }}
+										</h5>
+									</div>
+
+									{% if app_user.role == 'ROLE_ADMIN' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-gray-900 to-slate-800 align-baseline font-bold uppercase leading-none text-white">Admin</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_CONTENT_CREATOR' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-purple-700 to-pink-500 align-baseline font-bold uppercase leading-none text-white">Content Creator</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_MANAGER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-green-600 to-lime-400 align-baseline font-bold uppercase leading-none text-white">Manager</span>
+									{% endif %}
+									{% if app_user.role == 'ROLE_MEMBER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-blue-600 to-cyan-400 align-baseline font-bold uppercase leading-none text-white">Member</span>
+									{% endif %}
+								</div>
+
+								<div class="w-auto max-w-full px-3 ml-auto -mx-3 text-right flex-0 hover:scale-102 transition-all duration-200 ease-in-out hover:border-4 hover:border-pink-500 hover:rounded-xl rounded-full">
+									<a href="{{ path('app_profile') }}">
+										<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="avatar image" class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-full"/>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Global Notification Bell -->
+					<li class="relative flex items-center pr-2">
+						<p class="hidden transform-dropdown-show"></p>
+						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
+							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
+								<i class="fixed-plugin-button-nav cursor-pointer fa fa-bell"></i>
+								<!-- Notification Badge -->
+								<span id="notif-badge" class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+							</div>
+						</a>
+
+						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
+							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
+								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
+							</div>
+							<div
+								id="notif-list-container" class="max-h-64 overflow-y-auto">
+								<!-- Notifications will be loaded here via JS -->
+								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">Aucune notification</div>
+							</div>
+							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
+								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">Voir tout</a>
+							</div>
+						</ul>
+					</li>
+
+					<!-- Logout Button -->
+					<li>
+						<a href="{{ path('app_logout') }}">
+							<button type="button" class="relative bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-105 transition-transform">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+								</svg>
+							</button>
+						</a>
+					</li>
+				{% endif %}
+			</ul>
+		</div>
+	</div>
+</nav>
+<!-- end Navbar -->

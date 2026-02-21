@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 class Task
@@ -23,10 +25,10 @@ class Task
     private ?string $state = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $cratedAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $timeTlimit = null;
+    private ?\DateTime $timeLimit = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasksIssued')]
     #[ORM\JoinColumn(nullable: false)]
@@ -37,6 +39,9 @@ class Task
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     private ?Mission $belongTo = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTime $completedAt = null;
 
     public function getId(): ?int
     {
@@ -79,26 +84,26 @@ class Task
         return $this;
     }
 
-    public function getCratedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->cratedAt;
+        return $this->createdAt;
     }
 
-    public function setCratedAt(\DateTimeImmutable $cratedAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->cratedAt = $cratedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getTimeTlimit(): ?\DateTime
+    public function getTimeLimit(): ?\DateTime
     {
-        return $this->timeTlimit;
+        return $this->timeLimit;
     }
 
-    public function setTimeTlimit(?\DateTime $timeTlimit): static
+    public function setTimeLimit(?\DateTime $timeLimit): static
     {
-        $this->timeTlimit = $timeTlimit;
+        $this->timeLimit = $timeLimit;
 
         return $this;
     }
@@ -135,6 +140,36 @@ class Task
     public function setBelongTo(?Mission $belongTo): static
     {
         $this->belongTo = $belongTo;
+
+        return $this;
+    }
+
+    #[Assert\Callback]
+    public function validateDeadline(ExecutionContextInterface $context): void
+    {
+        if (!$this->timeLimit) {
+            return;
+        }
+
+        $now = new \DateTime();
+
+        // If it's a new task, compare with 'now'
+        // If it's an existing task, compare with 'now' as well to prevent moving to past
+        if ($this->timeLimit < $now) {
+            $context->buildViolation('The deadline cannot be in the past.')
+                ->atPath('timeLimit')
+                ->addViolation();
+        }
+    }
+
+    public function getCompletedAt(): ?\DateTime
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTime $completedAt): static
+    {
+        $this->completedAt = $completedAt;
 
         return $this;
     }

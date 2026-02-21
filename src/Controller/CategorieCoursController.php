@@ -16,8 +16,13 @@ class CategorieCoursController extends AbstractController
 {
     // READ LIST CATEG
     #[Route('/', name: 'app_categorie_cours_index', methods: ['GET'])]
-    public function index(CategorieCoursRepository $categorieCoursRepository): Response
+    public function index(Request $request, CategorieCoursRepository $categorieCoursRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/categorie_cours/index.html.twig', [
             'categorie_cours' => $categorieCoursRepository->findAll(),
         ]);
@@ -27,6 +32,11 @@ class CategorieCoursController extends AbstractController
     #[Route('/new', name: 'app_categorie_cours_new', methods: ['GET', 'POST'])]
     public function new(Request $request, CategorieCoursRepository $categorieCoursRepository): Response
     {   
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // Création d'une nouvelle instance de l'entité
         $categorieCours = new CategorieCours();
         // Création du formulaire lié à l'entité
@@ -50,8 +60,13 @@ class CategorieCoursController extends AbstractController
 
     // READ CATEGORY BY ID
     #[Route('/{id}', name: 'app_categorie_cours_show', methods: ['GET'])]
-    public function show(CategorieCours $categorieCours): Response
+    public function show(Request $request, CategorieCours $categorieCours): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/categorie_cours/show.html.twig', [
             'categorie_cours' => $categorieCours,
         ]);
@@ -59,8 +74,13 @@ class CategorieCoursController extends AbstractController
 
     // READ LISTE DES COURS D UNE CATEGORIE SPECIFIQUE
     #[Route('/{id}/courses', name: 'app_categorie_cours_courses', methods: ['GET'])]
-    public function courses(CategorieCours $categorieCours): Response
+    public function courses(Request $request, CategorieCours $categorieCours): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         return $this->render('back/categorie_cours/courses.html.twig', [
             'categorie_cours' => $categorieCours,
             'cours' => $categorieCours->getCours(),
@@ -71,6 +91,11 @@ class CategorieCoursController extends AbstractController
     #[Route('/{id}/edit', name: 'app_categorie_cours_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, CategorieCours $categorieCours, CategorieCoursRepository $categorieCoursRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // creation du formulaire avec données existantes
         $form = $this->createForm(CategorieCoursType::class, $categorieCours);
         // traitement requete https
@@ -93,6 +118,11 @@ class CategorieCoursController extends AbstractController
     #[Route('/{id}', name: 'app_categorie_cours_delete', methods: ['POST'])]
     public function delete(Request $request, CategorieCours $categorieCours, CategorieCoursRepository $categorieCoursRepository): Response
     {
+        // Check if user is admin
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            throw $this->createAccessDeniedException('Access denied. Admin role required.');
+        }
+
         // verif de token avant suppression
         if ($this->isCsrfTokenValid('delete'.$categorieCours->getId(), $request->request->get('_token'))) {
             // suppression de la categorie de la BD

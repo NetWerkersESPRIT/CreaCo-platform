@@ -1,24 +1,43 @@
 <div class="flex flex-wrap -mx-3 mb-6">
     <div class="w-full max-w-full px-3">
         <ul class="flex flex-wrap list-none bg-white rounded-xl shadow-soft-xl px-4 py-2" role="tablist">
-            <li class="flex-auto text-center">
-                <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_collaborator' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
-                   href="{{ path('app_collaborator_index') }}" role="tab" aria-selected="{{ app.request.get('_route') starts with 'app_collaborator' ? 'true' : 'false' }}">
-                    <i class="fas fa-users mr-2"></i>Partenaires
-                </a>
-            </li>
-            <li class="flex-auto text-center">
-                <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_collab_request' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
-                   href="{{ path('app_collab_request_index') }}" role="tab" aria-selected="{{ app.request.get('_route') starts with 'app_collab_request' ? 'true' : 'false' }}">
-                    <i class="fas fa-file-signature mr-2"></i>Candidatures
-                </a>
-            </li>
-            <li class="flex-auto text-center">
-                <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_contract' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
-                   href="{{ path('app_contract_index') }}" role="tab" aria-selected="{{ app.request.get('_route') starts with 'app_contract' ? 'true' : 'false' }}">
-                    <i class="fas fa-file-contract mr-2"></i>Contrats
-                </a>
-            </li>
+            {% set userRole = app.session.get('user_role') %}
+
+            {% if userRole == 'ROLE_MANAGER' %}
+                <!-- Manager Tabs -->
+                <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_collab_request' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_manager_collab_request_index') }}" role="tab">
+                        <i class="ni ni-building mr-2"></i>Review Dashboard
+                    </a>
+                </li>
+                <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_contract' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_manager_contract_index') }}" role="tab">
+                        <i class="ni ni-paper-diploma mr-2"></i>Managed Contracts
+                    </a>
+                </li>
+            {% elseif userRole == 'ROLE_CONTENT_CREATOR' %}
+                <!-- Creator Tabs -->
+                <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_collaborator' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_collaborator_index') }}" role="tab">
+                        <i class="ni ni-badge mr-2"></i>Partners
+                    </a>
+                </li>
+                <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_collab_request' and not (app.request.get('_route') starts with 'app_manager') ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_collab_request_index') }}" role="tab">
+                        <i class="ni ni-send mr-2"></i>My Requests
+                    </a>
+                </li>
+                <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_contract' and not (app.request.get('_route') starts with 'app_manager') ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_contract_index') }}" role="tab">
+                        <i class="ni ni-single-copy-04 mr-2"></i>My Contracts
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 </div>

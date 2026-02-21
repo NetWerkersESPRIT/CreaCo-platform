@@ -17,36 +17,36 @@ class ContractType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'label' => 'Titre du contrat',
+                'label' => 'Contract title',
             ])
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date de début',
+                'label' => 'Start date',
             ])
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date de fin',
+                'label' => 'End date',
             ])
             ->add('amount', MoneyType::class, [
-                'label' => 'Montant (HT)',
+                'label' => 'Amount (excl. VAT)',
                 'currency' => 'TND',
             ])
             ->add('terms', TextareaType::class, [
-                'label' => 'Conditions (Objet)',
+                'label' => 'Terms (Object)',
                 'attr' => ['rows' => 5],
             ])
             ->add('paymentSchedule', TextareaType::class, [
-                'label' => 'Modalités de paiement',
+                'label' => 'Payment schedule',
                 'required' => false,
                 'attr' => ['rows' => 3],
             ])
             ->add('confidentialityClause', TextareaType::class, [
-                'label' => 'Clause de confidentialité',
+                'label' => 'Confidentiality clause',
                 'required' => false,
                 'attr' => ['rows' => 3],
             ])
             ->add('cancellationTerms', TextareaType::class, [
-                'label' => 'Conditions d\'annulation',
+                'label' => 'Cancellation terms',
                 'required' => false,
                 'attr' => ['rows' => 3],
             ])

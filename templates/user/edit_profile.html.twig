@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+      <div class="w-full px-6 mx-auto -mt-4">
+        <div
+          class="relative flex items-center p-0 mt-6 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl"
+          style="
+            background-image: url('../../assets/img/curved-images/curved0.jpg');
+            background-position-y: 50%;
+          ">
+          <span
+            class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
+        </div>
+        <div class="w-full p-6 -mt-48">
+          <div class="flex flex-wrap -mx-3">
+            <div class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
+              <div class="relative flex flex-col h-full min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                  <h6 class="mb-3 mt-2 text-xl">Edit Profile Information</h6>
+                </div>
+                <div class="flex-auto p-4">
+                  {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    <div class="mb-4">
+                      <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Username</label>
+                      {{ form_widget(form.username) }}
+                      {{ form_errors(form.username) }}
+                    </div>
+                    <div class="mb-4">
+                      <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email</label>
+                      {{ form_widget(form.email) }}
+                      {{ form_errors(form.email) }}
+                    </div>
+                    <div class="mb-4">
+                      <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Phone Number</label>
+                      {{ form_widget(form.numtel) }}
+                      {{ form_errors(form.numtel) }}
+                    </div>
+                    
+                    <div class="mt-8 border-t pt-6">
+                      <h6 class="mb-4 text-slate-700">Security Settings</h6>
+                      <p class="text-xs text-slate-500 mb-4 italic">Leave blank if you don't want to change your password.</p>
+                      
+                      <div class="mb-4">
+                        <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Current Password</label>
+                        {{ form_widget(form.currentPassword) }}
+                        {{ form_errors(form.currentPassword) }}
+                      </div>
+                      
+                      <div class="mb-4">
+                        <label class="mb-2 ml-1 font-bold text-xs text-slate-700">New Password</label>
+                        {{ form_widget(form.newPassword.first) }}
+                        {{ form_errors(form.newPassword.first) }}
+                      </div>
+                      
+                      <div class="mb-4">
+                        <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Confirm New Password</label>
+                        {{ form_widget(form.newPassword.second) }}
+                        {{ form_errors(form.newPassword.second) }}
+                      </div>
+                    </div>
+
+                    <div class="text-center">
+                      <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:border-fuchsia-500">
+                        Save Changes
+                      </button>
+                      <a href="{{ path('app_profile') }}" class="inline-block w-full px-6 py-3 mt-2 mb-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
+                          Cancel
+                      </a>
+                    </div>
+                  {{ form_end(form) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}

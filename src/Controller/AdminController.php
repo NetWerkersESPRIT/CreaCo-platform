@@ -39,22 +39,24 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function index(Request $request, UsersRepository $userRepository): Response
+    public function index(Request $request, UsersRepository $userRepository, \App\Repository\PostRepository $postRepository): Response
     {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             $this->addFlash('warning', 'Access restricted to administrators.');
             return $this->redirectToRoute('app_auth');
         }
 
-        $qb = $userRepository->createQueryBuilder('u');
-        $qb->where('u.role != :role')
-            ->setParameter('role', 'ROLE_ADMIN');
+        $pendingCount = $postRepository->countPending();
 
-        $users = $qb->getQuery()->getResult();
-
+        $users = $userRepository->createQueryBuilder('u')
+            ->where('u.role != :role')
+            ->setParameter('role', 'ROLE_ADMIN')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('admin/admin.html.twig', [
             'users' => $users,
+            'pendingCount' => $pendingCount,
         ]);
     }
 
@@ -67,10 +69,18 @@ final class AdminController extends AbstractController
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
         }
-        $form = $this->createForm(UserType::class, $user);
+
+        $oldPassword = $user->getPassword();
+        $form = $this->createForm(UserType::class, $user, [
+            'optional_password' => true
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $newPassword = $form->get('password')->getData();
+            if (empty($newPassword)) {
+                $user->setPassword($oldPassword);
+            }
             $em->flush();
 
             return $this->redirectToRoute('app_admin');

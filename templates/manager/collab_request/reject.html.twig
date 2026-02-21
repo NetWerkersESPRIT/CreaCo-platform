@@ -1,0 +1,43 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Reject Request - CreaCo Manager{% endblock %}
+{% block breadcrumb %}Manager / Reject / {{ collab_request.title }}{% endblock %}
+{% block page_title %}Reject Collaboration Request{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3 justify-center">
+    <div class="w-full max-w-full px-3 lg:w-6/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                <h6>Confirm Rejection</h6>
+                <p class="text-sm text-slate-500">Please provide a valid reason for rejecting the request from <strong>{{ collab_request.creator.username }}</strong>.</p>
+            </div>
+            <div class="flex-auto p-6">
+                <div class="p-4 bg-red-50 rounded-xl mb-6 border border-red-100">
+                    <h6 class="text-xs font-bold text-red-500 uppercase mb-1">Request: {{ collab_request.title }}</h6>
+                    <p class="text-xxs text-slate-600">Partner: {{ collab_request.collaborator.companyName }} | Budget: {{ collab_request.budget|number_format(2) }} DT</p>
+                </div>
+
+                {{ form_start(form) }}
+                    <div class="mb-4">
+                        {{ form_label(form.rejectionReason, null, {'label_attr': {'class': 'text-xs font-bold text-slate-700 ml-1 mb-2 block'}}) }}
+                        {{ form_widget(form.rejectionReason, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow', 'placeholder': 'Explain why this request is being rejected...'}}) }}
+                        <div class="text-red-500 text-xs mt-1">
+                            {{ form_errors(form.rejectionReason) }}
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <a href="{{ path('app_manager_collab_request_show', {'id': collab_request.id}) }}" class="inline-block px-6 py-3 font-bold text-center text-slate-500 uppercase align-middle transition-all bg-transparent border border-gray-200 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-red-600 to-rose-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                            Confirm Rejection
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
