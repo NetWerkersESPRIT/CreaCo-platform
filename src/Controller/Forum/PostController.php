@@ -19,6 +19,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\ProfanityFilterService;
+use Psr\Log\LoggerInterface;
 
 #[Route('/forum')]
 // #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -65,7 +67,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/new', name: 'app_post_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive, ProfanityFilterService $profanity, LoggerInterface $logger): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -132,6 +134,27 @@ if ($pdfFile) {
     } catch (\Throwable $e) {
         $this->addFlash('danger', 'Erreur Google Drive: '.$e->getMessage());
         return $this->redirectToRoute('app_post_new');
+    }
+}
+
+// Profanity Filter Check
+$content = trim((string)$post->getContent());
+if ($content !== '') {
+    try {
+        $check = $profanity->check($content);
+        if ($check['isProfane']) {
+            $post->setContent($check['filteredText']);
+            $post->setIsProfane(true);
+            $post->setProfaneWords($check['profaneWords'] ?? 0);
+            
+            $logger->info('Profanity detected in new post: ' . $post->getTitle());
+
+            if (($check['profaneWords'] ?? 0) >= 3) {
+                $post->setStatus('pending');
+            }
+        }
+    } catch (\Throwable $e) {
+        $logger->warning('Profanity API failed for post creation: ' . $e->getMessage());
     }
 }
 
@@ -240,7 +263,7 @@ if ($pdfFile) {
     }
 
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
+    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive, ProfanityFilterService $profanity, LoggerInterface $logger): Response
     {
 
         $user = $this->getUser();
@@ -263,6 +286,27 @@ if ($pdfFile) {
 
         if ($form->isSubmitted() && $form->isValid()) {
             $post->setUpdatedAt(new \DateTime());
+
+            // Profanity Filter Check for edit
+            $content = trim((string)$post->getContent());
+            if ($content !== '') {
+                try {
+                    $check = $profanity->check($content);
+                    if ($check['isProfane']) {
+                        $post->setContent($check['filteredText']);
+                        $post->setIsProfane(true);
+                        $post->setProfaneWords($check['profaneWords'] ?? 0);
+                        
+                        $logger->info('Profanity detected in edited post: ' . $post->getId());
+
+                        if (($check['profaneWords'] ?? 0) >= 3) {
+                            $post->setStatus('pending');
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    $logger->warning('Profanity API failed for post edit: ' . $e->getMessage());
+                }
+            }
 
             /** @var UploadedFile $imageFile */
             $imageFile = $post->getImageFile();

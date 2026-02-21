@@ -64,6 +64,12 @@ class Comment
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentComment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $replies;
 
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isProfane = false;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $profaneWords = 0;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
@@ -188,6 +194,28 @@ class Comment
                 $reply->setParentComment(null);
             }
         }
+        return $this;
+    }
+
+    public function isProfane(): bool
+    {
+        return $this->isProfane;
+    }
+
+    public function setIsProfane(bool $isProfane): static
+    {
+        $this->isProfane = $isProfane;
+        return $this;
+    }
+
+    public function getProfaneWords(): int
+    {
+        return $this->profaneWords;
+    }
+
+    public function setProfaneWords(int $profaneWords): static
+    {
+        $this->profaneWords = $profaneWords;
         return $this;
     }
 }

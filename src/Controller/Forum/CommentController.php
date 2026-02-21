@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\OpenAIModerationService;
+use App\Service\ProfanityFilterService;
+use Psr\Log\LoggerInterface;
 
 
 final class CommentController extends AbstractController
@@ -34,7 +36,7 @@ final class CommentController extends AbstractController
         return $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
     }
     #[Route('/forum/{id}/comment/new', name: 'app_comment_new', methods: ['POST'])]
-    public function new(Post $post, Request $request, EntityManagerInterface $em): Response
+    public function new(Post $post, Request $request, EntityManagerInterface $em, ProfanityFilterService $profanity, LoggerInterface $logger): Response
     {
         if ($post->isCommentLocked() || $post->getStatus() === 'solved') {
             $message = $post->getStatus() === 'solved'
@@ -77,6 +79,28 @@ final class CommentController extends AbstractController
                 }
             }
 
+// Profanity Filter Check
+if ($body !== '') {
+    try {
+        $check = $profanity->check($body);
+        if ($check['isProfane']) {
+            $comment->setBody($check['filteredText']);
+            $comment->setIsProfane(true);
+            $comment->setProfaneWords($check['profaneWords'] ?? 0);
+            
+            $logger->info('Profanity detected in comment for post: ' . $post->getId());
+
+            // If words >= 3, maybe hide or set to some pending status if exists
+            // Comment status choice: ["visible", "hidden", "solution"]
+            if (($check['profaneWords'] ?? 0) >= 3) {
+                $comment->setStatus('hidden');
+            }
+        }
+    } catch (\Throwable $e) {
+        $logger->warning('Profanity API failed for comment creation: ' . $e->getMessage());
+    }
+}
+
             $em->persist($comment);
             $em->flush();
 
@@ -95,7 +119,7 @@ final class CommentController extends AbstractController
 
 
     #[Route('/comment/{id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Comment $comment, EntityManagerInterface $em): Response
+    public function edit(Request $request, Comment $comment, EntityManagerInterface $em, ProfanityFilterService $profanity, LoggerInterface $logger): Response
     {
         $user = $this->getCurrentUser($request, $em);
         $isOwner = $user && $comment->getUser() === $user;
@@ -109,6 +133,28 @@ final class CommentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setUpdatedAt(new \DateTime());
+
+            // Profanity Filter Check for edit
+            $body = trim((string)$comment->getBody());
+            if ($body !== '') {
+                try {
+                    $check = $profanity->check($body);
+                    if ($check['isProfane']) {
+                        $comment->setBody($check['filteredText']);
+                        $comment->setIsProfane(true);
+                        $comment->setProfaneWords($check['profaneWords'] ?? 0);
+
+                        $logger->info('Profanity detected in edited comment: ' . $comment->getId());
+
+                        if (($check['profaneWords'] ?? 0) >= 3) {
+                            $comment->setStatus('hidden');
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    $logger->warning('Profanity API failed for comment edit: ' . $e->getMessage());
+                }
+            }
+
             $em->flush();
             return $this->redirectToRoute('app_post_show', ['id' => $comment->getPost()->getId()]);
         }

@@ -20,3 +20,7 @@ services:
         arguments:
             $googleDriveFolderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'
             $projectDir: '%kernel.project_dir%'
+
+    App\Service\ProfanityFilterService:
+        arguments:
+            $apiKey: '%env(APIVERVE_API_KEY)%'

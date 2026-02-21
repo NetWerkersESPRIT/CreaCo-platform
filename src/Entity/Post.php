@@ -111,6 +111,12 @@ private ?string $pdfDriveLink = null;
     #[ORM\OneToOne(mappedBy: 'post', targetEntity: Conversation::class, cascade: ['persist', 'remove'])]
     private ?Conversation $conversation = null;
 
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isProfane = false;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $profaneWords = 0;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -364,20 +370,42 @@ public function setPdfDriveLink(?string $pdfDriveLink): static
     return $this;
 }
 
-public function getConversation(): ?Conversation
-{
-    return $this->conversation;
-}
-
-public function setConversation(Conversation $conversation): static
-{
-    // set the owning side of the relation if necessary
-    if ($conversation->getPost() !== $this) {
-        $conversation->setPost($this);
+    public function getConversation(): ?Conversation
+    {
+        return $this->conversation;
     }
 
-    $this->conversation = $conversation;
+    public function setConversation(Conversation $conversation): static
+    {
+        // set the owning side of the relation if necessary
+        if ($conversation->getPost() !== $this) {
+            $conversation->setPost($this);
+        }
 
-    return $this;
-}
+        $this->conversation = $conversation;
+
+        return $this;
+    }
+
+    public function isProfane(): bool
+    {
+        return $this->isProfane;
+    }
+
+    public function setIsProfane(bool $isProfane): static
+    {
+        $this->isProfane = $isProfane;
+        return $this;
+    }
+
+    public function getProfaneWords(): int
+    {
+        return $this->profaneWords;
+    }
+
+    public function setProfaneWords(int $profaneWords): static
+    {
+        $this->profaneWords = $profaneWords;
+        return $this;
+    }
 }
