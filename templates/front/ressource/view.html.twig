@@ -163,9 +163,33 @@
                     {% elseif ressource.contenu %}
                         {# Text Content (Rich Text) #}
                         <div class="w-full mb-6">
-                            <div class="prose prose-slate max-w-none p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h5 class="text-sm font-bold text-slate-700 m-0">Content</h5>
+                                <div class="flex items-center gap-2">
+                                    <select id="translate-lang" class="text-xs border border-gray-300 rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none">
+                                        <option value="">Translate to...</option>
+                                        <option value="en">English</option>
+                                        <option value="fr">French</option>
+                                    </select>
+                                    <button type="button" id="translate-btn" class="text-xs bg-gradient-to-tl from-blue-600 to-cyan-400 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all flex items-center gap-1">
+                                        <i class="fas fa-language"></i>
+                                        <span id="translate-btn-text">Translate</span>
+                                    </button>
+                                    <button type="button" id="reset-translation-btn" class="text-xs bg-gray-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all hidden">
+                                        <i class="fas fa-undo mr-1"></i>Original
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="translation-loader" class="hidden p-4 bg-blue-50 rounded-xl mb-4">
+                                <div class="flex items-center gap-2 text-blue-600">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span class="text-sm font-medium">Translating...</span>
+                                </div>
+                            </div>
+                            <div id="content-display" class="prose prose-slate max-w-none p-6 bg-gray-50 rounded-2xl border border-gray-200">
                                 {{ ressource.contenu|raw }}
                             </div>
+                            <div id="original-content" class="hidden">{{ ressource.contenu|raw }}</div>
                         </div>
 
 	                    {% else %}
@@ -189,5 +213,77 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const translateBtn = document.getElementById('translate-btn');
+    const translateLang = document.getElementById('translate-lang');
+    const resetBtn = document.getElementById('reset-translation-btn');
+    const contentDisplay = document.getElementById('content-display');
+    const originalContent = document.getElementById('original-content');
+    const translateBtnText = document.getElementById('translate-btn-text');
+    const loader = document.getElementById('translation-loader');
+    
+    if (!translateBtn) return;
+    
+    translateBtn.addEventListener('click', async function() {
+        const targetLang = translateLang.value;
+        if (!targetLang) {
+            alert('Please select a language');
+            return;
+        }
+        
+        const text = contentDisplay.innerText;
+        if (!text || text.length < 1) {
+            alert('No content to translate');
+            return;
+        }
+        
+        translateBtn.disabled = true;
+        translateBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        loader.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('{{ path("api_translate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text.substring(0, 5000),
+                    target_lang: targetLang,
+                    source_lang: 'auto'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.translated_text) {
+                contentDisplay.innerHTML = data.translated_text.replace(/\n/g, '<br>');
+                resetBtn.classList.remove('hidden');
+                translateLang.classList.add('hidden');
+                translateBtn.classList.add('hidden');
+            } else {
+                alert(data.error || 'Translation failed');
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
+            alert('Translation service unavailable. Please try again later.');
+        } finally {
+            translateBtn.disabled = false;
+            translateBtnText.innerHTML = 'Translate';
+            loader.classList.add('hidden');
+        }
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        contentDisplay.innerHTML = originalContent.innerHTML;
+        resetBtn.classList.add('hidden');
+        translateLang.classList.remove('hidden');
+        translateBtn.classList.remove('hidden');
+        translateLang.value = '';
+    });
+});
+</script>
 {% endblock %}
 
