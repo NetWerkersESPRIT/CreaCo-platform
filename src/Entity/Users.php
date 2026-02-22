@@ -127,6 +127,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, PostReaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
+    private Collection $reactions;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -143,6 +149,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->reactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -442,6 +449,36 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function removePoints(int $points): static
     {
         $this->points = max(0, ($this->points ?? 0) - $points);
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostReaction>
+     */
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
+    }
+
+    public function addReaction(PostReaction $reaction): static
+    {
+        if (!$this->reactions->contains($reaction)) {
+            $this->reactions->add($reaction);
+            $reaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReaction(PostReaction $reaction): static
+    {
+        if ($this->reactions->removeElement($reaction)) {
+            // set the owning side to null (unless already changed)
+            if ($reaction->getUser() === $this) {
+                $reaction->setUser(null);
+            }
+        }
+
         return $this;
     }
 }

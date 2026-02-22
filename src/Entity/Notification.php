@@ -29,6 +29,9 @@ class Notification
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $targetUrl = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $type = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +93,18 @@ class Notification
     public function setTargetUrl(?string $targetUrl): static
     {
         $this->targetUrl = $targetUrl;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

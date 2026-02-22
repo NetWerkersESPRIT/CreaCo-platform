@@ -1,5 +1,5 @@
 parameters:
-  
+    textgears_default_language: 'en-US'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -16,7 +16,10 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Service\GoogleDriveUploader:
+    App\Service\ProfanityFilterService:
         arguments:
-            $googleDriveFolderId: '%env(GOOGLE_DRIVE_FOLDER_ID)%'
-            $projectDir: '%kernel.project_dir%'
+            $apiKey: '%env(APIVERVE_API_KEY)%'
+
+    App\Service\TextGearsService:
+        arguments:
+            $apiKey: '%env(TEXTGEARS_API_KEY)%'

@@ -38,18 +38,8 @@
 
 		<div
 			class="flex items-center mt-2 grow sm:mt-0 md:mr-0 lg:flex lg:basis-auto justify-between gap-4">
-			<!-- Search Bar (Left Side) - Only on Forum Pages -->
-			<div class="flex items-center md:ml-auto md:pr-4">
-				{% set currentRoute = app.request.attributes.get('_route') %}
-				{% if currentRoute in ['forum_index', 'app_post_show'] %}
-					<form action="{{ path('forum_index') }}" method="GET" class="relative flex flex-wrap items-stretch w-64 md:w-72 transition-all rounded-xl ease-soft mb-0">
-						<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
-							<i class="fas fa-search" aria-hidden="true"></i>
-						</span>
-						<input type="text" name="q" value="{{ app.request.query.get('q') }}" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative block min-w-0 flex-auto rounded-xl border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow shadow-soft-xs" placeholder="Search forum..."/>
-					</form>
-				{% endif %}
-			</div>
+			<!-- Spacing for right alignment -->
+			<div class="flex items-center md:ml-auto md:pr-4"></div>
 
 			<!-- User Info & Actions (Right Side) -->
 			<ul class="flex flex-row items-center justify-end pl-0 mb-0 list-none gap-4">
@@ -91,28 +81,16 @@
 
 					<!-- Global Notification Bell -->
 					<li class="relative flex items-center pr-2">
-						<p class="hidden transform-dropdown-show"></p>
-						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
+						<a href="{{ path('app_notifications') }}" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500">
 							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
-								<i class="fixed-plugin-button-nav cursor-pointer fa fa-bell"></i>
+								<i class="fa fa-bell"></i>
 								<!-- Notification Badge -->
-								<span id="notif-badge" class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+								{% set unreadCount = get_unread_notif_count() %}
+								<span id="notif-badge" class="{{ unreadCount > 0 ? '' : 'hidden' }} absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+									{{ unreadCount > 9 ? '9+' : unreadCount }}
+								</span>
 							</div>
 						</a>
-
-						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
-							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
-								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
-							</div>
-							<div
-								id="notif-list-container" class="max-h-64 overflow-y-auto">
-								<!-- Notifications will be loaded here via JS -->
-								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">Aucune notification</div>
-							</div>
-							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
-								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">Voir tout</a>
-							</div>
-						</ul>
 					</li>
 
 					<!-- Logout Button -->
