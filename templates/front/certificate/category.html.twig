@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Certificate – {{ category.nom }} | CreaCo{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<style>
+		@media print {
+			aside, nav, .no-print, .navbar, .flash-alert, main .rounded-xl:first-of-type { display: none !important; }
+			main { margin: 0 !important; max-width: none !important; }
+			.certificate-container { box-shadow: none !important; border: 1px solid #ddd !important; }
+		}
+		.certificate-container {
+			max-width: 700px;
+			margin: 2rem auto;
+			padding: 3rem;
+			background: linear-gradient(to bottom, #fefefe 0%, #f8f5ff 100%);
+			border: 2px solid #7c3aed;
+			border-radius: 16px;
+			box-shadow: 0 25px 50px -12px rgba(124, 58, 237, 0.15);
+			text-align: center;
+		}
+		.certificate-logo {
+			width: 140px;
+			height: auto;
+			margin-bottom: 1.5rem;
+			display: block;
+			mx-auto;
+		}
+		.certificate-title {
+			font-size: 0.75rem;
+			letter-spacing: 0.2em;
+			text-transform: uppercase;
+			color: #7c3aed;
+			margin-bottom: 0.5rem;
+		}
+		.certificate-heading {
+			font-size: 1.75rem;
+			font-weight: 700;
+			color: #1e1b4b;
+			margin-bottom: 2rem;
+		}
+		.certificate-body {
+			font-size: 1rem;
+			color: #475569;
+			line-height: 1.7;
+			margin-bottom: 1.5rem;
+		}
+		.certificate-name {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: #7c3aed;
+			margin: 1rem 0;
+		}
+		.certificate-category {
+			font-size: 1.125rem;
+			font-weight: 600;
+			color: #1e1b4b;
+		}
+		.certificate-description {
+			font-size: 0.95rem;
+			color: #64748b;
+			line-height: 1.6;
+			max-width: 32rem;
+			margin: 1rem auto 0;
+		}
+		.certificate-date {
+			font-size: 0.875rem;
+			color: #64748b;
+			margin-top: 2rem;
+		}
+		.certificate-seal {
+			margin-top: 2rem;
+			font-size: 0.7rem;
+			letter-spacing: 0.1em;
+			color: #94a3b8;
+		}
+	</style>
+{% endblock %}
+
+{% block body %}
+	<div class="w-full px-6 py-6 mx-auto no-print">
+		<a href="{{ path('app_front_category', { id: category.id }) }}" class="inline-flex items-center text-sm text-slate-600 hover:text-purple-700 mb-4">
+			<i class="fas fa-arrow-left mr-2"></i>Back to {{ category.nom }}
+		</a>
+		<div class="mb-4">
+			<button type="button" onclick="window.print()" class="inline-block px-4 py-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-150 bg-x-25 bg-gradient-to-r from-fuchsia-500 to-purple-700 hover:scale-102 active:opacity-85 hover:shadow-soft-xs tracking-tight-rem">
+				<i class="fas fa-download mr-1"></i>Download / Save as PDF
+			</button>
+			<p class="mt-2 text-xs text-slate-500 max-w-md">Use your browser’s print dialog and choose “Save as PDF” to download your certificate.</p>
+		</div>
+	</div>
+
+	<div class="certificate-container">
+		<img src="{{ asset('public/assets/img/creaco.png') }}" alt="CreaCo" class="certificate-logo mx-auto" />
+		<p class="certificate-title">Certificate of Completion</p>
+		<h1 class="certificate-heading">CreaCo</h1>
+		<p class="certificate-body">
+			This is to certify that
+		</p>
+		<p class="certificate-name">{{ user.username }}</p>
+		<p class="certificate-body">
+			has successfully completed all courses and resources in the category
+		</p>
+		<p class="certificate-category">{{ category.nom }}</p>
+		{% if category.description %}
+		<p class="certificate-description">{{ category.description }}</p>
+		{% endif %}
+		<p class="certificate-date">
+			Issued on {{ issued_at|date('F j, Y') }}
+		</p>
+		<p class="certificate-seal">CreaCo – Workshops & Learning</p>
+	</div>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Users;
 use App\Entity\Ressource;
 use App\Entity\Cours;
+use App\Entity\CategorieCours;
 use App\Entity\UserRessourceProgress;
 use App\Entity\UserCoursProgress;
 use App\Repository\UserRessourceProgressRepository;
@@ -223,6 +224,31 @@ class GamificationService
     public function getUserResourcesProgressInCourse(Users $user, Cours $cours): array
     {
         return $this->ressourceProgressRepo->findByUserAndCourse($user, $cours);
+    }
+
+    /**
+     * Check if the user has completed all resources in all courses of a category.
+     * Returns true only when every course in the category has been completed (all resources opened).
+     * Courses with zero resources are considered completed. Completion is computed from current
+     * opened/total counts so it stays correct even if completed_at was not set.
+     */
+    public function hasUserCompletedCategory(Users $user, CategorieCours $category): bool
+    {
+        $courses = $category->getCours();
+        if ($courses->isEmpty()) {
+            return false;
+        }
+        foreach ($courses as $cours) {
+            $progress = $this->getUserCourseProgress($user, $cours);
+            $total = $progress['total_resources'];
+            $opened = $progress['opened_resources'];
+            // Completed if: no resources (nothing to do) OR all resources opened
+            $courseCompleted = ($total === 0) || ($total > 0 && $opened >= $total);
+            if (!$courseCompleted) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

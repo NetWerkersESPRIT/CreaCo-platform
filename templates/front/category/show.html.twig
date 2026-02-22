@@ -24,6 +24,42 @@
 			</div>
 		</nav>
 
+		{% if category_completed|default(false) %}
+		<!-- Certificate CTA -->
+		<div class="flex flex-wrap -mx-3 mb-6">
+			<div class="w-full max-w-full px-3">
+				<a href="{{ path('app_front_certificate_category', { id: category.id }) }}" class="block">
+					<div class="relative flex flex-wrap items-center min-w-0 break-words bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500 shadow-soft-xl rounded-2xl text-white overflow-hidden hover:shadow-soft-2xl transition-all duration-300">
+						<div class="p-6 flex items-center gap-4">
+							<div class="flex-none w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+								<i class="fas fa-certificate text-2xl"></i>
+							</div>
+							<div>
+								<p class="text-xs font-semibold uppercase opacity-90 mb-0.5">Congratulations</p>
+								<p class="mb-0 font-bold">You completed all courses in this category. Get your certificate.</p>
+							</div>
+							<div class="ml-auto flex items-center gap-2 text-white/90">
+								<span class="text-sm font-semibold">View certificate</span>
+								<i class="fas fa-arrow-right"></i>
+							</div>
+						<div class="flex-shrink-0">
+							{% if category_completed|default(false) %}
+								<a href="{{ path('app_front_certificate_category', { id: category.id }) }}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-700 text-white text-sm font-bold uppercase tracking-wide shadow-soft-md hover:shadow-soft-lg hover:opacity-95 transition-all duration-200 no-underline">
+									<i class="fas fa-certificate mr-2"></i>Generate certificate
+								</a>
+							{% else %}
+								<span class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-200 text-slate-500 text-sm font-semibold uppercase tracking-wide cursor-not-allowed select-none" title="Complete all courses and open all resources in this category to unlock the certificate">
+									<i class="fas fa-lock mr-2"></i>Generate certificate
+								</span>
+							{% endif %}
+						</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+		{% endif %}
+
 		<!-- Search & Filter -->
 		<div class="flex flex-wrap -mx-3 mb-6">
 			<div class="w-full max-w-full px-3">
