@@ -19,9 +19,9 @@
 					{{ include('forum/comment/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
 
 					<div class="mt-4 text-center">
-						<form method="post" action="{{ path('app_comment_delete', {'id': comment.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');" class="inline-block mt-4">
+						<form method="post" action="{{ path('app_comment_delete', {'id': comment.id}) }}" id="del-cmt-edit-{{ comment.id }}" class="inline-block mt-4">
 							<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-							<button class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 bg-x-25 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-red-600 to-rose-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">Supprimer le commentaire</button>
+							<button type="button" onclick="confirmDelete(document.getElementById('del-cmt-edit-{{ comment.id }}'), 'this comment')" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 bg-x-25 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-red-600 to-rose-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">Supprimer le commentaire</button>
 						</form>
 					</div>
 				</div>

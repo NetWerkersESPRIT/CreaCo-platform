@@ -61,6 +61,17 @@
 							</span>
 						{% endif %}
 
+						{% if post.isSpam %}
+							<span class="ml-3 px-3 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-pill" {% if isAdmin %} title="Spam Score: {{ post.spamScore }}/100" {% endif %}>
+								<i class="fas fa-exclamation-triangle mr-1"></i>
+								{% if isAdmin %}
+									Suspicious content ({{ post.spamScore }}/100)
+								{% else %}
+									Suspicious content
+								{% endif %}
+							</span>
+						{% endif %}
+
 						{% if post.status == 'refused' %}
 							<span class="ml-3 text-xxs bg-red-100 text-red-700 px-2 py-1 rounded-pill font-bold">
 								<i class="fas fa-times-circle mr-1"></i>
@@ -244,16 +255,16 @@
 						<!-- Admin/Owner Actions -->
 						<div class="flex items-center gap-2">
 							{% if isAdmin %}
-								<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.pinned ? 'text-purple-600' : 'text-slate-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.pinned ? 'Unpin' : 'Pin' }}">
+								<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0" id="pin-form">
+									<button type="button" onclick="confirmAction('{{ post.pinned ? 'Unpin' : 'Pin' }} Post?', 'Do you want to {{ post.pinned ? 'unpin' : 'pin' }} this post?', 'question', 'Yes').then(c => { if(c) document.getElementById('pin-form').submit(); })" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.pinned ? 'text-purple-600' : 'text-slate-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.pinned ? 'Unpin' : 'Pin' }}">
 										<i class="fas fa-thumbtack text-xs"></i>
 									</button>
 								</form>
 							{% endif %}
 
 							{% if isAdmin or isPostOwner %}
-								<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Enable comments' : 'Disable comments' }}">
+								<form action="{{ path('app_post_toggle_lock', {'id': post.id}) }}" method="POST" class="m-0" id="lock-form">
+									<button type="button" onclick="confirmAction('{{ post.isCommentLocked ? 'Unlock' : 'Lock' }} Comments?', 'Do you want to {{ post.isCommentLocked ? 'enable' : 'disable' }} comments for this post?', '{{ post.isCommentLocked ? 'info' : 'warning' }}', 'Yes').then(c => { if(c) document.getElementById('lock-form').submit(); })" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 {{ post.isCommentLocked ? 'text-green-500' : 'text-orange-400' }} hover:scale-110 transition-all cursor-pointer" title="{{ post.isCommentLocked ? 'Enable comments' : 'Disable comments' }}">
 										<i class="fas {{ post.isCommentLocked ? 'fa-lock-open' : 'fa-lock' }} text-xs"></i>
 									</button>
 								</form>
@@ -262,9 +273,9 @@
 									<i class="fas fa-pencil-alt text-xs"></i>
 								</a>
 
-								<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this post?')">
+								<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="m-0" id="del-post-show-{{ post.id }}">
 									<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
-									<button type="submit" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
+									<button type="button" onclick="confirmDelete(document.getElementById('del-post-show-{{ post.id }}'), '{{ post.title|e('js') }}')" class="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-soft-xs border border-gray-100 text-red-400 hover:text-red-600 transition-all cursor-pointer">
 										<i class="fas fa-trash-alt text-xs"></i>
 									</button>
 								</form>
@@ -377,9 +388,9 @@
 						{% endif %}
 
 						{% if isCommentOwner or isAdmin %}
-							<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" onsubmit="return confirm('Delete this comment?')">
+							<form action="{{ path('app_comment_delete', {'id': comment.id}) }}" method="POST" class="inline m-0" id="del-cmt-{{ comment.id }}">
 								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-								<button type="submit" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center">
+								<button type="button" onclick="confirmDelete(document.getElementById('del-cmt-{{ comment.id }}'), 'this comment')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-red-500 uppercase cursor-pointer transition-all flex items-center">
 									<i class="fas fa-trash-alt mr-2 transition-colors"></i>
 									<span>Delete</span>
 								</button>
@@ -460,21 +471,19 @@ dropdown.classList.add('hidden');
 try {
 if (navigator.clipboard && window.isSecureContext) {
 await navigator.clipboard.writeText(postUrl);
-alert('✅ Link copied to clipboard!');
 } else {
-const textArea = document.createElement("textarea");
+const textArea = document.createElement('textarea');
 textArea.value = postUrl;
-textArea.style.position = "fixed";
-textArea.style.left = "-9999px";
-textArea.style.top = "0";
+textArea.style.cssText = 'position:fixed;left:-9999px;top:0;';
 document.body.appendChild(textArea);
 textArea.focus();
 textArea.select();
 document.execCommand('copy');
 document.body.removeChild(textArea);
-alert('✅ Link copied to clipboard!');
 }
+showCopied('Link copied to clipboard.');
 } catch (err) {
+showError('Could not copy link. Please copy it manually.');
 console.error('Copy failed', err);
 }
 }

@@ -126,6 +126,12 @@ class Post
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, orphanRemoval: true)]
     private Collection $reactions;
 
+    #[ORM\Column(nullable: true, options: ["default" => 0])]
+    private ?int $spamScore = 0;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isSpam = false;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -436,6 +442,28 @@ class Post
             }
         }
 
+        return $this;
+    }
+
+    public function getSpamScore(): ?int
+    {
+        return $this->spamScore;
+    }
+
+    public function setSpamScore(?int $spamScore): static
+    {
+        $this->spamScore = $spamScore;
+        return $this;
+    }
+
+    public function isSpam(): bool
+    {
+        return $this->isSpam;
+    }
+
+    public function setIsSpam(bool $isSpam): static
+    {
+        $this->isSpam = $isSpam;
         return $this;
     }
 }

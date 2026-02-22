@@ -57,12 +57,12 @@
 				<!-- Dropdown Panel -->
 				<div
 					id="notifDropdown" style="display:none; opacity:0; transform:translateY(-8px) scale(0.97); transition:opacity .2s ease, transform .2s ease;
-																		       position:absolute; right:0; top:calc(100% + 12px);
-																		       width:420px; max-width:90vw; z-index:9999;
-																		       background:#fff; border-radius:20px;
-																		       border:1px solid rgba(124,58,237,.12);
-																		       box-shadow:0 24px 64px rgba(0,0,0,.16), 0 4px 24px rgba(124,58,237,.08);
-																		       overflow:hidden;">
+																														       position:absolute; right:0; top:calc(100% + 12px);
+																														       width:420px; max-width:90vw; z-index:9999;
+																														       background:#fff; border-radius:20px;
+																														       border:1px solid rgba(124,58,237,.12);
+																														       box-shadow:0 24px 64px rgba(0,0,0,.16), 0 4px 24px rgba(124,58,237,.08);
+																														       overflow:hidden;">
 					<!-- ── Header ── -->
 					<div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:linear-gradient(135deg,#7c3aed11,#ec489911); border-bottom:1px solid rgba(124,58,237,.1);">
 						<div style="display:flex; align-items:center; gap:8px;">
@@ -79,7 +79,7 @@
 
 					<!-- ── Notification List ── -->
 					<div
-						id="notif-list-container" style="overflow-y:auto; max-height:480px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
+						id="notif-list-container" style="overflow-y:auto; max-height:420px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
 						<!-- JS populates this -->
 						<div id="notif-empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 0; color:#94a3b8;">
 							<div style="width:52px; height:52px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
@@ -153,12 +153,15 @@ if (diff < 60)
 return diff + 's';
 
 
+
 if (diff < 3600) 
 return Math.floor(diff / 60) + 'm';
 
 
+
 if (diff < 86400) 
 return Math.floor(diff / 3600) + 'h';
+
 
 
 return Math.floor(diff / 86400) + 'j';
@@ -166,6 +169,10 @@ return Math.floor(diff / 86400) + 'j';
 
 function iconForType(type) {
 var icons = {
+'new_post': {
+icon: 'fa-file-alt',
+grad: 'linear-gradient(135deg,#f59e0b,#ef4444)'
+},
 'post_approved': {
 icon: 'fa-check',
 grad: 'linear-gradient(135deg,#22c55e,#14b8a6)'
@@ -183,6 +190,52 @@ return icons[type] || {
 icon: 'fa-bell',
 grad: 'linear-gradient(135deg,#7c3aed,#ec4899)'
 };
+}
+
+function updateBadge(count) {
+if (count > 0) {
+badge.textContent = count;
+badge.style.display = 'inline-flex';
+headerBadge.textContent = count;
+headerBadge.style.display = 'inline-flex';
+} else {
+badge.style.display = 'none';
+headerBadge.style.display = 'none';
+}
+}
+
+function markAsRead(id, itemEl, redirectUrl) {
+fetch('/notifications/api/' + id + '/read', {
+method: 'POST',
+headers: {
+'X-Requested-With': 'XMLHttpRequest'
+}
+}).then(function (r) {
+return r.json();
+}).then(function () { // Update item visual to read state
+itemEl.style.background = '#fff';
+itemEl.style.border = '1px solid #f1f5f9';
+itemEl.style.borderLeft = '3px solid transparent';
+var msg = itemEl.querySelector('p');
+if (msg) {
+msg.style.fontWeight = '400';
+msg.style.color = '#475569';
+}
+var dot = itemEl.querySelector('.notif-unread-dot');
+if (dot) 
+dot.remove();
+
+// Decrement badge
+var currentCount = parseInt(badge.textContent) || 0;
+updateBadge(Math.max(0, currentCount - 1));
+if (redirectUrl) 
+window.location = redirectUrl;
+
+}).catch(function () {
+if (redirectUrl) 
+window.location = redirectUrl;
+
+});
 }
 
 function loadNotifications() {
@@ -210,39 +263,50 @@ var ico = iconForType(n.type);
 
 var item = document.createElement('div');
 item.className = 'notif-item';
-item.style.cssText = 'display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:14px; cursor:pointer;' + 'border:1px solid ' + (
+item.dataset.notifId = n.id;
+item.style.cssText = [
+'display:flex',
+'align-items:flex-start',
+'gap:12px',
+'padding:12px 14px',
+'border-radius:14px',
+'cursor:pointer',
+'border:1px solid ' + (
 isUnread ? 'rgba(124,58,237,.2)' : '#f1f5f9'
-) + ';' + 'background:' + (
+),
+'background:' + (
 isUnread ? 'linear-gradient(135deg,#fdf4ff,#fce7f3)' : '#fff'
-) + ';' + 'border-left:3px solid ' + (
+),
+'border-left:3px solid ' + (
 isUnread ? '#7c3aed' : 'transparent'
-) + ';' + 'transition:background .15s, border-color .15s;';
+),
+'transition:background .15s, border-color .15s'
+].join(';');
 
-if (n.targetUrl) {
-item.style.cursor = 'pointer';
-item.addEventListener('click', function () {
-window.location = n.targetUrl;
-});
+// Click: mark as read first, then redirect (IIFE to capture variables)
+(function (notifId, el, url, unread) {
+el.addEventListener('click', function () {
+if (unread) {
+markAsRead(notifId, el, url);
+} else if (url) {
+window.location = url;
 }
+});
+})(n.id, item, n.targetUrl, isUnread);
 
-item.innerHTML = '<div style="flex-shrink:0; margin-top:2px; width:36px; height:36px; border-radius:10px; background:' + ico.grad + '; display:flex; align-items:center; justify-content:center;">' + '<i class="fa ' + ico.icon + '" style="color:#fff; font-size:0.85rem;"></i>' + '</div>' + '<div style="flex:1; min-width:0;">' + '<p style="margin:0 0 4px; font-size:0.84rem; font-weight:' + (
+item.innerHTML = '<div style="flex-shrink:0;margin-top:2px;width:36px;height:36px;border-radius:10px;background:' + ico.grad + ';display:flex;align-items:center;justify-content:center;">' + '<i class="fa ' + ico.icon + '" style="color:#fff;font-size:0.85rem;"></i>' + '</div>' + '<div style="flex:1;min-width:0;">' + '<p style="margin:0 0 4px;font-size:0.84rem;font-weight:' + (
 isUnread ? '600' : '400'
-) + '; color:' + (
+) + ';color:' + (
 isUnread ? '#1e293b' : '#475569'
-) + '; line-height:1.4; white-space:normal;">' + n.message + '</p>' + '<span style="font-size:0.72rem; color:#94a3b8;"><i class="fa fa-clock" style="margin-right:3px;"></i>' + timeAgo(n.createdAt) + '</span>' + '</div>' + (
-isUnread ? '<span style="flex-shrink:0; margin-top:6px; width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>' : ''
+) + ';line-height:1.4;white-space:normal;">' + n.message + '</p>' + '<span style="font-size:0.72rem;color:#94a3b8;"><i class="fa fa-clock" style="margin-right:3px;"></i>' + timeAgo(n.createdAt) + '</span>' + '</div>' + (
+isUnread ? '<span class="notif-unread-dot" style="flex-shrink:0;margin-top:6px;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>' : ''
 );
 
 container.insertBefore(item, emptyState);
 });
 
-// Sync header badge
-if (unreadCount > 0) {
-headerBadge.textContent = unreadCount;
-headerBadge.style.display = 'inline-flex';
-} else {
-headerBadge.style.display = 'none';
-}
+// Sync badges
+updateBadge(unreadCount);
 }).catch(function () {});
 }
 })();
