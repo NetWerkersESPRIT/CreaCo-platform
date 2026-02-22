@@ -21,6 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Service\ProfanityFilterService;
 use Psr\Log\LoggerInterface;
 use App\Service\TextGearsService;
+use App\Service\SpamDetectionService;
 
 #[Route('/forum')]
 // #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -67,13 +68,19 @@ final class PostController extends AbstractController
 
         $this->checkModerationNotifications($entityManager);
 
+        if ($request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('forum/post/_list.html.twig', [
+                'posts' => $posts,
+            ]);
+        }
+
         return $this->render('forum/post/index.html.twig', [
             'posts' => $posts,
         ]);
     }
 
     #[Route('/new', name: 'app_post_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears, SpamDetectionService $spamDetector): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -170,12 +177,18 @@ if ($pdfFile) {
                     $post->setStatus('pending');
                     $logger->info('Post auto-moderated (Pending) due to high profanity: ' . $post->getTitle());
                 }
+
+                // 6. AI Spam Detection
+                $spamScore = $spamDetector->calculateScore($post->getTitle(), $post->getContent());
+                $post->setSpamScore($spamScore);
+                $post->setIsSpam($spamScore >= 70);
             } catch (\Throwable $e) {
                 $logger->warning('Moderation pipeline failed for post creation: ' . $e->getMessage());
                 // Fallback: keep original title/content (already in $post from form)
             }
 
             $em->persist($post);
+            $em->flush(); // Flush first so $post->getId() is available for the notification URL
 
             // Notify Admins & Author
             if ($post->getStatus() === 'pending') {
@@ -187,6 +200,9 @@ if ($pdfFile) {
                     $notification->setIsRead(false);
                     $notification->setCreatedAt(new \DateTime());
                     $notification->setUserId($admin);
+                    $notification->setType('new_post');
+                    $notification->setRelatedId($post->getId());
+                    $notification->setTargetUrl($this->generateUrl('admin_post_pending_show', ['id' => $post->getId()]));
                     $em->persist($notification);
                 }
 
@@ -199,9 +215,9 @@ if ($pdfFile) {
                     $authorNotif->setUserId($user);
                     $em->persist($authorNotif);
                 }
-            }
 
-            $em->flush();
+                $em->flush(); // Flush notifications
+            }
 
             if ($post->getStatus() === 'pending') {
                 $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
@@ -280,7 +296,7 @@ if ($pdfFile) {
     }
 
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears): Response
+    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears, SpamDetectionService $spamDetector): Response
     {
 
         $user = $this->getUser();
@@ -333,6 +349,11 @@ if ($pdfFile) {
                     $post->setStatus('pending');
                     $logger->info('Edited post auto-moderated (Pending) due to high profanity: ' . $post->getId());
                 }
+
+                // 6. AI Spam Detection
+                $spamScore = $spamDetector->calculateScore($post->getTitle(), $post->getContent());
+                $post->setSpamScore($spamScore);
+                $post->setIsSpam($spamScore >= 70);
             } catch (\Throwable $e) {
                 $logger->warning('Moderation pipeline failed for post edit: ' . $e->getMessage());
                 // Fallback: keep original title/content

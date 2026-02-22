@@ -41,207 +41,9 @@
 				</div>
 			</div>
 
-			{% for post in posts %}
-				<div
-					class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6 hover:shadow-soft-2xl transition-all duration-300">
-					<!-- Header Style -->
-					<div class="p-4 pb-0">
-						<div class="flex items-center">
-							<div class="avatar avatar-xs me-2">
-								<img src="https://ui-avatars.com/api/?name={{ post.user ? post.user.username : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
-							</div>
-							<div class="flex flex-col ml-3">
-								<span class="text-xs font-bold text-slate-700">
-									{{ post.user ? post.user.username : 'Anonymous' }}
-									{% if post.status == 'pending' %}
-										{% set isAdmin = app.session.get('user_role') == 'ROLE_ADMIN' %}
-										{% if isAdmin or (app_user and post.user == app_user) %}
-											<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-orange-700 bg-orange-100 rounded-lg">Pending</span>
-										{% endif %}
-									{% endif %}
-									{% if post.isPinned() %}
-										<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-white bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-sm">
-											<i class="fas fa-thumbtack mr-1"></i>
-											Pinned
-										</span>
-									{% endif %}
-									{% if post.status == 'solved' %}
-										<span class="ml-2 px-2 py-0.5 text-[10px] font-bold text-green-700 bg-green-100 rounded-lg">
-											<i class="fas fa-check-circle mr-1"></i>
-											Solved
-										</span>
-									{% endif %}
-								</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- Content Style -->
-					<div class="p-4 pt-2">
-						<a href="{{ path('app_post_show', {'id': post.id}) }}" class="block">
-							<h5 class="font-bold text-slate-800 mb-2 leading-tight hover:text-purple-700 transition-colors">{{ post.title }}</h5>
-						</a>
-						<div class="text-sm leading-normal text-slate-600 mb-4 whitespace-pre-wrap">
-							{{ post.content }}
-						</div>
-
-						{% if post.imageName %}
-							<div class="mb-3 overflow-hidden rounded-xl border border-gray-100">
-								<img src="{{ asset('uploads/' ~ post.imageName) }}" class="w-full h-auto" alt="post image">
-							</div>
-						{% endif %}
-
-						{% if post.pdfName %}
-							<div class="mb-3 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
-								<div class="flex items-center">
-									<div class="bg-red-100 p-1.5 rounded-lg mr-2">
-										<i class="fas fa-file-pdf text-red-600 text-sm"></i>
-									</div>
-									<span class="text-xs font-bold text-slate-700">PDF Document</span>
-								</div>
-								<a href="{{ asset('uploads/' ~ post.pdfName) }}" target="_blank" class="text-xs font-bold text-white bg-gradient-to-tl from-purple-700 to-pink-500 px-4 py-2 rounded-lg shadow-soft-md hover:scale-102 transition-all uppercase">
-									<i class="fas fa-eye mr-1"></i>
-									Open
-								</a>
-							</div>
-						{% endif %}
-					</div>
-
-					<!-- Interaction Bar -->
-					<div
-						class="p-4 pt-0 flex flex-wrap items-center gap-2">
-						<!-- Reactions Button -->
-						<div class="reaction-container relative group">
-							{% set userReaction = null %}
-							{% if app_user %}
-								{% for r in post.reactions %}
-									{% if r.user == app_user %}
-										{% set userReaction = r.type %}
-									{% endif %}
-								{% endfor %}
-							{% endif %}
-
-							<!-- Reaction Popup Bar -->
-							<div class="reaction-bar hidden group-hover:flex absolute bottom-full mb-3 left-0 bg-white shadow-soft-2xl rounded-full px-1.5 py-1 items-center gap-1 animate-reaction-pop z-50 border border-gray-100">
-								<button type="button" onclick="handleReaction({{ post.id }}, 'like')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Like">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-7 h-7" alt="👍">
-								</button>
-								<button type="button" onclick="handleReaction({{ post.id }}, 'love')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Love">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-7 h-7" alt="❤️">
-								</button>
-								<button type="button" onclick="handleReaction({{ post.id }}, 'haha')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Haha">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-7 h-7" alt="😂">
-								</button>
-								<button type="button" onclick="handleReaction({{ post.id }}, 'wow')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Wow">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-7 h-7" alt="😮">
-								</button>
-								<button type="button" onclick="handleReaction({{ post.id }}, 'sad')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Sad">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-7 h-7" alt="😢">
-								</button>
-								<button type="button" onclick="handleReaction({{ post.id }}, 'angry')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Angry">
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-7 h-7" alt="😡">
-								</button>
-							</div>
-
-							<!-- Main Button -->
-							<button id="react-btn-{{ post.id }}" type="button" onclick="handleReaction({{ post.id }}, '{{ userReaction ?: 'like' }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer {{ userReaction ? 'text-fuchsia-600' : 'text-slate-600' }}">
-
-								{% if userReaction == 'like' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5 h-5 mr-2" alt="👍">
-									<span class="text-xs font-bold">Like</span>
-								{% elseif userReaction == 'love' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-5 h-5 mr-2" alt="❤️">
-									<span class="text-xs font-bold">Love</span>
-								{% elseif userReaction == 'haha' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-5 h-5 mr-2" alt="😂">
-									<span class="text-xs font-bold">Haha</span>
-								{% elseif userReaction == 'wow' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-5 h-5 mr-2" alt="😮">
-									<span class="text-xs font-bold">Wow</span>
-								{% elseif userReaction == 'sad' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-5 h-5 mr-2" alt="😢">
-									<span class="text-xs font-bold">Sad</span>
-								{% elseif userReaction == 'angry' %}
-									<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-5 h-5 mr-2" alt="😡">
-									<span class="text-xs font-bold">Angry</span>
-								{% else %}
-									<i class="far fa-thumbs-up text-xs mr-2 text-slate-400"></i>
-									<span class="text-xs font-bold">Like</span>
-								{% endif %}
-
-								<span id="react-count-{{ post.id }}" class="ml-2 text-[10px] text-slate-400 bg-white px-1.5 py-0.5 rounded-full shadow-soft-sm">
-									{{ post.reactions|length }}
-								</span>
-							</button>
-						</div>
-
-						<!-- Comment -->
-						<a href="{{ path('app_post_show', {'id': post.id}) }}" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all text-decoration-none border-0">
-							<i class="fas fa-comment text-xs text-slate-500 mr-2"></i>
-							<span class="text-xs font-bold">{{ post.comments|length }}
-								Comments</span>
-						</a>
-
-						{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
-						{% set isOwner = app_user and post.user == app_user %}
-						{% set canManagePost = isAdmin or isOwner %}
-
-						{% if canManagePost %}
-							<!-- Edit Button -->
-							<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-purple-100 hover:text-purple-700 transition-all text-decoration-none border-0">
-								<i class="fas fa-edit text-xs mr-2"></i>
-								<span class="text-xs font-bold">Edit</span>
-							</a>
-
-							<!-- Delete Button -->
-							<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="mb-0" onsubmit="return confirm('Delete this post?')">
-								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
-								<button type="submit" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-red-100 hover:text-red-700 transition-all border-0 shadow-none cursor-pointer">
-									<i class="fas fa-trash text-xs mr-2"></i>
-									<span class="text-xs font-bold">Delete</span>
-								</button>
-							</form>
-						{% endif %}
-
-						<!-- Pin Button (Admin Only) -->
-						{% if isAdmin %}
-							<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="mb-0">
-								<button type="submit" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-yellow-100 hover:text-yellow-700 transition-all border-0 shadow-none cursor-pointer" title="{{ post.isPinned() ? 'Unpin' : 'Pin' }}">
-									<i class="fas fa-thumbtack text-xs mr-2 {{ post.isPinned() ? 'text-yellow-600' : '' }}"></i>
-									<span class="text-xs font-bold">{{ post.isPinned() ? 'Unpin' : 'Pin' }}</span>
-								</button>
-							</form>
-						{% endif %}
-						<!-- Share Button -->
-						<div class="relative inline-block text-left">
-							{% set postUrl = url('app_post_show', {'id': post.id}) %}
-							<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer group">
-								<i class="fas fa-share text-xs text-slate-400 group-hover:text-purple-700 transition-colors mr-2"></i>
-								<span class="text-xs font-bold">Share</span>
-							</button>
-							<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
-								<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-									<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
-									Copy Link
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			{% else %}
-				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl p-12 text-center">
-					<div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-						<i class="fas fa-search text-2xl text-slate-300"></i>
-					</div>
-					{% if app.request.query.get('q') %}
-						<h6 class="mb-1 font-bold text-slate-700">No posts found</h6>
-						<p class="text-sm text-slate-500 mb-0">We couldn't find any discussions matching "{{ app.request.query.get('q') }}".</p>
-					{% else %}
-						<h6 class="mb-1 font-bold text-slate-700">Nothing here yet</h6>
-						<p class="text-sm text-slate-500 mb-0">Start the discussion and be the first to post!</p>
-					{% endif %}
-				</div>
-			{% endfor %}
+			<div id="post-list-container">
+				{% include 'forum/post/_list.html.twig' %}
+			</div>
 		</div>
 	</div>
 
@@ -250,7 +52,45 @@
 {% block javascripts %}
 	{{ parent() }}
 	<script>
-		function toggleShareDropdown(id) {
+		document.addEventListener('DOMContentLoaded', function () {
+const searchInput = document.querySelector('input[name="q"]');
+const postContainer = document.getElementById('post-list-container');
+const searchForm = searchInput.closest('form');
+let debounceTimer;
+
+searchInput.addEventListener('input', function () {
+clearTimeout(debounceTimer);
+const query = this.value;
+
+debounceTimer = setTimeout(() => {
+const url = new URL(window.location.href);
+url.searchParams.set('q', query);
+
+// Show loading state (optional)
+postContainer.style.opacity = '0.5';
+
+fetch(url, {
+headers: {
+'X-Requested-With': 'XMLHttpRequest'
+}
+}).then(response => response.text()).then(html => {
+postContainer.innerHTML = html;
+postContainer.style.opacity = '1';
+// Update URL without reloading
+window.history.pushState({}, '', url);
+}).catch(error => {
+console.error('Error:', error);
+postContainer.style.opacity = '1';
+});
+}, 300); // 300ms debounce
+});
+
+searchForm.addEventListener('submit', function (e) {
+e.preventDefault();
+});
+});
+
+function toggleShareDropdown(id) {
 const dropdown = document.getElementById(id);
 if (! dropdown) 
 return;
@@ -279,24 +119,17 @@ dropdown.classList.add('hidden');
 try {
 if (navigator.clipboard && window.isSecureContext) {
 await navigator.clipboard.writeText(postUrl);
-alert('✅ Link copied to clipboard!');
 } else {
-const textArea = document.createElement("textarea");
+const textArea = document.createElement('textarea');
 textArea.value = postUrl;
-textArea.style.position = "fixed";
-textArea.style.left = "-9999px";
-textArea.style.top = "0";
+textArea.style.cssText = 'position:fixed;left:-9999px;top:0;';
 document.body.appendChild(textArea);
 textArea.focus();
 textArea.select();
-const success = document.execCommand('copy');
+document.execCommand('copy');
 document.body.removeChild(textArea);
-if (success) 
-alert('✅ Link copied to clipboard!');
-
-
-
 }
+showCopied('Link copied to clipboard.');
 } catch (err) {
 console.error('Copy failed', err);
 }

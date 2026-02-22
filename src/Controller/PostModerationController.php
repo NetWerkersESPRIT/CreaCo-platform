@@ -28,8 +28,17 @@ class PostModerationController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
+        $showSpam = $request->query->getBoolean('spam', false);
+        
+        if ($showSpam) {
+            $posts = $postRepository->findBy(['isSpam' => true], ['createdAt' => 'DESC']);
+        } else {
+            $posts = $postRepository->findPending();
+        }
+
         return $this->render('admin/post/pending.html.twig', [
-            'posts' => $postRepository->findPending(),
+            'posts' => $posts,
+            'showSpam' => $showSpam,
         ]);
     }
 

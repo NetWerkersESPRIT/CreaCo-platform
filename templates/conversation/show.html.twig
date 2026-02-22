@@ -20,7 +20,7 @@
 				class="bg-white rounded-2xl shadow-soft-xl overflow-hidden flex flex-col" style="height:82vh;">
 
 				<!-- ══ Header ══ -->
-				<div class="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 shrink-0">
+				<div class="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 flex-none">
 					<div class="flex items-center gap-3">
 						<div class="w-14 h-14 rounded-2xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center shadow-soft-md shrink-0">
 							<i class="fas fa-comments text-white text-xl"></i>
@@ -40,7 +40,7 @@
 				</div>
 
 				<!-- ══ Messages ══ -->
-				<div id="chat-box" class="flex-1 overflow-y-auto bg-slate-50 px-5 py-6" style="scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent;">
+				<div id="chat-box" class="flex-grow overflow-y-auto bg-slate-50 px-5 py-6 min-h-0" style="scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent;">
 
 					<div id="messages-container" class="flex flex-col gap-3">
 
@@ -76,11 +76,11 @@
 									{% endif %}
 
 									<div class="px-4 py-3 text-sm leading-relaxed shadow-soft-sm
-																																																					{% if isMe %}
-																																																						bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-2xl rounded-br-sm
-																																																					{% else %}
-																																																						bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-bl-sm
-																																																					{% endif %}">
+																																																																{% if isMe %}
+																																																																	bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-2xl rounded-br-sm
+																																																																{% else %}
+																																																																	bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-bl-sm
+																																																																{% endif %}">
 										{{ message.content|nl2br }}
 									</div>
 
@@ -98,7 +98,7 @@
 				</div>
 
 				<!-- ══ Input ══ -->
-				<div class="shrink-0 bg-white border-t border-slate-100">
+				<div class="flex-none bg-white border-t border-slate-100">
 					<form id="chat-form" class="flex flex-col gap-0">
 						<textarea id="message-input" name="content" class="w-full px-5 py-4 text-sm text-slate-700 bg-white border-0 focus:outline-none focus:ring-0 resize-none" placeholder="Write a message…" rows="2" required style="min-height:60px; max-height:140px; overflow-y:hidden;"></textarea>
 
