@@ -13,9 +13,19 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class GamificationService
 {
-    // Points configuration
+    // Points / XP configuration
     private const POINTS_PER_RESOURCE_OPENED = 10;
     private const POINTS_PER_COURSE_COMPLETED = 100;
+
+    // Badges configuration
+    private const BADGE_EXPLORATEUR_CODE = 'explorateur';
+    private const BADGE_EXPLORATEUR_RESOURCES_THRESHOLD = 5;
+
+    private const BADGE_FINISSEUR_CODE = 'finisseur';
+    private const BADGE_FINISSEUR_COURSES_THRESHOLD = 1;
+
+    private const BADGE_MAITRE_COURS_CODE = 'maitre_cours';
+    private const BADGE_MAITRE_COURS_THRESHOLD = 5;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -136,6 +146,62 @@ class GamificationService
             'completed_courses' => $completedCourses,
             'in_progress_courses' => $inProgressCourses,
         ];
+    }
+
+    /**
+     * Get unlocked badges for a user based on their statistics.
+     *
+     * Badges are computed dynamically; no persistence layer is used.
+     */
+    public function getUserBadges(Users $user): array
+    {
+        $stats = $this->getUserStats($user);
+
+        $totalOpened = $stats['total_resources_opened'] ?? 0;
+        $completedCourses = $stats['completed_courses'] ?? 0;
+
+        $badges = [];
+
+        // Explorateur – 5 resources opened
+        if ($totalOpened >= self::BADGE_EXPLORATEUR_RESOURCES_THRESHOLD) {
+            $badges[] = [
+                'code' => self::BADGE_EXPLORATEUR_CODE,
+                'name' => 'Explorateur',
+                'description' => sprintf(
+                    'A ouvert au moins %d ressources',
+                    self::BADGE_EXPLORATEUR_RESOURCES_THRESHOLD
+                ),
+                'icon' => 'fa-compass',
+            ];
+        }
+
+        // Finisseur – 1 course completed
+        if ($completedCourses >= self::BADGE_FINISSEUR_COURSES_THRESHOLD) {
+            $badges[] = [
+                'code' => self::BADGE_FINISSEUR_CODE,
+                'name' => 'Finisseur',
+                'description' => sprintf(
+                    'A terminé au moins %d cours',
+                    self::BADGE_FINISSEUR_COURSES_THRESHOLD
+                ),
+                'icon' => 'fa-flag-checkered',
+            ];
+        }
+
+        // Maître des cours – 5 courses completed
+        if ($completedCourses >= self::BADGE_MAITRE_COURS_THRESHOLD) {
+            $badges[] = [
+                'code' => self::BADGE_MAITRE_COURS_CODE,
+                'name' => 'Maître des cours',
+                'description' => sprintf(
+                    'A terminé au moins %d cours',
+                    self::BADGE_MAITRE_COURS_THRESHOLD
+                ),
+                'icon' => 'fa-crown',
+            ];
+        }
+
+        return $badges;
     }
 
     /**

@@ -49,7 +49,7 @@
                             <div class="text-center p-4 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl text-white">
                                 <i class="fas fa-star text-3xl mb-2"></i>
                                 <h4 class="mb-0 font-bold">{{ user.points }}</h4>
-                                <p class="mb-0 text-xs opacity-80">Total Points</p>
+                                <p class="mb-0 text-xs opacity-80">Total XP</p>
                             </div>
                         </div>
                         <div class="w-full max-w-full px-3 mb-4 sm:w-1/2 lg:w-1/4">
@@ -74,6 +74,23 @@
                             </div>
                         </div>
                     </div>
+
+                    {% if user_badges is defined %}
+                        <div class="mt-6">
+                            <h6 class="mb-3 font-bold text-sm">Badges</h6>
+                            {% if user_badges is not empty %}
+                                <div class="flex flex-wrap gap-3">
+                                    {% for badge in user_badges %}
+                                        <span class="inline-flex items-center px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 text-xs font-semibold">
+                                            <i class="fas {{ badge.icon }} mr-2"></i>{{ badge.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-sm text-slate-500">No badges unlocked yet.</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

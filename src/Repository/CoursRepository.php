@@ -54,6 +54,16 @@ class CoursRepository extends ServiceEntityRepository
             }
         }
 
+        if (!empty($filters['statut'])) {
+            $qb->andWhere('c.statut = :statut')
+               ->setParameter('statut', $filters['statut']);
+        }
+
+        if (!empty($filters['niveau'])) {
+            $qb->andWhere('c.niveau = :niveau')
+               ->setParameter('niveau', $filters['niveau']);
+        }
+
         // Sorting
         if (!empty($sort['field'])) {
             $order = strtoupper($sort['order'] ?? 'ASC');

@@ -31,6 +31,8 @@ class CoursController extends AbstractController
             'search' => $request->query->get('search'),
             'titre'  => $request->query->get('titre'),
             'categorie' => $request->query->get('categorie'),
+            'niveau' => $request->query->get('niveau'),
+            'statut' => $request->query->get('statut'),
         ];
 
         $sort = [

@@ -64,6 +64,24 @@ class Cours
     #[ORM\Column(nullable: true)]
     private ?int $views = null;
 
+    #[ORM\Column(length: 20)]
+    #[Assert\Choice(
+        choices: ['draft', 'published', 'archived'],
+        message: "Le statut choisi est invalide."
+    )]
+    private ?string $statut = 'draft';
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Choice(
+        choices: ['beginner', 'intermediate', 'advanced'],
+        message: "Le niveau choisi est invalide."
+    )]
+    private ?string $niveau = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\Positive(message: "La durée estimée doit être un nombre positif.")]
+    private ?int $duree_estimee = null;
+
     public function __construct()
     {
         $this->ressources = new ArrayCollection();
@@ -197,6 +215,42 @@ class Cours
     public function setViews(?int $views): static
     {
         $this->views = $views;
+
+        return $this;
+    }
+
+    public function getStatut(): ?string
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getNiveau(): ?string
+    {
+        return $this->niveau;
+    }
+
+    public function setNiveau(?string $niveau): static
+    {
+        $this->niveau = $niveau;
+
+        return $this;
+    }
+
+    public function getDureeEstimee(): ?int
+    {
+        return $this->duree_estimee;
+    }
+
+    public function setDureeEstimee(?int $duree_estimee): static
+    {
+        $this->duree_estimee = $duree_estimee;
 
         return $this;
     }

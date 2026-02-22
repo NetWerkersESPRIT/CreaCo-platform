@@ -9,6 +9,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\File;
@@ -24,6 +26,32 @@ class CoursType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => ['rows' => 5]
+            ])
+            ->add('statut', ChoiceType::class, [
+                'label' => 'Status',
+                'choices' => [
+                    'Draft' => 'draft',
+                    'Published' => 'published',
+                    'Archived' => 'archived',
+                ],
+                'placeholder' => false,
+            ])
+            ->add('niveau', ChoiceType::class, [
+                'label' => 'Level',
+                'required' => false,
+                'choices' => [
+                    'Beginner' => 'beginner',
+                    'Intermediate' => 'intermediate',
+                    'Advanced' => 'advanced',
+                ],
+                'placeholder' => 'Select level',
+            ])
+            ->add('dureeEstimee', IntegerType::class, [
+                'label' => 'Estimated duration (minutes)',
+                'required' => false,
+                'attr' => [
+                    'min' => 1,
+                ],
             ])
             ->add('image', FileType::class, [
                 'label' => 'Image du cours (fichier)',

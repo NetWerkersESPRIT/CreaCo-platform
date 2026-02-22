@@ -163,12 +163,12 @@ final class RessourceController extends AbstractController
         $user = $userId ? $entityManager->getRepository(\App\Entity\Users::class)->find($userId) : null;
 
         if ($user) {
-            // Mark resource as opened and award points
+            // Mark resource as opened and award XP
             $result = $gamificationService->markResourceAsOpened($user, $ressource);
 
             if ($result['first_open']) {
                 $this->addFlash('success', sprintf(
-                    'Félicitations ! Vous avez gagné %d points ! Total: %d points',
+                    'Félicitations ! Vous avez gagné %d XP ! Total : %d XP',
                     $result['points_earned'],
                     $result['total_points']
                 ));
