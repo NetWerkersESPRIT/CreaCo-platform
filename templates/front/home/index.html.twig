@@ -28,6 +28,49 @@
 		.gamification-character.delay-2 {
 			animation-delay: 0.6s;
 		}
+
+		.gamification-character-wrap {
+			width: 10rem;
+			height: 10rem;
+			min-width: 10rem;
+			min-height: 10rem;
+		}
+		.gamification-mascot {
+			width: 6rem;
+			height: 6rem;
+			filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+		}
+		.gamification-mascot .eye {
+			transition: transform 0.08s ease-out;
+			transform-origin: center center;
+		}
+		.gamification-mascot.blink .eye {
+			transform: scaleY(0.08);
+		}
+		@keyframes sparkle {
+			0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+			50% { opacity: 0.85; transform: scale(1.15) rotate(5deg); }
+		}
+		.gamification-mascot .sparkle {
+			animation: sparkle 1.5s ease-in-out infinite;
+		}
+		.gamification-mascot .sparkle-2 { animation-delay: 0.5s; }
+		.gamification-mascot .sparkle-3 { animation-delay: 1s; }
+		@keyframes wiggle {
+			0%, 100% { transform: rotate(-3deg); }
+			50% { transform: rotate(3deg); }
+		}
+		.gamification-mascot .trophy-hat {
+			transform-origin: 32px 18px;
+			animation: wiggle 2s ease-in-out infinite;
+		}
+		@keyframes blush-pulse {
+			0%, 100% { opacity: 0.9; }
+			50% { opacity: 0.6; }
+		}
+		.gamification-mascot .cheek {
+			animation: blush-pulse 2.5s ease-in-out infinite;
+		}
 	</style>
 {% endblock %}
 
@@ -49,8 +92,50 @@
 								</span>
 							</div>
 							<div class="gamification-characters flex w-full lg:w-1/3 justify-center items-center pr-6 mt-4 lg:mt-0">
-								<div class="gamification-character w-28 h-28 rounded-full bg-white/30 flex items-center justify-center shadow-soft-2xl border-2 border-white/70">
-									<i class="fas fa-user-astronaut text-4xl"></i>
+								<div class="gamification-character gamification-character-wrap rounded-full flex items-center justify-center shadow-soft-2xl border-4 border-white/80 bg-gradient-to-br from-amber-200/90 via-orange-300/80 to-fuchsia-300/90 backdrop-blur-sm">
+									<svg class="gamification-mascot" viewBox="0 0 64 64" aria-hidden="true">
+										<!-- sparkles -->
+										<circle class="sparkle sparkle-2" cx="8" cy="16" r="3" fill="#FDE047" />
+										<circle class="sparkle sparkle-3" cx="56" cy="20" r="2.5" fill="#F472B6" />
+										<circle class="sparkle" cx="12" cy="52" r="2" fill="#A78BFA" />
+										<circle class="sparkle sparkle-2" cx="52" cy="48" r="2.5" fill="#34D399" />
+										<!-- trophy crown hat -->
+										<g class="trophy-hat">
+											<path d="M 20 20 L 24 12 L 32 8 L 40 12 L 44 20 L 42 20 L 42 24 L 22 24 L 22 20 Z" fill="url(#gold)" stroke="#B45309" stroke-width="0.8" />
+											<circle cx="32" cy="10" r="3" fill="#FDE047" />
+										</g>
+										<defs>
+											<linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+												<stop offset="0%" style="stop-color:#FDE047" />
+												<stop offset="50%" style="stop-color:#F59E0B" />
+												<stop offset="100%" style="stop-color:#D97706" />
+											</linearGradient>
+											<linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
+												<stop offset="0%" style="stop-color:#FBBF24" />
+												<stop offset="40%" style="stop-color:#F97316" />
+												<stop offset="100%" style="stop-color:#EC4899" />
+											</linearGradient>
+											<linearGradient id="cheekGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+												<stop offset="0%" style="stop-color:#F472B6;stop-opacity:0.9" />
+												<stop offset="100%" style="stop-color:#EC4899;stop-opacity:0.7" />
+											</linearGradient>
+										</defs>
+										<!-- body/head -->
+										<circle cx="32" cy="36" r="20" fill="url(#body)" stroke="#EA580C" stroke-width="1.2" />
+										<!-- rosy cheeks -->
+										<ellipse class="cheek" cx="18" cy="38" rx="5" ry="3" fill="url(#cheekGrad)" />
+										<ellipse class="cheek" cx="46" cy="38" rx="5" ry="3" fill="url(#cheekGrad)" />
+										<!-- eyes -->
+										<ellipse class="eye" cx="24" cy="32" rx="4.5" ry="5.5" fill="white" />
+										<ellipse class="eye" cx="40" cy="32" rx="4.5" ry="5.5" fill="white" />
+										<circle class="eye" cx="24" cy="33" r="2.5" fill="#1E1B4B" />
+										<circle class="eye" cx="40" cy="33" r="2.5" fill="#1E1B4B" />
+										<circle cx="25" cy="31.5" r="0.8" fill="white" />
+										<circle cx="41" cy="31.5" r="0.8" fill="white" />
+										<!-- big smile -->
+										<path d="M 22 42 Q 32 52 42 42" stroke="#C2410C" stroke-width="2.2" fill="none" stroke-linecap="round" />
+										<path d="M 26 44 Q 32 48 38 44" stroke="#9A3412" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.8" />
+									</svg>
 								</div>
 							</div>
 						</div>
@@ -110,4 +195,22 @@
 			{% endfor %}
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var mascot = document.querySelector('.gamification-mascot');
+			if (!mascot) return;
+			function blink() {
+				mascot.classList.add('blink');
+				setTimeout(function() {
+					mascot.classList.remove('blink');
+				}, 120);
+			}
+			setInterval(blink, 2500);
+			setTimeout(blink, 800);
+		});
+	</script>
 {% endblock %}
