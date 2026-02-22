@@ -2,6 +2,32 @@
 
 {% block title %}{{ ressource.nom }} | CreaCo{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .prose h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #1e1b4b; }
+        .prose h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; color: #1e1b4b; }
+        .prose h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+        .prose h4 { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #4b5563; }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.25rem; }
+        .prose ul { list-style-type: disc; }
+        .prose ol { list-style-type: decimal; }
+        .prose blockquote { border-left: 4px solid #7c3aed; padding-left: 1rem; margin: 1rem 0; font-style: italic; color: #6b7280; }
+        .prose pre { background: #1e1b4b; color: #e5e7eb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+        .prose code { background: #f3f4f6; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .prose pre code { background: transparent; padding: 0; }
+        .prose a { color: #7c3aed; text-decoration: underline; }
+        .prose a:hover { color: #6d28d9; }
+        .prose img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
+        .prose th { background: #f9fafb; font-weight: 600; }
+        .prose hr { border: none; border-top: 2px solid #e5e7eb; margin: 1.5rem 0; }
+    </style>
+{% endblock %}
+
 {% block body %}
 <div class="w-full px-6 py-6 mx-auto">
     
@@ -134,13 +160,13 @@
 	                            </a>
 	                        </div>
 
-	                    {% elseif ressource.contenu %}
-	                        {# Text Content #}
-	                        <div class="w-full mb-6">
-	                            <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
-	                                <pre class="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">{{ ressource.contenu }}</pre>
-	                            </div>
-	                        </div>
+                    {% elseif ressource.contenu %}
+                        {# Text Content (Rich Text) #}
+                        <div class="w-full mb-6">
+                            <div class="prose prose-slate max-w-none p-6 bg-gray-50 rounded-2xl border border-gray-200">
+                                {{ ressource.contenu|raw }}
+                            </div>
+                        </div>
 
 	                    {% else %}
 	                        {# Generic File Download #}

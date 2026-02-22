@@ -7,6 +7,8 @@ use App\Form\RessourceType;
 use App\Repository\RessourceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,6 +16,42 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/ressource')]
 final class RessourceController extends AbstractController
 {
+    #[Route('/upload-image', name: 'app_image_upload', methods: ['POST'])]
+    public function uploadImage(Request $request): JsonResponse
+    {
+        if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
+            return new JsonResponse(['error' => ['message' => 'Access denied']], 403);
+        }
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('upload') ?? $request->files->get('file');
+
+        if (!$file) {
+            return new JsonResponse(['error' => ['message' => 'No file uploaded']], 400);
+        }
+
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+            return new JsonResponse(['error' => ['message' => 'Invalid file type']], 400);
+        }
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/ressource_images';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $filename = uniqid() . '.' . $file->guessExtension();
+        $file->move($uploadDir, $filename);
+
+        $url = '/uploads/ressource_images/' . $filename;
+
+        return new JsonResponse([
+            'uploaded' => true,
+            'url' => $url,
+            'fileName' => $filename
+        ]);
+    }
+
     #[Route(name: 'app_ressource_index', methods: ['GET'])]
     public function index(Request $request, RessourceRepository $ressourceRepository): Response
     {

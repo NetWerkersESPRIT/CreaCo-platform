@@ -7,22 +7,18 @@ use App\Form\CoursType;
 use App\Repository\CoursRepository;
 use App\Repository\CategorieCoursRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-// Route de base pour toutes les actions de ce contrôleur
 #[Route('/cours')]
 class CoursController extends AbstractController
 {
-    // READ LIST COURS
-    // READ LIST COURS
-
     #[Route('/', name: 'app_cours_index', methods: ['GET'])]
-    public function index(Request $request, CoursRepository $coursRepository): Response
+    public function index(Request $request, CoursRepository $coursRepository, PaginatorInterface $paginator): Response
     {
-        // Check if user is admin
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             throw $this->createAccessDeniedException('Access denied. Admin role required.');
         }
@@ -40,15 +36,20 @@ class CoursController extends AbstractController
             'order' => $request->query->get('order', 'DESC'),
         ];
 
-	        $cours = $coursRepository->findWithFilters($filters, $sort);
-	        $courseStats = $coursRepository->getStatistics();
-	
-	        return $this->render('back/cours/index.html.twig', [
+        $queryBuilder = $coursRepository->createQueryBuilderWithFilters($filters, $sort);
+        $cours = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            10
+        );
+        $courseStats = $coursRepository->getStatistics();
+
+        return $this->render('back/cours/index.html.twig', [
             'cours' => $cours,
             'filters' => $filters,
             'sort' => $sort,
             'search' => $filters['search'],
-	            'courseStats' => $courseStats,
+            'courseStats' => $courseStats,
         ]);
     }
 
@@ -61,11 +62,8 @@ class CoursController extends AbstractController
             throw $this->createAccessDeniedException('Access denied. Admin role required.');
         }
 
-        // nouvelle instance de cours
         $cours = new Cours();
-        $cours->setDateDeCreation(new \DateTime()); // Set creation date
         
-        // récup del'id de la categorie de ce cours
         $catId = $request->query->get('category');
         // selection de la categorie si elle existe et null si elle n'existe pas
         $selectedCategory = $catId ? $categoryRepo->find($catId) : null;

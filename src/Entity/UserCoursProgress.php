@@ -5,9 +5,9 @@ namespace App\Entity;
 use App\Repository\UserCoursProgressRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: UserCoursProgressRepository::class)]
-#[ORM\HasLifecycleCallbacks]
 #[ORM\UniqueConstraint(name: 'user_cours_unique', columns: ['user_id', 'cours_id'])]
 class UserCoursProgress
 {
@@ -30,9 +30,11 @@ class UserCoursProgress
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $completed_at = null;
 
+    #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
 
+    #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updated_at = null;
 
@@ -44,7 +46,6 @@ class UserCoursProgress
 
     public function __construct()
     {
-        $this->created_at = new \DateTime();
         $this->progress_percentage = '0.00';
         $this->total_ressources = 0;
         $this->opened_ressources = 0;
@@ -141,12 +142,6 @@ class UserCoursProgress
     {
         $this->opened_ressources = $opened_ressources;
         return $this;
-    }
-
-    #[ORM\PreUpdate]
-    public function setUpdateDate(): void
-    {
-        $this->updated_at = new \DateTime();
     }
 
     public function updateProgress(int $openedCount, int $totalCount): void
