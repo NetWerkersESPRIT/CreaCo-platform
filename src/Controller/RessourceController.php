@@ -10,9 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Route('/ressource')]
 final class RessourceController extends AbstractController
@@ -47,8 +44,8 @@ final class RessourceController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_ressource_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, \App\Repository\CoursRepository $coursRepo, SluggerInterface $slugger): Response
+	    #[Route('/new', name: 'app_ressource_new', methods: ['GET', 'POST'])]
+	    public function new(Request $request, EntityManagerInterface $entityManager, \App\Repository\CoursRepository $coursRepo): Response
     {
         // Check if user is admin
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
@@ -63,75 +60,52 @@ final class RessourceController extends AbstractController
             $ressource->setCours($selectedCourse);
         }
 
-        $form = $this->createForm(RessourceType::class, $ressource);
+	        $form = $this->createForm(RessourceType::class, $ressource);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $nature = $form->get('nature')->getData();
-            $file = $form->get('fichier')->getData();
-            $contenu = $form->get('contenu')->getData();
+	            $nature = $form->get('nature')->getData();
+	            $file = $ressource->getFile();
+	            $contenu = $ressource->getContenu();
 
-            // Validate based on nature
-            if ($nature === 'fichier' && !$file) {
-                 $this->addFlash('error', 'Veuillez sélectionner un fichier.');
-                 return $this->render('back/ressource/new.html.twig', [
-                    'ressource' => $ressource,
-                    'form' => $form->createView(),
-                    'selected_course' => $selectedCourse,
-                ]);
-            }
-            if ($nature === 'texte' && empty($contenu)) {
-                $this->addFlash('error', 'Veuillez saisir du contenu texte.');
-                 return $this->render('back/ressource/new.html.twig', [
-                    'ressource' => $ressource,
-                    'form' => $form->createView(),
-                    'selected_course' => $selectedCourse,
-                ]);
-            }
+	            // Validation selon la nature de la ressource
+	            if ($nature === 'fichier' && !$file) {
+	                $this->addFlash('error', 'Veuillez sélectionner un fichier.');
+	                return $this->render('back/ressource/new.html.twig', [
+	                    'ressource' => $ressource,
+	                    'form' => $form->createView(),
+	                    'selected_course' => $selectedCourse,
+	                ]);
+	            }
+	            if ($nature === 'texte' && empty($contenu)) {
+	                $this->addFlash('error', 'Veuillez saisir du contenu texte.');
+	                return $this->render('back/ressource/new.html.twig', [
+	                    'ressource' => $ressource,
+	                    'form' => $form->createView(),
+	                    'selected_course' => $selectedCourse,
+	                ]);
+	            }
 
-            if ($nature === 'fichier' && $file) {
-                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+		            if ($nature === 'fichier' && $file) {
+	                // Déterminer le type de ressource à partir du mime type
+	                $mimeType = $file->getMimeType();
+	                if (str_contains($mimeType, 'pdf')) {
+	                    $ressource->setType('PDF');
+	                } elseif (str_contains($mimeType, 'image')) {
+	                    $ressource->setType('IMAGE');
+	                } elseif (str_contains($mimeType, 'video')) {
+	                    $ressource->setType('VIDEO');
+	                } else {
+	                    $ressource->setType('FILE');
+	                }
 
-                try {
-                    $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/ressources';
-                    
-                    if (!is_dir($uploadDirectory)) {
-                        mkdir($uploadDirectory, 0777, true);
-                    }
-
-                    // On récupère le mimeType AVANT de déplacer le fichier
-                    $mimeType = $file->getMimeType();
-
-                    $file->move($uploadDirectory, $newFilename);
-                    $ressource->setUrl('/uploads/ressources/'.$newFilename);
-                    
-                    if (str_contains($mimeType, 'pdf')) {
-                        $ressource->setType('PDF');
-                    } elseif (str_contains($mimeType, 'image')) {
-                        $ressource->setType('IMAGE');
-                    } elseif (str_contains($mimeType, 'video')) {
-                        $ressource->setType('VIDEO');
-                    } else {
-                        $ressource->setType('FILE');
-                    }
-                    
-                    // Clear content if file uploaded (optional, but cleaner)
-                    $ressource->setContenu(null);
-                    
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload : ' . $e->getMessage());
-                    return $this->render('back/ressource/new.html.twig', [
-                        'ressource' => $ressource,
-                        'form' => $form->createView(),
-                        'selected_course' => $selectedCourse,
-                    ]);
-                }
-            } elseif ($nature === 'texte') {
-                $ressource->setType('FILE'); // Default type for text resources
-                $ressource->setUrl(null);   // Ensure no URL
-            }
+	                // On nettoie le contenu texte si on a un fichier
+	                $ressource->setContenu(null);
+		            } elseif ($nature === 'texte') {
+		                // Ressource purement textuelle
+		                $ressource->setType('TEXTE');
+		                $ressource->setUrl(null);   // aucune URL de fichier
+		            }
 
             // Important: Force re-assignment of course if it was pre-selected
             if ($selectedCourse) {
@@ -206,70 +180,59 @@ final class RessourceController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_ressource_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Ressource $ressource, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+	    #[Route('/{id}/edit', name: 'app_ressource_edit', methods: ['GET', 'POST'])]
+	    public function edit(Request $request, Ressource $ressource, EntityManagerInterface $entityManager): Response
     {
         // Check if user is admin
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             throw $this->createAccessDeniedException('Access denied. Admin role required.');
         }
 
-        $form = $this->createForm(RessourceType::class, $ressource);
+	        $form = $this->createForm(RessourceType::class, $ressource);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $nature = $form->get('nature')->getData();
-            $file = $form->get('fichier')->getData();
-            $contenu = $form->get('contenu')->getData();
+	        if ($form->isSubmitted() && $form->isValid()) {
+	            $nature = $form->get('nature')->getData();
+	            $file = $ressource->getFile();
+	            $contenu = $ressource->getContenu();
+	
+		            if ($nature === 'fichier') {
+	                // Si aucune ressource existante et aucun nouveau fichier, on bloque
+	                if (!$file && !$ressource->getUrl()) {
+	                    $this->addFlash('error', 'Veuillez sélectionner un fichier.');
+	                    return $this->render('back/ressource/edit.html.twig', [
+	                        'ressource' => $ressource,
+	                        'form' => $form->createView(),
+	                    ]);
+	                }
 
-            if ($nature === 'fichier' && $file) {
-                // ... file upload logic ...
-                 $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+	                // Si un nouveau fichier a  e9t 0e9 envoy 0e9, on met  e0 jour le type
+	                if ($file) {
+	                    $mimeType = $file->getMimeType();
+	                    if (str_contains($mimeType, 'pdf')) {
+	                        $ressource->setType('PDF');
+	                    } elseif (str_contains($mimeType, 'image')) {
+	                        $ressource->setType('IMAGE');
+	                    } elseif (str_contains($mimeType, 'video')) {
+	                        $ressource->setType('VIDEO');
+	                    } else {
+	                        $ressource->setType('FILE');
+	                    }
 
-                try {
-                    $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/ressources';
-                    
-                    if (!is_dir($uploadDirectory)) {
-                        mkdir($uploadDirectory, 0777, true);
-                    }
-
-                    $file->move($uploadDirectory, $newFilename);
-                    $ressource->setUrl('/uploads/ressources/'.$newFilename);
-                    
-                    $mimeType = $file->getMimeType();
-                    if (str_contains($mimeType, 'pdf')) {
-                        $ressource->setType('PDF');
-                    } elseif (str_contains($mimeType, 'image')) {
-                        $ressource->setType('IMAGE');
-                    } elseif (str_contains($mimeType, 'video')) {
-                        $ressource->setType('VIDEO');
-                    } else {
-                        $ressource->setType('FILE');
-                    }
-                    
-                    // Clear content if switching to file and uploading new one
-                    $ressource->setContenu(null);
-                    
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload : ' . $e->getMessage());
-                    return $this->render('back/ressource/edit.html.twig', [
-                        'ressource' => $ressource,
-                        'form' => $form->createView(),
-                    ]);
-                }
-            } elseif ($nature === 'texte') {
-                if (empty($contenu)) {
-                    $this->addFlash('error', 'Veuillez saisir du contenu texte.');
-                    return $this->render('back/ressource/edit.html.twig', [
-                        'ressource' => $ressource,
-                        'form' => $form->createView(),
-                    ]);
-                }
-                $ressource->setType('FILE');
-                $ressource->setUrl(null);
-            }
+	                    // On nettoie le contenu texte si on repasse sur un fichier
+	                    $ressource->setContenu(null);
+	                }
+		            } elseif ($nature === 'texte') {
+	                if (empty($contenu)) {
+	                    $this->addFlash('error', 'Veuillez saisir du contenu texte.');
+	                    return $this->render('back/ressource/edit.html.twig', [
+	                        'ressource' => $ressource,
+	                        'form' => $form->createView(),
+	                    ]);
+	                }
+		                $ressource->setType('TEXTE');
+	                $ressource->setUrl(null);
+	            }
 
             $entityManager->flush();
             $this->addFlash('success', 'Ressource modifiée avec succès !');

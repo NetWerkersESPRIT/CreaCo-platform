@@ -60,87 +60,103 @@
                     </div>
                 </div>
 
-                <!-- Resource Content -->
-                <div class="p-6">
-                    {% set is_youtube = (ressource.type|upper == 'VIDEO' and ressource.url and ('youtube.com' in ressource.url or 'youtu.be' in ressource.url)) %}
-                    {% set video_id = '' %}
+	                <!-- Resource Content -->
+	                <div class="p-6">
+	                    {% set originalUrl = ressource.url %}
+	                    {% set fileUrl = null %}
+	                    {% if originalUrl %}
+	                        {% if originalUrl starts with 'http://' or originalUrl starts with 'https://' %}
+	                            {% set fileUrl = originalUrl %}
+	                        {% elseif originalUrl starts with '/uploads/' or originalUrl starts with 'uploads/' %}
+	                            {% set fileUrl = originalUrl %}
+	                        {% else %}
+	                            {% set fileUrl = vich_uploader_asset(ressource, 'file') %}
+	                        {% endif %}
+	                    {% endif %}
 
-                    {% if is_youtube %}
-                        {% if 'v=' in ressource.url %}
-                            {% set video_id = ressource.url|split('v=')|last|split('&')|first %}
-                        {% elseif 'youtu.be' in ressource.url %}
-                            {% set video_id = ressource.url|split('/')|last %}
-                        {% endif %}
+	                    {% set is_youtube = (ressource.type|upper == 'VIDEO' and originalUrl and ('youtube.com' in originalUrl or 'youtu.be' in originalUrl)) %}
+	                    {% set video_id = '' %}
 
-                        {# YouTube Video Embed #}
-                        <div class="w-full relative overflow-hidden rounded-2xl bg-black mb-6" style="padding-top: 56.25%;">
-                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/{{ video_id }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                        </div>
-                        <div class="text-center">
-                            <a href="{{ ressource.url }}" target="_blank" class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-                                <i class="fab fa-youtube mr-2"></i>
-                                Watch on YouTube
-                            </a>
-                        </div>
+	                    {% if is_youtube %}
+	                        {% if 'v=' in originalUrl %}
+	                            {% set video_id = originalUrl|split('v=')|last|split('&')|first %}
+	                        {% elseif 'youtu.be' in originalUrl %}
+	                            {% set video_id = originalUrl|split('/')|last %}
+	                        {% endif %}
 
-                    {% elseif ressource.type|upper == 'PDF' and ressource.url %}
-                        {# PDF Viewer #}
-                        <div class="w-full h-screen-75 mb-6">
-                            <iframe src="{{ ressource.url }}" class="w-full h-full rounded-2xl border-2 border-gray-200" frameborder="0"></iframe>
-                        </div>
-                        <div class="text-center">
-                            <a href="{{ ressource.url }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-600 to-rose-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-                                <i class="fas fa-download mr-2"></i>
-                                Download PDF
-                            </a>
-                        </div>
+	                        {# YouTube Video Embed #}
+	                        <div class="w-full relative overflow-hidden rounded-2xl bg-black mb-6" style="padding-top: 56.25%;">
+	                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/{{ video_id }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+	                        </div>
+	                        <div class="text-center">
+	                            <a href="{{ originalUrl }}" target="_blank" class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+	                                <i class="fab fa-youtube mr-2"></i>
+	                                Watch on YouTube
+	                            </a>
+	                        </div>
 
-                    {% elseif ressource.type|upper == 'IMAGE' and ressource.url %}
-                        {# Image Display #}
-                        <div class="w-full mb-6 text-center">
-                            <img src="{{ ressource.url }}" alt="{{ ressource.nom }}" class="max-w-full h-auto rounded-2xl shadow-soft-2xl mx-auto">
-                        </div>
-                        <div class="text-center">
-                            <a href="{{ ressource.url }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-                                <i class="fas fa-download mr-2"></i>
-                                Download Image
-                            </a>
-                        </div>
+	                    {% elseif ressource.type|upper == 'PDF' and fileUrl %}
+	                        {# PDF Viewer #}
+	                        <div class="w-full h-screen-75 mb-6">
+	                            <iframe src="{{ fileUrl }}" class="w-full h-full rounded-2xl border-2 border-gray-200" frameborder="0"></iframe>
+	                        </div>
+	                        <div class="text-center">
+	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-600 to-rose-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+	                                <i class="fas fa-download mr-2"></i>
+	                                Download PDF
+	                            </a>
+	                        </div>
 
-                    {% elseif ressource.type|upper == 'VIDEO' and ressource.url %}
-                        {# Local Video Player #}
-                        <div class="w-full mb-6">
-                            <video controls class="w-full rounded-2xl shadow-soft-2xl">
-                                <source src="{{ ressource.url }}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <div class="text-center">
-                            <a href="{{ ressource.url }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-500 to-orange-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-                                <i class="fas fa-download mr-2"></i>
-                                Download Video
-                            </a>
-                        </div>
+	                    {% elseif ressource.type|upper == 'IMAGE' and fileUrl %}
+	                        {# Image Display #}
+	                        <div class="w-full mb-6 text-center">
+	                            <img src="{{ fileUrl }}" alt="{{ ressource.nom }}" class="max-w-full h-auto rounded-2xl shadow-soft-2xl mx-auto">
+	                        </div>
+	                        <div class="text-center">
+	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+	                                <i class="fas fa-download mr-2"></i>
+	                                Download Image
+	                            </a>
+	                        </div>
 
-                    {% elseif ressource.contenu %}
-                        {# Text Content #}
-                        <div class="w-full mb-6">
-                            <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
-                                <pre class="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">{{ ressource.contenu }}</pre>
-                            </div>
-                        </div>
+	                    {% elseif ressource.type|upper == 'VIDEO' and fileUrl %}
+	                        {# Local Video Player #}
+	                        <div class="w-full mb-6">
+	                            <video controls class="w-full rounded-2xl shadow-soft-2xl">
+	                                <source src="{{ fileUrl }}" type="video/mp4">
+	                                Your browser does not support the video tag.
+	                            </video>
+	                        </div>
+	                        <div class="text-center">
+	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-500 to-orange-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+	                                <i class="fas fa-download mr-2"></i>
+	                                Download Video
+	                            </a>
+	                        </div>
 
-                    {% else %}
-                        {# Generic File Download #}
-                        <div class="text-center py-12">
-                            <i class="fas fa-file text-6xl text-slate-300 mb-4"></i>
-                            <p class="text-lg font-semibold text-slate-500 mb-6">This resource is available for download</p>
-                            <a href="{{ ressource.url }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-slate-600 to-slate-300 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-                                <i class="fas fa-download mr-2"></i>
-                                Download File
-                            </a>
-                        </div>
-                    {% endif %}
+	                    {% elseif ressource.contenu %}
+	                        {# Text Content #}
+	                        <div class="w-full mb-6">
+	                            <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+	                                <pre class="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">{{ ressource.contenu }}</pre>
+	                            </div>
+	                        </div>
+
+	                    {% else %}
+	                        {# Generic File Download #}
+	                        <div class="text-center py-12">
+	                            <i class="fas fa-file text-6xl text-slate-300 mb-4"></i>
+	                            <p class="text-lg font-semibold text-slate-500 mb-6">This resource is available for download</p>
+	                            {% if fileUrl %}
+	                                <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-slate-600 to-slate-300 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+	                                    <i class="fas fa-download mr-2"></i>
+	                                    Download File
+	                                </a>
+	                            {% else %}
+	                                <p class="text-sm text-slate-400">No file is currently associated with this resource.</p>
+	                            {% endif %}
+	                        </div>
+	                    {% endif %}
                 </div>
             </div>
         </div>

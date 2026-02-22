@@ -20,15 +20,35 @@
       <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
         <h6>Modification de : <span class="text-fuchsia-500">{{ ressource.nom }}</span></h6>
       </div>
-      <div class="flex-auto p-6">
-        <div class="mb-4 p-4 bg-gray-50 rounded-xl border border-solid border-gray-200">
-            <p class="text-sm mb-0"><strong>Fichier actuel :</strong> 
-                <a href="{{ ressource.url }}" target="_blank" class="text-fuchsia-500 font-bold ml-2">
-                    <i class="fas fa-external-link-alt mr-1"></i> Voir la ressource
-                </a>
-            </p>
-            <p class="text-xs text-slate-400 mt-1 italic">Laissez le champ "Fichier" vide pour conserver le fichier actuel.</p>
-        </div>
+	      <div class="flex-auto p-6">
+	        <div class="mb-4 p-4 bg-gray-50 rounded-xl border border-solid border-gray-200">
+		            {% if ressource.type == 'TEXTE' or ressource.contenu %}
+		                <p class="text-sm mb-1"><strong>Ressource textuelle :</strong></p>
+		                <p class="text-xs text-slate-500 mb-0">Cette ressource contient du texte et n'est pas liée à un fichier.</p>
+	            {% else %}
+	                {% set fileUrl = null %}
+	                {% if ressource.url %}
+	                    {% if ressource.url starts with 'http://' or ressource.url starts with 'https://' %}
+	                        {% set fileUrl = ressource.url %}
+	                    {% elseif ressource.url starts with '/uploads/' or ressource.url starts with 'uploads/' %}
+	                        {% set fileUrl = ressource.url %}
+	                    {% else %}
+	                        {% set fileUrl = vich_uploader_asset(ressource, 'file') %}
+	                    {% endif %}
+	                {% endif %}
+
+		                {% if fileUrl %}
+		                    <p class="text-sm mb-0"><strong>Fichier actuel :</strong>
+		                        <a href="{{ fileUrl }}" target="_blank" class="text-fuchsia-500 font-bold ml-2">
+		                            <i class="fas fa-external-link-alt mr-1"></i> Voir la ressource
+		                        </a>
+		                    </p>
+		                {% else %}
+		                    <p class="text-sm mb-0 text-slate-500"><strong>Aucun fichier actuellement associé à cette ressource.</strong></p>
+		                {% endif %}
+	            {% endif %}
+	            <p class="text-xs text-slate-400 mt-1 italic">Laissez le champ "Fichier" vide pour conserver le fichier actuel.</p>
+	        </div>
 
         {{ include('back/ressource/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
         

@@ -38,13 +38,15 @@ class CoursController extends AbstractController
             'order' => $request->query->get('order', 'DESC'),
         ];
 
-        $cours = $coursRepository->findWithFilters($filters, $sort);
-
-        return $this->render('back/cours/index.html.twig', [
+	        $cours = $coursRepository->findWithFilters($filters, $sort);
+	        $courseStats = $coursRepository->getStatistics();
+	
+	        return $this->render('back/cours/index.html.twig', [
             'cours' => $cours,
             'filters' => $filters,
             'sort' => $sort,
             'search' => $filters['search'],
+	            'courseStats' => $courseStats,
         ]);
     }
 

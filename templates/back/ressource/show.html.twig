@@ -19,23 +19,37 @@
                 <th>Type</th>
                 <td>{{ ressource.type }}</td>
             </tr>
-            {% if ressource.type == 'TEXTE' %}
-            <tr>
-                <th>Contenu</th>
-                <td>
-                    <div style="white-space: pre-wrap; background: #f5f5f5; padding: 10px; border-radius: 5px;">
-                        {{ ressource.contenu }}
-                    </div>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <th>Url</th>
-                <td>
-                    <a href="{{ ressource.url }}" target="_blank">{{ ressource.url }}</a>
-                </td>
-            </tr>
-            {% endif %}
+	            {% if ressource.type == 'TEXTE' %}
+	            <tr>
+	                <th>Contenu</th>
+	                <td>
+	                    <div style="white-space: pre-wrap; background: #f5f5f5; padding: 10px; border-radius: 5px;">
+	                        {{ ressource.contenu }}
+	                    </div>
+	                </td>
+	            </tr>
+	            {% else %}
+	            {% set fileUrl = null %}
+	            {% if ressource.url %}
+	                {% if ressource.url starts with 'http://' or ressource.url starts with 'https://' %}
+	                    {% set fileUrl = ressource.url %}
+	                {% elseif ressource.url starts with '/uploads/' or ressource.url starts with 'uploads/' %}
+	                    {% set fileUrl = ressource.url %}
+	                {% else %}
+	                    {% set fileUrl = vich_uploader_asset(ressource, 'file') %}
+	                {% endif %}
+	            {% endif %}
+		            <tr>
+		                <th>Url</th>
+		                <td>
+		                    {% if fileUrl %}
+		                        <a href="{{ fileUrl }}" target="_blank">{{ fileUrl }}</a>
+		                    {% else %}
+		                        <span class="text-slate-400 italic">Aucun fichier associé</span>
+		                    {% endif %}
+		                </td>
+		            </tr>
+	            {% endif %}
             <tr>
                 <th>Date de création</th>
                 <td>{{ ressource.dateDeCreation ? ressource.dateDeCreation|date('d/m/Y H:i') : '-' }}</td>
