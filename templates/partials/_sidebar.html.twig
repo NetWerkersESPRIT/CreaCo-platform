@@ -13,6 +13,7 @@
 	<div class="items-center block w-auto h-sidenav grow basis-full">
 		<ul class="flex flex-col pl-0 mb-0">
 			{% set currentRoute = app.request.attributes.get('_route') %}
+
 			<li class="mt-0.5 w-full">
 				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute == 'app_home' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_home') }}">
 					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute == 'app_home' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
@@ -21,18 +22,45 @@
 					<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
 				</a>
 			</li>
+
+			<!-- Moderation & Admin (Role: Admin) -->
+			{% if app.session.get('user_role') == 'ROLE_ADMIN' %}
+				<li class="w-full mt-4">
+					<h6 class="pl-6 ml-2 text-xs font-bold leading-tight uppercase opacity-60">Admin</h6>
+				</li>
+
+				<!-- Connected Users (Admin) -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_admin') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-single-02 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Connected Users</span>
+					</a>
+				</li>
+
+				<!-- Moderation -->
+				<li class="mt-0.5 w-full">
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'admin_post_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('admin_post_pending') }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'admin_post_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-check-bold {{ currentRoute starts with 'admin_post_' ? 'text-white' : 'text-slate-700' }}"></i>
+						</div>
+						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Post Moderation</span>
+					</a>
+				</li>
+			{% endif %}
 			{#
-																														   												 <li class="mt-0.5 w-full">
-																																						   				   <a
-																																										      class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-																														   												   href="{{ path('app_home') }}">
-																																		   								     <div
-																																						   				     class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-																																						   				       <i class="ni ni-shop text-white"></i>
-																																		   								     </div>
-																																						   				     <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
-																																										      </a>
-																														   												 </li>#}
+																																										   												 <li class="mt-0.5 w-full">
+																																																		   				   <a
+																																																						      class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+																																										   												   href="{{ path('app_home') }}">
+																																														   								     <div
+																																																		   				     class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+																																																		   				       <i class="ni ni-shop text-white"></i>
+																																														   								     </div>
+																																																		   				     <span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Dashboard</span>
+																																																						      </a>
+																																										   												 </li>#}
 			<li class="mt-4 w-full">
 				<h6 class="ml-8 text-xxs font-bold leading-tight uppercase opacity-60 text-slate-500">Workflow Management</h6>
 			</li>
@@ -73,19 +101,19 @@
 			<!-- Events -->
 			{% if app.session.get('user_role') == 'ROLE_CONTENT_CREATOR' or app.session.get('user_role') == 'ROLE_MANAGER' or app.session.get('user_role') == 'ROLE_ADMIN' %}
 				{#<li class="mt-0.5 w-full">
-																																												    												      <a
-																																																    								        class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-																																																    								        href="{{ path('event_list') }}">
-																																																    								        <div
-																																																    								          class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-																																																    								          <i class="ni ni-calendar-grid-58 text-white"></i>
-																																																    								        </div>
-																																																    								        <span
-																																																    								          class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
-																																																				    				          >Events</span
-																																																				    				        >
-																																																				    				      </a>
-																																																				    				    </li>#}
+																																																												    												      <a
+																																																																    								        class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+																																																																    								        href="{{ path('event_list') }}">
+																																																																    								        <div
+																																																																    								          class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+																																																																    								          <i class="ni ni-calendar-grid-58 text-white"></i>
+																																																																    								        </div>
+																																																																    								        <span
+																																																																    								          class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"
+																																																																				    				          >Events</span
+																																																																				    				        >
+																																																																				    				      </a>
+																																																																				    				    </li>#}
 				<li class="mt-0.5 w-full">
 					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'event_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('event_list') }}">
 						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'event_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
@@ -97,18 +125,18 @@
 			{% endif %}
 			{% if app.session.get('user_role') == 'ROLE_MEMBER' %}
 				{#<li class="mt-0.5 w-full">
-																																																				    				      <a
-																																																				    				        class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
-																																																				    				        href="{{ path('member_event_list') }}">
-																																																				    				        <div
-																																																								              class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
-																																																								              <i class="ni ni-calendar-grid-58 text-white"></i>
-																																								    																        </div>
-																																																								            <span
-																																								    																          class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"                >Events</span
-																																																								            >
-																																								    																      </a>
-																																																								        </li>#}
+																																																																				    				      <a
+																																																																				    				        class="py-2.7 shadow-soft-xl text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg bg-white px-4 font-semibold text-slate-700 transition-colors"
+																																																																				    				        href="{{ path('member_event_list') }}">
+																																																																				    				        <div
+																																																																								              class="bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
+																																																																								              <i class="ni ni-calendar-grid-58 text-white"></i>
+																																																								    																        </div>
+																																																																								            <span
+																																																								    																          class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft"                >Events</span
+																																																																								            >
+																																																								    																      </a>
+																																																																								        </li>#}
 				<li class="mt-0.5 w-full">
 					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'event_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('member_event_list') }}">
 						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'event_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
@@ -170,32 +198,6 @@
 			{% endif %}
 
 
-			<!-- Moderation & Admin (Role: Admin) -->
-			{% if app.session.get('user_role') == 'ROLE_ADMIN' %}
-				<li class="w-full mt-4">
-					<h6 class="pl-6 ml-2 text-xs font-bold leading-tight uppercase opacity-60">Admin</h6>
-				</li>
-
-				<!-- Connected Users (Admin) -->
-				<li class="mt-0.5 w-full">
-					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_admin') }}">
-						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
-							<i class="ni ni-single-02 {{ currentRoute == 'app_admin' or currentRoute == 'app_user_edit' ? 'text-white' : 'text-slate-700' }}"></i>
-						</div>
-						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Connected Users</span>
-					</a>
-				</li>
-
-				<!-- Moderation -->
-				<li class="mt-0.5 w-full">
-					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'admin_post_' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('admin_post_pending') }}">
-						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'admin_post_' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
-							<i class="ni ni-check-bold {{ currentRoute starts with 'admin_post_' ? 'text-white' : 'text-slate-700' }}"></i>
-						</div>
-						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Post Moderation</span>
-					</a>
-				</li>
-			{% endif %}
 		</ul>
 	</div>
 </aside>
