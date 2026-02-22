@@ -30,14 +30,13 @@ class PostType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control']
             ])
-            ->add('pdf', FileType::class, [
+            ->add('pdfFile', FileType::class, [
                 'label' => 'PDF Document (optional)',
-                'mapped' => false,
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new File([
-                        'maxSize' => '5M',
+                        'maxSize' => '10M',
                         'mimeTypes' => [
                             'application/pdf',
                         ],

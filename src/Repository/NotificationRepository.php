@@ -27,4 +27,16 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /** @return Notification[] */
+    public function findRecentForUser(\App\Entity\Users $user, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.user_id = :user')
+            ->setParameter('user', $user)
+            ->orderBy('n.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

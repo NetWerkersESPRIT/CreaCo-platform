@@ -20,23 +20,29 @@ class NotificationExtension extends AbstractExtension
     {
         return [
             new TwigFunction('get_unread_notif_count', [$this, 'getUnreadNotifCount']),
+            new TwigFunction('get_recent_notifications', [$this, 'getRecentNotifications']),
         ];
     }
 
     public function getUnreadNotifCount(): int
     {
-        $session = $this->requestStack->getSession();
-        $userId = $session->get('user_id');
-
-        if (!$userId) {
-            return 0;
-        }
-
-        $user = $this->usersRepository->find($userId);
-        if (!$user) {
-            return 0;
-        }
-
+        $user = $this->getCurrentUser();
+        if (!$user) return 0;
         return $this->notificationRepository->countUnreadForUser($user);
+    }
+
+    public function getRecentNotifications(int $limit = 10): array
+    {
+        $user = $this->getCurrentUser();
+        if (!$user) return [];
+        return $this->notificationRepository->findRecentForUser($user, $limit);
+    }
+
+    private function getCurrentUser(): ?\App\Entity\Users
+    {
+        $session = $this->requestStack->getSession();
+        $userId  = $session->get('user_id');
+        if (!$userId) return null;
+        return $this->usersRepository->find($userId);
     }
 }

@@ -9,11 +9,11 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\File;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class RessourceType extends AbstractType
 {
@@ -44,10 +44,16 @@ class RessourceType extends AbstractType
                 'multiple' => false,
                 'data' => $defaultNature,
             ])
-            ->add('fichier', FileType::class, [
+            ->add('fichier', VichFileType::class, [
                 'label' => 'Fichier (PDF, Image, Video)',
-                'mapped' => false,
                 'required' => false,
+                // Champ lié à la propriété $file de l'entité Ressource
+                'mapped' => true,
+                'property_path' => 'file',
+                'allow_delete' => true,
+                'download_uri' => true,
+                'download_label' => 'Télécharger le fichier actuel',
+                'asset_helper' => true,
                 'constraints' => [
                     new File([
                         'maxSize' => '10240k',

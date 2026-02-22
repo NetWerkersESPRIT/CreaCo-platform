@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Task Kanban{% endblock %}
+{% block title %}Tasks{% endblock %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.css">
     <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
         /* Soft UI Dashboards Styles for jKanban */
         .kanban-container {
             width: auto !important;
@@ -92,27 +95,277 @@
 {% block body %}
     <div class="flex flex-wrap -mx-3 mt-6">
         <div class="w-full max-w-full px-3">
-            <div class="flex justify-between items-center mb-8 px-4">
-                <div>
-                    <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text">Project Kanban</h3>
-                    <p class="text-sm mb-0 text-slate-500">Manage tasks with drag-and-drop efficiency.</p>
+            <!-- Block 1: Identification & Search -->
+            <div class="flex flex-col mb-4 px-4 gap-4">
+                <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Tasks</h3>
+                <div class="relative w-full md:w-96">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <i class="fas fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="task-search-unified" class="block w-full pl-9 pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search tasks...">
                 </div>
-                <a href="{{ path('app_task_new') }}" class="inline-block px-8 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
+            </div>
+
+            <!-- Block 2: View Switcher (Isolated, Left-aligned) -->
+            <div class="flex flex-col items-start mb-8 px-4 gap-4">
+                <div class="flex p-1 bg-gray-100 rounded-lg w-fit border border-gray-200">
+                    <button id="btn-kanban" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 bg-white shadow-soft-xs text-slate-700" onclick="switchTaskView('kanban')">
+                        <i class="fas fa-columns mr-1"></i> Kanban
+                    </button>
+                    <button id="btn-table" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 text-slate-600 hover:text-slate-700 ml-1" onclick="switchTaskView('table')">
+                        <i class="fas fa-list mr-1"></i> Table
+                    </button>
+                </div>   
+            </div>
+
+            <!-- Block 3: Filters & Primary Action (Table View Only) -->
+            <div id="task-table-controls" class="hidden flex flex-wrap items-center justify-between mb-8 px-4 gap-4">
+                <div class="flex flex-wrap gap-2" id="status-boxes">
+                    <div data-status="todo" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+                        TO DO
+                    </div>
+                    <div data-status="in_progress" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+                        DOING
+                    </div>
+                    <div data-status="completed" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+                        DONE
+                    </div>
+                </div>
+
+                <a href="{{ path('app_task_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
                     <i class="fas fa-plus mr-1"></i> New Task
                 </a>
             </div>
 
-            <div class="overflow-x-auto pb-6">
-                <div id="myKanban"></div>
+            <!-- Block 4: Content Display -->
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+                <div class="flex items-center mb-6">
+                    <button id="btn-ongoing-missions" class="px-6 py-3.5 text-xs font-bold rounded-lg border border-fuchsia-200 bg-white text-fuchsia-600 transition-all duration-200 hover:bg-fuchsia-50" onclick="toggleOngoingMissions()">
+                        <i class="fas fa-filter mr-1"></i> Ongoing Missions Only
+                    </button>
+                </div>
+                <!-- Kanban View -->
+                <div id="kanban-view" class="overflow-x-auto pb-6">
+                    <div id="myKanban"></div>
+                </div>
+
+                <!-- Table View (Hidden by Default) -->
+                <div id="table-view" class="hidden flex-auto px-0 pt-0 pb-2 bg-transparent">
+                    <div class="p-0 overflow-x-auto">
+                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead class="align-bottom">
+                            <tr>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Task</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Assigned To</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Project/Mission</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Due Date</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                                <tr>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <div class="flex flex-col justify-center px-4">
+                                            <h6 class="mb-0 text-sm leading-normal font-semibold">{{ task.title }}</h6>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        {% set stateBadgeClass = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
+                                        {% set stateLabel = 'To Do' %}
+                                        {% if task.state == 'in_progress' %}
+                                            {% set stateBadgeClass = 'bg-gradient-to-tl from-blue-600 to-cyan-400' %}
+                                            {% set stateLabel = 'Doing' %}
+                                        {% elseif task.state == 'completed' %}
+                                            {% set stateBadgeClass = 'bg-gradient-to-tl from-green-600 to-lime-400' %}
+                                            {% set stateLabel = 'Done' %}
+                                        {% endif %}
+                                        <span class="{{ stateBadgeClass }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ stateLabel }}</span>
+                                        <span class="hidden">{{ task.state }}</span> {# For raw filtering #}
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <div class="flex items-center px-2">
+                                            <i class="fas fa-user-circle text-slate-300 mr-2"></i>
+                                            <span class="text-xs font-semibold leading-tight text-slate-700">{{ task.assumedBy ? task.assumedBy.username : 'Not assigned' }}</span>
+                                            <span class="hidden task-issuer">{{ task.issuedBy ? task.issuedBy.username : 'N/A' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <span class="text-xs font-semibold leading-tight text-slate-700 px-2">
+                                            {{ task.belongTo ? task.belongTo.title : 'PROJECT' }}
+                                        </span>
+                                        <span class="hidden mission-state">{{ task.belongTo ? task.belongTo.state : 'none' }}</span>
+                                    </td>
+                                    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <span class="text-xs font-semibold leading-tight text-slate-400">
+                                            {{ task.timeLimit ? task.timeLimit|date('d/m/Y') : 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+                                        <a href="{{ path('app_task_show', {'id': task.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-6">
+                                            <i class="fas fa-eye text-info"></i> View
+                                        </a>
+                                        {% if task.state != 'completed' %}
+                                        <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
+                                            <i class="fas fa-edit text-primary"></i> Edit
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="p-4 text-center text-sm">No tasks found</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
     <script src="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.js"></script>
     <script>
+        const activeStatuses = new Set();
+
+        function toggleStatusBox(el) {
+            const status = el.getAttribute('data-status');
+            const isActive = activeStatuses.has(status);
+            
+            // Define active classes mapping (Soft UI theme)
+            const activeClasses = {
+                'todo': ['bg-gradient-to-tl', 'from-purple-700', 'to-pink-500', 'text-white', 'border-transparent'],
+                'in_progress': ['bg-gradient-to-tl', 'from-blue-600', 'to-cyan-400', 'text-white', 'border-transparent'],
+                'completed': ['bg-gradient-to-tl', 'from-green-600', 'to-lime-400', 'text-white', 'border-transparent']
+            };
+
+            if (isActive) {
+                activeStatuses.delete(status);
+                el.classList.remove(...activeClasses[status]);
+                el.classList.add('bg-gray-50', 'text-slate-400', 'border-gray-200');
+            } else {
+                activeStatuses.add(status);
+                el.classList.remove('bg-gray-50', 'text-slate-400', 'border-gray-200');
+                el.classList.add(...activeClasses[status]);
+            }
+            
+            filterTasks();
+        }
+
+        function switchTaskView(view) {
+            const kanbanView = document.getElementById('kanban-view');
+            const tableView = document.getElementById('table-view');
+            const btnKanban = document.getElementById('btn-kanban');
+            const btnTable = document.getElementById('btn-table');
+            const tableControls = document.getElementById('task-table-controls');
+
+            if (view === 'kanban') {
+                kanbanView.classList.remove('hidden');
+                tableView.classList.add('hidden');
+                if (tableControls) tableControls.classList.add('hidden');
+                
+                btnKanban.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
+                btnKanban.classList.remove('text-slate-600');
+                
+                btnTable.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
+                btnTable.classList.add('text-slate-600');
+            } else {
+                kanbanView.classList.add('hidden');
+                tableView.classList.remove('hidden');
+                if (tableControls) tableControls.classList.remove('hidden');
+                
+                btnTable.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
+                btnTable.classList.remove('text-slate-600');
+                
+                btnKanban.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
+                btnKanban.classList.add('text-slate-600');
+            }
+        }
+
+        let ongoingOnly = false;
+
+        function toggleOngoingMissions() {
+            ongoingOnly = !ongoingOnly;
+            const btn = document.getElementById('btn-ongoing-missions');
+            
+            if (ongoingOnly) {
+                btn.classList.add('bg-gradient-to-tl', 'from-blue-600', 'to-cyan-400', 'text-white', 'border-transparent', 'shadow-soft-md');
+                btn.classList.remove('bg-white', 'border-fuchsia-200', 'text-fuchsia-600');
+            } else {
+                btn.classList.remove('bg-gradient-to-tl', 'from-blue-600', 'to-cyan-400', 'text-white', 'border-transparent', 'shadow-soft-md');
+                btn.classList.add('bg-white', 'border-fuchsia-200', 'text-fuchsia-600');
+            }
+            
+            filterTasks();
+        }
+
+        function filterTasks() {
+            const searchTerm = document.getElementById('task-search-unified').value.toLowerCase().trim();
+            
+            // Filter Table View
+            const tableBody = document.querySelector('#table-view table tbody');
+            const rows = tableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                if (row.querySelector('td[colspan]')) return;
+                const title = row.querySelector('h6').textContent.toLowerCase();
+                const assignedTo = row.querySelector('td:nth-child(3) span:not(.hidden)').textContent.toLowerCase();
+                const issuer = row.querySelector('.task-issuer').textContent.toLowerCase();
+                const mission = row.querySelector('td:nth-child(4) span').textContent.toLowerCase();
+                const missionState = row.querySelector('.mission-state').textContent.trim().toLowerCase();
+                const status = row.querySelector('td:nth-child(2) span.hidden').textContent.toLowerCase().trim();
+
+                const matchesSearch = title.includes(searchTerm) || 
+                                    assignedTo.includes(searchTerm) || 
+                                    issuer.includes(searchTerm) || 
+                                    mission.includes(searchTerm);
+                
+                const matchesStatus = activeStatuses.size === 0 || activeStatuses.has(status);
+                const matchesOngoing = !ongoingOnly || missionState === 'in_progress';
+
+                if (matchesSearch && matchesStatus && matchesOngoing) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            // Filter Kanban View
+            const kanbanItems = document.querySelectorAll('.kanban-item');
+            kanbanItems.forEach(item => {
+                const title = item.querySelector('.task-card-title').textContent.toLowerCase();
+                const assignedTo = item.querySelector('span.text-slate-400').textContent.toLowerCase();
+                const issuer = item.querySelector('.task-card-issuer').textContent.toLowerCase();
+                const mission = item.querySelector('.task-card-badge').textContent.toLowerCase();
+                
+                // For Kanban, we need to find the mission state. 
+                // Since I added it to the 'columns' object, I'll add a hidden span in the 'title' HTML to make it accessible.
+                const missionStateSpan = item.querySelector('.kanban-mission-state');
+                const missionState = missionStateSpan ? missionStateSpan.textContent : 'none';
+
+                const matchesSearch = title.includes(searchTerm) || 
+                                    assignedTo.includes(searchTerm) || 
+                                    issuer.includes(searchTerm) || 
+                                    mission.includes(searchTerm);
+                
+                const matchesOngoing = !ongoingOnly || missionState === 'in_progress';
+
+                if (matchesSearch && matchesOngoing) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
+            const unifiedSearch = document.getElementById('task-search-unified');
+            unifiedSearch.addEventListener('input', filterTasks);
+
             // Build Board Items from Twig
             const columns = {
                 'todo': [],
@@ -125,15 +378,17 @@
                     'id': "{{ task.id }}",
                     'class': "{{ task.state == 'completed' ? 'task-locked' : '' }}",
                     'draggable': {{ task.state == 'completed' ? 'false' : 'true' }},
+                    'missionState': "{{ task.belongTo ? task.belongTo.state : 'none' }}",
                     'title': `
                         <div class="task-card-header">
-                            <span class="task-card-id">#{{ task.id }}</span>
                             <div class="flex items-center">
                                 <i class="fas fa-user-circle text-slate-300 mr-1" style="font-size: 10px;"></i>
                                 <span class="text-[10px] font-bold text-slate-400 capitalize">{{ task.assumedBy ? task.assumedBy.username|slice(0, 10)|e('js') : 'Not assigned' }}</span>
                             </div>
                         </div>
                         <h6 class="task-card-title">{{ task.title|e('js') }}</h6>
+                        <span class="hidden kanban-mission-state">{{ task.belongTo ? task.belongTo.state : 'none' }}</span>
+                        <span class="hidden task-card-issuer">{{ task.issuedBy ? task.issuedBy.username|e('js') : 'N/A' }}</span>
                         <div class="task-card-footer">
                             <div class="flex items-center">
                                 <i class="far fa-clock mr-1" style="font-size: 10px;"></i>

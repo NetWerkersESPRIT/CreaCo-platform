@@ -104,18 +104,36 @@
 										<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
 											<div class="flex px-2 py-1">
 												<div class="flex flex-col justify-center">
-													<h6 class="mb-0 text-sm leading-normal">{{ ressource.nom }}</h6>
-													{% if ressource.type == 'TEXTE' %}
-														<a href="{{ path('app_ressource_show', {'id': ressource.id}) }}" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
-															<i class="fas fa-file-alt mr-1"></i>
-															Voir le contenu
-														</a>
-													{% else %}
-														<a href="{{ ressource.url }}" target="_blank" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
-															<i class="fas fa-external-link-alt mr-1"></i>
-															Voir le fichier
-														</a>
-													{% endif %}
+									<h6 class="mb-0 text-sm leading-normal">{{ ressource.nom }}</h6>
+									{% if ressource.type == 'TEXTE' or ressource.contenu %}
+										<a href="{{ path('app_ressource_show', {'id': ressource.id}) }}" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
+											<i class="fas fa-file-alt mr-1"></i>
+											Voir le contenu
+										</a>
+									{% else %}
+										{# D e9termination de l'URL du fichier (Vich / ancien upload / lien externe) #}
+										{% set fileUrl = null %}
+										{% if ressource.url %}
+											{% if ressource.url starts with 'http://' or ressource.url starts with 'https://' %}
+												{% set fileUrl = ressource.url %}
+											{% elseif ressource.url starts with '/uploads/' or ressource.url starts with 'uploads/' %}
+												{# Anciennes ressources: chemin complet d e9j e0 stock e9 #}
+												{% set fileUrl = ressource.url %}
+											{% else %}
+												{# Nouveau comportement Vich: seul le nom de fichier est stock e9 #}
+												{% set fileUrl = vich_uploader_asset(ressource, 'file') %}
+											{% endif %}
+										{% endif %}
+
+										{% if fileUrl %}
+											<a href="{{ fileUrl }}" target="_blank" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
+												<i class="fas fa-external-link-alt mr-1"></i>
+												Voir le fichier
+											</a>
+										{% else %}
+											<span class="mb-0 text-xs leading-tight text-slate-400 italic">Aucun fichier associé</span>
+										{% endif %}
+									{% endif %}
 												</div>
 											</div>
 										</td>

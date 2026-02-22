@@ -75,6 +75,44 @@ class CoursRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+	    /**
+	     * Returns aggregated statistics about courses for admin dashboards.
+	     *
+	     * @return array{
+	     *     total_courses:int,
+	     *     total_views:int,
+	     *     average_views:float,
+	     *     new_courses:int
+	     * }
+	     */
+	    public function getStatistics(): array
+	    {
+	        // Global aggregates: total courses, total views and average views
+	        $aggregates = $this->createQueryBuilder('c')
+	            ->select('COUNT(c.id) AS totalCourses')
+	            ->addSelect('COALESCE(SUM(c.views), 0) AS totalViews')
+	            ->addSelect('COALESCE(AVG(c.views), 0) AS avgViews')
+	            ->getQuery()
+	            ->getSingleResult();
+
+	        // Courses created during the last 30 days
+	        $since = new \DateTimeImmutable('-30 days');
+
+	        $newCourses = (int) $this->createQueryBuilder('c2')
+	            ->select('COUNT(c2.id)')
+	            ->andWhere('c2.date_de_creation >= :since')
+	            ->setParameter('since', $since)
+	            ->getQuery()
+	            ->getSingleScalarResult();
+
+	        return [
+	            'total_courses' => (int) ($aggregates['totalCourses'] ?? 0),
+	            'total_views' => (int) ($aggregates['totalViews'] ?? 0),
+	            'average_views' => (float) ($aggregates['avgViews'] ?? 0.0),
+	            'new_courses' => $newCourses,
+	        ];
+	    }
+
     public function save(Cours $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);

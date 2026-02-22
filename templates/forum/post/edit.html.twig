@@ -16,7 +16,8 @@
 					<h5 class="font-bold">Edit Discussion</h5>
 				</div>
 				<div class="flex-auto p-6">
-					{{ include('forum/post/_form.html.twig', {'button_label': 'Update'}) }}
+
+					{{ include('forum/post/_form.html.twig', {'button_label': 'Update', 'post': post}) }}
 
 					<div class="mt-4 text-center">
 						{{ include('forum/post/_delete_form.html.twig') }}

@@ -80,18 +80,131 @@
 					</div>
 
 					<!-- Global Notification Bell -->
-					<li class="relative flex items-center pr-2">
-						<a href="{{ path('app_notifications') }}" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500">
-							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
-								<i class="fa fa-bell"></i>
-								<!-- Notification Badge -->
-								{% set unreadCount = get_unread_notif_count() %}
-								<span id="notif-badge" class="{{ unreadCount > 0 ? '' : 'hidden' }} absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-									{{ unreadCount > 9 ? '9+' : unreadCount }}
-								</span>
+					<li style="position:relative; display:flex; align-items:center; padding-right:0.5rem;" id="notif-wrapper">
+
+						{% set recentNotifs = get_recent_notifications(6) %}
+						{% set unreadCount  = get_unread_notif_count() %}
+
+						<!-- Bell Button -->
+						<button id="notifBtn" type="button" style="position:relative; background:#fff; margin-left:1rem; display:flex; width:3rem; height:3rem; align-items:center; justify-content:center; border-radius:0.75rem; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.1); transition:transform .2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" aria-expanded="false">
+							<i class="fa fa-bell" style="font-size:1.1rem; color:#475569;"></i>
+							<span id="notif-badge" style="display:{{ unreadCount > 0 ? 'inline-flex' : 'none' }}; position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; align-items:center; justify-content:center; font-size:0.68rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px; line-height:1;">
+								{{ unreadCount > 9 ? '9+' : unreadCount }}
+							</span>
+						</button>
+
+						<!-- Dropdown panel -->
+						<div
+							id="notifDropdown" style="display:none; position:absolute; right:0; top:calc(100% + 10px);
+																																															       width:460px; max-width:92vw; z-index:9999;
+																																															       background:#fff; border-radius:18px;
+																																															       border:1px solid #e2e8f0;
+																																															       box-shadow:0 24px 64px rgba(0,0,0,.18);
+																																															       flex-direction:column; overflow:hidden;">
+
+							<!-- Header -->
+							<div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #f1f5f9; flex-shrink:0;">
+								<div style="display:flex; align-items:center; gap:8px;">
+									<span style="font-weight:700; font-size:1rem; color:#1e293b;">Notifications</span>
+									{% if unreadCount > 0 %}
+										<span style="display:inline-flex; align-items:center; justify-content:center; padding:2px 8px; font-size:0.7rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px;">
+											{{ unreadCount }}
+										</span>
+									{% endif %}
+								</div>
+								<a href="{{ path('app_notifications') }}" style="font-size:0.82rem; font-weight:600; background:linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none;">
+									Voir tout →
+								</a>
 							</div>
-						</a>
+
+							<!-- Scrollable list -->
+							<div style="overflow-y:auto; max-height:460px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+								{% if recentNotifs is empty %}
+									<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 0; color:#94a3b8;">
+										<i class="fa fa-bell-slash" style="font-size:2rem; margin-bottom:10px; opacity:0.4;"></i>
+										<p style="font-size:0.875rem; margin:0;">Aucune notification</p>
+									</div>
+								{% else %}
+									{% for notif in recentNotifs %}
+										{% set isUnread = not notif.isRead %}
+										<div
+											style="display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:12px; border:1px solid {{ isUnread ? '#e9d5ff' : '#f1f5f9' }}; background:{{ isUnread ? '#fdf4ff' : '#fff' }}; cursor:pointer;" {% if notif.targetUrl %} onclick="window.location='{{ notif.targetUrl }}'" {% endif %} onmouseover="this.style.background='{{ isUnread ? '#f3e8ff' : '#f8fafc' }}'" onmouseout="this.style.background='{{ isUnread ? '#fdf4ff' : '#fff' }}'">
+
+											<!-- Icon -->
+											<div style="flex-shrink:0; margin-top:2px;">
+												{% if notif.type == 'post_approved' %}
+													<span style="display:inline-flex; width:36px; height:36px; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#22c55e,#14b8a6); color:#fff; font-size:1rem;">✓</span>
+												{% elseif notif.type == 'post_refused' %}
+													<span style="display:inline-flex; width:36px; height:36px; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#ef4444,#f43f5e); color:#fff; font-size:1rem;">✕</span>
+												{% else %}
+													<span style="display:inline-flex; width:36px; height:36px; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff;">
+														<i class="fa fa-bell" style="font-size:0.8rem;"></i>
+													</span>
+												{% endif %}
+											</div>
+
+											<!-- Text -->
+											<div style="flex:1; min-width:0;">
+												<p style="margin:0 0 5px; font-size:0.875rem; font-weight:{{ isUnread ? '600' : '400' }}; color:{{ isUnread ? '#1e293b' : '#475569' }}; line-height:1.45;">
+													{{ notif.message }}
+												</p>
+												<p style="margin:0; font-size:0.75rem; color:#94a3b8;" data-timestamp="{{ notif.createdAt|date('U') }}">
+													{{ notif.createdAt|date('d/m H:i') }}
+												</p>
+											</div>
+
+											<!-- Unread dot -->
+											{% if isUnread %}
+												<span style="flex-shrink:0; margin-top:6px; width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>
+											{% endif %}
+										</div>
+									{% endfor %}
+								{% endif %}
+							</div>
+
+						</div>
 					</li>
+
+					<script>
+						(function () {
+var btn = document.getElementById('notifBtn');
+var dropdown = document.getElementById('notifDropdown');
+var wrapper = document.getElementById('notif-wrapper');
+if (! btn || ! dropdown) 
+return;
+
+
+
+btn.addEventListener('click', function (e) {
+e.stopPropagation();
+var open = dropdown.style.display === 'flex';
+dropdown.style.display = open ? 'none' : 'flex';
+btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+});
+
+document.addEventListener('click', function (e) {
+if (wrapper && ! wrapper.contains(e.target)) {
+dropdown.style.display = 'none';
+btn.setAttribute('aria-expanded', 'false');
+}
+});
+
+document.querySelectorAll('[data-timestamp]').forEach(function (el) {
+var ts = parseInt(el.getAttribute('data-timestamp'), 10) * 1000;
+var diff = Math.floor((Date.now() - ts) / 1000);
+var label;
+if (diff < 60) 
+label = diff + 's';
+ else if (diff < 3600) 
+label = Math.floor(diff / 60) + 'm';
+ else if (diff < 86400) 
+label = Math.floor(diff / 3600) + 'h';
+ else 
+label = Math.floor(diff / 86400) + 'j';
+ el.textContent = 'il y a ' + label;
+});
+})();
+					</script>
 
 					<!-- Logout Button -->
 					<li>

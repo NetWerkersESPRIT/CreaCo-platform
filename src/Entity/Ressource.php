@@ -6,9 +6,12 @@ use App\Repository\RessourceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: RessourceRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Ressource
 {
     #[ORM\Id]
@@ -30,9 +33,16 @@ class Ressource
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 
+	/**
+	 * Fichier uploadé géré par VichUploader (non persisté en base).
+	 * Le nom de fichier final est stocké dans la propriété $url.
+	 */
+	#[Vich\UploadableField(mapping: 'ressource_file', fileNameProperty: 'url')]
+	private ?File $file = null;
+
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Choice(choices: ['PDF', 'IMAGE', 'VIDEO', 'FILE'], message: "Type de ressource invalide")]
-    private ?string $type = null;
+	    #[Assert\Choice(choices: ['PDF', 'IMAGE', 'VIDEO', 'FILE', 'TEXTE'], message: "Type de ressource invalide")]
+	    private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contenu = null;
@@ -76,6 +86,23 @@ class Ressource
 
         return $this;
     }
+
+	public function getFile(): ?File
+	{
+		return $this->file;
+	}
+
+	public function setFile(?File $file): static
+	{
+		$this->file = $file;
+
+		// Forcer une mise à jour pour que les listeners Vich soient déclenchés
+		if ($file !== null) {
+			$this->date_de_modification = new \DateTime();
+		}
+
+		return $this;
+	}
 
     public function getType(): ?string
     {
