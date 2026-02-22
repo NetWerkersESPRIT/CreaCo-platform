@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}"/>
+		<link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}"/>
+		<title>CreaCo | Empower Your Creativity</title>
+		
+		<!-- Fonts and icons -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+		<!-- Font Awesome Icons -->
+		<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+		<!-- Nucleo Icons -->
+		<link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet"/>
+		<link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet"/>
+		<!-- Main Styling -->
+		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5') }}" rel="stylesheet"/>
+		
+		<style>
+			.glass-card {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+			}
+			.hero-gradient {
+				background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+			}
+			.animate-float {
+				animation: float 6s ease-in-out infinite;
+			}
+			@keyframes float {
+				0% { transform: translateY(0px); }
+				50% { transform: translateY(-20px); }
+				100% { transform: translateY(0px); }
+			}
+		</style>
+	</head>
+
+	<body class="m-0 font-sans antialiased font-normal bg-gray-50 text-start text-base leading-default text-slate-500 overflow-x-hidden">
+		
+		<!-- Navbar -->
+		<nav class="w-11/12 lg:w-1/2 z-30 flex justify-center items-center px-4 py-2 mx-auto my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200">
+			<div class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
+				<a class="flex items-center" href="/">
+					<img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-12 h-10 mr-2">
+					<span class="text-sm whitespace-nowrap font-bold text-slate-700">CreaCo</span>
+				</a>
+				
+				<div navbar-menu class="items-center justify-end flex-grow overflow-hidden transition-all duration-500 ease-soft lg-max:max-h-0 basis-full lg:flex lg:basis-auto">
+					<a href="{{ path('app_auth') }}" class="leading-pro text-xs ease-soft-in inline-block cursor-pointer border-0 bg-gradient-to-tl from-gray-900 to-slate-800 px-8 py-2 text-center align-middle font-bold uppercase tracking-tight-soft text-white transition-all shadow-soft-md hover:scale-102 active:opacity-85 rounded-xl">
+						Sign In
+					</a>
+				</div>
+			</div>
+		</nav>
+
+		<main class="mt-12 transition-all duration-200 ease-soft-in-out">
+			
+			<!-- Hero Section -->
+			<section class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+				<div class="container mx-auto px-6 relative z-10">
+					<div class="flex flex-wrap -mx-3 items-center">
+						<div class="w-full max-w-full px-3 lg:w-6/12 shrink-0">
+							<div class="mb-6 lg:pr-10">
+								<h6 class="font-bold text-fuchsia-500 uppercase text-sm mb-2 tracking-widest">Connect. Create. Collaborate.</h6>
+								<h1 class="text-5xl md:text-6xl font-black text-slate-800 leading-tight mb-6">
+									Transform Your <br>
+									<span class="text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400">Creative Flow.</span>
+								</h1>
+								<p class="text-lg text-slate-500 mb-8 leading-relaxed max-w-lg">
+									CreaCo is the ultimate platform for content creators and innovators. 
+									Ideate faster, manage missions with precision, and connect with a 
+									vibrant community of experts.
+								</p>
+								<div class="flex flex-wrap">
+									<a href="{{ path('app_useradd') }}" class="inline-block px-8 py-4 mr-4 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 rounded-2xl shadow-soft-2xl hover:scale-105 active:opacity-85 tracking-tight-soft text-sm">
+										Join Us Now
+									</a>    
+								</div>
+							</div>
+						</div>
+						<div class="relative w-full mb-32 lg:w-6/12 px-3 mt-12 lg:mt-0 text-center">
+							<div class="relative inline-block w-full">
+								<!-- Abstract CSS Hero Visual -->
+								<div class="relative w-full aspect-video rounded-3xl overflow-hidden shadow-soft-3xl bg-gradient-to-br from-slate-100 to-white border-8 border-white animate-float">
+									<div class="absolute inset-0 flex items-center justify-center opacity-20">
+										<div class="w-64 h-64 bg-fuchsia-500 rounded-full blur-[100px]"></div>
+										<div class="w-64 h-64 bg-blue-500 rounded-full blur-[100px] -ml-20 -mt-20"></div>
+									</div>
+									<div class="absolute inset-0 flex flex-wrap items-center justify-center gap-8 p-12">
+										<div class="w-16 h-16 bg-white rounded-2xl shadow-soft-xl flex items-center justify-center text-blue-500 text-2xl animate-float" style="animation-delay: 0.5s;">
+											<i class="ni ni-atom"></i>
+										</div>
+										<div class="w-20 h-20 bg-white rounded-2xl shadow-soft-xl flex items-center justify-center text-fuchsia-500 text-3xl animate-float" style="animation-delay: 1.2s;">
+											<i class="ni ni-palette"></i>
+										</div>
+										<div class="w-16 h-16 bg-white rounded-2xl shadow-soft-xl flex items-center justify-center text-orange-500 text-2xl animate-float" style="animation-delay: 0.8s;">
+											<i class="ni ni-camera-compact"></i>
+										</div>
+										<div class="w-24 h-24 bg-white rounded-2xl shadow-soft-xl flex items-center justify-center text-cyan-500 text-4xl animate-float" style="animation-delay: 2s;">
+											<i class="ni ni-settings-gear-65"></i>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Floating Badges -->
+								<div class="absolute -top-6 -left-6 glass-card p-4 rounded-2xl shadow-soft-xl animate-float z-20" style="animation-delay: 1s;">
+									<div class="flex items-center">
+										<div class="bg-gradient-to-tl from-green-600 to-lime-400 p-2 rounded-lg text-white mr-3">
+											<i class="ni ni-check-bold"></i>
+										</div>
+										<div class="text-left">
+											<p class="text-[10px] font-bold text-slate-400 uppercase m-0 leading-none">Task Completed</p>
+											<p class="text-xs font-bold text-slate-700 m-0">Project Design Live</p>
+										</div>
+									</div>
+								</div>
+								<div class="absolute -bottom-6 -right-6 glass-card p-4 rounded-2xl shadow-soft-xl animate-float z-20" style="animation-delay: 2s;">
+									<div class="flex items-center">
+										<div class="bg-gradient-to-tl from-fuchsia-600 to-pink-500 p-2 rounded-lg text-white mr-3">
+											<i class="ni ni-spaceship"></i>
+										</div>
+										<div class="text-left">
+											<p class="text-[10px] font-bold text-slate-400 uppercase m-0 leading-none">New Mission</p>
+											<p class="text-xs font-bold text-slate-700 m-0">Content Workflow Started</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+                <div class="absolute top-0 right-0 -z-1 w-full h-full opacity-30">
+                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                        <path fill="#FCE7F3" d="M44,-76.3C58.3,-68.4,72.1,-58.5,79.9,-45.3C87.8,-32.1,89.7,-15.6,88.7,-0.6C87.7,14.4,83.8,27.9,76.5,40.1C69.3,52.4,58.7,63.4,46.1,70.9C33.4,78.5,18.8,82.5,4.3,75.1C-10.2,67.7,-24.5,48.9,-40.1,36.5C-55.7,24.1,-72.6,18.1,-80.4,6.4C-88.3,-5.3,-87,-22.7,-78.7,-36.8C-70.4,-50.9,-55.1,-61.6,-40.1,-69C-25.1,-76.3,-10.4,-80.3,2.4,-84.4C15.1,-88.5,30.3,-92.7,44,-76.3Z" transform="translate(100 100)" />
+                    </svg>
+                </div>
+			</section>
+
+			<!-- Features Section -->
+			<section id="features" class="bg-transparent -mt-4 p-6 mr-6 ml-4 mb-12 rounded-xl">
+				<div class="container mx-auto px-6">
+					<div class="text-center mb-16">
+						<h2 class="text-3xl font-bold text-slate-800 mb-4">Powerful Features for Modern Creators</h2>
+						<p class="text-slate-500 max-w-2xl mx-auto">Everything you need to move from an idea to a finished masterpiece.</p>
+					</div>
+					<div class="flex flex-wrap -mx-4">
+						<div class="w-full md:w-4/12 px-4 mb-8">
+							<div class="p-4 rounded-xl bg-white hover:bg-white hover:shadow-soft-2xl transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer h-full border border-transparent hover:border-fuchsia-100">
+								<div class="w-12 h-12 bg-gradient-to-tl from-blue-600 to-cyan-400 rounded-xl flex items-center justify-center text-white mb-6 shadow-soft-lg">
+									<i class="ni ni-bulb-61"></i>
+								</div>
+								<h3 class="text-xl font-bold text-slate-800 mb-3">Idea Management</h3>
+								<p class="text-slate-500">Capture every spark of inspiration. Categorize and develop your concepts seamlessly.</p>
+							</div>
+						</div>
+						<div class="w-full md:w-4/12 px-4 mb-8">
+							<div class="p-4 rounded-xl bg-white hover:bg-white hover:shadow-soft-2xl transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer h-full border border-transparent hover:border-fuchsia-100">
+								<div class="w-12 h-12 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl flex items-center justify-center text-white mb-6 shadow-soft-lg">
+									<i class="ni ni-bullet-list-67"></i>
+								</div>
+								<h3 class="text-xl font-bold text-slate-800 mb-3">Workflow Systems</h3>
+								<p class="text-slate-500">Built-in missions and tasks trackers designed specifically for creative content production.</p>
+							</div>
+						</div>
+						<div class="w-full md:w-4/12 px-4 mb-8">
+							<div class="p-4 rounded-xl bg-white hover:bg-white hover:shadow-soft-2xl transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer h-full border border-transparent hover:border-fuchsia-100">
+								<div class="w-12 h-12 bg-gradient-to-tl from-green-600 to-lime-400 rounded-xl flex items-center justify-center text-white mb-6 shadow-soft-lg">
+									<i class="ni ni-hat-3"></i>
+								</div>
+								<h3 class="text-xl font-bold text-slate-800 mb-3">Learning Hub</h3>
+								<p class="text-slate-500">Access premium courses and tutorials to level up your skills in design, tech, and marketing.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Forum Section -->
+			<section class="py-20 relative overflow-hidden bg-slate-900">
+                <div class="absolute inset-x-0 bottom-0 opacity-10">
+                    <svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#ffffff" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,197.3C960,192,1056,128,1152,106.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                    </svg>
+                </div>
+				<div class="container mx-auto px-6 relative z-10">
+					<div class="flex flex-wrap -mx-3 items-center">
+						<div class="w-full lg:w-6/12 px-3 order-1 lg:order-2">
+							<h2 class="text-4xl font-bold text-slate-800 leading-tight mb-6">
+								Join the Conversation on Our<br>
+								<span class="text-fuchsia-500">Creative Forum</span>
+							</h2>
+							<p class="text-lg text-slate-400 mb-8 leading-relaxed">
+								Don't struggle in isolation. Our forum is the heartbeat of CreaCo. Ask questions, share your work, and get feedback from thousands of creators worldwide.
+							</p>
+							<a href="{{ path('forum_index') }}" class="inline-block px-8 py-4 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-blue-600 to-cyan-400 rounded-2xl shadow-soft-2xl hover:scale-105 active:opacity-85 tracking-tight-soft text-sm">
+								Explore the Forum <i class="fas fa-arrow-right text-xs"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+			</section>
+
+		</main>
+
+		<footer class="py-12 bg-white">
+			<div class="container mx-auto px-6">
+				<div class="flex flex-wrap -mx-3 items-center">
+					<div class="w-full md:w-6/12 px-3 mb-6 md:mb-0">
+						<div class="flex items-center">
+							<img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-10 h-8 mr-3">
+							<span class="text-xl font-bold text-slate-800 tracking-tight">CreaCo</span>
+						</div>
+						<p class="text-sm text-slate-400 mt-4 max-w-sm">
+							The definitive platform for creative collaboration and professional growth.
+						</p>
+					</div>
+					<div class="w-full md:w-6/12 px-3  text-center md:text-right">
+						<div class="flex justify-center md:justify-end gap-6 mb-4">
+							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-twitter"></i></a>
+							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-instagram"></i></a>
+							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-linkedin"></i></a>
+						</div>
+						<p class="mb-0 text-slate-400 text-sm">
+							&copy; <script>document.write(new Date().getFullYear());</script> NetWorkers. Distributed with ❤️.
+						</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Scripts -->
+		<script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+		<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5') }}"></script>
+	</body>
+</html>
