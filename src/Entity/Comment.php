@@ -31,8 +31,8 @@ class Comment
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: "Le statut est obligatoire.")]
     #[Assert\Choice(
-        choices: ["visible", "hidden", "solution"],
-        message: "Statut invalide. Choisis: visible, hidden, solution."
+        choices: ["visible", "hidden", "solution", "pending"],
+        message: "Statut invalide. Choisis: visible, hidden, solution, pending."
     )]
     private ?string $status = "visible";
 
@@ -63,6 +63,15 @@ class Comment
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentComment', cascade: ['remove'], orphanRemoval: true)]
     private Collection $replies;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isProfane = false;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $profaneWords = 0;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $grammarErrors = 0;
 
     public function __construct()
     {
@@ -188,6 +197,39 @@ class Comment
                 $reply->setParentComment(null);
             }
         }
+        return $this;
+    }
+
+    public function isProfane(): bool
+    {
+        return $this->isProfane;
+    }
+
+    public function setIsProfane(bool $isProfane): static
+    {
+        $this->isProfane = $isProfane;
+        return $this;
+    }
+
+    public function getProfaneWords(): int
+    {
+        return $this->profaneWords;
+    }
+
+    public function setProfaneWords(int $profaneWords): static
+    {
+        $this->profaneWords = $profaneWords;
+        return $this;
+    }
+
+    public function getGrammarErrors(): int
+    {
+        return $this->grammarErrors;
+    }
+
+    public function setGrammarErrors(int $grammarErrors): static
+    {
+        $this->grammarErrors = $grammarErrors;
         return $this;
     }
 }

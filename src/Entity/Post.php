@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\PostReaction;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -27,6 +28,10 @@ class Post
         max: 255,
         minMessage: "Le titre doit contenir au moins {{ limit }} caractères.",
         maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères."
+    )]
+    #[Assert\Regex(
+        pattern: "/[A-Za-zÀ-ÿ]/u",
+        message: "Title must contain at least one letter"
     )]
     private ?string $title = null;
 
@@ -96,11 +101,6 @@ class Post
     #[ORM\Column(options: ["default" => 0])]
     private int $likes = 0;
 
-    #[ORM\Column(length: 255, nullable: true)]
-private ?string $pdfDriveFileId = null;
-
-#[ORM\Column(length: 255, nullable: true)]
-private ?string $pdfDriveLink = null;
 
     /**
      * @var Collection<int, Comment>
@@ -108,9 +108,28 @@ private ?string $pdfDriveLink = null;
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $comments;
 
+    #[ORM\OneToOne(mappedBy: 'post', targetEntity: Conversation::class, cascade: ['persist', 'remove'])]
+    private ?Conversation $conversation = null;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isProfane = false;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $profaneWords = 0;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private int $grammarErrors = 0;
+
+    /**
+     * @var Collection<int, PostReaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, orphanRemoval: true)]
+    private Collection $reactions;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->reactions = new ArrayCollection();
         $this->createdAt = new \DateTime(); 
         $this->likes = 0;
     }
@@ -339,25 +358,84 @@ private ?string $pdfDriveLink = null;
         return $this;
     }
 
-    public function getPdfDriveFileId(): ?string
-{
-    return $this->pdfDriveFileId;
-}
 
-public function setPdfDriveFileId(?string $pdfDriveFileId): static
-{
-    $this->pdfDriveFileId = $pdfDriveFileId;
-    return $this;
-}
+    public function getConversation(): ?Conversation
+    {
+        return $this->conversation;
+    }
 
-public function getPdfDriveLink(): ?string
-{
-    return $this->pdfDriveLink;
-}
+    public function setConversation(Conversation $conversation): static
+    {
+        // set the owning side of the relation if necessary
+        if ($conversation->getPost() !== $this) {
+            $conversation->setPost($this);
+        }
 
-public function setPdfDriveLink(?string $pdfDriveLink): static
-{
-    $this->pdfDriveLink = $pdfDriveLink;
-    return $this;
-}
+        $this->conversation = $conversation;
+
+        return $this;
+    }
+
+    public function isProfane(): bool
+    {
+        return $this->isProfane;
+    }
+
+    public function setIsProfane(bool $isProfane): static
+    {
+        $this->isProfane = $isProfane;
+        return $this;
+    }
+
+    public function getProfaneWords(): int
+    {
+        return $this->profaneWords;
+    }
+
+    public function setProfaneWords(int $profaneWords): static
+    {
+        $this->profaneWords = $profaneWords;
+        return $this;
+    }
+
+    public function getGrammarErrors(): int
+    {
+        return $this->grammarErrors;
+    }
+
+    public function setGrammarErrors(int $grammarErrors): static
+    {
+        $this->grammarErrors = $grammarErrors;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PostReaction>
+     */
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
+    }
+
+    public function addReaction(PostReaction $reaction): static
+    {
+        if (!$this->reactions->contains($reaction)) {
+            $this->reactions->add($reaction);
+            $reaction->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReaction(PostReaction $reaction): static
+    {
+        if ($this->reactions->removeElement($reaction)) {
+            // set the owning side to null (unless already changed)
+            if ($reaction->getPost() === $this) {
+                $reaction->setPost(null);
+            }
+        }
+
+        return $this;
+    }
 }

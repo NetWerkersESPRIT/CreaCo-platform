@@ -10,9 +10,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/logout', name: 'app_logout')]
-    public function logout(\Symfony\Component\HttpFoundation\Request $request): Response
+    public function logout(): void
     {
-        $request->getSession()->clear();
-        return $this->redirectToRoute('app_auth');
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

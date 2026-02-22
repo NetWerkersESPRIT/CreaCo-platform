@@ -1,10 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Notifications
-{% endblock %}
-{% block page_title %}Notifications
-{% endblock %}
-{% block breadcrumb %}User / Notifications
+{% block title %}Mes Notifications
 {% endblock %}
 
 {% block body %}
@@ -26,7 +22,7 @@
 						<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
 							<tbody>
 								{% for notification in notifications %}
-									<tr onclick="window.location.href='{{ path('app_notification_read', {id: notification.id}) }}'" class="hover:bg-gray-50/80 transition-all cursor-pointer group {{ notification.isRead ? 'opacity-60' : 'bg-white' }}">
+									<tr {% if notification.type != 'invitation' or notification.status != 'pending' %}onclick="window.location.href='{{ path('app_notification_read', {id: notification.id}) }}'"{% endif %} class="hover:bg-gray-50/80 transition-all cursor-pointer group {{ notification.isRead ? 'opacity-60' : 'bg-white' }}">
 										<td class="p-4 align-middle bg-transparent border-b shadow-transparent relative">
 											{% if not notification.isRead %}
 												<div class="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-full shadow-soft-md"></div>
@@ -58,7 +54,18 @@
 											</div>
 										</td>
 										<td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-right">
-											<i class="fas fa-chevron-right text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+											{% if notification.type == 'invitation' and notification.status == 'pending' %}
+												<div class="flex justify-end gap-2">
+													<button onclick="handleInvitation({{ notification.id }}, 'accept')" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg hover:scale-102 transition-all uppercase border-0 cursor-pointer">
+														Accept
+													</button>
+													<button onclick="handleInvitation({{ notification.id }}, 'deny')" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-tl from-red-600 to-pink-500 rounded-lg hover:scale-102 transition-all uppercase border-0 cursor-pointer">
+														Deny
+													</button>
+												</div>
+											{% else %}
+												<i class="fas fa-chevron-right text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+											{% endif %}
 										</td>
 									</tr>
 								{% else %}
@@ -73,7 +80,131 @@
 						</table>
 					</div>
 				</div>
+				<div class="flex-auto p-6">
+					<ul class="flex flex-col pl-0 mb-0 rounded-lg">
+						{% for notification in notifications %}
+							<li class="relative flex p-4 mb-3 border-0 rounded-2xl transition-all duration-300 {{ notification.isRead ? 'bg-gray-50 opacity-60' : 'bg-white shadow-soft-sm border border-fuchsia-50' }}" id="notif-{{ notification.id }}">
+								<div class="flex flex-col w-full">
+									<div class="flex items-start justify-between">
+										<div class="flex items-center">
+											<div class="w-10 h-10 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-md flex items-center justify-center mr-4 shrink-0">
+												<i class="fas {{ notification.type == 'MESSAGE' ? 'fa-envelope' : 'fa-bell' }} text-white text-xs"></i>
+											</div>
+											<div>
+												<p class="mb-0 text-sm font-bold text-slate-700 leading-tight">{{ notification.message }}</p>
+												<p class="mb-0 text-xxs text-slate-400 font-semibold uppercase mt-1">
+													<i class="far fa-clock mr-1"></i>
+													{{ notification.createdAt|date('d M Y H:i') }}
+												</p>
+											</div>
+										</div>
+										<div class="flex flex-col items-end gap-2 ml-4">
+											{% if not notification.isRead %}
+												<span class="badge-new bg-gradient-to-tl from-purple-700 to-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-soft-xs">Nouveau</span>
+											{% endif %}
+										</div>
+									</div>
+									<div class="flex items-center justify-between mt-4">
+										<div>
+											{% if notification.targetUrl %}
+												<a href="{{ notification.targetUrl }}" class="text-xs font-bold text-purple-700 hover:text-pink-500 transition-all uppercase no-underline flex items-center gap-1" onclick="markAsRead({{ notification.id }})">
+													<i class="fas fa-arrow-right text-[10px]"></i>
+													Voir les détails
+												</a>
+											{% endif %}
+										</div>
+										{% if not notification.isRead %}
+											<button onclick="markAsRead({{ notification.id }}, this)" class="btn-mark-read text-[10px] font-bold text-slate-400 hover:text-purple-700 transition-all uppercase border-0 bg-transparent cursor-pointer tracking-wide flex items-center gap-1">
+												<i class="fas fa-check"></i>
+												Marquer comme lu
+											</button>
+										{% endif %}
+									</div>
+								</div>
+							</li>
+						{% else %}
+							<div class="text-center py-24 opacity-30">
+								<i class="fas fa-bell-slash text-6xl mb-4 text-slate-300"></i>
+								<p class="text-lg font-bold text-slate-500 uppercase tracking-wider">Aucune notification</p>
+							</div>
+						{% endfor %}
+					</ul>
+				</div>
 			</div>
 		</div>
 	</div>
+
+	<script>
+		async function markAsRead(id, btn) {
+try {
+const response = await fetch (`/notifications/api/${id}/read`, {method: 'POST'});
+if (response.ok) {
+const li = document.getElementById (`notif-${id}`);
+if (li) {
+li.classList.remove('bg-white', 'shadow-soft-sm', 'border', 'border-fuchsia-50');
+li.classList.add('bg-gray-50', 'opacity-60');
+
+const badge = li.querySelector('.badge-new');
+if (badge) 
+badge.classList.add('hidden');
+
+
+
+// If user clicked the button, remove it
+if (btn) {
+btn.classList.add('hidden');
+} else { // If they clicked the link, the button should also disappear if they come back
+const actionBtn = li.querySelector('.btn-mark-read');
+if (actionBtn) 
+actionBtn.classList.add('hidden');
+
+
+}
+}
+}
+} catch (e) {
+console.error('Error marking as read', e);
+}
+}
+	</script>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		function handleInvitation(id, action) {
+			const route = action === 'accept' ? `/invitation/accept/${id}` : `/invitation/deny/${id}`;
+			
+			Swal.fire({
+				title: 'Are you sure?',
+				text: `Do you want to ${action} this invitation?`,
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Yes',
+				customClass: {
+					confirmButton: 'px-4 py-2 text-xs font-bold text-white bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg',
+					cancelButton: 'px-4 py-2 text-xs font-bold text-white bg-gradient-to-tl from-red-600 to-pink-500 rounded-lg'
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					fetch(route, {
+						method: 'POST',
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest'
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							Swal.fire('Success', `Invitation ${action}ed!`, 'success').then(() => {
+								location.reload();
+							});
+						} else {
+							Swal.fire('Error', data.error || 'Something went wrong', 'error');
+						}
+					});
+				}
+			});
+		}
+	</script>
 {% endblock %}

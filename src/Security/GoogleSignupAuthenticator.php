@@ -61,6 +61,32 @@ class GoogleSignupAuthenticator extends OAuth2Authenticator
             $this->em->flush();
             $user->setGroupid($user->getId());
             $this->em->flush();
+
+            // Notify Admins
+            $admins = $userRepository->findBy(['role' => 'ROLE_ADMIN']);
+            foreach ($admins as $admin) {
+                $notif = new \App\Entity\Notification();
+                $notif->setUserId($admin);
+                $notif->setMessage("New user registered: " . $user->getUsername());
+                $notif->setType('system');
+                $notif->setStatus('unread');
+                $notif->setIsRead(false);
+                $notif->setCreatedAt(new \DateTime());
+                $this->em->persist($notif);
+            }
+
+            // 🎉 Welcome notification for the new user
+            $welcomeNotif = new \App\Entity\Notification();
+            $welcomeNotif->setUserId($user);
+            $welcomeNotif->setMessage('Welcome to CreaCo, ' . $user->getUsername() . '! 🎉 Your account has been created successfully.');
+            $welcomeNotif->setType('welcome');
+            $welcomeNotif->setIsRead(false);
+            $welcomeNotif->setStatus('unread');
+            $welcomeNotif->setCreatedAt(new \DateTime());
+            $welcomeNotif->setTargetUrl('/profile');
+            $this->em->persist($welcomeNotif);
+
+            $this->em->flush();
         }
         return new SelfValidatingPassport(new UserBadge($email, function ($userIdentifier) use ($user) {
             return $user;

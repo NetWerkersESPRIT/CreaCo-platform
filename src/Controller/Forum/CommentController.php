@@ -12,7 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\OpenAIModerationService;
-
+use App\Service\ProfanityFilterService;
+use Psr\Log\LoggerInterface;
+use App\Service\TextGearsService;
 
 final class CommentController extends AbstractController
 {
@@ -34,7 +36,7 @@ final class CommentController extends AbstractController
         return $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
     }
     #[Route('/forum/{id}/comment/new', name: 'app_comment_new', methods: ['POST'])]
-    public function new(Post $post, Request $request, EntityManagerInterface $em): Response
+    public function new(Post $post, Request $request, EntityManagerInterface $em, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears): Response
     {
         if ($post->isCommentLocked() || $post->getStatus() === 'solved') {
             $message = $post->getStatus() === 'solved'
@@ -77,6 +79,32 @@ final class CommentController extends AbstractController
                 }
             }
 
+// Moderation Pipeline: TextGears (Correction) -> Profanity Filter
+try {
+    // 1. Correct Content
+    $correctedContent = $textGears->correct($body);
+    $comment->setBody($correctedContent);
+
+    // 2. Profanity Check (on corrected content)
+    $check = $profanity->check($correctedContent);
+    $comment->setBody($check['filteredText'] ?? $correctedContent);
+    $comment->setIsProfane($check['isProfane'] ?? false);
+    $comment->setProfaneWords($check['profaneWords'] ?? 0);
+    
+    // 3. Grammar Audit
+    $comment->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
+
+    // 4. Business Rule: Auto-moderation
+    if (($check['profaneWords'] ?? 0) >= 3) {
+        $comment->setStatus('pending');
+        $logger->info('Comment auto-moderated (Pending) due to high profanity for post: ' . $post->getId());
+    }
+} catch (\Throwable $e) {
+    $logger->warning('Moderation pipeline failed for comment creation: ' . $e->getMessage());
+    // Fallback: keep original body
+    $comment->setBody($body);
+}
+
             $em->persist($comment);
             $em->flush();
 
@@ -95,7 +123,7 @@ final class CommentController extends AbstractController
 
 
     #[Route('/comment/{id}/edit', name: 'app_comment_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Comment $comment, EntityManagerInterface $em): Response
+    public function edit(Request $request, Comment $comment, EntityManagerInterface $em, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears): Response
     {
         $user = $this->getCurrentUser($request, $em);
         $isOwner = $user && $comment->getUser() === $user;
@@ -109,6 +137,32 @@ final class CommentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setUpdatedAt(new \DateTime());
+
+            // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
+            try {
+                // 1. Correct Content
+                $correctedContent = $textGears->correct($body);
+                $comment->setBody($correctedContent);
+
+                // 2. Profanity Check (on corrected content)
+                $check = $profanity->check($correctedContent);
+                $comment->setBody($check['filteredText'] ?? $correctedContent);
+                $comment->setIsProfane($check['isProfane'] ?? false);
+                $comment->setProfaneWords($check['profaneWords'] ?? 0);
+                
+                // 3. Grammar Audit
+                $comment->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
+
+                // 4. Business Rule: Auto-moderation
+                if (($check['profaneWords'] ?? 0) >= 3) {
+                    $comment->setStatus('pending');
+                    $logger->info('Edited comment auto-moderated (Pending) due to high profanity: ' . $comment->getId());
+                }
+            } catch (\Throwable $e) {
+                $logger->warning('Moderation pipeline failed for comment edit: ' . $e->getMessage());
+                // Fallback: original body is already in $comment
+            }
+
             $em->flush();
             return $this->redirectToRoute('app_post_show', ['id' => $comment->getPost()->getId()]);
         }

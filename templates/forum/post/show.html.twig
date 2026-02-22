@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block body %}
-	{% set postUrl = absolute_url(path('app_post_show', {'id': post.id})) %}
+	{% set postUrl = url('app_post_show', {'id': post.id}) %}
 
 	<div
 		class="flex flex-wrap -mx-3">
@@ -60,6 +60,13 @@
 								Solved
 							</span>
 						{% endif %}
+
+						{% if post.status == 'refused' %}
+							<span class="ml-3 text-xxs bg-red-100 text-red-700 px-2 py-1 rounded-pill font-bold">
+								<i class="fas fa-times-circle mr-1"></i>
+								Refused
+							</span>
+						{% endif %}
 					</div>
 				</div>
 
@@ -76,6 +83,29 @@
 								Elle sera visible par tout le monde une fois approuvée.
 							</p>
 						</div>
+					</div>
+				{% elseif post.status == 'refused' %}
+					<div class="px-6 py-4 bg-red-50 border-y border-red-100 flex items-center justify-between gap-4">
+						<div class="flex items-center gap-4">
+							<div class="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+								<i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
+							</div>
+							<div class="flex flex-col">
+								<p class="mb-0 text-red-800 font-bold text-sm tracking-tight">
+									Post refusé
+								</p>
+								<p class="mb-0 text-red-600 text-xs font-medium">
+									Raison :
+									{{ post.refusalReason ?: 'Non spécifiée' }}
+								</p>
+							</div>
+						</div>
+						{% if isPostOwner and post.conversation %}
+							<a href="{{ path('app_conversation_show', {'id': post.conversation.id}) }}" class="px-4 py-2 text-xs font-bold text-white uppercase bg-red-600 rounded-lg shadow-md hover:bg-red-700 transition-all no-underline">
+								<i class="fas fa-comments mr-1"></i>
+								Contacter l'admin
+							</a>
+						{% endif %}
 					</div>
 				{% endif %}
 
@@ -98,24 +128,7 @@
 					</div>
 
 					{# ✅ PDF BLOCK (Drive first, fallback to local) #}
-					{% if post.pdfDriveLink %}
-						<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
-							<div class="flex items-center">
-								<div class="bg-red-100 p-2 rounded-lg mr-3">
-									<i class="fas fa-file-pdf text-red-600 text-lg"></i>
-								</div>
-								<div>
-									<p class="text-sm font-bold text-slate-700 mb-0">PDF Document</p>
-									<p class="text-xxs text-slate-400 mb-0">Stored on Google Drive</p>
-								</div>
-							</div>
-
-							<a href="{{ post.pdfDriveLink }}" target="_blank" class="px-6 py-2.5 text-xs font-bold text-center text-white uppercase align-middle transition-all border-0 rounded-lg cursor-pointer shadow-soft-md hover:scale-102 hover:shadow-soft-lg active:opacity-85 tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500">
-								<i class="fas fa-eye mr-1"></i>
-								Voir le PDF
-							</a>
-						</div>
-					{% elseif post.pdfName %}
+					{% if post.pdfName %}
 						<div class="mb-6 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-between">
 							<div class="flex items-center">
 								<div class="bg-red-100 p-2 rounded-lg mr-3">
@@ -148,21 +161,77 @@
 
 								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
 
-									<button type="button" onclick="copyToClipboard('{{ absolute_url(path('app_post_show', {'id': post.id}))|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+									<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
 										<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
 										Copy Link
 									</button>
 								</div>
 							</div>
 
-							<!-- Like Button -->
-							<form action="{{ path('app_post_like', {'id': post.id}) }}" method="POST" class="m-0">
-								<button type="submit" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all {{ isLiked ? 'text-purple-700' : 'text-slate-600' }} text-xs font-bold uppercase tracking-wider">
-									<i class="{{ isLiked ? 'fas' : 'far' }} fa-thumbs-up {{ isLiked ? 'text-purple-700' : 'text-slate-400' }} transition-colors"></i>
-									<span>{{ post.likes }}
-										Likes</span>
+							<!-- Reactions Button -->
+							<div class="reaction-container relative group">
+								{% set userReaction = null %}
+								{% if app_user %}
+									{% for r in post.reactions %}
+										{% if r.user == app_user %}
+											{% set userReaction = r.type %}
+										{% endif %}
+									{% endfor %}
+								{% endif %}
+
+								<!-- Reaction Popup Bar -->
+								<div class="reaction-bar hidden group-hover:flex absolute bottom-full mb-3 left-0 bg-white shadow-soft-2xl rounded-full px-1.5 py-1 items-center gap-1 animate-reaction-pop z-50 border border-gray-100">
+									<button type="button" onclick="handleReaction({{ post.id }}, 'like')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Like">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-7 h-7" alt="👍">
+									</button>
+									<button type="button" onclick="handleReaction({{ post.id }}, 'love')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Love">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-7 h-7" alt="❤️">
+									</button>
+									<button type="button" onclick="handleReaction({{ post.id }}, 'haha')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Haha">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-7 h-7" alt="😂">
+									</button>
+									<button type="button" onclick="handleReaction({{ post.id }}, 'wow')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Wow">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-7 h-7" alt="😮">
+									</button>
+									<button type="button" onclick="handleReaction({{ post.id }}, 'sad')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Sad">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-7 h-7" alt="😢">
+									</button>
+									<button type="button" onclick="handleReaction({{ post.id }}, 'angry')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Angry">
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-7 h-7" alt="😡">
+									</button>
+								</div>
+
+								<!-- Main Button -->
+								<button id="react-btn-{{ post.id }}" type="button" onclick="handleReaction({{ post.id }}, '{{ userReaction ?: 'like' }}')" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 cursor-pointer hover:scale-105 hover:shadow-soft-md transition-all {{ userReaction ? 'text-fuchsia-700' : 'text-slate-600' }} text-xs font-bold uppercase tracking-wider">
+
+									{% if userReaction == 'like' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5 h-5 mr-1" alt="👍">
+										<span>Like</span>
+									{% elseif userReaction == 'love' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-5 h-5 mr-1" alt="❤️">
+										<span>Love</span>
+									{% elseif userReaction == 'haha' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-5 h-5 mr-1" alt="😂">
+										<span>Haha</span>
+									{% elseif userReaction == 'wow' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-5 h-5 mr-1" alt="😮">
+										<span>Wow</span>
+									{% elseif userReaction == 'sad' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-5 h-5 mr-1" alt="😢">
+										<span>Sad</span>
+									{% elseif userReaction == 'angry' %}
+										<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-5 h-5 mr-1" alt="😡">
+										<span>Angry</span>
+									{% else %}
+										<i class="far fa-thumbs-up text-slate-400 transition-colors"></i>
+										<span>Like</span>
+									{% endif %}
+
+									<span id="react-count-{{ post.id }}" class="ml-1 text-[10px] text-slate-400">
+										{{ post.reactions|length }}
+									</span>
 								</button>
-							</form>
+							</div>
 
 							<!-- Comments Count -->
 							<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
@@ -368,29 +437,33 @@ if (! dropdown)
 return;
 
 
+
 // Close all other dropdowns
 document.querySelectorAll('.share-dropdown-menu').forEach(d => {
 if (d.id !== id) 
 d.classList.add('hidden');
+
+
 
 });
 
 dropdown.classList.toggle('hidden');
 }
 
-async function copyToClipboard(text, dropdownId) {
+async function copyPageUrl(postUrl, dropdownId) {
 const dropdown = document.getElementById(dropdownId);
 if (dropdown) 
 dropdown.classList.add('hidden');
 
 
+
 try {
 if (navigator.clipboard && window.isSecureContext) {
-await navigator.clipboard.writeText(text);
+await navigator.clipboard.writeText(postUrl);
 alert('✅ Link copied to clipboard!');
 } else {
 const textArea = document.createElement("textarea");
-textArea.value = text;
+textArea.value = postUrl;
 textArea.style.position = "fixed";
 textArea.style.left = "-9999px";
 textArea.style.top = "0";
@@ -443,15 +516,178 @@ return true;
 
 	<style>
 		.animate-fade-in {
-			animation: fadeIn 0.2s ease-out;
+			animation: fadeIn 0.15s ease-out;
 		}
+
+		.animate-reaction-pop {
+			animation: reactionPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		}
+
 		@keyframes fadeIn {
 			from {
 				opacity: 0;
+				transform: translateY(5px);
 			}
 			to {
 				opacity: 1;
+				transform: translateY(0);
 			}
 		}
+
+		@keyframes reactionPop {
+			from {
+				opacity: 0;
+				transform: scale(0.5) translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: scale(1) translateY(0);
+			}
+		}
+
+		.reaction-bar {
+			transform-origin: bottom left;
+		}
+		.reaction-item:hover {
+			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		}
 	</style>
+
+	<script>
+		const reactionMap = {
+'like': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png',
+label: 'Like'
+},
+'love': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png',
+label: 'Love'
+},
+'haha': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png',
+label: 'Haha'
+},
+'wow': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png',
+label: 'Wow'
+},
+'sad': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png',
+label: 'Sad'
+},
+'angry': {
+emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png',
+label: 'Angry'
+}
+};
+
+async function handleReaction(postId, type) {
+const btn = document.getElementById (`react-btn-${postId}`);
+const countSpan = document.getElementById (`react-count-${postId}`);
+
+try {
+const response = await fetch (`/posts/${postId}/react`, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({type})
+});
+
+if (response.status === 401) {
+window.location.href = "{{ path('app_auth') }}";
+return;
+}
+
+const data = await response.json();
+if (data.success) { // Update Count
+countSpan.textContent = data.counts.total;
+
+// Update Button UI
+if (data.user_reaction) {
+const react = reactionMap[data.user_reaction];
+btn.innerHTML = `
+							<img src="${
+react.emoji
+}" class="w-5 h-5 mr-1" alt="${
+data.user_reaction
+}">
+							<span>${
+react.label
+}</span>
+							<span id="react-count-${postId}" class="ml-1 text-[10px] text-slate-400">
+								${
+data.counts.total
+}
+							</span>
+						`;
+btn.classList.add('text-fuchsia-700');
+btn.classList.remove('text-slate-600');
+
+// Re-assign countSpan reference because innerHTML changed
+const newCountSpan = document.getElementById (`react-count-${postId}`);
+newCountSpan.classList.add('animate-reaction-pop');
+} else {
+btn.innerHTML = `
+							<i class="far fa-thumbs-up text-slate-400 transition-colors"></i>
+							<span>Like</span>
+							<span id="react-count-${postId}" class="ml-1 text-[10px] text-slate-400">
+								${
+data.counts.total
+}
+							</span>
+						`;
+btn.classList.remove('text-fuchsia-700');
+btn.classList.add('text-slate-600');
+}
+}
+} catch (err) {
+console.error('Reaction failed', err);
+}
+}
+
+// Long-press support for mobile
+document.addEventListener('DOMContentLoaded', () => {
+let pressTimer;
+const container = document.querySelector('.reaction-container');
+if (! container) 
+return;
+
+
+
+const btn = container.querySelector('button[id^="react-btn-"]');
+const bar = container.querySelector('.reaction-bar');
+
+const start = (e) => {
+pressTimer = setTimeout(() => {
+bar.classList.remove('hidden');
+bar.classList.add('flex');
+}, 500);
+};
+
+const cancel = (e) => {
+clearTimeout(pressTimer);
+};
+
+btn.addEventListener('touchstart', start);
+btn.addEventListener('touchend', cancel);
+btn.addEventListener('mousedown', start);
+btn.addEventListener('mouseup', cancel);
+btn.addEventListener('mouseleave', cancel);
+
+// Hide bar when clicking a reaction
+bar.addEventListener('click', () => {
+bar.classList.add('hidden');
+bar.classList.remove('flex');
+});
+
+// Hide bar when clicking outside
+document.addEventListener('click', (e) => {
+if (!e.target.closest('.reaction-container')) {
+bar.classList.add('hidden');
+bar.classList.remove('flex');
+}
+});
+});
+	</script>
 {% endblock %}

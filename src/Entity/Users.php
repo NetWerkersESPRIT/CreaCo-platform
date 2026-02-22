@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(
     fields: ['email'],
     message: 'Cet email existe déjà'
@@ -40,8 +41,8 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $points = 0;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
 
     /**
      * @var Collection<int, Reservation>
@@ -121,11 +122,14 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
     private Collection $collaborators;
 
-    /**
-     * @var Collection<int, Comment>
-     */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
     private Collection $comments;
+
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
+    private Collection $groups;
 
     public function __construct()
     {
@@ -143,6 +147,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -246,6 +251,26 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->numtel = $numtel;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setInitialCreatedAt(): void
+    {
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTime();
+        }
     }
 
     /**
@@ -422,26 +447,30 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->comments;
     }
 
-    public function getPoints(): ?int
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroups(): Collection
     {
-        return $this->points ?? 0;
+        return $this->groups;
     }
 
-    public function setPoints(?int $points): static
+    public function addGroup(Group $group): static
     {
-        $this->points = $points;
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+            $group->addMember($this);
+        }
+
         return $this;
     }
 
-    public function addPoints(int $points): static
+    public function removeGroup(Group $group): static
     {
-        $this->points = ($this->points ?? 0) + $points;
-        return $this;
-    }
+        if ($this->groups->removeElement($group)) {
+            $group->removeMember($this);
+        }
 
-    public function removePoints(int $points): static
-    {
-        $this->points = max(0, ($this->points ?? 0) - $points);
         return $this;
     }
 }
