@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(
     fields: ['email'],
     message: 'Cet email existe déjà'
@@ -40,8 +41,8 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $points = 0;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
 
     /**
      * @var Collection<int, Reservation>
@@ -121,17 +122,14 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
     private Collection $collaborators;
 
-    /**
-     * @var Collection<int, Comment>
-     */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
     private Collection $comments;
 
     /**
-     * @var Collection<int, PostReaction>
+     * @var Collection<int, Group>
      */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
-    private Collection $reactions;
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
+    private Collection $groups;
 
     public function __construct()
     {
@@ -149,7 +147,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
-        $this->reactions = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -253,6 +251,26 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->numtel = $numtel;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setInitialCreatedAt(): void
+    {
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTime();
+        }
     }
 
     /**
@@ -429,54 +447,28 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->comments;
     }
 
-    public function getPoints(): ?int
-    {
-        return $this->points ?? 0;
-    }
-
-    public function setPoints(?int $points): static
-    {
-        $this->points = $points;
-        return $this;
-    }
-
-    public function addPoints(int $points): static
-    {
-        $this->points = ($this->points ?? 0) + $points;
-        return $this;
-    }
-
-    public function removePoints(int $points): static
-    {
-        $this->points = max(0, ($this->points ?? 0) - $points);
-        return $this;
-    }
-
     /**
-     * @return Collection<int, PostReaction>
+     * @return Collection<int, Group>
      */
-    public function getReactions(): Collection
+    public function getGroups(): Collection
     {
-        return $this->reactions;
+        return $this->groups;
     }
 
-    public function addReaction(PostReaction $reaction): static
+    public function addGroup(Group $group): static
     {
-        if (!$this->reactions->contains($reaction)) {
-            $this->reactions->add($reaction);
-            $reaction->setUser($this);
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+            $group->addMember($this);
         }
 
         return $this;
     }
 
-    public function removeReaction(PostReaction $reaction): static
+    public function removeGroup(Group $group): static
     {
-        if ($this->reactions->removeElement($reaction)) {
-            // set the owning side to null (unless already changed)
-            if ($reaction->getUser() === $this) {
-                $reaction->setUser(null);
-            }
+        if ($this->groups->removeElement($group)) {
+            $group->removeMember($this);
         }
 
         return $this;

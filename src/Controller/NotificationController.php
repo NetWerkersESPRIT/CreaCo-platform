@@ -33,7 +33,36 @@ class NotificationController extends AbstractController
         ]);
     }
 
-    #[Route('/api/unread-count', name: 'api_notifications_unread_count', methods: ['GET'])]
+    #[Route('/mark-all-seen', name: 'app_notifications_mark_all_seen', methods: ['POST'])]
+    public function markAllAsSeen(Request $request, NotificationRepository $repo, EntityManagerInterface $em): Response
+    {
+        $userId = $request->getSession()->get('user_id');
+        if (!$userId) return $this->redirectToRoute('app_auth');
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if (!$user) return $this->redirectToRoute('app_auth');
+
+        $unread = $repo->findBy(['user_id' => $user, 'isRead' => false]);
+        foreach ($unread as $notification) {
+            $em->remove($notification);
+        }
+        $em->flush();
+
+        $this->addFlash('success', 'All notifications marked as seen.');
+        return $this->redirectToRoute('app_notifications');
+    }
+
+    #[Route('/notification/{id}/read', name: 'app_notification_read', methods: ['GET'])]
+    public function markAsRead(Notification $notification, EntityManagerInterface $em): Response
+    {
+        $targetUrl = $notification->getTargetUrl();
+        $em->remove($notification);
+        $em->flush();
+
+        return $this->redirect($targetUrl ?: $this->generateUrl('app_notifications'));
+    }
+
+    #[Route('/api/unread-count', name: 'app_api_notifications_unread_count', methods: ['GET'])]
     public function unreadCount(Request $request, NotificationRepository $repo): JsonResponse
     {
         $userId = $request->getSession()->get('user_id');
@@ -46,7 +75,7 @@ class NotificationController extends AbstractController
         return new JsonResponse(['count' => $count]);
     }
 
-    #[Route('/api', name: 'api_notifications_list', methods: ['GET'])]
+    #[Route('/api/latest', name: 'app_api_notifications_latest', methods: ['GET'])]
     public function list(Request $request, NotificationRepository $repo): JsonResponse
     {
         $userId = $request->getSession()->get('user_id');
@@ -54,10 +83,11 @@ class NotificationController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
+        // Fetch 10 most recent notifications (both read and unread)
         $notifications = $repo->findBy(
-            ['user_id' => $userId, 'isRead' => false],
+            ['user_id' => $userId],
             ['createdAt' => 'DESC'],
-            10 // Last 10 unread
+            10
         );
 
         $data = [];
@@ -66,7 +96,8 @@ class NotificationController extends AbstractController
                 'id' => $notification->getId(),
                 'message' => $notification->getMessage(),
                 'isRead' => $notification->isRead(),
-                'createdAt' => $notification->getCreatedAt()->format('d M H:i'),
+                'createdAt' => $notification->getCreatedAt()->format('c'), // ISO 8601 for JS parsing
+                'type' => $notification->getType(),
                 'targetUrl' => $notification->getTargetUrl(),
             ];
         }
@@ -74,7 +105,7 @@ class NotificationController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route('/api/{id}/read', name: 'api_notifications_mark_read', methods: ['POST'])]
+    #[Route('/api/{id}/read', name: 'app_api_notifications_mark_read', methods: ['POST'])]
     public function markRead(Notification $notification, EntityManagerInterface $em, Request $request): JsonResponse
     {
         $userId = $request->getSession()->get('user_id');

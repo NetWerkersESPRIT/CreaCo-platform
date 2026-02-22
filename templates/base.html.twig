@@ -93,9 +93,37 @@
 			</main>
 
 			{% block javascripts %}
-				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5" async></script>
+				{# 1. Load the main dashboard script without 'async' to ensure it's ready #}
+				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5"></script>
+
 				<script>
-					document.addEventListener('DOMContentLoaded', () => {
+					document.addEventListener('DOMContentLoaded', () => { // --- 1. SMART DROPDOWN TOGGLE (The "Hybrid" Fix) ---
+const dropdownTrigger = document.querySelector('[dropdown-trigger]');
+const dropdownMenu = document.querySelector('[dropdown-menu]');
+
+if (dropdownTrigger && dropdownMenu) {
+dropdownTrigger.addEventListener('click', (e) => {
+// We check if the dashboard script is already doing its job.
+// If the menu doesn't have the 'opacity-100' class after a click,
+// it means the dashboard script failed, so we trigger it manually.
+setTimeout(() => {
+if (dropdownMenu.classList.contains('opacity-0')) {
+dropdownMenu.classList.remove('opacity-0', 'pointer-events-none');
+dropdownMenu.classList.add('opacity-100', 'top-[100%]');
+}
+}, 10);
+});
+
+// Close when clicking outside
+document.addEventListener('click', (e) => {
+if (! dropdownTrigger.contains(e.target) && ! dropdownMenu.contains(e.target)) {
+dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+dropdownMenu.classList.remove('opacity-100');
+}
+});
+}
+
+// --- 2. FLASH ALERTS (Smooth auto-hide) ---
 setTimeout(() => {
 const alerts = document.querySelectorAll('.flash-alert');
 alerts.forEach(alert => {
@@ -103,7 +131,28 @@ alert.style.transition = "opacity 0.5s ease";
 alert.style.opacity = "0";
 setTimeout(() => alert.remove(), 500);
 });
-}, 1500);
+}, 2500);
+
+// --- 3. NOTIFICATION BADGE (Polling – badge only, list loads on dropdown open) ---
+function syncNotifBadge() {
+fetch('{{ path("app_api_notifications_unread_count") }}').then(r => r.ok ? r.json() : {
+count: 0
+}).then(data => {
+const badge = document.getElementById('notif-badge');
+if (! badge) 
+return;
+
+if (data.count > 0) {
+badge.textContent = data.count > 9 ? '9+' : data.count;
+badge.style.display = 'inline-flex';
+} else {
+badge.style.display = 'none';
+}
+}).catch(() => {});
+}
+syncNotifBadge();
+setInterval(syncNotifBadge, 30000);
+
 });
 				</script>
 			{% endblock %}
