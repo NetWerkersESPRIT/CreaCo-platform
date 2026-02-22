@@ -3,23 +3,85 @@
 {% block title %}All Courses
 {% endblock %}
 
+{% block stylesheets %}
+	{{ parent() }}
+	<style>
+		@keyframes float-character {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-6px); }
+		}
+		.gamification-character {
+			animation: float-character 3s ease-in-out infinite;
+		}
+		.gamification-character-wrap {
+			width: 10rem;
+			height: 10rem;
+			min-width: 10rem;
+			min-height: 10rem;
+		}
+		.gamification-mascot {
+			width: 6rem;
+			height: 6rem;
+			filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+		}
+		.gamification-mascot .eye {
+			transition: transform 0.08s ease-out;
+			transform-origin: center center;
+		}
+		.gamification-mascot.blink .eye {
+			transform: scaleY(0.08);
+		}
+		@keyframes sparkle {
+			0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+			50% { opacity: 0.85; transform: scale(1.15) rotate(5deg); }
+		}
+		.gamification-mascot .sparkle {
+			animation: sparkle 1.5s ease-in-out infinite;
+		}
+		.gamification-mascot .sparkle-2 { animation-delay: 0.5s; }
+		.gamification-mascot .sparkle-3 { animation-delay: 1s; }
+		@keyframes wiggle {
+			0%, 100% { transform: rotate(-3deg); }
+			50% { transform: rotate(3deg); }
+		}
+		.gamification-mascot .trophy-hat {
+			transform-origin: 32px 18px;
+			animation: wiggle 2s ease-in-out infinite;
+		}
+		@keyframes blush-pulse {
+			0%, 100% { opacity: 0.9; }
+			50% { opacity: 0.6; }
+		}
+		.gamification-mascot .cheek {
+			animation: blush-pulse 2.5s ease-in-out infinite;
+		}
+	</style>
+{% endblock %}
+
 {% block javascripts %}
 	{{ parent() }}
 	<script>
 		window.addEventListener('DOMContentLoaded', function () {
 			const form = document.getElementById('search-form');
-			if (!form) {
-				return;
+			if (form) {
+				['niveau', 'statut'].forEach(function (name) {
+					const select = document.querySelector('select[form="search-form"][name="' + name + '"]');
+					if (select) {
+						select.addEventListener('change', function () {
+							form.submit();
+						});
+					}
+				});
 			}
-
-			['niveau', 'statut'].forEach(function (name) {
-				const select = document.querySelector('select[form="search-form"][name="' + name + '"]');
-				if (select) {
-					select.addEventListener('change', function () {
-						form.submit();
-					});
+			var mascot = document.querySelector('.gamification-mascot');
+			if (mascot) {
+				function blink() {
+					mascot.classList.add('blink');
+					setTimeout(function() { mascot.classList.remove('blink'); }, 120);
 				}
-			});
+				setInterval(blink, 2500);
+				setTimeout(blink, 800);
+			}
 		});
 	</script>
 {% endblock %}
@@ -125,6 +187,66 @@
 				</div>
 			</div>
 
+			{# Gamification access (Admin) - same as front: gradient bar + floating mascot #}
+			{% if app.session.get('user_role') == 'ROLE_ADMIN' %}
+			<div class="w-full max-w-full px-3 mt-12 mb-6">
+				<a href="{{ path('app_admin_gamification') }}" class="block">
+					<div class="relative flex flex-wrap items-center min-w-0 break-words bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500 shadow-soft-xl rounded-2xl bg-clip-border text-white overflow-hidden hover:shadow-soft-2xl hover:scale-102 transition-all duration-300">
+						<div class="w-full lg:w-2/3 p-6">
+							<p class="text-xs font-semibold uppercase opacity-80 mb-1">Gamification</p>
+							<h5 class="mb-2 font-bold text-lg">Admin dashboard</h5>
+							<p class="text-sm opacity-90 mb-4">View leaderboard, user XP, badges and engagement statistics across learners.</p>
+							<span class="inline-flex items-center px-4 py-2 text-xs font-bold uppercase bg-white/20 rounded-lg backdrop-blur-sm">
+								<i class="fas fa-trophy mr-2"></i>
+								Go to dashboard
+							</span>
+						</div>
+						<div class="gamification-characters flex w-full lg:w-1/3 justify-center items-center pr-6 mt-4 lg:mt-0">
+							<div class="gamification-character gamification-character-wrap rounded-full flex items-center justify-center shadow-soft-2xl border-4 border-white/80 bg-gradient-to-br from-amber-200/90 via-orange-300/80 to-fuchsia-300/90 backdrop-blur-sm">
+								<svg class="gamification-mascot" viewBox="0 0 64 64" aria-hidden="true">
+									<circle class="sparkle sparkle-2" cx="8" cy="16" r="3" fill="#FDE047" />
+									<circle class="sparkle sparkle-3" cx="56" cy="20" r="2.5" fill="#F472B6" />
+									<circle class="sparkle" cx="12" cy="52" r="2" fill="#A78BFA" />
+									<circle class="sparkle sparkle-2" cx="52" cy="48" r="2.5" fill="#34D399" />
+									<g class="trophy-hat">
+										<path d="M 20 20 L 24 12 L 32 8 L 40 12 L 44 20 L 42 20 L 42 24 L 22 24 L 22 20 Z" fill="url(#gold-back)" stroke="#B45309" stroke-width="0.8" />
+										<circle cx="32" cy="10" r="3" fill="#FDE047" />
+									</g>
+									<defs>
+										<linearGradient id="gold-back" x1="0%" y1="0%" x2="0%" y2="100%">
+											<stop offset="0%" style="stop-color:#FDE047" />
+											<stop offset="50%" style="stop-color:#F59E0B" />
+											<stop offset="100%" style="stop-color:#D97706" />
+										</linearGradient>
+										<linearGradient id="body-back" x1="0%" y1="0%" x2="100%" y2="100%">
+											<stop offset="0%" style="stop-color:#FBBF24" />
+											<stop offset="40%" style="stop-color:#F97316" />
+											<stop offset="100%" style="stop-color:#EC4899" />
+										</linearGradient>
+										<linearGradient id="cheekGrad-back" x1="0%" y1="0%" x2="100%" y2="0%">
+											<stop offset="0%" style="stop-color:#F472B6;stop-opacity:0.9" />
+											<stop offset="100%" style="stop-color:#EC4899;stop-opacity:0.7" />
+										</linearGradient>
+									</defs>
+									<circle cx="32" cy="36" r="20" fill="url(#body-back)" stroke="#EA580C" stroke-width="1.2" />
+									<ellipse class="cheek" cx="18" cy="38" rx="5" ry="3" fill="url(#cheekGrad-back)" />
+									<ellipse class="cheek" cx="46" cy="38" rx="5" ry="3" fill="url(#cheekGrad-back)" />
+									<ellipse class="eye" cx="24" cy="32" rx="4.5" ry="5.5" fill="white" />
+									<ellipse class="eye" cx="40" cy="32" rx="4.5" ry="5.5" fill="white" />
+									<circle class="eye" cx="24" cy="33" r="2.5" fill="#1E1B4B" />
+									<circle class="eye" cx="40" cy="33" r="2.5" fill="#1E1B4B" />
+									<circle cx="25" cy="31.5" r="0.8" fill="white" />
+									<circle cx="41" cy="31.5" r="0.8" fill="white" />
+									<path d="M 22 42 Q 32 52 42 42" stroke="#C2410C" stroke-width="2.2" fill="none" stroke-linecap="round" />
+									<path d="M 26 44 Q 32 48 38 44" stroke="#9A3412" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.8" />
+								</svg>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+			{% endif %}
+
 			<div class="flex-none w-full max-w-full px-3 mt-4">
 			<div
 				class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
@@ -139,9 +261,9 @@
 						<h6 class="mb-0">All Courses</h6>
 
 						<div
-							class="flex flex-wrap items-center gap-4">
+							class="flex flex-wrap items-center gap-8">
 							<!-- Manage Categories Button -->
-							<a href="{{ path('app_categorie_cours_index') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+							<a href="{{ path('app_categorie_cours_index') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
 								<i class="ni ni-folder-17 mr-1"></i>
 								Manage Categories
 							</a>
