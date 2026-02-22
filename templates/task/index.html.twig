@@ -438,46 +438,68 @@
                 dropEl: function (el, target, source, sibling) {
                     const taskId = el.getAttribute('data-eid');
                     const newState = target.parentElement.getAttribute('data-id');
+                    const oldState = source.parentElement.getAttribute('data-id');
                     
                     // Prevent moving locked tasks (extra safety check)
                     if (el.classList.contains('task-locked')) {
                         console.warn('Cannot move completed tasks');
                         return false;
                     }
-                    
+
+                    // Helper to persist status change via fetch
+                    function updateTaskState(taskEl, state) {
+                        fetch(`/task/${taskId}/update-state`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({ state: state })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                if (state === 'completed') {
+                                    taskEl.classList.add('task-locked');
+                                    taskEl.setAttribute('draggable', 'false');
+                                }
+                            } else {
+                                console.error('Error updating task state:', data.message);
+                            }
+                        })
+                        .catch(error => console.error('Fetch error:', error));
+                    }
+
                     // Show confirmation if moving to completed state
                     if (newState === 'completed') {
-                        if (!confirm('Are you sure you want to declare the task as done? this action is irreversable.')) {
-                            return false; // Cancel the drop
-                        }
+                        // Move card back to source immediately (since dropEl is sync)
+                        source.insertBefore(el, sibling);
+
+                        Swal.fire({
+                            title: 'Mark as Done?',
+                            text: "This action is irreversible. The task will be locked.",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#cb0c9f',
+                            cancelButtonColor: '#8392ab',
+                            confirmButtonText: 'Yes, mark as done!',
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Move card to the completed column
+                                const completedBoard = document.querySelector('[data-id="completed"] .kanban-drag');
+                                if (completedBoard) {
+                                    completedBoard.appendChild(el);
+                                }
+                                updateTaskState(el, 'completed');
+                            }
+                        });
+                        return; // Stop default processing
                     }
                     
                     console.log(`Updating task ${taskId} to state: ${newState}`);
-
-                    fetch(`/task/${taskId}/update-state`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({ state: newState })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            console.log('Task state updated successfully');
-                            // If task is now completed, add locked class
-                            if (newState === 'completed') {
-                                el.classList.add('task-locked');
-                                el.setAttribute('draggable', 'false');
-                            }
-                        } else {
-                            console.error('Error updating task state:', data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Fetch error:', error);
-                    });
+                    updateTaskState(el, newState);
                 },
                 dragendBoard: function (el) {
                     // Logic for status update could go here

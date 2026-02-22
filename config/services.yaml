@@ -8,6 +8,7 @@ services:
         bind:
             $apiKey: '%env(IMGBB_API_KEY)%'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $groqApiKey: '%env(GROQ_API_KEY)%'
 
     App\:
         resource: '../src/'
