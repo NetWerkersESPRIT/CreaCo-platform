@@ -41,17 +41,17 @@ class CollaborationAIService
 
             $this->logger->warning('CollaborationAIService: Failed to parse AI response as JSON. Raw response: ' . $response);
 
-            // Fallback: If not JSON, use the raw response as reasoning and default likelihood
+            // Fallback: If not JSON or error occurs, return a neutral empty message
             return [
                 'likelihood' => 50,
-                'reasoning' => 'Prediction unavailable in structured format. AI says: ' . substr($response, 0, 200) . '...'
+                'reasoning' => ''
             ];
 
         } catch (\Exception $e) {
             $this->logger->error('CollaborationAIService: AI error. ' . $e->getMessage());
             return [
                 'likelihood' => 0,
-                'reasoning' => 'Error during AI analysis: ' . $e->getMessage()
+                'reasoning' => ''
             ];
         }
     }

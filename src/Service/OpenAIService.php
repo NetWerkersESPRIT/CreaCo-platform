@@ -22,8 +22,8 @@ class OpenAIService
         }
 
         try {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" . $this->apiKey;
-            
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $this->apiKey;
+
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -40,13 +40,11 @@ class OpenAIService
             ]);
 
             $statusCode = $response->getStatusCode();
-            
-            if ($statusCode === 429) {
-                return 'ERROR_RATE_LIMIT: You have reached your Gemini rate limit. Please wait a moment.';
-            }
 
-            if ($statusCode === 400 || $statusCode === 401) {
-                return 'ERROR_AUTH: Invalid API Key or request. Please check your .env file.';
+            if ($statusCode !== 200) {
+                $errorData = $response->toArray(false);
+                $errorMessage = $errorData['error']['message'] ?? 'Unknown API error';
+                return "API_ERROR ($statusCode): $errorMessage";
             }
 
             $data = $response->toArray();

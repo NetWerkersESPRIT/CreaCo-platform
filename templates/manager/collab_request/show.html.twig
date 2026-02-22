@@ -153,11 +153,13 @@
                         </div>
                     </div>
 
+                    {% if ai_prediction.reasoning %}
                     <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
                         <p class="text-xs text-slate-600 leading-relaxed italic">
                             "{{ ai_prediction.reasoning }}"
                         </p>
                     </div>
+                    {% endif %}
                     <p class="text-xxs text-slate-400 mt-3 text-center">Powered by Google Gemini Flash</p>
                 </div>
             </div>
