@@ -1,175 +1,615 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin Dashboard
+{% block title %}Admin Dashboard | CreaCo{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .stat-card {
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
 {% endblock %}
 
 {% block body %}
-	<div class="w-full px-6 py-6 mx-auto">
+<!-- 🚀 Statistics Row -->
+<div class="flex flex-wrap -mx-3">
+    <!-- Ideas Column -->
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border stat-card">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-2/3 max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Flow Ideas</p>
+                            <h5 class="mb-0 font-bold">
+                                {{ workflowStats.ideas.total }}
+                                <span class="leading-normal text-sm font-weight-bolder text-fuchsia-500">+{{ workflowStats.ideas.today }} today</span>
+                            </h5>
+                            <p class="mb-0 text-xs text-slate-400">Month: {{ workflowStats.ideas.month }} | Year: {{ workflowStats.ideas.year }}</p>
+                        </div>
+                    </div>
+                    <div class="px-3 text-right basis-1/3">
+                        <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                            <i class="ni ni-bulb-61 text-lg relative top-3.5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<div
-			class="flex flex-wrap -mx-3">
-			<!-- Analytics Card -->
-			<div class="w-full max-w-full px-3 mb-6">
-				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
-					<div class="flex-auto p-4">
-						<div class="flex flex-wrap -mx-3">
-							<div class="max-w-full px-3 lg:w-1/2 lg:flex-none">
-								<div class="flex flex-col h-full">
-									<h5 class="font-bold">Vue d'ensemble des Cours</h5>
-									<p class="mb-5 text-gray-500">
-										<i class="fa fa-arrow-up text-lime-500"></i>
-										<span class="font-bold">Top 5</span>
-										des cours les plus visités
-									</p>
-									<p class="text-sm">Ce graphique montre le nombre total de vues pour vos cours les plus populaires. Utilisez ces données pour comprendre ce qui intéresse vos étudiants.</p>
-								</div>
-							</div>
-							<div class="max-w-full px-3 mt-12 ml-auto text-center lg:mt-0 lg:w-5/12 lg:flex-none">
-								<div class="h-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl">
-									<img src="{{ asset('assets/img/shapes/waves-white.svg') }}" class="absolute top-0 hidden w-1/2 h-full lg:block" alt="waves">
-									<div class="relative flex items-center justify-center h-full">
-										<i class="ni ni-chart-bar-32 text-white text-4xl"></i>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+    <!-- Missions Column -->
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border stat-card">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-2/3 max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Active Missions</p>
+                            <h5 class="mb-0 font-bold">
+                                {{ workflowStats.missions.total }}
+                                <span class="leading-normal text-sm font-weight-bolder text-fuchsia-500">+{{ workflowStats.missions.today }} today</span>
+                            </h5>
+                            <p class="mb-0 text-xs text-slate-400">Month: {{ workflowStats.missions.month }} | Year: {{ workflowStats.missions.year }}</p>
+                        </div>
+                    </div>
+                    <div class="px-3 text-right basis-1/3">
+                        <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                            <i class="ni ni-briefcase-24 text-lg relative top-3.5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-		<!-- Chart Section -->
-		<div class="flex flex-wrap -mx-3">
-			<div class="w-full max-w-full px-3 mt-0 lg:w-7/12 lg:flex-none">
-				<div class="border-black/12.5 shadow-soft-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
-					<div class="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
-						<h6>Nombre de vues par cours</h6>
-					</div>
-					<div class="flex-auto p-4">
-						<div>
-							<canvas id="chart-bars" height="300"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
+    <!-- Tasks Column -->
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border stat-card">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-2/3 max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Tasks Tracked</p>
+                            <h5 class="mb-0 font-bold">
+                                {{ workflowStats.tasks.total }}
+                                <span class="leading-normal text-sm font-weight-bolder text-fuchsia-500">+{{ workflowStats.tasks.today }} today</span>
+                            </h5>
+                            <p class="mb-0 text-xs text-slate-400">Month: {{ workflowStats.tasks.month }} | Year: {{ workflowStats.tasks.year }}</p>
+                        </div>
+                    </div>
+                    <div class="px-3 text-right basis-1/3">
+                        <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                            <i class="ni ni-check-bold text-lg relative top-3.5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-			<!-- Top List -->
-			<div class="w-full max-w-full px-3 mt-6 lg:mt-0 lg:w-5/12 lg:flex-none">
-				<div class="border-black/12.5 shadow-soft-xl relative flex h-full min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
-					<div class="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid bg-white p-6 pb-0">
-						<h6>Top Cours Populaires</h6>
-					</div>
-					<div class="flex-auto p-4">
-						<ul class="flex flex-col pl-0 mb-0 rounded-lg">
-							{% for course in topCourses %}
-								<li class="relative flex justify-between px-4 py-2 pl-0 mb-2 border-0 border-t-0 text-inherit rounded-xl">
-									<div class="flex items-center">
-										<div class="flex flex-col">
-											<h6 class="mb-1 text-sm font-semibold leading-normal text-slate-700">{{ course.titre }}</h6>
-											<span class="text-xs leading-tight">
-												{{ course.categorie ? course.categorie.nom : 'Non classé' }}
+    <!-- Events Column -->
+    <div class="w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border stat-card">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-2/3 max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Total Events</p>
+                            <h5 class="mb-0 font-bold">
+                                {{ eventStats.total }}
+                                <span class="leading-normal text-sm font-weight-bolder text-fuchsia-500">+{{ eventStats.today }} today</span>
+                            </h5>
+                            <p class="mb-0 text-xs text-slate-400">Month: {{ eventStats.month }} | Year: {{ eventStats.year }}</p>
+                        </div>
+                    </div>
+                    <div class="px-3 text-right basis-1/3">
+                        <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                            <i class="ni ni-calendar-grid-58 text-lg relative top-3.5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-											</span>
-										</div>
-									</div>
-									<div class="flex items-center text-sm font-bold text-gray-700">
-										{{ course.views ?? 0 }}
-										vues
-									</div>
-								</li>
-							{% else %}
-								<li class="text-center text-gray-500">Aucun cours trouvé</li>
-							{% endfor %}
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
+<div class="flex flex-wrap mt-6 -mx-3">
+    <!-- 🏢 Recent Accounts Card -->
+    <div class="max-w-full w-1/2 px-3 mb-6 xl:w-8/12">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-4 pb-0 mb-0 bg-white rounded-t-2xl">
+                <div class="flex justify-between">
+                    <h6 class="mb-2">Last 10 Created Accounts</h6>
+                    <a href="{{ path('app_admin') }}" class="text-sm m-2 font-bold text-fuchsia-500 uppercase">View All</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                    <thead class="align-bottom">
+                        <tr>
+                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">User</th>
+                            <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Role</th>                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in recentUsers %}
+                        <tr>
+                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                <div class="flex px-4 py-1">
+                                    <div class="flex flex-col justify-center">
+                                        <h6 class="mb-0 text-sm leading-normal">{{ user.username }}</h6>
+                                        <p class="mb-0 text-xs leading-tight text-slate-400">{{ user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                {% if user.role == 'ROLE_ADMIN' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-gray-900 to-slate-800 align-baseline font-bold uppercase leading-none text-white">Admin</span>
+                                {% elseif user.role == 'ROLE_MANAGER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-green-600 to-lime-400 align-baseline font-bold uppercase leading-none text-white">Manager</span>
+                                {% elseif user.role == 'ROLE_CONTENT_CREATOR' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-purple-700 to-pink-500 align-baseline font-bold uppercase leading-none text-white">Content Creator</span>
+                                {% elseif user.role == 'ROLE_MEMBER' %}
+										<span class="py-2 px-2 text-xs rounded-1.8 inline-block whitespace-nowrap text-center bg-gradient-to-tl from-blue-600 to-cyan-400 align-baseline font-bold uppercase leading-none text-white">Member</span>
+                                {% else %}
+                                    <span class="px-2.5 py-1 text-sm font-bold text-white uppercase rounded-lg bg-gradient-to-tl from-gray-600 to-gray-400">{{ user.role|replace({'ROLE_': ''}) }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-	</div>
+    <!-- 📊 Activity Summary -->
+    <div class="max-w-full w-1/2 px-3 xl:w-8/12">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border mb-6">
+            <div class="p-4 pb-0 mb-0 bg-white rounded-t-2xl">
+                <h6 class="mb-0">Forum & Courses Summary</h6>
+            </div>
+            <div class="flex-auto p-4">
+                <ul class="flex flex-col pl-0 mb-0 rounded-lg">
+                    <li class="relative flex justify-between py-2 pr-4 mb-2 bg-white border-0 rounded-t-lg text-inherit">
+                        <div class="flex items-center">
+                            <div class="inline-block w-8 h-8 mr-4 text-center rounded-lg bg-gradient-to-tl from-gray-900 to-slate-800">
+                                <i class="ni ni-chat-round text-white relative top-2 text-xs"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h6 class="mb-1 text-sm leading-normal text-slate-700">Forum Activity</h6>
+                                <span class="text-xs leading-tight">{{ forumStats.posts.total }} Posts | {{ forumStats.comments.total }} Replies</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm leading-normal">
+                             <span class="font-bold text-green-500">+{{ forumStats.posts.today + forumStats.comments.today }}</span>
+                        </div>
+                    </li>
+                    <li class="relative flex justify-between py-2 pr-4 mb-2 bg-white border-0 text-inherit">
+                        <div class="flex items-center">
+                            <div class="inline-block w-8 h-8 mr-4 text-center rounded-lg bg-gradient-to-tl from-gray-900 to-slate-800">
+                                <i class="ni ni-hat-3 text-white relative top-2 text-xs"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h6 class="mb-1 text-sm leading-normal text-slate-700">Course Content</h6>
+                                <span class="text-xs leading-tight">{{ courseStats.total }} Courses Added</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm leading-normal">
+                            <span class="font-bold text-green-500">+{{ courseStats.today }}</span>
+                        </div>
+                    </li>
+                </ul>
+
+                <hr class="h-px mt-4 mb-6 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent" />
+
+                <h6 class="mb-4 text-xs font-bold leading-tight uppercase opacity-60">Top Courses by Views</h6>
+                <div class="flex flex-col">
+                    {% for course in topCourses %}
+                    <div class="flex items-center mb-4">
+                        <div class="flex-auto pl-2">
+                            <h6 class="mb-0 text-sm font-semibold text-slate-700">{{ course.titre }}</h6>
+                            <div class="w-full bg-gray-200 rounded-lg h-1.5 mt-1">
+                                <div class="bg-gradient-to-tl from-blue-600 to-cyan-400 h-1.5 rounded-lg" style="width: {{ (course.views / topCourses[0].views * 100)|default(0) }}%"></div>
+                            </div>
+                        </div>
+                        <span class="ml-auto text-sm font-bold text-slate-700">{{ course.views }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📈 Forum Activity Graph -->
+<div class="flex flex-wrap mt-6 -mx-3">
+    <div class="w-full max-w-full px-3">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-4 pb-0 mb-0 bg-white rounded-t-2xl">
+                <h6 class="mb-0 font-bold">Forum Engagement (Last 7 Days)</h6>
+                <p class="text-sm leading-normal">Daily tracking of posts and replies</p>
+            </div>
+            <div class="flex-auto p-4">
+                <div class="h-80">
+                    <canvas id="chart-forum" class="chart-canvas" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📈 Charts Row -->
+<div class="flex flex-wrap mt-6 -mx-3">
+    <div class="w-full max-w-full px-3 mb-6 lg:w-7/12">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <h6 class="mb-0 font-bold">Activity Overview</h6>
+                <p class="leading-normal text-sm">Last period comparisons</p>
+                <div class="h-80">
+                    <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="w-full max-w-full px-3 lg:w-5/12">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-4 pb-0 mb-0 bg-white rounded-t-2xl">
+                <h6 class="mb-0 text-fuchsia-500 font-bold">Workflow Health</h6>
+            </div>
+            <div class="flex-auto p-4">
+                <div class="h-80">
+                    <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-	{{ parent() }}
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script>
-		var courseTitles = {{ courseTitles|raw }};
-var courseViews = {{ courseViews|raw }};
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Chart 1: Bar Chart for Main Entities
+        var ctx = document.getElementById("chart-bars").getContext("2d");
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Ideas", "Missions", "Tasks", "Events", "Posts", "Courses"],
+                datasets: [{
+                    label: "Today's Growth",
+                    tension: 0.4,
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    backgroundColor: "#cb0c9f",
+                    data: [
+                        {{ workflowStats.ideas.today }}, 
+                        {{ workflowStats.missions.today }}, 
+                        {{ workflowStats.tasks.today }}, 
+                        {{ eventStats.today }}, 
+                        {{ forumStats.posts.today }}, 
+                        {{ courseStats.today }}
+                    ],
+                    maxBarThickness: 10
+                },
+                {
+                    label: "Monthly Total",
+                    tension: 0.4,
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                    backgroundColor: "#3A416F",
+                    data: [
+                        {{ workflowStats.ideas.month }}, 
+                        {{ workflowStats.missions.month }}, 
+                        {{ workflowStats.tasks.month }}, 
+                        {{ eventStats.month }}, 
+                        {{ forumStats.posts.month }}, 
+                        {{ courseStats.month }}
+                    ],
+                    maxBarThickness: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            display: true,
+                            padding: 10,
+                            color: '#b2b9bf',
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                    x: {
+                        grid: {
+                            drawBorder: false,
+                            display: false,
+                            drawOnChartArea: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            display: true,
+                            color: '#b2b9bf',
+                            padding: 20,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                },
+            },
+        });
 
-var ctx = document.getElementById("chart-bars").getContext("2d");
+        // Chart 2: Workflow Health - Enhanced
+        var ctx2 = document.getElementById("chart-line").getContext("2d");
 
-new Chart(ctx, {
-type: "bar",
-data: {
-labels: courseTitles,
-datasets: [
-{
-label: "Vues",
-tension: 0.4,
-borderWidth: 0,
-borderRadius: 4,
-borderSkipped: false,
-backgroundColor: "#cb0c9f",
-data: courseViews,
-maxBarThickness: 20
-},
-]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-plugins: {
-legend: {
-display: false
-}
-},
-interaction: {
-intersect: false,
-mode: 'index'
-},
-scales: {
-y: {
-grid: {
-drawBorder: false,
-display: true,
-drawOnChartArea: true,
-drawTicks: false,
-borderDash: [5, 5]
-},
-ticks: {
-display: true,
-padding: 10,
-color: '#b2b9bf',
-font: {
-size: 11,
-family: "Open Sans",
-style: 'normal',
-lineHeight: 2
-}
-}
-},
-x: {
-grid: {
-drawBorder: false,
-display: false,
-drawOnChartArea: false,
-drawTicks: false,
-borderDash: [5, 5]
-},
-ticks: {
-display: true,
-color: '#b2b9bf',
-padding: 10,
-font: {
-size: 11,
-family: "Open Sans",
-style: 'normal',
-lineHeight: 2
-}
-}
-}
-}
-}
-});
-	</script>
+        // Create gradients for each dataset
+        var gradIdeas = ctx2.createLinearGradient(0, 0, 0, 300);
+        gradIdeas.addColorStop(0, "rgba(203, 12, 159, 0.5)");
+        gradIdeas.addColorStop(1, "rgba(203, 12, 159, 0.0)");
+
+        var gradMissions = ctx2.createLinearGradient(0, 0, 0, 300);
+        gradMissions.addColorStop(0, "rgba(58, 65, 111, 0.5)");
+        gradMissions.addColorStop(1, "rgba(58, 65, 111, 0.0)");
+
+        var gradTasks = ctx2.createLinearGradient(0, 0, 0, 300);
+        gradTasks.addColorStop(0, "rgba(17, 205, 239, 0.5)");
+        gradTasks.addColorStop(1, "rgba(17, 205, 239, 0.0)");
+
+        new Chart(ctx2, {
+            type: "line",
+            data: {
+                labels: ["Today", "This Month", "This Year"],
+                datasets: [
+                {
+                    label: "💡 Ideas",
+                    borderColor: "#cb0c9f",
+                    backgroundColor: gradIdeas,
+                    pointBackgroundColor: "#cb0c9f",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true,
+                    data: [{{ workflowStats.ideas.today }}, {{ workflowStats.ideas.month }}, {{ workflowStats.ideas.year }}],
+                },
+                {
+                    label: "🎯 Missions",
+                    borderColor: "#3A416F",
+                    backgroundColor: gradMissions,
+                    pointBackgroundColor: "#3A416F",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true,
+                    data: [{{ workflowStats.missions.today }}, {{ workflowStats.missions.month }}, {{ workflowStats.missions.year }}],
+                },
+                {
+                    label: "✅ Tasks",
+                    borderColor: "#11cdef",
+                    backgroundColor: gradTasks,
+                    pointBackgroundColor: "#11cdef",
+                    pointBorderColor: "#fff",
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: true,
+                    data: [{{ workflowStats.tasks.today }}, {{ workflowStats.tasks.month }}, {{ workflowStats.tasks.year }}],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 16,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                            },
+                            color: '#8392ab',
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a1f3c',
+                        titleColor: '#fff',
+                        bodyColor: '#b2b9bf',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true,
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        usePointStyle: true,
+                        callbacks: {
+                            title: function(items) {
+                                return '📅 ' + items[0].label;
+                            },
+                            label: function(item) {
+                                return '  ' + item.dataset.label + ': ' + item.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: false,
+                            color: 'rgba(130,148,175,0.1)',
+                            borderDash: [4, 4],
+                        },
+                        ticks: {
+                            display: true,
+                            padding: 12,
+                            color: '#8392ab',
+                            precision: 0,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                            },
+                        }
+                    },
+                    x: {
+                        grid: {
+                            drawBorder: false,
+                            display: false,
+                            drawOnChartArea: false,
+                            drawTicks: false,
+                        },
+                        ticks: {
+                            display: true,
+                            color: '#8392ab',
+                            padding: 10,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                weight: '600',
+                            },
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Forum Activity Area Chart
+        var ctx3 = document.getElementById("chart-forum").getContext("2d");
+        new Chart(ctx3, {
+            type: "line",
+            data: {
+                labels: {{ forumHistoricalLabels|raw }},
+                datasets: [{
+                    label: "Forum Posts",
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 2,
+                    borderColor: "#cb0c9f",
+                    backgroundColor: "rgba(203, 12, 159, 0.2)",
+                    fill: true,
+                    data: {{ forumHistoricalPosts|raw }},
+                    maxBarThickness: 6
+                },
+                {
+                    label: "Comments & Replies",
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 2,
+                    borderColor: "#3A416F",
+                    backgroundColor: "rgba(58, 65, 111, 0.2)",
+                    fill: true,
+                    data: {{ forumHistoricalComments|raw }},
+                    maxBarThickness: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                scales: {
+                    y: {
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            display: true,
+                            padding: 10,
+                            color: '#b2b9bf',
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                    x: {
+                        grid: {
+                            drawBorder: false,
+                            display: false,
+                            drawOnChartArea: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            display: true,
+                            color: '#b2b9bf',
+                            padding: 20,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                },
+            },
+        });
+    });
+</script>
 {% endblock %}

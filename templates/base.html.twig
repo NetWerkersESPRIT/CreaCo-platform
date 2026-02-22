@@ -94,19 +94,119 @@
 			</main>
 
 			{% block javascripts %}
-				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5" async></script>
-				<script>
-					document.addEventListener('DOMContentLoaded', () => {
-						setTimeout(() => {
-							const alerts = document.querySelectorAll('.flash-alert');
-							alerts.forEach(alert => {
-								alert.style.transition = "opacity 0.5s ease";
-								alert.style.opacity = "0";
-								setTimeout(() => alert.remove(), 500);
-							});
-						}, 1500);
-					});
-				</script>
-			{% endblock %}
+    {# 1. Load the main dashboard script without 'async' to ensure it's ready #}
+    <script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. SMART DROPDOWN TOGGLE (The "Hybrid" Fix) ---
+            const dropdownTrigger = document.querySelector('[dropdown-trigger]');
+            const dropdownMenu = document.querySelector('[dropdown-menu]');
+
+            if (dropdownTrigger && dropdownMenu) {
+                dropdownTrigger.addEventListener('click', (e) => {
+                    // We check if the dashboard script is already doing its job.
+                    // If the menu doesn't have the 'opacity-100' class after a click, 
+                    // it means the dashboard script failed, so we trigger it manually.
+                    setTimeout(() => {
+                        if (dropdownMenu.classList.contains('opacity-0')) {
+                            dropdownMenu.classList.remove('opacity-0', 'pointer-events-none');
+                            dropdownMenu.classList.add('opacity-100', 'top-[100%]');
+                        }
+                    }, 10); 
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!dropdownTrigger.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.add('opacity-0', 'pointer-events-none');
+                        dropdownMenu.classList.remove('opacity-100');
+                    }
+                });
+            }
+
+            // --- 2. FLASH ALERTS (Smooth auto-hide) ---
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.flash-alert');
+                alerts.forEach(alert => {
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                });
+            }, 2500);
+
+            // --- 3. NOTIFICATION LOGIC (Detailed & Robust) ---
+            const notifBadge = document.getElementById('notif-badge');
+            const notifContainer = document.getElementById('notif-list-container');
+
+            function timeAgo(date) {
+                const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+                let interval = seconds / 31536000;
+                if (interval > 1) return Math.floor(interval) + "y";
+                interval = seconds / 2592000;
+                if (interval > 1) return Math.floor(interval) + "mo";
+                interval = seconds / 86400;
+                if (interval > 1) return Math.floor(interval) + "d";
+                interval = seconds / 3600;
+                if (interval > 1) return Math.floor(interval) + "h";
+                interval = seconds / 60;
+                if (interval > 1) return Math.floor(interval) + "m";
+                return "now";
+            }
+
+            function updateNotifications() {
+                if (!notifContainer) return; // Exit if not on a page with a navbar
+
+                fetch('{{ path("app_api_notifications_latest") }}')
+                    .then(res => res.ok ? res.json() : [])
+                    .then(data => {
+                        if (data.length > 0) {
+                            notifContainer.innerHTML = '';
+                            data.forEach(n => {
+                                const isUnreadClass = n.isRead ? 'opacity-60' : 'bg-gray-50 font-bold';
+                                const iconClass = n.type === 'invitation' ? 'fa-envelope-open-text' : 'fa-bell';
+                                const colorClass = n.type === 'invitation' ? 'from-purple-700 to-pink-500' : 'from-blue-600 to-cyan-400';
+                                
+                                const item = `
+                                    <li class="mb-2">
+                                        <a class="flex items-center px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-all ${isUnreadClass}" href="{{ path('app_notifications') }}">
+                                            <div class="flex items-center justify-center w-8 h-8 mr-3 text-white rounded-lg bg-gradient-to-tl ${colorClass}">
+                                                <i class="fas ${iconClass} text-xs"></i>
+                                            </div>
+                                            <div class="flex flex-col justify-center overflow-hidden">
+                                                <h6 class="mb-0 text-xs leading-normal truncate w-48">${n.message}</h6>
+                                                <p class="mb-0 text-[10px] leading-tight text-slate-400">
+                                                    <i class="far fa-clock mr-1"></i> ${timeAgo(n.createdAt)}
+                                                </p>
+                                            </div>
+                                        </a>
+                                    </li>
+                                `;
+                                notifContainer.insertAdjacentHTML('beforeend', item);
+                            });
+                        }
+                    }).catch(err => console.warn("Notification sync failed: User likely logged out."));
+
+                fetch('{{ path("app_api_notifications_unread_count") }}')
+                    .then(res => res.ok ? res.json() : {count: 0})
+                    .then(data => {
+                        if (notifBadge) {
+                            if (data.count > 0) {
+                                notifBadge.innerText = data.count;
+                                notifBadge.classList.remove('hidden');
+                            } else {
+                                notifBadge.classList.add('hidden');
+                            }
+                        }
+                    });
+            }
+
+            // Initial run and interval
+            updateNotifications();
+            setInterval(updateNotifications, 30000);
+        });
+    </script>
+{% endblock %}
 		</body>
 	</html>

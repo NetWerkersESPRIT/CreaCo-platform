@@ -52,6 +52,33 @@
 			</div>
 
 			<!-- User Info & Actions (Right Side) -->
+
+					<!-- Global Notification Bell -->
+					<li class="relative flex items-center pr-2">
+						<p class="hidden transform-dropdown-show"></p>
+						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
+							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-full bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
+								<i class="fixed-plugin-button-nav cursor-pointer ni ni-lg ni-bell-55"></i>
+								<!-- Notification Badge -->
+								<span id="notif-badge" class="hidden absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-gradient-to-tl from-red-600 to-pink-500 rounded-full border-2 border-white shadow-soft-xl">0</span>
+							</div>
+						</a>
+
+						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
+							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
+								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
+							</div>
+							<div
+								id="notif-list-container" class="max-h-64 overflow-y-auto">
+								<!-- Notifications will be loaded here via JS -->
+								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">No Notifications yet</div>
+							</div>
+							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
+								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">See all</a>
+							</div>
+						</ul>
+					</li>
+
 			<ul class="flex flex-row items-center justify-end pl-0 mb-0 list-none gap-4">
 				{% if app_user %}
 					<!-- User Card -->
@@ -89,38 +116,13 @@
 						</div>
 					</div>
 
-					<!-- Global Notification Bell -->
-					<li class="relative flex items-center pr-2">
-						<p class="hidden transform-dropdown-show"></p>
-						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
-							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
-								<i class="fixed-plugin-button-nav cursor-pointer ni ni-lg ni-bell-55"></i>
-								<!-- Notification Badge -->
-								<span id="notif-badge" class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-							</div>
-						</a>
-
-						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
-							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
-								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
-							</div>
-							<div
-								id="notif-list-container" class="max-h-64 overflow-y-auto">
-								<!-- Notifications will be loaded here via JS -->
-								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">Aucune notification</div>
-							</div>
-							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
-								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">Voir tout</a>
-							</div>
-						</ul>
-					</li>
-
 					<!-- Logout Button -->
 					<li>
 						<a href="{{ path('app_logout') }}">
 							<button type="button" class="relative bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-105 transition-transform">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+								<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 18 18">
+									<path d="M11.75,11.5c-.414,0-.75,.336-.75,.75v2.5c0,.138-.112,.25-.25,.25H5.448l1.725-1.069c.518-.322,.827-.878,.827-1.487V5.557c0-.609-.31-1.166-.827-1.487l-1.725-1.069h5.302c.138,0,.25,.112,.25,.25v2.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.25c0-.965-.785-1.75-1.75-1.75H4.25c-.965,0-1.75,.785-1.75,1.75V14.75c0,.965,.785,1.75,1.75,1.75h6.5c.965,0,1.75-.785,1.75-1.75v-2.5c0-.414-.336-.75-.75-.75Z" fill="rgba(255, 255, 255, 1)"></path>
+									<path d="M17.78,8.47l-2.75-2.75c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.47,1.47h-4.189c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.189l-1.47,1.47c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.75-2.75c.293-.293,.293-.768,0-1.061Z" fill="rgba(255, 255, 255, 1)" data-color="color-2"></path>
 								</svg>
 							</button>
 						</a>

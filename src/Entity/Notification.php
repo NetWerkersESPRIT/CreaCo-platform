@@ -29,6 +29,15 @@ class Notification
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $targetUrl = null;
 
+    #[ORM\Column(length: 50, options: ['default' => 'default'])]
+    private ?string $type = 'default';
+
+    #[ORM\Column(nullable: true)]
+    private ?int $relatedId = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $status = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +99,42 @@ class Notification
     public function setTargetUrl(?string $targetUrl): static
     {
         $this->targetUrl = $targetUrl;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getRelatedId(): ?int
+    {
+        return $this->relatedId;
+    }
+
+    public function setRelatedId(?int $relatedId): static
+    {
+        $this->relatedId = $relatedId;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
