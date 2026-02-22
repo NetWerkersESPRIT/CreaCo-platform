@@ -14,8 +14,18 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 
 final class AuthController extends AbstractController
 {
-    #[Route('/', name: 'app_auth')]
+    #[Route('/', name: 'app_visitor')]
     public function index(): Response
+    {
+        return $this->render('auth/visitor.html.twig', [
+            'controller_name' => 'AuthController',
+            'error' => null,
+        ]);
+    }
+
+
+    #[Route('/auth', name: 'app_auth')]
+    public function authenticate(): Response
     {
         return $this->render('auth/index.html.twig', [
             'controller_name' => 'AuthController',
