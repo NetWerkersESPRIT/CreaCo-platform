@@ -41,6 +41,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $points = 0;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
@@ -126,12 +129,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $comments;
 
     /**
-     * @var Collection<int, PostReaction>
-     */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
-    private Collection $reactions;
-
-    /**
      * @var Collection<int, Group>
      */
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
@@ -154,7 +151,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
-        $this->reactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -257,6 +253,25 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNumtel(?string $numtel): static
     {
         $this->numtel = $numtel;
+
+        return $this;
+    }
+
+    public function getPoints(): int
+    {
+        return $this->points;
+    }
+
+    public function setPoints(int $points): static
+    {
+        $this->points = $points;
+
+        return $this;
+    }
+
+    public function addPoints(int $points): static
+    {
+        $this->points += $points;
 
         return $this;
     }
@@ -480,13 +495,5 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
-
-    /**
-     * @return Collection<int, PostReaction>
-     */
-    public function getReactions(): Collection
-    {
-        return $this->reactions;
     }
 }
