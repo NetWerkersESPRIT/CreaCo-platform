@@ -5,6 +5,7 @@ namespace App\Controller\Collab\Manager;
 use App\Entity\CollabRequest;
 use App\Entity\Contract;
 use App\Entity\Users;
+use App\Service\CollaborationAIService;
 use App\Form\RejectionReasonType;
 use App\Repository\CollabRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,8 +45,12 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_manager_collab_request_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
-    {
+    public function show(
+        CollabRequest $collabRequest,
+        EntityManagerInterface $em,
+        Request $request,
+        CollaborationAIService $aiService
+    ): Response {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
         $userId = $session->get('user_id');
@@ -63,8 +68,11 @@ class ManagerCollabRequestController extends AbstractController
             throw $this->createAccessDeniedException("Cette demande ne vous est pas assignée.");
         }
 
+        $aiPrediction = $aiService->predictStatus($collabRequest);
+
         return $this->render('manager/collab_request/show.html.twig', [
             'collab_request' => $collabRequest,
+            'ai_prediction' => $aiPrediction,
         ]);
     }
 
