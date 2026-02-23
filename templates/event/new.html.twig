@@ -65,6 +65,20 @@
                 </div>
             </div>
 
+            <div id="weather-section" class="mb-4 hidden">
+                <div class="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-sm transition-all duration-300">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="p-2 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-cloud-sun text-blue-500"></i>
+                        </div>
+                        <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">Weather Forecast</span>
+                    </div>
+                    <div id="weather-content" class="text-sm text-slate-600">
+                        <p class="animate-pulse">Fetching weather data...</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="mb-4">
                 <label class="inline-block mb-2 ml-1 font-bold text-xs text-slate-700">Description</label>
                 {{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline min-h-unset text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '3'}}) }}
@@ -235,6 +249,85 @@
             // Listen for changes
             typeSelect.addEventListener('change', toggleTypeFields);
         }
+
+        // --- Weather Logic ---
+        const dateInput = document.querySelector('input[name="{{ form.date.vars.full_name }}"]');
+        const weatherSection = document.getElementById('weather-section');
+        const weatherContent = document.getElementById('weather-content');
+
+        function updateWeather() {
+            const selectedDate = dateInput.value;
+            const selectedType = typeSelect.value;
+
+            if (selectedType === 'in-person' && selectedDate) {
+                weatherSection.classList.remove('hidden');
+                weatherContent.innerHTML = '<p class="animate-pulse">Fetching weather data...</p>';
+
+                fetch('{{ path('api_weather') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.hourly && data.hourly.time) {
+                            const times = data.hourly.time;
+                            const temps = data.hourly.temperature_2m;
+                            const rains = data.hourly.rain;
+
+                            // Find indices for the selected date
+                            const dayIndices = times.map((t, i) => t.startsWith(selectedDate) ? i : -1).filter(i => i !== -1);
+
+                            if (dayIndices.length > 0) {
+                                // Calculate average temp and max rain for the day (e.g., 9h to 18h)
+                                let totalTemp = 0;
+                                let maxRain = 0;
+                                let count = 0;
+
+                                dayIndices.forEach(idx => {
+                                    const hour = parseInt(times[idx].split('T')[1].split(':')[0]);
+                                    if (hour >= 8 && hour <= 20) {
+                                        totalTemp += temps[idx];
+                                        if (rains[idx] > maxRain) maxRain = rains[idx];
+                                        count++;
+                                    }
+                                });
+
+                                const avgTemp = (totalTemp / count).toFixed(1);
+                                const rainStatus = maxRain > 0.5 ? 'Rain expected 🌧️' : 'No rain expected ☀️';
+                                
+                                weatherContent.innerHTML = `
+                                    <div class="flex flex-col gap-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-medium text-slate-800">Avg Temperature:</span>
+                                            <span class="font-bold text-fuchsia-600">${avgTemp}°C</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-medium text-slate-800">Conditions:</span>
+                                            <span class="${maxRain > 0.5 ? 'text-red-500' : 'text-green-500'} font-semibold">${rainStatus}</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-2">* Data for Tunis location (36.819, 10.1658)</p>
+                                    </div>
+                                `;
+                            } else {
+                                weatherContent.innerHTML = '<p class="text-orange-500">Weather data only available for the next 16 days.</p>';
+                            }
+                        } else {
+                            weatherContent.innerHTML = '<p class="text-red-500">Could not fetch weather data.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Weather Fetch Error:', error);
+                        weatherContent.innerHTML = '<p class="text-red-500">Error connecting to weather service.</p>';
+                    });
+            } else {
+                weatherSection.classList.add('hidden');
+            }
+        }
+
+        if (dateInput && typeSelect) {
+            dateInput.addEventListener('change', updateWeather);
+            typeSelect.addEventListener('change', updateWeather);
+            // Initial call if editing or date already set
+            updateWeather();
+        }
+
 
         // --- Target Users Search Logic ---
         const searchInput = document.getElementById('target-user-search');

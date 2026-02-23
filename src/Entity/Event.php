@@ -65,8 +65,7 @@ class Event
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Url(message: "Google Maps link must be a valid URL")]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $googleMapsLink = null;
 
     #[ORM\Column(nullable: true)]

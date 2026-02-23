@@ -39,11 +39,27 @@
                                             <li><strong>Link:</strong> <a href="{{ event.meetingLink }}" class="text-blue-500 hover:text-blue-700">{{ event.meetingLink }}</a></li>
                                         {% else %}
                                             <li><strong>Address:</strong> {{ event.address }}</li>
-                                            {% if event.googleMapsLink %}
-                                                <li><strong>Map:</strong> <a href="{{ event.googleMapsLink }}" target="_blank" class="text-blue-500 hover:text-blue-700">View on Maps</a></li>
+                                       {% if event.googleMapsLink %}
+                                                {{ event.googleMapsLink|raw }}
                                             {% endif %}
                                         {% endif %}
                                      </ul>
+
+                                      {% if event.type != 'online' %}
+                                      <div id="weather-section" class="mt-4 hidden">
+                                          <div class="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-sm transition-all duration-300">
+                                              <div class="flex items-center gap-3 mb-2">
+                                                  <div class="p-2 bg-white rounded-lg shadow-sm">
+                                                      <i class="fas fa-cloud-sun text-blue-500"></i>
+                                                  </div>
+                                                  <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">Expected Weather</span>
+                                              </div>
+                                              <div id="weather-content" class="text-sm text-slate-600">
+                                                  <p class="animate-pulse">Loading forecast...</p>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      {% endif %}
                                 </div>
 
                                 <div class="mt-6">
@@ -54,15 +70,17 @@
                             </div>
                         </div>
                          <div class="max-w-full px-3 mt-12 ml-auto text-center lg:mt-0 lg:w-5/12 lg:flex-none">
-                            <div class="h-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl min-h-[300px] overflow-hidden">
-                                {% if event.imagePath %}
-                                    <img src="{{ event.imagePath }}" class="w-full h-full object-cover" alt="{{ event.name }}">
-                                {% else %}
-                                    <img src="{{ asset('assets/img/shapes/waves-white.svg') }}" class="absolute top-0 hidden w-1/2 h-full lg:block" alt="waves">
-                                    <div class="relative flex items-center justify-center h-full">
-                                        <img class="relative z-20 w-full pt-6" src="{{ asset('assets/img/illustrations/rocket-white.png') }}" alt="rocket">
-                                    </div>
-                                {% endif %}
+                            <div class="sticky top-6 lg:top-10">
+                                <div class="w-full bg-gradient-to-tl from-purple-700 to-pink-500 rounded-2xl shadow-soft-2xl overflow-hidden relative" style="aspect-ratio: 16/9; min-height: 200px;">
+                                    {% if event.imagePath %}
+                                        <img src="{{ event.imagePath }}" class="absolute top-0 left-0 w-full h-full object-cover" alt="{{ event.name }}">
+                                    {% else %}
+                                        <img src="{{ asset('assets/img/shapes/waves-white.svg') }}" class="absolute top-0 hidden w-full h-full lg:block" alt="waves">
+                                        <div class="relative flex items-center justify-center h-full">
+                                            <img class="relative z-20 w-32 pt-6" src="{{ asset('assets/img/illustrations/rocket-white.png') }}" alt="rocket">
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -71,4 +89,66 @@
         </div>
     </div>
 </div>
+{% if event.type != 'online' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const weatherSection = document.getElementById('weather-section');
+    const weatherContent = document.getElementById('weather-content');
+    const eventDate = '{{ event.date|date('Y-m-d') }}';
+
+    if (weatherSection && weatherContent) {
+        weatherSection.classList.remove('hidden');
+        
+        fetch('{{ path('api_weather') }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.hourly && data.hourly.time) {
+                    const times = data.hourly.time;
+                    const temps = data.hourly.temperature_2m;
+                    const rains = data.hourly.rain;
+
+                    const dayIndices = times.map((t, i) => t.startsWith(eventDate) ? i : -1).filter(i => i !== -1);
+
+                    if (dayIndices.length > 0) {
+                        let totalTemp = 0;
+                        let maxRain = 0;
+                        let count = 0;
+
+                        dayIndices.forEach(idx => {
+                            const hour = parseInt(times[idx].split('T')[1].split(':')[0]);
+                            if (hour >= 8 && hour <= 20) {
+                                totalTemp += temps[idx];
+                                if (rains[idx] > maxRain) maxRain = rains[idx];
+                                count++;
+                            }
+                        });
+
+                        const avgTemp = (totalTemp / count).toFixed(1);
+                        const rainStatus = maxRain > 0.5 ? 'Rain expected 🌧️' : 'Nice weather expected ☀️';
+                        
+                        weatherContent.innerHTML = `
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-slate-800">Forecasted Temp:</span>
+                                    <span class="font-bold text-fuchsia-600">${avgTemp}°C</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-slate-800">Conditions:</span>
+                                    <span class="${maxRain > 0.5 ? 'text-red-500' : 'text-green-500'} font-semibold">${rainStatus}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        weatherContent.innerHTML = '<p class="text-slate-400 italic">Forecast only available within 16 days of today.</p>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Weather Fetch Error:', error);
+                weatherSection.style.display = 'none';
+            });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

@@ -32,7 +32,13 @@ class EventType extends AbstractType
                     'Workshop' => 'workshop',
                 ],
             ])
-            ->add('date')
+            ->add('date', null, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'min' => (new \DateTime())->format('Y-m-d'),
+                    'max' => (new \DateTime())->modify('+2 years')->format('Y-m-d'),
+                ]
+            ])
             ->add('time')
             ->add('organizer')
             ->add('isForAllUsers')
