@@ -65,7 +65,7 @@ final class CommentController extends AbstractController
             $body = trim($commentData['body'] ?? '');
 
             if ($body === '') {
-                $this->addFlash('error', 'Le contenu du commentaire est obligatoire.');
+                $this->addFlash('error', 'Comment content is required.');
                 return $this->redirectToRoute('app_post_show', ['id' => $post->getId()]);
             }
 
@@ -129,7 +129,7 @@ try {
         $isOwner = $user && $comment->getUser() === $user;
 
         if (!$isOwner) {
-            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres commentaires.');
+            throw $this->createAccessDeniedException('You can only edit your own comments.');
         }
 
         $form = $this->createForm(CommentType::class, $comment);
@@ -181,7 +181,7 @@ try {
         $isOwner = $user && $comment->getUser() === $user;
 
         if (!$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Non autorisé.');
+            throw $this->createAccessDeniedException('Not authorized.');
         }
 
         $postId = $comment->getPost()->getId();
@@ -189,7 +189,7 @@ try {
         if ($this->isCsrfTokenValid('delete'.$comment->getId(), $request->request->get('_token'))) {
             $em->remove($comment);
             $em->flush();
-            $this->addFlash('success', 'Commentaire supprimé.');
+            $this->addFlash('success', 'Comment deleted.');
         }
 
         return $this->redirectToRoute('app_post_show', ['id' => $postId]);

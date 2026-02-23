@@ -127,7 +127,7 @@ final class PostController extends AbstractController
                     );
                     $post->setImageName($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                    $this->addFlash('danger', 'Error uploading image.');
                 }
             }
 
@@ -144,7 +144,7 @@ if ($pdfFile) {
         );
         $post->setPdfName($newName);
     } catch (FileException $e) {
-        $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+        $this->addFlash('danger', 'Error uploading PDF.');
     }
 }
 
@@ -222,7 +222,7 @@ if ($pdfFile) {
             if ($post->getStatus() === 'pending') {
                 $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
             } else {
-                $this->addFlash('success', 'Votre message a été publié avec succès !');
+                $this->addFlash('success', 'Your post has been successfully published!');
             }
 
             return $this->redirectToRoute('forum_index');
@@ -249,7 +249,7 @@ if ($pdfFile) {
 
         // Block access to pending/refused posts for unauthorized users
         if (!in_array($post->getStatus(), ['published', 'solved']) && !$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Ce post est en attente de modération ou a été refusé.');
+            throw $this->createAccessDeniedException('This post is pending moderation or has been refused.');
         }
 
         $comment = new Comment();
@@ -283,7 +283,7 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         if (!$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Seul le créateur ou l’admin peut verrouiller les commentaires.');
+            throw $this->createAccessDeniedException('Only the creator or admin can lock comments.');
         }
 
         $post->setCommentLock(!$post->isCommentLocked());
@@ -311,7 +311,7 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         if (!$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Vous n’êtes pas autorisé à modifier ce post.');
+            throw $this->createAccessDeniedException('You are not authorized to edit this post.');
         }
 
         $form = $this->createForm(PostType::class, $post);
@@ -381,7 +381,7 @@ if ($pdfFile) {
                     );
                     $post->setImageName($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('danger', 'Erreur lors de l’upload de l’image.');
+                    $this->addFlash('danger', 'Error uploading image.');
                 }
             }
 
@@ -406,13 +406,13 @@ if ($pdfFile) {
                     );
                     $post->setPdfName($newName);
                 } catch (FileException $e) {
-                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
+                    $this->addFlash('danger', 'Error uploading PDF.');
                 }
             }
 
             $em->flush();
 
-            $this->addFlash('success', 'Le message a été mis à jour.');
+            $this->addFlash('success', 'The post has been updated.');
 
             return $this->redirectToRoute('forum_index');
         }
@@ -439,13 +439,13 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         if (!$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Vous n’êtes pas autorisé à supprimer ce post.');
+            throw $this->createAccessDeniedException('You are not authorized to delete this post.');
         }
 
         if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
             $em->remove($post);
             $em->flush();
-            $this->addFlash('success', 'Le message a été supprimé.');
+            $this->addFlash('success', 'The post has been deleted.');
         }
 
         return $this->redirectToRoute('forum_index');
@@ -471,13 +471,13 @@ if ($pdfFile) {
     public function pin(Post $post, EntityManagerInterface $em, Request $request): Response
     {
         if (!$this->isGranted('ROLE_ADMIN') && $request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
-            throw $this->createAccessDeniedException('Seuls les administrateurs peuvent épingler des posts.');
+            throw $this->createAccessDeniedException('Only administrators can pin posts.');
         }
 
         $post->setPinned(!$post->isPinned());
         $em->flush();
 
-        $this->addFlash('success', $post->isPinned() ? 'Post épinglé !' : 'Post désépinglé.');
+        $this->addFlash('success', $post->isPinned() ? 'Post pinned!' : 'Post unpinned.');
         return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_post_show', ['id' => $post->getId()]));
     }
 
@@ -497,7 +497,7 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         if (!$isAdmin && !$isOwner) {
-            throw $this->createAccessDeniedException('Seul le propriétaire du post ou un admin peut marquer une solution.');
+            throw $this->createAccessDeniedException('Only the post owner or an admin can mark a solution.');
         }
 
         $post->setSolution($comment);
@@ -531,9 +531,9 @@ if ($pdfFile) {
 
         foreach ($unnotifiedPosts as $post) {
             if ($post->getStatus() === 'published') {
-                $this->addFlash('post_approved', 'Félicitations ! Votre post "' . $post->getTitle() . '" a été approuvé et publié.');
+                $this->addFlash('post_approved', 'Congratulations! Your post "' . $post->getTitle() . '" has been approved and published.');
             } elseif ($post->getStatus() === 'refused') {
-                $this->addFlash('post_refused', 'Désolé, votre post "' . $post->getTitle() . '" a été refusé. Motif : ' . ($post->getRefusalReason() ?? 'Non spécifié'));
+                $this->addFlash('post_refused', 'Sorry, your post "' . $post->getTitle() . '" has been refused. Reason: ' . ($post->getRefusalReason() ?? 'Not specified'));
             }
             $post->setIsModerationNotified(true);
         }

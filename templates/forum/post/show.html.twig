@@ -88,10 +88,10 @@
 						</div>
 						<div class="flex flex-col">
 							<p class="mb-0 text-white font-bold text-sm tracking-tight">
-								Votre publication est en attente de validation par un administrateur.
+								Your post is pending administrator approval.
 							</p>
 							<p class="mb-0 text-white/80 text-xs font-medium">
-								Elle sera visible par tout le monde une fois approuvée.
+								It will be visible to everyone once approved.
 							</p>
 						</div>
 					</div>
@@ -103,18 +103,18 @@
 							</div>
 							<div class="flex flex-col">
 								<p class="mb-0 text-red-800 font-bold text-sm tracking-tight">
-									Post refusé
+									Post Refused
 								</p>
 								<p class="mb-0 text-red-600 text-xs font-medium">
-									Raison :
-									{{ post.refusalReason ?: 'Non spécifiée' }}
+									Reason :
+									{{ post.refusalReason ?: 'Not specified' }}
 								</p>
 							</div>
 						</div>
 						{% if isPostOwner and post.conversation %}
 							<a href="{{ path('app_conversation_show', {'id': post.conversation.id}) }}" class="px-4 py-2 text-xs font-bold text-white uppercase bg-red-600 rounded-lg shadow-md hover:bg-red-700 transition-all no-underline">
 								<i class="fas fa-comments mr-1"></i>
-								Contacter l'admin
+								Contact Admin
 							</a>
 						{% endif %}
 					</div>
@@ -415,7 +415,7 @@
 							<textarea name="comment[body]" class="block w-full px-4 py-3 text-sm text-slate-700 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all bg-white" placeholder="Your reply..." rows="2"></textarea>
 
 							<div id="reply-error-{{ comment.id }}" class="text-xs text-red-500 mt-1 hidden">
-								Le contenu de la réponse est obligatoire.
+								Comment content is required.
 							</div>
 
 							<div class="mt-2 flex justify-end">
