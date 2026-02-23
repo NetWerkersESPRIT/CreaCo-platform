@@ -13,12 +13,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\Comment;
 use App\Form\CommentType;
-use App\Service\GoogleDriveUploader;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\ProfanityFilterService;
+use Psr\Log\LoggerInterface;
+use App\Service\TextGearsService;
+use App\Service\SpamDetectionService;
 
 #[Route('/forum')]
 // #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -39,7 +42,10 @@ final class PostController extends AbstractController
             $qb->where('p.title LIKE :query OR p.content LIKE :query')
                 ->setParameter('query', '%' . $query . '%');
             
-            if (!$isAdmin) {
+            if ($isAdmin) {
+                $qb->andWhere('p.status IN (:statuses)')
+                    ->setParameter('statuses', ['published', 'solved', 'pending']);
+            } else {
                 $qb->andWhere('p.status IN (:statuses)')
                     ->setParameter('statuses', ['published', 'solved']);
             }
@@ -51,7 +57,10 @@ final class PostController extends AbstractController
                        ->getResult();
         } else {
             if ($isAdmin) {
-                $posts = $repo->findBy([], ['pinned' => 'DESC', 'createdAt' => 'DESC']);
+                $posts = $repo->findBy(
+                    ['status' => ['published', 'solved', 'pending']], 
+                    ['pinned' => 'DESC', 'createdAt' => 'DESC']
+                );
             } else {
                 $posts = $repo->findPublishedPinnedFirst();
             }
@@ -59,13 +68,19 @@ final class PostController extends AbstractController
 
         $this->checkModerationNotifications($entityManager);
 
+        if ($request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('forum/post/_list.html.twig', [
+                'posts' => $posts,
+            ]);
+        }
+
         return $this->render('forum/post/index.html.twig', [
             'posts' => $posts,
         ]);
     }
 
     #[Route('/new', name: 'app_post_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears, SpamDetectionService $spamDetector): Response
     {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -123,19 +138,57 @@ if ($pdfFile) {
     $newName = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
     try {
-        $uploaded = $drive->upload($pdfFile, $newName);
-
-        // ici tu dois stocker le fileId ou le link dans la base
-        $post->setPdfDriveFileId($uploaded['id']);
-        $post->setPdfDriveLink($uploaded['link']);
-
-    } catch (\Throwable $e) {
-        $this->addFlash('danger', 'Erreur Google Drive: '.$e->getMessage());
-        return $this->redirectToRoute('app_post_new');
+        $pdfFile->move(
+            $this->getParameter('kernel.project_dir') . '/public/uploads',
+            $newName
+        );
+        $post->setPdfName($newName);
+    } catch (FileException $e) {
+        $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
     }
 }
 
+            // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
+            try {
+                // 1. Title Moderation
+                $title = $post->getTitle();
+                $correctedTitle = $textGears->correct($title);
+                $checkTitle = $profanity->check($correctedTitle);
+                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+
+                // 2. Content Moderation
+                $content = trim((string)$post->getContent());
+                $correctedContent = $textGears->correct($content);
+                $checkContent = $profanity->check($correctedContent);
+                $post->setContent($checkContent['filteredText'] ?? $correctedContent);
+
+                // 3. Aggregate Moderation Status
+                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
+                
+                $post->setIsProfane($profaneFound);
+                $post->setProfaneWords($totalProfaneWords);
+                
+                // 4. Grammar Audit (on content)
+                $post->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
+
+                // 5. Business Rule: Auto-moderation
+                if ($totalProfaneWords >= 3) {
+                    $post->setStatus('pending');
+                    $logger->info('Post auto-moderated (Pending) due to high profanity: ' . $post->getTitle());
+                }
+
+                // 6. AI Spam Detection
+                $spamScore = $spamDetector->calculateScore($post->getTitle(), $post->getContent());
+                $post->setSpamScore($spamScore);
+                $post->setIsSpam($spamScore >= 70);
+            } catch (\Throwable $e) {
+                $logger->warning('Moderation pipeline failed for post creation: ' . $e->getMessage());
+                // Fallback: keep original title/content (already in $post from form)
+            }
+
             $em->persist($post);
+            $em->flush(); // Flush first so $post->getId() is available for the notification URL
 
             // Notify Admins & Author
             if ($post->getStatus() === 'pending') {
@@ -147,6 +200,9 @@ if ($pdfFile) {
                     $notification->setIsRead(false);
                     $notification->setCreatedAt(new \DateTime());
                     $notification->setUserId($admin);
+                    $notification->setType('new_post');
+                    $notification->setRelatedId($post->getId());
+                    $notification->setTargetUrl($this->generateUrl('admin_post_pending_show', ['id' => $post->getId()]));
                     $em->persist($notification);
                 }
 
@@ -159,9 +215,9 @@ if ($pdfFile) {
                     $authorNotif->setUserId($user);
                     $em->persist($authorNotif);
                 }
-            }
 
-            $em->flush();
+                $em->flush(); // Flush notifications
+            }
 
             if ($post->getStatus() === 'pending') {
                 $this->addFlash('success', 'Your post has been sent to the admin for approval (Status: Pending)');
@@ -205,7 +261,7 @@ if ($pdfFile) {
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
             'comments' => $em->getRepository(Comment::class)->findBy(
-                ['post' => $post, 'parentComment' => null],
+                ['post' => $post, 'parentComment' => null, 'status' => ['visible', 'solution']],
                 ['createdAt' => 'ASC']
             ),
             'commentForm' => $commentForm->createView(),
@@ -240,7 +296,7 @@ if ($pdfFile) {
     }
 
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, GoogleDriveUploader $drive): Response
+    public function edit(Request $request, Post $post, EntityManagerInterface $em, SluggerInterface $slugger, ProfanityFilterService $profanity, LoggerInterface $logger, TextGearsService $textGears, SpamDetectionService $spamDetector): Response
     {
 
         $user = $this->getUser();
@@ -263,6 +319,45 @@ if ($pdfFile) {
 
         if ($form->isSubmitted() && $form->isValid()) {
             $post->setUpdatedAt(new \DateTime());
+
+            // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
+            try {
+                // 1. Title Moderation
+                $title = $post->getTitle();
+                $correctedTitle = $textGears->correct($title);
+                $checkTitle = $profanity->check($correctedTitle);
+                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+
+                // 2. Content Moderation
+                $content = trim((string)$post->getContent());
+                $correctedContent = $textGears->correct($content);
+                $checkContent = $profanity->check($correctedContent);
+                $post->setContent($checkContent['filteredText'] ?? $correctedContent);
+
+                // 3. Aggregate Moderation Status
+                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
+                
+                $post->setIsProfane($profaneFound);
+                $post->setProfaneWords($totalProfaneWords);
+                
+                // 4. Grammar Audit (on content)
+                $post->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
+
+                // 5. Business Rule: Auto-moderation
+                if ($totalProfaneWords >= 3) {
+                    $post->setStatus('pending');
+                    $logger->info('Edited post auto-moderated (Pending) due to high profanity: ' . $post->getId());
+                }
+
+                // 6. AI Spam Detection
+                $spamScore = $spamDetector->calculateScore($post->getTitle(), $post->getContent());
+                $post->setSpamScore($spamScore);
+                $post->setIsSpam($spamScore >= 70);
+            } catch (\Throwable $e) {
+                $logger->warning('Moderation pipeline failed for post edit: ' . $e->getMessage());
+                // Fallback: keep original title/content
+            }
 
             /** @var UploadedFile $imageFile */
             $imageFile = $post->getImageFile();
@@ -293,19 +388,25 @@ if ($pdfFile) {
             /** @var UploadedFile $pdfFile */
             $pdfFile = $post->getPdfFile();
             if ($pdfFile) {
+                if ($post->getPdfName()) {
+                    $oldPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $post->getPdfName();
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newName = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
 
                 try {
-                    $uploaded = $drive->upload($pdfFile, $newName);
-                    $post->setPdfDriveFileId($uploaded['id']);
-                    $post->setPdfDriveLink($uploaded['link']);
-                    
-                    // Clear old local name if exists
-                    $post->setPdfName(null);
-                } catch (\Throwable $e) {
-                    $this->addFlash('danger', 'Erreur Google Drive: ' . $e->getMessage());
+                    $pdfFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $newName
+                    );
+                    $post->setPdfName($newName);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Erreur lors de l’upload du PDF.');
                 }
             }
 

@@ -33,7 +33,16 @@ class PostType extends AbstractType
             ->add('pdfFile', FileType::class, [
                 'label' => 'PDF Document (optional)',
                 'required' => false,
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'form-control'],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '10M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF document',
+                    ])
+                ],
             ])
             ->add('pinned', CheckboxType::class, [
                 'label' => 'Pin this post',

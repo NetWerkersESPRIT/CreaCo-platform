@@ -13,6 +13,7 @@ use App\Repository\IdeaRepository;
 use App\Repository\MissionRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\MissionDescGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -118,7 +119,7 @@ final class TSKController extends AbstractController
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
-        
+
         // If user is a member, only show missions from people with the same group ID
         if ($userRole === 'ROLE_MEMBER' && $userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
@@ -132,8 +133,7 @@ final class TSKController extends AbstractController
             } else {
                 $missions = [];
             }
-        }
-        else {
+        } else {
             $missions = $missionRepository->findAll();
         }
 
@@ -142,7 +142,7 @@ final class TSKController extends AbstractController
             $calendarData[] = [
                 'id' => $mission->getId(),
                 'title' => $mission->getTitle(),
-                'start' => $mission->getMissionDate() ? $mission->getMissionDate()->format('Y-m-d') : $mission->getCreatedAt()->format('Y-m-d'),
+                'start' => $mission->getMissionDate() ? $mission->getMissionDate()->format('Y-m-d H:i:s') : $mission->getCreatedAt()->format('Y-m-d H:i:s'),
                 'url' => $this->generateUrl('app_mission_show', ['id' => $mission->getId()]),
                 'backgroundColor' => $mission->getState() === 'completed' ? '#10b981' : ($mission->getState() === 'in_progress' ? '#3b82f6' : '#9333ea'),
                 'borderColor' => $mission->getState() === 'completed' ? '#10b981' : ($mission->getState() === 'in_progress' ? '#3b82f6' : '#9333ea'),
@@ -159,7 +159,7 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/mission/new', name: 'app_mission_new', methods: ['GET', 'POST'])]
-    public function missionNew(Request $request, EntityManagerInterface $entityManager): Response
+    public function missionNew(Request $request, EntityManagerInterface $entityManager, MissionDescGenerator $generator): Response
     {
         $mission = new Mission();
 
@@ -204,6 +204,18 @@ final class TSKController extends AbstractController
                 $mission->setAssignedBy($user);
             }
 
+            // AI Description Generation: if description is empty and idea is present
+            if (!$mission->getDescription() && $mission->getImplementIdea()) {
+                $idea = $mission->getImplementIdea();
+                $aiDesc = $generator->generate(
+                    $mission->getTitle(),
+                    $idea->getTitle(),
+                    $idea->getDescription(),
+                    $idea->getCategory()
+                );
+                $mission->setDescription($aiDesc);
+            }
+
             $entityManager->persist($mission);
             $entityManager->flush();
 
@@ -243,12 +255,29 @@ final class TSKController extends AbstractController
         ]);
     }
 
+    #[Route('/mission/ai-generate', name: 'app_mission_ai_generate', methods: ['POST'])]
+    public function aiGenerateDescription(Request $request, MissionDescGenerator $generator, IdeaRepository $ideaRepository): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $title = $data['title'] ?? 'New Mission';
+        $ideaId = $data['ideaId'] ?? null;
+
+        $idea = $ideaId ? $ideaRepository->find($ideaId) : null;
+        $ideaTitle = $idea ? $idea->getTitle() : 'General Project';
+        $ideaDescription = $idea ? $idea->getDescription() : null;
+        $ideaCategory = $idea ? $idea->getCategory() : null;
+
+        $aiDesc = $generator->generate($title, $ideaTitle, $ideaDescription, $ideaCategory);
+
+        return $this->json(['description' => $aiDesc]);
+    }
+
     #[Route('/mission/{id}', name: 'app_mission_show', methods: ['GET'])]
     public function missionShow(Mission $mission, Request $request, EntityManagerInterface $entityManager): Response
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
-        
+
         // If user is a member, check if mission is from their group
         if ($userRole === 'ROLE_MEMBER' && $userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
@@ -256,7 +285,7 @@ final class TSKController extends AbstractController
                 throw $this->createAccessDeniedException('You do not have access to this mission.');
             }
         }
-        
+
         return $this->render('mission/show.html.twig', [
             'mission' => $mission,
         ]);
@@ -267,7 +296,7 @@ final class TSKController extends AbstractController
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
-        
+
         // If user is a member, check if mission is from their group
         if ($userRole === 'ROLE_MEMBER' && $userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
@@ -275,7 +304,7 @@ final class TSKController extends AbstractController
                 throw $this->createAccessDeniedException('You do not have access to edit this mission.');
             }
         }
-        
+
         $form = $this->createForm(MissionType::class, $mission);
         $form->handleRequest($request);
 
@@ -299,7 +328,7 @@ final class TSKController extends AbstractController
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
-        
+
         // If user is a member, check if mission is from their group
         if ($userRole === 'ROLE_MEMBER' && $userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
@@ -307,7 +336,7 @@ final class TSKController extends AbstractController
                 throw $this->createAccessDeniedException('You do not have access to delete this mission.');
             }
         }
-        
+
         if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();

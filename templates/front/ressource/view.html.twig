@@ -246,8 +246,8 @@
     </div>
 
     {# Quiz Modal #}
-    <div id="quiz-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] hidden" style="display: none;">
-        <div id="quiz-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden transform transition-all duration-300">
+    <div id="quiz-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start md:items-center justify-center py-8 hidden" style="display: none; z-index: 99999;">
+        <div id="quiz-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 transform transition-all duration-300" style="max-height:90vh; overflow:hidden;">
             <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -261,7 +261,7 @@
                     </button>
                 </div>
             </div>
-            <div id="quiz-content" class="p-6 overflow-y-auto max-h-[60vh]">
+            <div id="quiz-content" class="p-6" style="overflow-y:auto; max-height:60vh;">
             </div>
             <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
                 <div id="quiz-result" class="text-sm font-semibold"></div>
@@ -416,30 +416,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(data.error);
             }
             
-            if (data.quiz) {
-                if (data.quiz.startsWith('ERROR_RATE_LIMIT')) {
-                    throw new Error('API rate limit reached. Please wait a moment and try again.');
-                } else if (data.quiz.startsWith('ERROR_AUTH')) {
-                    throw new Error('API configuration error. Please contact support.');
-                } else if (data.quiz.startsWith('ERROR_')) {
-                    throw new Error(data.quiz.replace('ERROR_: ', ''));
-                }
-                
-                if (data.quiz.trim().length < 20) {
-                    throw new Error('Generated quiz is empty. Please try again.');
-                }
-                
-                parseAndDisplayQuiz(data.quiz);
-                console.log('After parsing, quizData length:', quizData.length);
-                if (quizData.length === 0) {
-                    // Show modal anyway with raw content
+                if (data.quiz) {
+                    if (data.quiz.startsWith('ERROR_RATE_LIMIT')) {
+                        throw new Error('API rate limit reached. Please wait a moment and try again.');
+                    } else if (data.quiz.startsWith('ERROR_AUTH')) {
+                        throw new Error('API configuration error. Please contact support.');
+                    } else if (data.quiz.startsWith('ERROR_')) {
+                        throw new Error(data.quiz.replace('ERROR_: ', ''));
+                    }
+
+                    if (data.quiz.trim().length < 20) {
+                        throw new Error('Generated quiz is empty. Please try again.');
+                    }
+
+                    try {
+                        parseAndDisplayQuiz(data.quiz);
+                    } catch (parseError) {
+                        console.error('Error parsing quiz:', parseError);
+                        // Fallback: show raw quiz text so user sees something
+                        if (quizContent) {
+                            quizContent.innerHTML = `
+                                <div class="p-4 bg-blue-50 rounded-xl text-blue-700 mb-4">
+                                    <i class="fas fa-info-circle mr-2"></i>Quiz generated but could not be parsed. Showing raw content instead:
+                                </div>
+                                <div class="p-4 bg-gray-100 rounded-xl text-sm text-slate-700 whitespace-pre-wrap">${escapeHtml(data.quiz)}</div>
+                            `;
+                        }
+                        quizData = [];
+                    }
+
+                    console.log('After parsing, quizData length:', quizData.length);
+                    // Always open modal so user can see result or raw text
                     openModal();
-                    return;
+                } else {
+                    throw new Error('No quiz generated. Please try again.');
                 }
-                openModal();
-            } else {
-                throw new Error('No quiz generated. Please try again.');
-            }
         } catch (error) {
             console.error('Quiz generation error:', error);
             
@@ -497,7 +508,28 @@ document.addEventListener('DOMContentLoaded', function() {
         if (quizModal) {
             quizModal.style.display = 'flex';
             quizModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            // Ensure modal covers viewport and appears above all content
+            quizModal.style.position = 'fixed';
+            quizModal.style.top = '0';
+            quizModal.style.left = '0';
+            quizModal.style.right = '0';
+            quizModal.style.bottom = '0';
+            quizModal.style.zIndex = '9999999';
+
+            // Ensure modal content is centered and reachable on small viewports
+            if (quizModalContent) {
+                quizModalContent.style.margin = '20px auto';
+                quizModalContent.style.maxHeight = '90vh';
+                quizModalContent.style.overflow = 'hidden';
+            }
+
+            // Scroll modal into view to avoid being clipped
+            try {
+                quizModalContent?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (e) {
+                /* ignore */
+            }
+
             console.log('Modal opened successfully');
         } else {
             console.error('quizModal element not found!');
@@ -666,6 +698,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (quizModal) {
+        // Ensure the modal is a direct child of <body> so it's not clipped by
+        // transformed/overflow-hidden ancestors and always appears above content.
+        if (quizModal.parentElement !== document.body) {
+            document.body.appendChild(quizModal);
+        }
+
         quizModal.addEventListener('click', (e) => {
             if (e.target === quizModal) closeModal();
         });

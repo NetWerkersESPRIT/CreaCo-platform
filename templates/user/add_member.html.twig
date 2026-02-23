@@ -2,63 +2,259 @@
 {% block title %}Add Member{% endblock %}
 
 {% block body %}
-      <div class="w-full px-6 mx-auto -mt-4">
-        <div
-          class="relative flex items-center p-0 mt-6 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl"
-          style="
-            background-image: url('../assets/img/curved-images/curved0.jpg');
-            background-position-y: 50%;
-          ">
-          <span
-            class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
-        </div>
-      <div class="w-full p-6 -mt-48">
+<div class="w-full px-6 mx-auto -mt-4">
+    <div class="relative flex items-center p-0 mt-6 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl"
+        style="background-image: url('../assets/img/curved-images/curved0.jpg'); background-position-y: 50%;">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
+    </div>
+    <div class="w-full p-6 -mt-48">
         <div class="flex flex-wrap -mx-3">
-          <div class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
-            <div
-              class="relative flex flex-col h-full min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-              <div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
-                <h6 class="mb-3 mt-2 text-xl">Member Credentials</h6>
-              </div>
-              <div class="flex-auto p-4">
-                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                  <div class="mb-4">
-                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Username</label>
-                    {{ form_widget(form.username) }}
-                    {{ form_errors(form.username) }}
-                  </div>
-                  <div class="mb-4">
-                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email</label>
-                    {{ form_widget(form.email) }}
-                    {{ form_errors(form.email) }}
-                  </div>
-                  <div class="mb-4">
-                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Password</label>
-                    {{ form_widget(form.password) }}
-                    {{ form_errors(form.password) }}
-                  </div>
-                  <div class="mb-4">
-                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Phone Number (Optional)</label>
-                    {{ form_widget(form.numtel) }}
-                    {{ form_errors(form.numtel) }}
-                  </div>
-                  <div class="mb-4">
-                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Role</label>
-                    {{ form_widget(form.role) }}
-                    {{ form_errors(form.role) }}
-                  </div>
-                  <div class="text-center">
-                    <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:border-fuchsia-500">
-                      Create Member
-                    </button>
-                    <a href="{{ path('app_profile') }}" class="inline-block w-full px-6 py-3 mt-2 mb-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
-                        Cancel
-                    </a>
-                  </div>
-                {{ form_end(form) }}
-              </div>
+            <div class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
+                <div class="relative flex flex-col h-full min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                    <div class="p-4 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+                        <h6 class="mb-0 mt-2 text-xl">Add Member</h6>
+                        <button type="button" id="btn-show-existing" class="inline-block px-6 py-2 mb-0 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
+                            Add Existing Member
+                        </button>
+                    </div>
+
+                    <div id="create-new-form" class="flex-auto p-4">
+                        <div class="mb-4">
+                            <p class="text-sm">Create a new member account and add them to your group.</p>
+                        </div>
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Username</label>
+                            {{ form_widget(form.username) }}
+                            {{ form_errors(form.username) }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email</label>
+                            {{ form_widget(form.email) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Password</label>
+                            {{ form_widget(form.password) }}
+                            {{ form_errors(form.password) }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Phone Number (Optional)</label>
+                            {{ form_widget(form.numtel) }}
+                            {{ form_errors(form.numtel) }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Role</label>
+                            {{ form_widget(form.role) }}
+                            {{ form_errors(form.role) }}
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:border-fuchsia-500">
+                                Create Member
+                            </button>
+                            <a href="{{ path('app_profile') }}" class="inline-block w-full px-6 py-3 mt-2 mb-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
+                                Cancel
+                            </a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+
+                    <div id="search-existing-section" class="flex-auto p-4 hidden">
+                        <div class="mb-4">
+                            <p class="text-sm">Manage group members. You can search for existing users or browse the list below.</p>
+                        </div>
+                        <div class="mb-4 relative">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Search by Email or Username</label>
+                            <div class="flex">
+                                <input type="text" id="member-search-input" placeholder="Enter email or username..." class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow">
+                                <button type="button" id="btn-search" class="inline-block px-6 py-2 ml-2 mb-0 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 hover:border-fuchsia-500">
+                                    Search
+                                </button>
+                                <button type="button" id="btn-clear-search" class="inline-block px-6 py-2 ml-2 mb-0 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-slate-300 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-slate-500 hidden">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="search-results-table" class="mt-6 overflow-hidden hidden">
+                            <h6 class="mb-2 text-sm font-bold">Search Results</h6>
+                            <div class="overflow-x-auto">
+                                <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                                    <thead class="align-bottom">
+                                        <tr>
+                                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Username</th>
+                                            <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Email</th>
+                                            <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Role</th>
+                                            <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="results-body">
+                                        <!-- Results will be injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="no-results" class="mt-4 text-center hidden">
+                            <p class="text-sm text-slate-500">No members found with that email.</p>
+                        </div>
+
+                        <div class="text-center mt-6 border-t pt-4">
+                            <button type="button" id="btn-show-create" class="inline-block w-full px-6 py-3 mb-2 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
+                                Back to Create New
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnShowExisting = document.getElementById('btn-show-existing');
+    const btnShowCreate = document.getElementById('btn-show-create');
+    const createNewForm = document.getElementById('create-new-form');
+    const searchExistingSection = document.getElementById('search-existing-section');
+    const searchInput = document.getElementById('member-search-input');
+    const btnSearch = document.getElementById('btn-search');
+    const resultsTable = document.getElementById('search-results-table');
+    const resultsBody = document.getElementById('results-body');
+    const noResults = document.getElementById('no-results');
+
+    const btnClearSearch = document.getElementById('btn-clear-search');
+
+    const toggleExisting = (show) => {
+        if (show) {
+            createNewForm.classList.add('hidden');
+            searchExistingSection.classList.remove('hidden');
+            btnShowExisting.classList.add('hidden');
+            performSearch(); // Load default list
+        } else {
+            createNewForm.classList.remove('hidden');
+            searchExistingSection.classList.add('hidden');
+            btnShowExisting.classList.remove('hidden');
+        }
+    };
+
+    btnShowExisting.addEventListener('click', () => toggleExisting(true));
+    btnShowCreate.addEventListener('click', () => toggleExisting(false));
+
+    const performSearch = () => {
+        const query = searchInput.value;
+        
+        if (query.trim() !== "") {
+            btnClearSearch.classList.remove('hidden');
+        } else {
+            btnClearSearch.classList.add('hidden');
+        }
+
+        fetch(`{{ path('app_member_search') }}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                resultsBody.innerHTML = '';
+                if (data.length > 0) {
+                    data.forEach(member => {
+                        const roleBadge = member.role === 'ROLE_MANAGER' 
+                            ? '<span class="py-1 px-2 text-xs rounded-1.8 inline-block bg-gradient-to-tl from-green-600 to-lime-400 font-bold uppercase text-white">Manager</span>'
+                            : '<span class="py-1 px-2 text-xs rounded-1.8 inline-block bg-gradient-to-tl from-blue-600 to-cyan-400 font-bold uppercase text-white">Member</span>';
+                        
+                        const actionHtml = member.isAlreadyMember 
+                            ? `<button type="button" class="inline-block px-4 py-1 mb-0 font-bold text-center text-slate-400 uppercase align-middle transition-all bg-transparent border border-solid border-slate-300 rounded-lg opacity-50 cursor-not-allowed leading-pro text-xxs ease-soft-in tracking-tight-soft shadow-none" disabled>
+                                    Already Added
+                                </button>`
+                            : `<button type="button" class="btn-attach inline-block px-4 py-1 mb-0 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xxs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25" 
+                                        data-id="${member.id}" data-email="${member.email}">
+                                    Add to Group
+                                </button>`;
+                        
+                        const row = `
+                            <tr>
+                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                    <div class="flex px-2 py-1">
+                                        <div class="flex flex-col justify-center">
+                                            <h6 class="mb-0 text-sm leading-normal">${member.username}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                    <p class="mb-0 text-xs font-semibold leading-tight">${member.email}</p>
+                                </td>
+                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                    ${roleBadge}
+                                </td>
+                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                    ${actionHtml}
+                                </td>
+                            </tr>
+                        `;
+                        resultsBody.insertAdjacentHTML('beforeend', row);
+                    });
+                    resultsTable.classList.remove('hidden');
+                    noResults.classList.add('hidden');
+                } else {
+                    resultsTable.classList.add('hidden');
+                    noResults.classList.remove('hidden');
+                }
+            });
+    };
+
+    btnSearch.addEventListener('click', performSearch);
+    btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        performSearch();
+    });
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    resultsBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-attach')) {
+            const memberId = e.target.getAttribute('data-id');
+            const memberEmail = e.target.getAttribute('data-email');
+
+            Swal.fire({
+                title: 'Add member?',
+                text: `Add ${memberEmail} to your group?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#cb0c9f',
+                cancelButtonColor: '#8392ab',
+                confirmButtonText: 'Yes, add them!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/attach-member/${memberId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Added!',
+                                'Member Request has been sent successfully.',
+                                'success'
+                            ).then(() => {
+                                window.location.href = "{{ path('app_profile') }}";
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                data.error || 'Something went wrong.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

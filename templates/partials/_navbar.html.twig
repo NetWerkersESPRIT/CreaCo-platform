@@ -38,20 +38,282 @@
 
 		<div
 			class="flex items-center mt-2 grow sm:mt-0 md:mr-0 lg:flex lg:basis-auto justify-between gap-4">
-			<!-- Search Bar (Left Side) - Only on Forum Pages -->
-			<div class="flex items-center md:ml-auto md:pr-4">
-				{% set currentRoute = app.request.attributes.get('_route') %}
-				{% if currentRoute in ['forum_index', 'app_post_show'] %}
-					<form action="{{ path('forum_index') }}" method="GET" class="relative flex flex-wrap items-stretch w-64 md:w-72 transition-all rounded-xl ease-soft mb-0">
-						<span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
-							<i class="fas fa-search" aria-hidden="true"></i>
-						</span>
-						<input type="text" name="q" value="{{ app.request.query.get('q') }}" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-full leading-5.6 relative block min-w-0 flex-auto rounded-xl border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow shadow-soft-xs" placeholder="Search forum..."/>
-					</form>
-				{% endif %}
-			</div>
+			<!-- Spacing for right alignment -->
+			<div class="flex items-center md:ml-auto md:pr-4"></div>
 
 			<!-- User Info & Actions (Right Side) -->
+
+			<!-- Global Notification Bell -->
+			<div
+				class="relative flex items-center" id="notif-wrapper" style="margin-right:1.25rem;">
+
+				<!-- Bell Button -->
+				<button id="notifBtn" type="button" aria-expanded="false" style="position:relative; background:#fff; margin-left:1rem; display:flex; width:3rem; height:3rem; align-items:center; justify-content:center; border-radius:0.9rem; border:none; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,.12); transition:transform .2s, box-shadow .2s;" onmouseover="this.style.transform='scale(1.07)';this.style.boxShadow='0 8px 28px rgba(124,58,237,.25)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'">
+					<i class="fa fa-bell" style="font-size:1.15rem; background:linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent;"></i>
+					<!-- Unread Badge -->
+					<span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px; border:2px solid #fff; box-shadow:0 2px 8px rgba(124,58,237,.4);">0</span>
+				</button>
+
+				<!-- Dropdown Panel -->
+				<div
+					id="notifDropdown" style="display:none; opacity:0; transform:translateY(-8px) scale(0.97); transition:opacity .2s ease, transform .2s ease;
+																														       position:absolute; right:0; top:calc(100% + 12px);
+																														       width:420px; max-width:90vw; z-index:9999;
+																														       background:#fff; border-radius:20px;
+																														       border:1px solid rgba(124,58,237,.12);
+																														       box-shadow:0 24px 64px rgba(0,0,0,.16), 0 4px 24px rgba(124,58,237,.08);
+																														       overflow:hidden;">
+					<!-- ── Header ── -->
+					<div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:linear-gradient(135deg,#7c3aed11,#ec489911); border-bottom:1px solid rgba(124,58,237,.1);">
+						<div style="display:flex; align-items:center; gap:8px;">
+							<div style="width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#ec4899); display:flex; align-items:center; justify-content:center;">
+								<i class="fa fa-bell" style="color:#fff; font-size:0.9rem;"></i>
+							</div>
+							<span style="font-weight:700; font-size:1rem; color:#1e293b; letter-spacing:-.01em;">Notifications</span>
+							<span id="notif-header-badge" style="display:none; align-items:center; justify-content:center; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px;"></span>
+						</div>
+						<a href="{{ path('app_notifications') }}" style="font-size:0.82rem; font-weight:600; background:linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; white-space:nowrap;">
+							View all →
+						</a>
+					</div>
+
+					<!-- ── Notification List ── -->
+					<div
+						id="notif-list-container" style="overflow-y:auto; max-height:420px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
+						<!-- JS populates this -->
+						<div id="notif-empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 0; color:#94a3b8;">
+							<div style="width:52px; height:52px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+								<i class="fa fa-bell-slash" style="font-size:1.3rem; opacity:0.4;"></i>
+							</div>
+							<p style="font-size:0.875rem; margin:0; font-weight:500;">No notifications yet</p>
+						</div>
+					</div>
+
+					<!-- ── Footer ── -->
+					<div style="padding:10px 20px; border-top:1px solid #f1f5f9; background:#fafafa; text-align:center;">
+						<a href="{{ path('app_notifications_mark_all_seen') }}" onclick="event.preventDefault(); fetch(this.href, {method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'}}).then(() => { document.querySelectorAll('.notif-item').forEach(el => el.style.borderLeftColor='transparent'); document.getElementById('notif-badge').style.display='none'; document.getElementById('notif-header-badge').style.display='none'; });" style="font-size:0.75rem; font-weight:600; color:#94a3b8; text-decoration:none; transition:color .15s;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#94a3b8'">
+							Mark all as read
+						</a>
+					</div>
+				</div>
+
+				<script>
+					(function () {
+var btn = document.getElementById('notifBtn');
+var dropdown = document.getElementById('notifDropdown');
+var wrapper = document.getElementById('notif-wrapper');
+var container = document.getElementById('notif-list-container');
+var emptyState = document.getElementById('notif-empty-state');
+var headerBadge = document.getElementById('notif-header-badge');
+var badge = document.getElementById('notif-badge');
+
+if (! btn || ! dropdown) 
+return;
+
+
+
+function openDropdown() {
+dropdown.style.display = 'block';
+requestAnimationFrame(function () {
+dropdown.style.opacity = '1';
+dropdown.style.transform = 'translateY(0) scale(1)';
+});
+btn.setAttribute('aria-expanded', 'true');
+}
+
+function closeDropdown() {
+dropdown.style.opacity = '0';
+dropdown.style.transform = 'translateY(-8px) scale(0.97)';
+setTimeout(function () {
+dropdown.style.display = 'none';
+}, 200);
+btn.setAttribute('aria-expanded', 'false');
+}
+
+btn.addEventListener('click', function (e) {
+e.stopPropagation();
+var isOpen = btn.getAttribute('aria-expanded') === 'true';
+if (isOpen) {
+closeDropdown();
+} else {
+openDropdown();
+loadNotifications();
+}
+});
+
+document.addEventListener('click', function (e) {
+if (wrapper && ! wrapper.contains(e.target)) {
+closeDropdown();
+}
+});
+
+function timeAgo(dateStr) {
+var diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+if (diff < 60) 
+return diff + 's';
+
+
+
+if (diff < 3600) 
+return Math.floor(diff / 60) + 'm';
+
+
+
+if (diff < 86400) 
+return Math.floor(diff / 3600) + 'h';
+
+
+
+return Math.floor(diff / 86400) + 'j';
+}
+
+function iconForType(type) {
+var icons = {
+'new_post': {
+icon: 'fa-file-alt',
+grad: 'linear-gradient(135deg,#f59e0b,#ef4444)'
+},
+'post_approved': {
+icon: 'fa-check',
+grad: 'linear-gradient(135deg,#22c55e,#14b8a6)'
+},
+'post_refused': {
+icon: 'fa-times',
+grad: 'linear-gradient(135deg,#ef4444,#f43f5e)'
+},
+'invitation': {
+icon: 'fa-envelope-open-text',
+grad: 'linear-gradient(135deg,#3b82f6,#06b6d4)'
+}
+};
+return icons[type] || {
+icon: 'fa-bell',
+grad: 'linear-gradient(135deg,#7c3aed,#ec4899)'
+};
+}
+
+function updateBadge(count) {
+if (count > 0) {
+badge.textContent = count;
+badge.style.display = 'inline-flex';
+headerBadge.textContent = count;
+headerBadge.style.display = 'inline-flex';
+} else {
+badge.style.display = 'none';
+headerBadge.style.display = 'none';
+}
+}
+
+function markAsRead(id, itemEl, redirectUrl) {
+fetch('/notifications/api/' + id + '/read', {
+method: 'POST',
+headers: {
+'X-Requested-With': 'XMLHttpRequest'
+}
+}).then(function (r) {
+return r.json();
+}).then(function () { // Update item visual to read state
+itemEl.style.background = '#fff';
+itemEl.style.border = '1px solid #f1f5f9';
+itemEl.style.borderLeft = '3px solid transparent';
+var msg = itemEl.querySelector('p');
+if (msg) {
+msg.style.fontWeight = '400';
+msg.style.color = '#475569';
+}
+var dot = itemEl.querySelector('.notif-unread-dot');
+if (dot) 
+dot.remove();
+
+// Decrement badge
+var currentCount = parseInt(badge.textContent) || 0;
+updateBadge(Math.max(0, currentCount - 1));
+if (redirectUrl) 
+window.location = redirectUrl;
+
+}).catch(function () {
+if (redirectUrl) 
+window.location = redirectUrl;
+
+});
+}
+
+function loadNotifications() {
+fetch('{{ path("app_api_notifications_latest") }}').then(function (r) {
+return r.ok ? r.json() : [];
+}).then(function (data) { // Remove all existing notif items
+container.querySelectorAll('.notif-item').forEach(function (el) {
+el.remove();
+});
+
+if (! data || data.length === 0) {
+emptyState.style.display = 'flex';
+return;
+}
+emptyState.style.display = 'none';
+
+var unreadCount = 0;
+data.forEach(function (n) {
+var isUnread = ! n.isRead;
+if (isUnread) 
+unreadCount++;
+
+
+var ico = iconForType(n.type);
+
+var item = document.createElement('div');
+item.className = 'notif-item';
+item.dataset.notifId = n.id;
+item.style.cssText = [
+'display:flex',
+'align-items:flex-start',
+'gap:12px',
+'padding:12px 14px',
+'border-radius:14px',
+'cursor:pointer',
+'border:1px solid ' + (
+isUnread ? 'rgba(124,58,237,.2)' : '#f1f5f9'
+),
+'background:' + (
+isUnread ? 'linear-gradient(135deg,#fdf4ff,#fce7f3)' : '#fff'
+),
+'border-left:3px solid ' + (
+isUnread ? '#7c3aed' : 'transparent'
+),
+'transition:background .15s, border-color .15s'
+].join(';');
+
+// Click: mark as read first, then redirect (IIFE to capture variables)
+(function (notifId, el, url, unread) {
+el.addEventListener('click', function () {
+if (unread) {
+markAsRead(notifId, el, url);
+} else if (url) {
+window.location = url;
+}
+});
+})(n.id, item, n.targetUrl, isUnread);
+
+item.innerHTML = '<div style="flex-shrink:0;margin-top:2px;width:36px;height:36px;border-radius:10px;background:' + ico.grad + ';display:flex;align-items:center;justify-content:center;">' + '<i class="fa ' + ico.icon + '" style="color:#fff;font-size:0.85rem;"></i>' + '</div>' + '<div style="flex:1;min-width:0;">' + '<p style="margin:0 0 4px;font-size:0.84rem;font-weight:' + (
+isUnread ? '600' : '400'
+) + ';color:' + (
+isUnread ? '#1e293b' : '#475569'
+) + ';line-height:1.4;white-space:normal;">' + n.message + '</p>' + '<span style="font-size:0.72rem;color:#94a3b8;"><i class="fa fa-clock" style="margin-right:3px;"></i>' + timeAgo(n.createdAt) + '</span>' + '</div>' + (
+isUnread ? '<span class="notif-unread-dot" style="flex-shrink:0;margin-top:6px;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>' : ''
+);
+
+container.insertBefore(item, emptyState);
+});
+
+// Sync badges
+updateBadge(unreadCount);
+}).catch(function () {});
+}
+})();
+				</script>
+			</div>
+
+
 			<ul class="flex flex-row items-center justify-end pl-0 mb-0 list-none gap-4">
 				{% if app_user %}
 					<!-- User Card -->
@@ -89,38 +351,13 @@
 						</div>
 					</div>
 
-					<!-- Global Notification Bell -->
-					<li class="relative flex items-center pr-2">
-						<p class="hidden transform-dropdown-show"></p>
-						<a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500" dropdown-trigger aria-expanded="false">
-							<div class="relative bg-white shadow-soft-xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-center stroke-0 text-center hover:scale-105 transition-transform cursor-pointer">
-								<i class="fixed-plugin-button-nav cursor-pointer fa fa-bell"></i>
-								<!-- Notification Badge -->
-								<span id="notif-badge" class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-							</div>
-						</a>
-
-						<ul dropdown-menu class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-px-250 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-right-1/2 lg:mt-2 lg:before:translate-x-0 lg:before:translate-y-[-95%]">
-							<div id="notif-list-header" class="px-4 py-2 border-b border-gray-100 mb-2">
-								<h6 class="text-xs font-bold uppercase text-slate-400 mb-0">Notifications</h6>
-							</div>
-							<div
-								id="notif-list-container" class="max-h-64 overflow-y-auto">
-								<!-- Notifications will be loaded here via JS -->
-								<div class="px-4 py-3 text-center text-xs text-slate-400 italic">Aucune notification</div>
-							</div>
-							<div class="pt-2 border-t border-gray-100 mt-2 text-center">
-								<a href="{{ path('app_notifications') }}" class="text-[10px] font-bold uppercase text-fuchsia-500 no-underline">Voir tout</a>
-							</div>
-						</ul>
-					</li>
-
 					<!-- Logout Button -->
 					<li>
 						<a href="{{ path('app_logout') }}">
 							<button type="button" class="relative bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-105 transition-transform">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+								<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25px" height="25px" viewbox="0 0 18 18">
+									<path d="M11.75,11.5c-.414,0-.75,.336-.75,.75v2.5c0,.138-.112,.25-.25,.25H5.448l1.725-1.069c.518-.322,.827-.878,.827-1.487V5.557c0-.609-.31-1.166-.827-1.487l-1.725-1.069h5.302c.138,0,.25,.112,.25,.25v2.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.25c0-.965-.785-1.75-1.75-1.75H4.25c-.965,0-1.75,.785-1.75,1.75V14.75c0,.965,.785,1.75,1.75,1.75h6.5c.965,0,1.75-.785,1.75-1.75v-2.5c0-.414-.336-.75-.75-.75Z" fill="rgba(255, 255, 255, 1)"></path>
+									<path d="M17.78,8.47l-2.75-2.75c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.47,1.47h-4.189c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.189l-1.47,1.47c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.75-2.75c.293-.293,.293-.768,0-1.061Z" fill="rgba(255, 255, 255, 1)" data-color="color-2"></path>
 								</svg>
 							</button>
 						</a>

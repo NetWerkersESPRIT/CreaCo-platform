@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Twig;
+
+use App\Repository\NotificationRepository;
+use App\Repository\UsersRepository;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+
+class NotificationExtension extends AbstractExtension
+{
+    public function __construct(
+        private NotificationRepository $notificationRepository,
+        private UsersRepository $usersRepository,
+        private RequestStack $requestStack
+    ) {}
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('get_unread_notif_count', [$this, 'getUnreadNotifCount']),
+            new TwigFunction('get_recent_notifications', [$this, 'getRecentNotifications']),
+        ];
+    }
+
+    public function getUnreadNotifCount(): int
+    {
+        $user = $this->getCurrentUser();
+        if (!$user) return 0;
+        return $this->notificationRepository->countUnreadForUser($user);
+    }
+
+    public function getRecentNotifications(int $limit = 10): array
+    {
+        $user = $this->getCurrentUser();
+        if (!$user) return [];
+        return $this->notificationRepository->findRecentForUser($user, $limit);
+    }
+
+    private function getCurrentUser(): ?\App\Entity\Users
+    {
+        $session = $this->requestStack->getSession();
+        $userId  = $session->get('user_id');
+        if (!$userId) return null;
+        return $this->usersRepository->find($userId);
+    }
+}

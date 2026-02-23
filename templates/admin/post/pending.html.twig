@@ -11,8 +11,17 @@
 	<div class="flex flex-wrap -mx-3">
 		<div class="flex-none w-full max-w-full px-3">
 			<div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-				<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
-					<h6>Pending Posts</h6>
+				<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+					<h6>{{ showSpam ? 'Flagged Spam Posts' : 'Pending Posts' }}</h6>
+					<div class="flex gap-2">
+						<a href="{{ path('admin_post_pending') }}" class="px-4 py-2 text-xs font-bold {{ not showSpam ? 'text-purple-700 bg-purple-100' : 'text-slate-400 bg-gray-50' }} rounded-lg transition-all border-0 cursor-pointer text-decoration-none">
+							Pending
+						</a>
+						<a href="{{ path('admin_post_pending', {spam: 1}) }}" class="px-4 py-2 text-xs font-bold {{ showSpam ? 'text-red-700 bg-red-100' : 'text-slate-400 bg-gray-50' }} rounded-lg transition-all border-0 cursor-pointer text-decoration-none">
+							<i class="fas fa-robot mr-1"></i>
+							Spam Filter
+						</a>
+					</div>
 				</div>
 				<div class="flex-auto px-0 pt-0 pb-2">
 					<div class="p-0 overflow-x-auto">
@@ -21,17 +30,23 @@
 								<tr>
 									<th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Title</th>
 									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Author</th>
+									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Spam Score</th>
 									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
 									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 								{% for post in posts %}
-									<tr class="hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="window.location.href='{{ path('admin_post_pending_show', {'id': post.id}) }}'">
+									<tr class="hover:bg-gray-50/50 transition-colors cursor-pointer {{ post.isSpam ? 'bg-red-50/40' : '' }}" onclick="window.location.href='{{ path('admin_post_pending_show', {'id': post.id}) }}'">
 										<td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-sm">
 											<div class="flex px-2 py-1">
 												<div class="flex flex-col justify-center">
-													<h6 class="mb-0 leading-normal text-sm text-slate-700 font-bold hover:text-purple-700 transition-colors">{{ post.title }}</h6>
+													<div class="flex items-center">
+														<h6 class="mb-0 leading-normal text-sm text-slate-700 font-bold hover:text-purple-700 transition-colors">{{ post.title }}</h6>
+														{% if post.isSpam %}
+															<span class="ml-2 px-2 py-0.5 text-[10px] bg-red-100 text-red-700 rounded-full font-bold">SPAM</span>
+														{% endif %}
+													</div>
 												</div>
 											</div>
 										</td>
@@ -39,10 +54,16 @@
 											<span class="font-bold text-slate-700">{{ post.user ? post.user.username : 'Anonymous' }}</span>
 										</td>
 										<td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-xs">
+											{% set score = post.spamScore|default(0) %}
+											<span class="font-bold {% if score >= 70 %}text-red-600{% elseif score >= 40 %}text-orange-500{% else %}text-green-500{% endif %}">
+												{{ score }}/100
+											</span>
+										</td>
+										<td class="p-4 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-xs">
 											<span class="font-bold text-slate-400">{{ post.createdAt|date('Y-m-d H:i') }}</span>
 										</td>
 										<td class="p-4 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-											<a href="{{ path('admin_post_pending_show', {'id': post.id}) }}" class="inline-block px-4 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all">
+											<a href="{{ path('admin_post_pending_show', {'id': post.id}) }}" class="inline-block px-4 py-2 text-[10px] font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md hover:scale-102 transition-all text-decoration-none">
 												<i class="fas fa-eye mr-1"></i>
 												View
 											</a>
@@ -51,7 +72,7 @@
 									</tr>
 								{% else %}
 									<tr>
-										<td colspan="4" class="p-6 text-center text-slate-400 font-bold uppercase text-xs">No pending posts.</td>
+										<td colspan="5" class="p-6 text-center text-slate-400 font-bold uppercase text-xs">{{ showSpam ? 'No spam posts found.' : 'No pending posts.' }}</td>
 									</tr>
 								{% endfor %}
 							</tbody>

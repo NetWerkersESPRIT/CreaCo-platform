@@ -1,0 +1,354 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Discussion –
+	{{ conversation.post.title }}
+{% endblock %}
+
+{% block body %}
+	<div class="flex flex-wrap -mx-3 justify-center py-6">
+		<div
+			class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
+
+			<!-- Back -->
+			<a href="{{ path('app_post_show', {'id': conversation.post.id}) }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-5 transition-colors no-underline">
+				<i class="fas fa-arrow-left"></i>
+				Back to Post
+			</a>
+
+			<!-- Main chat card -->
+			<div
+				class="bg-white rounded-2xl shadow-soft-xl overflow-hidden flex flex-col" style="height:82vh;">
+
+				<!-- ══ Header ══ -->
+				<div class="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 flex-none">
+					<div class="flex items-center gap-3">
+						<div class="w-14 h-14 rounded-2xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center shadow-soft-md shrink-0">
+							<i class="fas fa-comments text-white text-xl"></i>
+						</div>
+						<div>
+							<p class="mb-0 font-bold text-slate-700 text-sm leading-tight">{{ conversation.post.title }}</p>
+							<p class="mb-0 text-xs text-slate-400 mt-0.5">
+								Chat with
+								<span class="font-semibold text-purple-600">{{ isAdmin ? conversation.ownerUser.username : 'Admin' }}</span>
+							</p>
+						</div>
+					</div>
+					<span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-red-100 text-red-600 border border-red-200">
+						<i class="fas fa-times-circle"></i>
+						Post Refused
+					</span>
+				</div>
+
+				<!-- ══ Messages ══ -->
+				<div id="chat-box" class="flex-grow overflow-y-auto bg-slate-50 px-5 py-6 min-h-0" style="scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent;">
+
+					<div id="messages-container" class="flex flex-col gap-3">
+
+						{% if messages is empty %}
+							<div id="empty-state" class="flex flex-col items-center justify-center py-20 text-slate-300 gap-3">
+								<i class="fas fa-comments text-5xl"></i>
+								<p class="text-base font-semibold">No messages yet</p>
+							</div>
+						{% endif %}
+
+						{% for message in messages %}
+							{% set isMe = message.senderUser.id == app.session.get('user_id') %}
+							{% set isAdminSender = message.senderUser.role == 'ROLE_ADMIN' %}
+
+							<div class="flex {{ isMe ? 'justify-end' : 'justify-start items-end gap-2' }} message-item" data-id="{{ message.id }}" {{ isMe ? 'src-me="true"' : '' }}>
+
+								{% if not isMe %}
+									<div class="shrink-0 w-8 h-8 rounded-xl {{ isAdminSender ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-gradient-to-tl from-slate-500 to-slate-400' }} flex items-center justify-center text-white text-xs font-bold shadow">
+										{{ message.senderUser.username|first|upper }}
+									</div>
+								{% endif %}
+
+								<div class="flex flex-col {{ isMe ? 'items-end' : 'items-start' }} max-w-[70%]">
+									{% if not isMe %}
+										<div class="flex items-center gap-2 mb-1 ml-1">
+											<span class="text-xs font-bold {{ isAdminSender ? 'text-purple-600' : 'text-slate-500' }} uppercase tracking-wide">
+												{{ message.senderUser.username }}
+											</span>
+											{% if isAdminSender %}
+												<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-600">ADMIN</span>
+											{% endif %}
+										</div>
+									{% endif %}
+
+									<div class="px-4 py-3 text-sm leading-relaxed shadow-soft-sm
+																																																																{% if isMe %}
+																																																																	bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-2xl rounded-br-sm
+																																																																{% else %}
+																																																																	bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-bl-sm
+																																																																{% endif %}">
+										{{ message.content|nl2br }}
+									</div>
+
+									<div class="flex items-center gap-1.5 mt-1 {{ isMe ? 'mr-1' : 'ml-1' }}">
+										<span class="text-[11px] text-slate-400">{{ message.createdAt|date('H:i') }}</span>
+										{% if isMe %}
+											<i class="fas fa-check-double text-[11px] {{ message.isRead ? 'text-blue-400' : 'text-slate-300' }} read-status" title="{{ message.isRead ? 'Read' : 'Sent' }}"></i>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+
+				<!-- ══ Input ══ -->
+				<div class="flex-none bg-white border-t border-slate-100">
+					<form id="chat-form" class="flex flex-col gap-0">
+						<textarea id="message-input" name="content" class="w-full px-5 py-4 text-sm text-slate-700 bg-white border-0 focus:outline-none focus:ring-0 resize-none" placeholder="Write a message…" rows="2" required style="min-height:60px; max-height:140px; overflow-y:hidden;"></textarea>
+
+						<button type="submit" id="send-btn" class="w-full py-4 bg-gradient-to-tl from-purple-700 to-pink-500 text-white font-bold text-sm border-0 cursor-pointer hover:opacity-90 active:opacity-80 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+							<div id="btn-content" class="flex items-center gap-2">
+								<i class="fas fa-paper-plane"></i>
+								<span>Send Message</span>
+							</div>
+							<div id="btn-loading" class="hidden">
+								<i class="fas fa-circle-notch fa-spin"></i>
+								<span class="ml-2">Sending…</span>
+							</div>
+						</button>
+					</form>
+					<p id="error-message" class="hidden text-xs text-red-500 font-semibold px-5 py-2">
+						<i class="fas fa-exclamation-circle mr-1"></i>Failed to send. Please try again.
+					</p>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<style>
+		#chat-box::-webkit-scrollbar {
+			width: 4px;
+		}
+		#chat-box::-webkit-scrollbar-track {
+			background: transparent;
+		}
+		#chat-box::-webkit-scrollbar-thumb {
+			background: #e2e8f0;
+			border-radius: 99px;
+		}
+		.msg-in {
+			animation: msgIn 0.3s cubic-bezier(0.16,1,0.3,1);
+		}
+		.msg-out {
+			animation: msgOut 0.3s cubic-bezier(0.16,1,0.3,1);
+		}
+		@keyframes msgIn {
+			from {
+				opacity: 0;
+				transform: translateX(-8px);
+			}
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+		@keyframes msgOut {
+			from {
+				opacity: 0;
+				transform: translateX(8px);
+			}
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+	</style>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const chatBox = document.getElementById('chat-box');
+const container = document.getElementById('messages-container');
+const input = document.getElementById('message-input');
+const form = document.getElementById('chat-form');
+const sendBtn = document.getElementById('send-btn');
+const btnCont = document.getElementById('btn-content');
+const btnLoad = document.getElementById('btn-loading');
+const errMsg = document.getElementById('error-message');
+
+const convId = {{ conversation.id }};
+let lastId = 0;
+document.querySelectorAll('.message-item').forEach(el => {
+const n = parseInt(el.dataset.id);
+if (n > lastId) 
+lastId = n;
+
+
+
+});
+
+const scrollDown = () => chatBox.scrollTo({top: chatBox.scrollHeight, behavior: 'smooth'});
+chatBox.scrollTop = chatBox.scrollHeight;
+
+input.addEventListener('input', function () {
+this.style.height = 'auto';
+this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+});
+
+input.addEventListener('keydown', e => {
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+form.dispatchEvent(new Event('submit'));
+}
+});
+
+form.addEventListener('submit', async e => {
+e.preventDefault();
+const text = input.value.trim();
+if (! text) 
+return;
+
+
+
+sendBtn.disabled = true;
+btnCont.classList.add('hidden');
+btnLoad.classList.remove('hidden');
+errMsg.classList.add('hidden');
+
+try {
+const fd = new FormData();
+fd.append('content', text);
+const res = await fetch (`/messages/conversation/${convId}/send`, {
+method: 'POST',
+body: fd
+});
+if (! res.ok) 
+throw new Error();
+
+
+
+const msg = await res.json();
+renderMessage(msg, true);
+if (msg.id > lastId) 
+lastId = msg.id;
+
+
+
+input.value = '';
+input.style.height = '60px';
+document.getElementById('empty-state') ?. remove();
+scrollDown();
+} catch {
+errMsg.classList.remove('hidden');
+} finally {
+sendBtn.disabled = false;
+ btnCont.classList.remove('hidden');
+btnLoad.classList.add('hidden');
+}}
+);
+
+async function poll() {
+try {
+const res = await fetch(`/messages/conversation/${convId}/since?lastId=${lastId}`);
+if (! res.ok) 
+return;
+
+
+
+const data = await res.json();
+
+if (data.lastReadId > 0) {
+document.querySelectorAll('.message-item[src-me="true"] .read-status').forEach(icon => {
+const id = parseInt(icon.closest('.message-item').dataset.id);
+if (id <= data.lastReadId) {
+icon.classList.replace('text-slate-300', 'text-blue-400');
+icon.title = 'Read';
+}
+});
+}
+
+(data.messages || []).forEach(msg => {
+if (!msg.isMe) 
+renderMessage(msg, false);
+
+
+
+if (msg.id > lastId) 
+lastId = msg.id;
+
+
+
+});
+if (data.messages ?. length) {
+document.getElementById('empty-state') ?. remove();
+scrollDown();
+}
+} catch (e) {
+console.error(e);
+}
+}
+setInterval(poll, 3000);
+
+function renderMessage(msg, isMe) {
+const initials = (msg.sender || 'A')[0].toUpperCase();
+const avatarGrad = msg.isAdmin ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-gradient-to-tl from-slate-500 to-slate-400';
+
+const avatar = isMe ? '' : `
+			<div class="shrink-0 w-8 h-8 rounded-xl ${avatarGrad} flex items-center justify-center text-white text-xs font-bold shadow">
+				${initials}
+			</div>`;
+
+const nameRow = isMe ? '' : `
+			<div class="flex items-center gap-2 mb-1 ml-1">
+				<span class="text-xs font-bold ${
+msg.isAdmin ? 'text-purple-600' : 'text-slate-500'
+} uppercase tracking-wide">${
+esc(msg.sender)
+}</span>
+				${
+msg.isAdmin ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-600">ADMIN</span>' : ''
+}
+			</div>`;
+
+const bubbleClass = isMe ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-2xl rounded-br-sm' : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-bl-sm';
+
+const wrap = document.createElement('div');
+wrap.className = `flex ${
+isMe ? 'justify-end' : 'justify-start items-end gap-2'
+} message-item ${
+isMe ? 'msg-out' : 'msg-in'
+}`;
+wrap.dataset.id = msg.id;
+if (isMe) 
+wrap.setAttribute('src-me', 'true');
+
+
+
+wrap.innerHTML = `
+			${avatar}
+			<div class="flex flex-col ${
+isMe ? 'items-end' : 'items-start'
+} max-w-[70%]">
+				${nameRow}
+				<div class="px-4 py-3 text-sm leading-relaxed shadow-soft-sm ${bubbleClass}">${
+esc(msg.content).replace(/\n/g, '<br>')
+}</div>
+				<div class="flex items-center gap-1.5 mt-1 ${
+isMe ? 'mr-1' : 'ml-1'
+}">
+					<span class="text-[11px] text-slate-400">${
+msg.createdAt
+}</span>
+					${
+isMe ? '<i class="fas fa-check-double text-[11px] text-slate-300 read-status" title="Sent"></i>' : ''
+}
+				</div>
+			</div>`;
+container.appendChild(wrap);
+}
+
+function esc(s) {
+const d = document.createElement('div');
+d.textContent = s;
+return d.innerHTML;
+}
+}
+);
+	</script>
+{% endblock %}

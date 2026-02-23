@@ -2,25 +2,60 @@
 
 {% block title %}Idea List{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="flex flex-wrap -mx-3 mt-6">
         <div class="flex-none w-full max-w-full px-3">
-            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
-                <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
-                    <div>
-                        <h6 class="font-bold">Idea Table</h6>
-                        <p class="text-sm mb-0">Share your best ideas with the team</p>
-                    </div>
-                    <a href="{{ path('app_idea_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
-                        <i class="fas fa-lightbulb mr-1"></i> New Idea
-                    </a>
+            <!-- Block 1: Identification & Filter -->
+            <div class="flex flex-col mb-4 px-4 gap-4">
+                <div>
+                    <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Ideas</h3>
+                    <p class="text-sm mb-0 text-slate-400">Share your best ideas with the team</p>
                 </div>
-                <div class="flex-auto px-0 pt-0 pb-2">
-                    <div class="p-0 overflow-x-auto">
+                
+                <div class="flex flex-wrap items-center gap-4 w-full">
+                    <div class="relative w-full md:w-80">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fas fa-search text-xs"></i>
+                        </span>
+                        <input type="text" id="idea-search" style="padding-left: 2.25rem;" class="block w-full pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search ideas...">
+                    </div>
+                    
+                    <select id="category-filter" class="block w-full md:w-48 px-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200">
+                        <option value="">All Categories</option>
+                        {% set categories = [] %}
+                        {% for idea in ideas %}
+                            {% if idea.category not in categories %}
+                                {% set categories = categories|merge([idea.category]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Block 2: Primary Action (New Idea) -->
+            <div class="flex justify-end mb-8 px-4">
+                <a href="{{ path('app_idea_new') }}" class="inline-block ml-8 px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+                    <i class="fas fa-lightbulb mr-1"></i> New Idea
+                </a>
+            </div>
+
+            <!-- Block 3: Content -->
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+                <div class="p-0 overflow-x-auto">
                         <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
                             <thead class="align-bottom">
                                 <tr>
-                                    <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">ID</th>
                                     <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
                                     <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Category</th>
                                     <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
@@ -30,11 +65,6 @@
                             <tbody>
                                 {% for idea in ideas %}
                                     <tr>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex px-4 py-1">
-                                                <span class="text-xs font-bold">{{ idea.id }}</span>
-                                            </div>
-                                        </td>
                                         <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                                             <div class="flex flex-col justify-center">
                                                 <h6 class="mb-0 text-sm leading-normal font-semibold">{{ idea.title }}</h6>
@@ -71,4 +101,37 @@
             </div>
         </div>
     </div>
+</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('idea-search');
+            const categoryFilter = document.getElementById('category-filter');
+            const tableBody = document.querySelector('table tbody');
+            const rows = tableBody.querySelectorAll('tr:not(:has(td[colspan]))');
+
+            function filterIdeas() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedCategory = categoryFilter.value.toLowerCase();
+
+                rows.forEach(row => {
+                    const title = row.querySelector('h6').textContent.toLowerCase();
+                    const description = row.querySelector('p').textContent.toLowerCase();
+                    const category = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
+
+                    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                    const matchesCategory = selectedCategory === "" || category === selectedCategory;
+
+                    if (matchesSearch && matchesCategory) {
+                        row.classList.remove('hidden');
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterIdeas);
+            categoryFilter.addEventListener('change', filterIdeas);
+        });
+    </script>
 {% endblock %}
