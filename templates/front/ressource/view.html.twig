@@ -86,86 +86,86 @@
                     </div>
                 </div>
 
-	                <!-- Resource Content -->
-	                <div class="p-6">
-	                    {% set originalUrl = ressource.url %}
-	                    {% set fileUrl = null %}
-	                    {% if originalUrl %}
-	                        {% if originalUrl starts with 'http://' or originalUrl starts with 'https://' %}
-	                            {% set fileUrl = originalUrl %}
-	                        {% elseif originalUrl starts with '/uploads/' or originalUrl starts with 'uploads/' %}
-	                            {% set fileUrl = originalUrl %}
-	                        {% else %}
-	                            {% set fileUrl = vich_uploader_asset(ressource, 'file') %}
-	                        {% endif %}
-	                    {% endif %}
+                <!-- Resource Content -->
+                <div class="p-6">
+                    {% set originalUrl = ressource.url %}
+                    {% set fileUrl = null %}
+                    {% if originalUrl %}
+                        {% if originalUrl starts with 'http://' or originalUrl starts with 'https://' %}
+                            {% set fileUrl = originalUrl %}
+                        {% elseif originalUrl starts with '/uploads/' or originalUrl starts with 'uploads/' %}
+                            {% set fileUrl = originalUrl %}
+                        {% else %}
+                            {% set fileUrl = vich_uploader_asset(ressource, 'file') %}
+                        {% endif %}
+                    {% endif %}
 
-	                    {% set is_youtube = (ressource.type|upper == 'VIDEO' and originalUrl and ('youtube.com' in originalUrl or 'youtu.be' in originalUrl)) %}
-	                    {% set video_id = '' %}
+                    {% set is_youtube = (ressource.type|upper == 'VIDEO' and originalUrl and ('youtube.com' in originalUrl or 'youtu.be' in originalUrl)) %}
+                    {% set video_id = '' %}
 
-	                    {% if is_youtube %}
-	                        {% if 'v=' in originalUrl %}
-	                            {% set video_id = originalUrl|split('v=')|last|split('&')|first %}
-	                        {% elseif 'youtu.be' in originalUrl %}
-	                            {% set video_id = originalUrl|split('/')|last %}
-	                        {% endif %}
+                    {% if is_youtube %}
+                        {% if 'v=' in originalUrl %}
+                            {% set video_id = originalUrl|split('v=')|last|split('&')|first %}
+                        {% elseif 'youtu.be' in originalUrl %}
+                            {% set video_id = originalUrl|split('/')|last %}
+                        {% endif %}
 
-	                        {# YouTube Video Embed #}
-	                        <div class="w-full relative overflow-hidden rounded-2xl bg-black mb-6" style="padding-top: 56.25%;">
-	                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/{{ video_id }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-	                        </div>
-	                        <div class="text-center">
-	                            <a href="{{ originalUrl }}" target="_blank" class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-	                                <i class="fab fa-youtube mr-2"></i>
-	                                Watch on YouTube
-	                            </a>
-	                        </div>
+                        {# YouTube Video Embed #}
+                        <div class="w-full relative overflow-hidden rounded-2xl bg-black mb-6" style="padding-top: 56.25%;">
+                            <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/{{ video_id }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ originalUrl }}" target="_blank" class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+                                <i class="fab fa-youtube mr-2"></i>
+                                Watch on YouTube
+                            </a>
+                        </div>
 
-	                    {% elseif ressource.type|upper == 'PDF' and fileUrl %}
-	                        {# PDF Viewer #}
-	                        <div class="w-full h-screen-75 mb-6">
-	                            <iframe src="{{ fileUrl }}" class="w-full h-full rounded-2xl border-2 border-gray-200" frameborder="0"></iframe>
-	                        </div>
-	                        <div class="text-center">
-	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-600 to-rose-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-	                                <i class="fas fa-download mr-2"></i>
-	                                Download PDF
-	                            </a>
-	                        </div>
+                    {% elseif ressource.type|upper == 'PDF' and fileUrl %}
+                        {# PDF Viewer #}
+                        <div class="w-full h-screen-75 mb-6">
+                            <iframe src="{{ fileUrl }}" class="w-full h-full rounded-2xl border-2 border-gray-200" frameborder="0"></iframe>
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-600 to-rose-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+                                <i class="fas fa-download mr-2"></i>
+                                Download PDF
+                            </a>
+                        </div>
 
-	                    {% elseif ressource.type|upper == 'IMAGE' and fileUrl %}
-	                        {# Image Display #}
-	                        <div class="w-full mb-6 text-center">
-	                            <img src="{{ fileUrl }}" alt="{{ ressource.nom }}" class="max-w-full h-auto rounded-2xl shadow-soft-2xl mx-auto">
-	                        </div>
-	                        <div class="text-center">
-	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-	                                <i class="fas fa-download mr-2"></i>
-	                                Download Image
-	                            </a>
-	                        </div>
+                    {% elseif ressource.type|upper == 'IMAGE' and fileUrl %}
+                        {# Image Display #}
+                        <div class="w-full mb-6 text-center">
+                            <img src="{{ fileUrl }}" alt="{{ ressource.nom }}" class="max-w-full h-auto rounded-2xl shadow-soft-2xl mx-auto">
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+                                <i class="fas fa-download mr-2"></i>
+                                Download Image
+                            </a>
+                        </div>
 
-	                    {% elseif ressource.type|upper == 'VIDEO' and fileUrl %}
-	                        {# Local Video Player #}
-	                        <div class="w-full mb-6">
-	                            <video controls class="w-full rounded-2xl shadow-soft-2xl">
-	                                <source src="{{ fileUrl }}" type="video/mp4">
-	                                Your browser does not support the video tag.
-	                            </video>
-	                        </div>
-	                        <div class="text-center">
-	                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-500 to-orange-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-	                                <i class="fas fa-download mr-2"></i>
-	                                Download Video
-	                            </a>
-	                        </div>
+                    {% elseif ressource.type|upper == 'VIDEO' and fileUrl %}
+                        {# Local Video Player #}
+                        <div class="w-full mb-6">
+                            <video controls class="w-full rounded-2xl shadow-soft-2xl">
+                                <source src="{{ fileUrl }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-red-500 to-orange-400 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+                                <i class="fas fa-download mr-2"></i>
+                                Download Video
+                            </a>
+                        </div>
 
                     {% elseif ressource.contenu %}
                         {# Text Content (Rich Text) #}
                         <div class="w-full mb-6">
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                                 <h5 class="text-sm font-bold text-slate-700 m-0">Content</h5>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <select id="translate-lang" class="text-xs border border-gray-300 rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none">
                                         <option value="">Translate to...</option>
                                         <option value="en">English</option>
@@ -192,30 +192,93 @@
                             <div id="original-content" class="hidden">{{ ressource.contenu|raw }}</div>
                         </div>
 
-	                    {% else %}
-	                        {# Generic File Download #}
-	                        <div class="text-center py-12">
-	                            <i class="fas fa-file text-6xl text-slate-300 mb-4"></i>
-	                            <p class="text-lg font-semibold text-slate-500 mb-6">This resource is available for download</p>
-	                            {% if fileUrl %}
-	                                <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-slate-600 to-slate-300 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
-	                                    <i class="fas fa-download mr-2"></i>
-	                                    Download File
-	                                </a>
-	                            {% else %}
-	                                <p class="text-sm text-slate-400">No file is currently associated with this resource.</p>
-	                            {% endif %}
-	                        </div>
-	                    {% endif %}
+                    {% else %}
+                        {# Generic File Download #}
+                        <div class="text-center py-12">
+                            <i class="fas fa-file text-6xl text-slate-300 mb-4"></i>
+                            <p class="text-lg font-semibold text-slate-500 mb-6">This resource is available for download</p>
+                            {% if fileUrl %}
+                                <a href="{{ fileUrl }}" target="_blank" download class="inline-block px-6 py-3 font-bold text-center uppercase transition-all bg-gradient-to-tl from-slate-600 to-slate-300 text-white rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md hover:scale-102 active:opacity-85">
+                                    <i class="fas fa-download mr-2"></i>
+                                    Download File
+                                </a>
+                            {% else %}
+                                <p class="text-sm text-slate-400">No file is currently associated with this resource.</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
+    {% if ressource.contenu %}
+    <!-- Quiz Section - At the bottom -->
+    <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full max-w-full px-3">
+            <div id="quiz-card" class="relative flex items-center min-w-0 break-words bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500 shadow-soft-xl rounded-2xl text-white overflow-hidden hover:shadow-soft-2xl transition-all duration-300 cursor-pointer">
+                <div class="p-6 flex items-center gap-4 flex-1">
+                    <div class="flex-none w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-brain text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase opacity-90 mb-0.5">Challenge Yourself</p>
+                        <p class="mb-0 font-bold">Test your knowledge with a fun quiz about this resource.</p>
+                    </div>
+                </div>
+                <div class="p-6 ml-auto flex-shrink-0">
+                    <button type="button" id="generate-quiz-btn" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-700 text-white text-sm font-bold uppercase tracking-wide shadow-soft-md hover:shadow-soft-lg hover:opacity-95 transition-all duration-200">
+                        <i class="fas fa-play mr-2"></i>Start Quiz
+                    </button>
+                </div>
+                <div id="quiz-loader" class="hidden absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                    <div class="flex items-center gap-3 text-white">
+                        <div class="flex gap-1.5">
+                            <span class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                            <span class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                            <span class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                        </div>
+                        <span class="text-sm font-medium">Creating your quiz...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Quiz Modal #}
+    <div id="quiz-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] hidden" style="display: none;">
+        <div id="quiz-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden transform transition-all duration-300">
+            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-brain text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Knowledge Quiz</h3>
+                    </div>
+                    <button type="button" id="close-quiz-modal" class="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="quiz-content" class="p-6 overflow-y-auto max-h-[60vh]">
+            </div>
+            <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div id="quiz-result" class="text-sm font-semibold"></div>
+                <button type="button" id="check-answers-btn" class="px-6 py-3 bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-500 text-white rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-soft-md">
+                    <i class="fas fa-check-circle mr-2"></i>Check Answers
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing quiz elements...');
+    
     const translateBtn = document.getElementById('translate-btn');
     const translateLang = document.getElementById('translate-lang');
     const resetBtn = document.getElementById('reset-translation-btn');
@@ -224,66 +287,389 @@ document.addEventListener('DOMContentLoaded', function() {
     const translateBtnText = document.getElementById('translate-btn-text');
     const loader = document.getElementById('translation-loader');
     
-    if (!translateBtn) return;
+    const quizCard = document.getElementById('quiz-card');
+    const quizBtn = document.getElementById('generate-quiz-btn');
+    const quizLoader = document.getElementById('quiz-loader');
+    const quizModal = document.getElementById('quiz-modal');
+    const quizModalContent = document.getElementById('quiz-modal-content');
+    const quizContent = document.getElementById('quiz-content');
+    const closeQuizModal = document.getElementById('close-quiz-modal');
+    const checkAnswersBtn = document.getElementById('check-answers-btn');
+    const quizResult = document.getElementById('quiz-result');
     
-    translateBtn.addEventListener('click', async function() {
-        const targetLang = translateLang.value;
-        if (!targetLang) {
-            alert('Please select a language');
-            return;
-        }
+    console.log('Quiz elements found:', {
+        quizCard: !!quizCard,
+        quizBtn: !!quizBtn,
+        quizModal: !!quizModal,
+        quizContent: !!quizContent
+    });
+    
+    let quizData = [];
+    let isGenerating = false;
+    
+    // Translation
+    if (translateBtn) {
+        translateBtn.addEventListener('click', async function() {
+            const targetLang = translateLang.value;
+            if (!targetLang) {
+                alert('Please select a language');
+                return;
+            }
+            
+            const text = contentDisplay.innerText;
+            if (!text || text.length < 1) {
+                alert('No content to translate');
+                return;
+            }
+            
+            translateBtn.disabled = true;
+            translateBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            loader.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('{{ path("api_translate") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text.substring(0, 5000),
+                        target_lang: targetLang,
+                        source_lang: 'auto'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.translated_text) {
+                    contentDisplay.innerHTML = data.translated_text.replace(/\n/g, '<br>');
+                    resetBtn.classList.remove('hidden');
+                    translateLang.classList.add('hidden');
+                    translateBtn.classList.add('hidden');
+                } else {
+                    alert(data.error || 'Translation failed');
+                }
+            } catch (error) {
+                console.error('Translation error:', error);
+                alert('Translation service unavailable. Please try again later.');
+            } finally {
+                translateBtn.disabled = false;
+                translateBtnText.innerHTML = 'Translate';
+                loader.classList.add('hidden');
+            }
+        });
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            contentDisplay.innerHTML = originalContent.innerHTML;
+            resetBtn.classList.add('hidden');
+            translateLang.classList.remove('hidden');
+            translateBtn.classList.remove('hidden');
+            translateLang.value = '';
+        });
+    }
+    
+    // Quiz Generation
+    async function generateQuiz(e) {
+        e.preventDefault();
+        if (isGenerating) return;
         
         const text = contentDisplay.innerText;
-        if (!text || text.length < 1) {
-            alert('No content to translate');
+        if (!text || text.length < 50) {
+            showError('Content is too short', 'The content must be at least 50 characters to generate a quiz.');
             return;
         }
         
-        translateBtn.disabled = true;
-        translateBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        loader.classList.remove('hidden');
+        isGenerating = true;
+        if (quizBtn) {
+            quizBtn.disabled = true;
+            quizBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+        }
+        quizLoader.classList.remove('hidden');
         
         try {
-            const response = await fetch('{{ path("api_translate") }}', {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            
+            const response = await fetch('{{ path("api_openai_generate_quiz") }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    text: text.substring(0, 5000),
-                    target_lang: targetLang,
-                    source_lang: 'auto'
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: text.substring(0, 3000) }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Please log in to generate a quiz.');
+                } else if (response.status === 429) {
+                    throw new Error('Too many requests. Please wait a moment and try again.');
+                } else if (response.status >= 500) {
+                    throw new Error('Server error. Please try again later.');
+                }
+                throw new Error('Failed to generate quiz. Please try again.');
+            }
             
             const data = await response.json();
             
-            if (data.success && data.translated_text) {
-                contentDisplay.innerHTML = data.translated_text.replace(/\n/g, '<br>');
-                resetBtn.classList.remove('hidden');
-                translateLang.classList.add('hidden');
-                translateBtn.classList.add('hidden');
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            if (data.quiz) {
+                if (data.quiz.startsWith('ERROR_RATE_LIMIT')) {
+                    throw new Error('API rate limit reached. Please wait a moment and try again.');
+                } else if (data.quiz.startsWith('ERROR_AUTH')) {
+                    throw new Error('API configuration error. Please contact support.');
+                } else if (data.quiz.startsWith('ERROR_')) {
+                    throw new Error(data.quiz.replace('ERROR_: ', ''));
+                }
+                
+                if (data.quiz.trim().length < 20) {
+                    throw new Error('Generated quiz is empty. Please try again.');
+                }
+                
+                parseAndDisplayQuiz(data.quiz);
+                console.log('After parsing, quizData length:', quizData.length);
+                if (quizData.length === 0) {
+                    // Show modal anyway with raw content
+                    openModal();
+                    return;
+                }
+                openModal();
             } else {
-                alert(data.error || 'Translation failed');
+                throw new Error('No quiz generated. Please try again.');
             }
         } catch (error) {
-            console.error('Translation error:', error);
-            alert('Translation service unavailable. Please try again later.');
+            console.error('Quiz generation error:', error);
+            
+            let title = 'Quiz Generation Failed';
+            let message = 'An unexpected error occurred.';
+            
+            if (error.name === 'AbortError') {
+                title = 'Request Timeout';
+                message = 'The request took too long. Please try again.';
+            } else if (error.message.includes('fetch')) {
+                title = 'Connection Error';
+                message = 'Could not connect to the server. Please check your internet connection.';
+            } else if (error.message) {
+                message = error.message;
+            }
+            
+            showError(title, message);
         } finally {
-            translateBtn.disabled = false;
-            translateBtnText.innerHTML = 'Translate';
-            loader.classList.add('hidden');
+            isGenerating = false;
+            if (quizBtn) {
+                quizBtn.disabled = false;
+                quizBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Quiz';
+            }
+            quizLoader.classList.add('hidden');
         }
-    });
+    }
     
-    resetBtn.addEventListener('click', function() {
-        contentDisplay.innerHTML = originalContent.innerHTML;
-        resetBtn.classList.add('hidden');
-        translateLang.classList.remove('hidden');
-        translateBtn.classList.remove('hidden');
-        translateLang.value = '';
-    });
+    function showError(title, message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message,
+                confirmButtonColor: '#7c3aed',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert(title + ': ' + message);
+        }
+    }
+    
+    if (quizBtn) {
+        quizBtn.addEventListener('click', generateQuiz);
+    }
+    
+    if (quizCard) {
+        quizCard.addEventListener('click', function(e) {
+            if (e.target.closest('button')) return;
+            generateQuiz(e);
+        });
+    }
+    
+    function openModal() {
+        console.log('openModal called');
+        if (quizModal) {
+            quizModal.style.display = 'flex';
+            quizModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            console.log('Modal opened successfully');
+        } else {
+            console.error('quizModal element not found!');
+        }
+    }
+    
+    function closeModal() {
+        if (quizModal) {
+            quizModal.classList.add('hidden');
+            quizModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    function parseAndDisplayQuiz(quizText) {
+        quizContent.innerHTML = '';
+        quizResult.innerHTML = '';
+        quizData = [];
+        
+        console.log('Raw quiz text:', quizText);
+        
+        // Try multiple parsing patterns
+        let questions = [];
+        
+        // Pattern 1: Split by numbered questions (1. 2. 3. etc)
+        const pattern1 = quizText.split(/\n(?=\d+\.\s)/).filter(q => q.trim());
+        console.log('Pattern 1 found:', pattern1.length, 'questions');
+        
+        if (pattern1.length > 0) {
+            pattern1.forEach((q, idx) => {
+                const lines = q.trim().split('\n').filter(l => l.trim());
+                if (lines.length < 2) return;
+                
+                // First line is the question
+                let questionText = lines[0].replace(/^\d+\.\s*/, '').trim();
+                const options = [];
+                let correctAnswer = 0;
+                
+                // Process remaining lines for options
+                lines.slice(1).forEach((line, optIdx) => {
+                    const cleanLine = line.replace(/^[a-dA-D][\).\]]\s*/, '').replace(/\*\*/g, '').trim();
+                    if (cleanLine && !cleanLine.toLowerCase().match(/^(correct|answer)/)) {
+                        if (line.includes('**') || line.toLowerCase().includes('correct')) {
+                            correctAnswer = options.length;
+                        }
+                        options.push(cleanLine);
+                    }
+                });
+                
+                if (questionText && options.length >= 2) {
+                    questions.push({ question: questionText, options, correct: correctAnswer });
+                }
+            });
+        }
+        
+        console.log('Parsed questions:', questions.length);
+        quizData = questions;
+        
+        // Display questions
+        if (quizData.length > 0) {
+            quizData.forEach((q, index) => {
+                const questionHtml = `
+                    <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                        <p class="font-semibold text-slate-700 mb-3">${index + 1}. ${escapeHtml(q.question)}</p>
+                        <div class="space-y-2">
+                            ${q.options.map((opt, i) => `
+                                <label class="flex items-center gap-3 p-3 bg-white rounded-lg border-2 border-gray-200 cursor-pointer hover:border-purple-400 transition-all quiz-option" data-question="${index}" data-option="${i}">
+                                    <input type="radio" name="q${index}" value="${i}" class="w-4 h-4 text-purple-700 focus:ring-purple-500">
+                                    <span class="text-slate-700">${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                quizContent.innerHTML += questionHtml;
+            });
+            checkAnswersBtn.classList.remove('hidden');
+        } else {
+            // Show raw content if parsing failed
+            quizContent.innerHTML = `
+                <div class="p-4 bg-blue-50 rounded-xl text-blue-700 mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>Quiz generated. Here's the content:
+                </div>
+                <div class="p-4 bg-gray-100 rounded-xl text-sm text-slate-700 whitespace-pre-wrap">${escapeHtml(quizText)}</div>
+            `;
+            checkAnswersBtn.classList.add('hidden');
+        }
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    if (checkAnswersBtn) {
+        checkAnswersBtn.addEventListener('click', function() {
+            let score = 0;
+            
+            quizData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const options = document.querySelectorAll(`.quiz-option[data-question="${index}"]`);
+                
+                options.forEach((opt, optIndex) => {
+                    opt.classList.remove('bg-emerald-100', 'border-emerald-500', 'bg-red-100', 'border-red-500');
+                    if (optIndex === q.correct) {
+                        opt.classList.add('bg-emerald-100', 'border-emerald-500');
+                    }
+                    if (selected && parseInt(selected.value) === optIndex && optIndex !== q.correct) {
+                        opt.classList.add('bg-red-100', 'border-red-500');
+                    }
+                });
+                
+                if (selected && parseInt(selected.value) === q.correct) {
+                    score++;
+                }
+            });
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            let emoji = percentage >= 80 ? '🏆' : percentage >= 60 ? '👍' : '📚';
+            let message = percentage >= 80 ? 'Excellent!' : percentage >= 60 ? 'Good job!' : 'Keep learning!';
+            
+            quizResult.innerHTML = `<span class="${percentage >= 70 ? 'text-emerald-600' : 'text-red-600'}">${emoji} ${message} Score: ${score}/${quizData.length} (${percentage}%)</span>`;
+            
+            if (percentage >= 70) {
+                createConfetti();
+            }
+        });
+    }
+    
+    function createConfetti() {
+        const colors = ['#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                width: 10px;
+                height: 10px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                left: ${Math.random() * 100}vw;
+                top: -10px;
+                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                pointer-events: none;
+                z-index: 9999;
+                animation: confetti-fall ${2 + Math.random() * 2}s linear forwards;
+            `;
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }
+    }
+    
+    // Add confetti animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    if (closeQuizModal) {
+        closeQuizModal.addEventListener('click', closeModal);
+    }
+    
+    if (quizModal) {
+        quizModal.addEventListener('click', (e) => {
+            if (e.target === quizModal) closeModal();
+        });
+    }
 });
 </script>
 {% endblock %}
-

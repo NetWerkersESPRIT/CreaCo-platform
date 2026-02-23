@@ -64,7 +64,20 @@ class OpenAIService
 
     public function generateQuiz(string $content): string
     {
-        $prompt = "Based on the following course content, generate 3 multiple-choice questions with answers:\n\n$content";
+        $prompt = "Based on the following educational content, create a quiz with 3-5 multiple choice questions.
+
+IMPORTANT: Format each question exactly like this:
+1. [Question text here]
+a) [Option A]
+b) [Option B]
+c) [Option C]
+d) [Option D]
+**Correct answer: [letter]**
+
+Content:
+$content
+
+Generate the quiz now:";
         return $this->generateContent($prompt);
     }
 }
