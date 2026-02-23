@@ -54,6 +54,16 @@ class CoursRepository extends ServiceEntityRepository
             }
         }
 
+        if (!empty($filters['statut'])) {
+            $qb->andWhere('c.statut = :statut')
+               ->setParameter('statut', $filters['statut']);
+        }
+
+        if (!empty($filters['niveau'])) {
+            $qb->andWhere('c.niveau = :niveau')
+               ->setParameter('niveau', $filters['niveau']);
+        }
+
         // Sorting
         if (!empty($sort['field'])) {
             $order = strtoupper($sort['order'] ?? 'ASC');
@@ -129,5 +139,61 @@ class CoursRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function createQueryBuilderWithFilters(array $filters = [], array $sort = []): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.categorie', 'cat')
+            ->addSelect('cat');
+
+        if (!empty($filters['search'])) {
+            $qb->andWhere('c.titre LIKE :search OR c.description LIKE :search')
+               ->setParameter('search', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['titre'])) {
+            $qb->andWhere('c.titre LIKE :titre')
+               ->setParameter('titre', '%' . $filters['titre'] . '%');
+        }
+
+        if (!empty($filters['categorie'])) {
+            if (is_numeric($filters['categorie'])) {
+                $qb->andWhere('c.categorie = :catId')
+                   ->setParameter('catId', $filters['categorie']);
+            } else {
+                $qb->andWhere('cat.nom LIKE :catName')
+                   ->setParameter('catName', '%' . $filters['categorie'] . '%');
+            }
+        }
+
+        if (!empty($filters['statut'])) {
+            $qb->andWhere('c.statut = :statut')
+               ->setParameter('statut', $filters['statut']);
+        }
+
+        if (!empty($filters['niveau'])) {
+            $qb->andWhere('c.niveau = :niveau')
+               ->setParameter('niveau', $filters['niveau']);
+        }
+
+        if (!empty($sort['field'])) {
+            $order = strtoupper($sort['order'] ?? 'ASC');
+            if (!in_array($order, ['ASC', 'DESC'])) {
+                $order = 'ASC';
+            }
+            
+            if ($sort['field'] === 'category' || $sort['field'] === 'categorie') {
+                $qb->orderBy('cat.nom', $order);
+            } elseif (property_exists(Cours::class, $sort['field'])) {
+                $qb->orderBy('c.' . $sort['field'], $order);
+            } else {
+                $qb->orderBy('c.date_de_creation', 'DESC');
+            }
+        } else {
+            $qb->orderBy('c.date_de_creation', 'DESC');
+        }
+
+        return $qb;
     }
 }

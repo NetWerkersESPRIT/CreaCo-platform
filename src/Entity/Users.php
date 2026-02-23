@@ -169,10 +169,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @see UserInterface
+     * Returns email so the profiler and security tools show the authenticated user's email.
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string) $this->email;
     }
 
     /**

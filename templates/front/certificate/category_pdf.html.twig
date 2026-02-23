@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate – {{ category.nom }} | CreaCo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #fff;
+            padding: 40px;
+        }
+        .certificate-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px;
+            background: linear-gradient(to bottom, #fefefe 0%, #f8f5ff 100%);
+            border: 3px solid #7c3aed;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .certificate-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .certificate-title {
+            font-size: 12px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #7c3aed;
+            margin-bottom: 8px;
+        }
+        .certificate-heading {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 40px;
+        }
+        .certificate-body {
+            font-size: 16px;
+            color: #475569;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .certificate-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #7c3aed;
+            margin: 20px 0;
+        }
+        .certificate-category {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e1b4b;
+        }
+        .certificate-description {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 15px auto 0;
+        }
+        .certificate-date {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 40px;
+        }
+        .certificate-seal {
+            margin-top: 40px;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            color: #94a3b8;
+        }
+        .certificate-decoration {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #7c3aed, #ec4899);
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <img src="{{ absolute_url(asset('assets/img/creaco.png')) }}" alt="CreaCo" class="certificate-logo" />
+        <p class="certificate-title">Certificate of Completion</p>
+        <h1 class="certificate-heading">CreaCo</h1>
+        <div class="certificate-decoration"></div>
+        <p class="certificate-body">
+            This is to certify that
+        </p>
+        <p class="certificate-name">{{ user.username }}</p>
+        <p class="certificate-body">
+            has successfully completed all courses and resources in the category
+        </p>
+        <p class="certificate-category">{{ category.nom }}</p>
+        {% if category.description %}
+        <p class="certificate-description">{{ category.description }}</p>
+        {% endif %}
+        <div class="certificate-decoration"></div>
+        <p class="certificate-date">
+            Issued on {{ issued_at|date('F j, Y') }}
+        </p>
+        <p class="certificate-seal">CreaCo – Workshops & Learning</p>
+    </div>
+</body>
+</html>

@@ -35,12 +35,13 @@ final class LeaderboardController extends AbstractController
         // Get leaderboard data (top 50)
         $leaderboard = $gamificationService->getLeaderboard(50);
 
-        // Get current user stats
+        // Get current user stats & badges
         $userStats = null;
         $userRank = null;
+        $userBadges = [];
         if ($currentUser) {
             $userStats = $gamificationService->getUserStats($currentUser);
-            
+
             // Find user's rank
             foreach ($leaderboard as $index => $entry) {
                 if ($entry['id'] == $currentUser->getId()) {
@@ -48,6 +49,8 @@ final class LeaderboardController extends AbstractController
                     break;
                 }
             }
+
+            $userBadges = $gamificationService->getUserBadges($currentUser);
         }
 
         return $this->render('front/leaderboard/index.html.twig', [
@@ -55,6 +58,7 @@ final class LeaderboardController extends AbstractController
             'currentUser' => $currentUser,
             'userStats' => $userStats,
             'userRank' => $userRank,
+            'userBadges' => $userBadges,
         ]);
     }
 }

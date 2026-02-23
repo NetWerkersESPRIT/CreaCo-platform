@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\UserRessourceProgressRepository;
 use App\Repository\UserCoursProgressRepository;
 use App\Repository\UsersRepository;
+use App\Service\GamificationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,7 +66,8 @@ final class GamificationAdminController extends AbstractController
         int $id,
         UsersRepository $usersRepo,
         UserCoursProgressRepository $coursProgressRepo,
-        UserRessourceProgressRepository $ressourceProgressRepo
+        UserRessourceProgressRepository $ressourceProgressRepo,
+        GamificationService $gamificationService
     ): Response
     {
         // Check if user is admin
@@ -86,9 +88,12 @@ final class GamificationAdminController extends AbstractController
         
         // Get completed courses count
         $completedCourses = $coursProgressRepo->countCompletedByUser($user);
-        
+
         // Get in-progress courses count
         $inProgressCourses = $coursProgressRepo->countInProgressByUser($user);
+
+        // Get user badges
+        $userBadges = $gamificationService->getUserBadges($user);
 
         return $this->render('back/gamification/user_details.html.twig', [
             'user' => $user,
@@ -96,6 +101,7 @@ final class GamificationAdminController extends AbstractController
             'total_opened_resources' => $totalOpenedResources,
             'completed_courses' => $completedCourses,
             'in_progress_courses' => $inProgressCourses,
+            'user_badges' => $userBadges,
         ]);
     }
 }

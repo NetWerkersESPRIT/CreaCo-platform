@@ -28,6 +28,49 @@
 				<th>Category</th>
 				<td>{{ cour.categorie ? cour.categorie.nom : '' }}</td>
 			</tr>
+				<tr>
+					<th>Status</th>
+					<td>
+						{% set statusValue = cour.statut ?? 'draft' %}
+						{% if statusValue == 'published' %}
+							Published
+						{% elseif statusValue == 'archived' %}
+							Archived
+						{% else %}
+							Draft
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>Level</th>
+					<td>
+						{% if cour.niveau == 'beginner' %}
+							Beginner
+						{% elseif cour.niveau == 'intermediate' %}
+							Intermediate
+						{% elseif cour.niveau == 'advanced' %}
+							Advanced
+						{% else %}
+							-
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<th>Estimated duration</th>
+					<td>
+						{% if cour.dureeEstimee %}
+								{% set hours = (cour.dureeEstimee / 60)|round(0, 'floor') %}
+								{% set minutes = cour.dureeEstimee - (hours * 60) %}
+							{% if hours > 0 %}
+								{{ hours }}h{% if minutes > 0 %} {{ minutes }}m{% endif %}
+							{% else %}
+								{{ minutes }}m
+							{% endif %}
+						{% else %}
+							-
+						{% endif %}
+					</td>
+				</tr>
 			<tr>
 				<th>Created at</th>
 				<td>{{ cour.dateDeCreation ? cour.dateDeCreation|date('d/m/Y H:i') : '-' }}</td>
