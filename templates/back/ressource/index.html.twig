@@ -1,15 +1,15 @@
 {% extends './base.html.twig' %}
 
-{% block title %}Toutes les Ressources
+{% block title %}All Resources
 {% endblock %}
 
 {% block breadcrumbs %}
 	<li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
-		Ressources
+		Resources
 	</li>
 {% endblock %}
 
-{% block page_title %}Gestion des Ressources
+{% block page_title %}Manage Resources
 {% endblock %}
 
 {% block body %}
@@ -35,12 +35,12 @@
 						</div>
 
 						<button form="search-form" type="submit" class="inline-block px-6 py-3 mr-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-gray-900 to-slate-800 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
-							Filtrer
+							Filter
 						</button>
 
 						<a href="{{ path('app_ressource_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
 							<i class="fas fa-plus mr-1"></i>
-							Ajouter
+							Add New
 						</a>
 					</div>
 				</div>
@@ -52,13 +52,13 @@
 								<tr>
 									<th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
 										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'nom', 'order': sort.field == 'nom' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
-											Nom
+											Name
 											<i class="fas fa-sort{{ sort.field == 'nom' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
 										</a>
 									</th>
 									<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
 										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'cours', 'order': sort.field == 'cours' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center gap-1 cursor-pointer hover:text-slate-600">
-											Cours
+											Course
 											<i class="fas fa-sort{{ sort.field == 'cours' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
 										</a>
 									</th>
@@ -70,7 +70,7 @@
 									</th>
 									<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
 										<a href="{{ path('app_ressource_index', filters|merge({'sort': 'date_de_creation', 'order': sort.field == 'date_de_creation' and sort.order == 'ASC' ? 'DESC' : 'ASC'})) }}" class="flex items-center justify-center gap-1 cursor-pointer hover:text-slate-600">
-											Créé le
+											Created At
 											<i class="fas fa-sort{{ sort.field == 'date_de_creation' ? (sort.order == 'ASC' ? '-up' : '-down') : '' }}"></i>
 										</a>
 									</th>
@@ -89,9 +89,9 @@
 											<option value="">Tous</option>
 											<option value="PDF" {% if filters.type == 'PDF' %} selected {% endif %}>PDF</option>
 											<option value="IMAGE" {% if filters.type == 'IMAGE' %} selected {% endif %}>Image</option>
-											<option value="VIDEO" {% if filters.type == 'VIDEO' %} selected {% endif %}>Vidéo</option>
-											<option value="FILE" {% if filters.type == 'FILE' %} selected {% endif %}>Fichier</option>
-											<option value="TEXTE" {% if filters.type == 'TEXTE' %} selected {% endif %}>Texte</option>
+											<option value="VIDEO" {% if filters.type == 'VIDEO' %} selected {% endif %}>Video</option>
+											<option value="FILE" {% if filters.type == 'FILE' %} selected {% endif %}>File</option>
+											<option value="TEXTE" {% if filters.type == 'TEXTE' %} selected {% endif %}>Text</option>
 										</select>
 									</th>
 									<th class="px-6 py-2 bg-transparent border-b border-gray-200"></th>
@@ -108,7 +108,7 @@
 									{% if ressource.type == 'TEXTE' or ressource.contenu %}
 										<a href="{{ path('app_ressource_show', {'id': ressource.id}) }}" class="mb-0 text-xs leading-tight text-blue-400 hover:text-blue-600">
 											<i class="fas fa-file-alt mr-1"></i>
-											Voir le contenu
+											See Content
 										</a>
 									{% else %}
 										{# D e9termination de l'URL du fichier (Vich / ancien upload / lien externe) #}
@@ -131,7 +131,7 @@
 												Voir le fichier
 											</a>
 										{% else %}
-											<span class="mb-0 text-xs leading-tight text-slate-400 italic">Aucun fichier associé</span>
+											<span class="mb-0 text-xs leading-tight text-slate-400 italic">No file associated</span>
 										{% endif %}
 									{% endif %}
 												</div>
@@ -184,7 +184,7 @@
 									</tr>
 								{% else %}
 									<tr>
-										<td colspan="4" class="p-4 text-center">Aucune ressource trouvée</td>
+										<td colspan="4" class="p-4 text-center">No Resource found</td>
 									</tr>
 								{% endfor %}
 							</tbody>
