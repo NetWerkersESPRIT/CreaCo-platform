@@ -25,6 +25,135 @@
         </div>
     </div>
 
+    <!-- All badges overview -->
+    {% if allBadges is defined %}
+        {% set ownedCodes = [] %}
+        {% for b in userBadges %}
+            {% set ownedCodes = ownedCodes|merge([b.code]) %}
+        {% endfor %}
+        <div class="flex flex-wrap -mx-3 mb-6">
+            <div class="w-full max-w-full px-3">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                    <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                        <h6 class="mb-1">Achievements Unlocked</h6>
+                        <p class="text-sm leading-normal text-slate-500">Earn badges by opening resources, completing courses, and maintaining daily streaks!</p>
+                    </div>
+                    <div class="flex-auto p-6">
+                        <div class="flex flex-wrap gap-4 justify-center" id="badgesContainer">
+                            {% for badge in allBadges %}
+                                {% set owned = badge.code in ownedCodes %}
+                                <div class="badge-item group relative" 
+                                     data-badge-code="{{ badge.code }}" 
+                                     data-badge-name="{{ badge.name }}"
+                                     data-badge-owned="{{ owned ? 'true' : 'false' }}">
+                                    <div class="relative w-16 h-16 cursor-pointer transition-all duration-300 transform hover:scale-110">
+                                        <!-- Badge background circle -->
+                                        <div class="absolute inset-0 rounded-full bg-gradient-to-br {% if owned %}from-purple-300 to-pink-300{% else %}from-gray-200 to-gray-300{% endif %} opacity-0 group-hover:opacity-100 blur transition-all duration-300"></div>
+                                        
+                                        <!-- Badge container -->
+                                        <div class="relative w-full h-full bg-white rounded-full shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center overflow-hidden border-2 {% if owned %}border-purple-400 group-hover:border-pink-400{% else %}border-gray-300 group-hover:border-gray-400{% endif %}">
+                                            <img src="{{ asset('uploads/badge_stickers/' ~ badge.file) }}"
+                                                 alt="{{ badge.name }}"
+                                                 class="w-full h-full object-cover object-center transition-all duration-300 {% if not owned %}opacity-40 grayscale group-hover:opacity-50{% else %}group-hover:scale-110{% endif %}">
+                                        </div>
+                                        
+                                        <!-- Earned badge checkmark -->
+                                        {% if owned %}
+                                            <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md animate-pulse">
+                                                ✓
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Tooltip -->
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                        {{ badge.name }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const badgeItems = document.querySelectorAll('.badge-item');
+                
+                badgeItems.forEach((badge, index) => {
+                    // Add stagger animation on load
+                    badge.style.animation = `fadeInUp 0.5s ease-out ${index * 0.05}s forwards`;
+                    badge.style.opacity = '0';
+                    
+                    // Click to animate and show details
+                    badge.addEventListener('click', function() {
+                        const badgeName = this.dataset.badgeName;
+                        const isOwned = this.dataset.badgeOwned === 'true';
+                        
+                        // Trigger celebration animation for owned badges
+                        if (isOwned) {
+                            this.classList.add('animate-bounce');
+                            setTimeout(() => this.classList.remove('animate-bounce'), 600);
+                            
+                            // Show toast notification
+                            showBadgeNotification(badgeName, true);
+                        } else {
+                            showBadgeNotification(badgeName, false);
+                        }
+                    });
+                });
+                
+                function showBadgeNotification(name, isOwned) {
+                    const notification = document.createElement('div');
+                    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ${isOwned ? 'bg-green-500' : 'bg-blue-500'}`;
+                    notification.textContent = isOwned ? `🎉 You have: ${name}` : `🔒 Locked: ${name}`;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateX(400px)';
+                        setTimeout(() => notification.remove(), 500);
+                    }, 3000);
+                }
+            });
+        </script>
+
+        <style>
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .badge-item {
+                animation: fadeInUp 0.5s ease-out;
+            }
+
+            .badge-item:hover {
+                animation: none !important;
+            }
+
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        </style>
+    {% endif %}
+
     <!-- User Stats Card -->
     {% if currentUser and userStats %}
     <div class="flex flex-wrap -mx-3 mb-6">
@@ -64,18 +193,49 @@
                     </div>
 
                     {% if userBadges is defined %}
-                        <div class="mt-6">
-                            <h6 class="mb-3 font-bold text-sm">Your Badges</h6>
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <h6 class="mb-5 font-bold text-lg flex items-center">
+                                <i class="fas fa-medal text-yellow-500 mr-2 text-xl"></i>Your Badges Earned
+                            </h6>
                             {% if userBadges is not empty %}
-                                <div class="flex flex-wrap gap-3">
+                                <div class="flex flex-wrap gap-3 justify-center">
                                     {% for badge in userBadges %}
-                                        <span class="inline-flex items-center px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 text-xs font-semibold">
-                                            <i class="fas {{ badge.icon }} mr-2"></i>{{ badge.name }}
-                                        </span>
+                                        <div class="earned-badge group relative" 
+                                             data-badge-name="{{ badge.name }}"
+                                             title="{{ badge.name }}">
+                                            <div class="relative w-16 h-16 cursor-pointer transition-all duration-300 transform hover:scale-110">
+                                                <!-- Badge background glow -->
+                                                <div class="absolute -inset-1 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                                                
+                                                <!-- Badge container -->
+                                                <div class="relative w-full h-full bg-white rounded-full shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center overflow-hidden border-2 border-purple-300 group-hover:border-pink-400">
+                                                    <img src="{{ asset('uploads/badge_stickers/' ~ badge.file) }}"
+                                                         alt="{{ badge.name }}"
+                                                         class="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-110">
+                                                </div>
+                                                
+                                                <!-- Earned badge checkmark -->
+                                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md animate-pulse">
+                                                    ✓
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Tooltip -->
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                                {{ badge.name }}
+                                                {% if badge.metadata.month is defined %}
+                                                    <br><span class="text-xs opacity-75">{{ ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][badge.metadata.month] }} {{ badge.metadata.year }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <p class="text-sm text-slate-500">No badges yet. Open resources and complete courses to unlock them!</p>
+                                <div class="p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-dashed border-slate-300">
+                                    <i class="fas fa-star text-4xl text-slate-300 mb-3"></i>
+                                    <p class="text-sm text-slate-600 font-semibold">No badges yet!</p>
+                                    <p class="text-xs text-slate-500 mt-1">Open resources and complete courses to unlock amazing badges.</p>
+                                </div>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -156,6 +316,7 @@
             </div>
         </div>
     </div>
+
 
 </div>
 {% endblock %}
