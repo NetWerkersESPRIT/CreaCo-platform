@@ -2,14 +2,27 @@
 Flask API Server for Intelligent Learning Assistant
 Provides endpoints for Q&A, course information, and interaction logging
 """
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from services.qa_service import QAService
 from config import FLASK_HOST, FLASK_PORT, DEBUG
 import traceback
+import json
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False  # Allow non-ASCII characters in JSON
+app.config['JSON_SORT_KEYS'] = False
 CORS(app)
+
+# Custom JSON response with UTF-8 charset
+def json_response(data, status_code=200):
+    """Return JSON response with proper UTF-8 encoding"""
+    response = Response(
+        json.dumps(data, ensure_ascii=False, indent=None),
+        status=status_code,
+        mimetype='application/json; charset=utf-8'
+    )
+    return response
 
 # Initialize Q&A service
 qa_service = QAService()
@@ -57,7 +70,7 @@ def ask_question():
         if course_id:
             qa_service.save_interaction(course_id, question, response['answer'], user_id)
         
-        return jsonify(response), 200
+        return json_response(response), 200
     
     except Exception as e:
         print(f"Error in ask_question: {e}")

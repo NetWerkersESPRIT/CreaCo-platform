@@ -22,8 +22,17 @@ class DatabaseService:
                 user=self.user,
                 password=self.password,
                 database=self.database,
-                port=self.port
+                port=self.port,
+                charset='utf8mb4',
+                use_unicode=True,
+                autocommit=True
             )
+            # Ensure proper UTF-8 handling at session level
+            cursor = connection.cursor()
+            cursor.execute('SET NAMES utf8mb4')
+            cursor.execute('SET CHARACTER SET utf8mb4')
+            cursor.execute('SET character_set_results=utf8mb4')
+            cursor.close()
             return connection
         except mysql.connector.Error as err:
             print(f"Database Error: {err}")

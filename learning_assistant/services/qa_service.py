@@ -4,8 +4,27 @@ Q&A Service - Generates answers based on course content embeddings
 from services.embedding_service import EmbeddingService
 from services.db_service import DatabaseService
 import json
-from config import COURSES_DATA_PATH
+from config import COURSES_DATA_PATH, SIMILARITY_THRESHOLD, MAX_CONTEXT_LENGTH
 import os
+
+def fix_encoding(text):
+    """Fix double-encoded UTF-8 strings (handles Ã© → é conversion)"""
+    if not isinstance(text, str):
+        return text
+    try:
+        # Try to detect and fix double encoding
+        # If the string contains patterns like Ã©, Ã , etc., it's likely misencoded
+        if 'Ã' in text or '\xc3' in text:
+            # This text was likely decoded as latin-1 when it's actually UTF-8
+            # Re-encode as latin-1 then decode as UTF-8
+            try:
+                fixed = text.encode('latin-1').decode('utf-8')
+                return fixed
+            except:
+                return text
+        return text
+    except:
+        return text
 
 class QAService:
     def __init__(self):
@@ -17,16 +36,35 @@ class QAService:
         """Load cached courses data or fetch from database"""
         if os.path.exists(COURSES_DATA_PATH):
             try:
-                with open(COURSES_DATA_PATH, 'r') as f:
-                    return json.load(f)
+                with open(COURSES_DATA_PATH, 'r', encoding='utf-8') as f:
+                    courses = json.load(f)
+                    # Fix any encoding issues in loaded data
+                    for course in courses:
+                        course['titre'] = fix_encoding(course.get('titre', ''))
+                        course['description'] = fix_encoding(course.get('description', ''))
+                        if course.get('resources'):
+                            for res in course['resources']:
+                                if res:
+                                    res['titre'] = fix_encoding(res.get('titre', ''))
+                                    res['contenu'] = fix_encoding(res.get('contenu', ''))
+                    return courses
             except:
                 pass
         
         # Fetch from database
         courses = self.db_service.get_all_courses_and_resources()
         if courses:
-            with open(COURSES_DATA_PATH, 'w') as f:
-                json.dump(courses, f)
+            # Fix encoding before saving
+            for course in courses:
+                course['titre'] = fix_encoding(course.get('titre', ''))
+                course['description'] = fix_encoding(course.get('description', ''))
+                if course.get('resources'):
+                    for res in course['resources']:
+                        if res:
+                            res['titre'] = fix_encoding(res.get('titre', ''))
+                            res['contenu'] = fix_encoding(res.get('contenu', ''))
+            with open(COURSES_DATA_PATH, 'w', encoding='utf-8') as f:
+                json.dump(courses, f, ensure_ascii=False, indent=2)
         return courses
     
     def initalize_course_embeddings(self):
@@ -67,16 +105,19 @@ class QAService:
             return True
         return False
     
-    def answer_question(self, question, course_id=None, top_k=5):
+    def answer_question(self, question, course_id=None, top_k=None):
         """
         Answer a student question based on course content
         Returns: {answer, sources, relevance_score}
         """
+        if top_k is None:
+            top_k = MAX_CONTEXT_LENGTH
+        
         # Find relevant documents
         relevant_docs = self.embedding_service.get_similar_documents(
             question, 
             top_k=top_k,
-            threshold=0.4
+            threshold=SIMILARITY_THRESHOLD
         )
         
         if not relevant_docs:
@@ -87,17 +128,17 @@ class QAService:
                 'relevant_documents': []
             }
         
-        # Build context from relevant documents
-        context = "\n\n".join([doc['text'][:500] for doc in relevant_docs])
+        # Build context from relevant documents - fix encoding before using
+        context = "\n\n".join([fix_encoding(doc['text'][:500]) for doc in relevant_docs])
         
         # Create the answer (in production, you'd use Gemini API here)
         answer = self.generate_answer_from_context(question, context)
         
         return {
-            'answer': answer,
+            'answer': answer,  # Already has correct encoding from context
             'sources': [
                 {
-                    'text': doc['text'][:200],
+                    'text': fix_encoding(doc['text'][:200]),
                     'similarity': doc['score']
                 }
                 for doc in relevant_docs

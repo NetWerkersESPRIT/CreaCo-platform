@@ -25,5 +25,5 @@ COURSES_DATA_PATH = './data/courses_data.json'
 QA_HISTORY_PATH = './data/qa_history.json'
 
 # API Configuration
-MAX_CONTEXT_LENGTH = 5  # Number of top similar documents to consider
-SIMILARITY_THRESHOLD = 0.5  # Minimum similarity score for relevance
+MAX_CONTEXT_LENGTH = 8  # Number of top similar documents to consider
+SIMILARITY_THRESHOLD = 0.25  # Minimum similarity score for relevance (lowered for better matching)
