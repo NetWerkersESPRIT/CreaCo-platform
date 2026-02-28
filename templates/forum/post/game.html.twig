@@ -1,0 +1,209 @@
+{# Memory Game Modal Overlay #}
+	<div
+		id="game-overlay" style="display: none !important; position: fixed !important; inset: 0 !important; z-index: 999999 !important; background-color: rgba(15, 23, 42, 0.8) !important; backdrop-filter: blur(12px) !important;" class="flex items-center justify-center p-4 animate-fade-in overflow-hidden">
+		
+		{# 1. Main Game Card Container #}
+		<div id="game-main-card" class="bg-white rounded-[1.5rem] p-5 shadow-[0_15px_40px_rgba(0,0,0,0.1)] border border-slate-100 max-w-[400px] !important; w-full relative flex flex-col items-center mx-auto overflow-hidden animate-slide-up max-h-[90vh] overflow-y-auto custom-scrollbar">
+			<div class="absolute -top-24 -right-24 w-64 h-64 bg-purple-50 rounded-full blur-[80px] opacity-40"></div>
+			<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-50 rounded-full blur-[80px] opacity-40"></div>
+
+			{# Close Cross Button #}
+			{# Close Button #}
+			<button type="button" id="back-from-game" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:text-purple-600 hover:bg-slate-100 transition-all z-20 flex items-center justify-center">
+				<i class="fas fa-times text-sm"></i>
+			</button>
+
+			<div class="mb-5 text-center relative z-10">
+				<div class="inline-flex items-center justify-center w-10 h-10 bg-white rounded-lg mb-2 text-xl shadow-soft-sm border border-slate-50">
+					🐱
+				</div>
+				<h5 class="text-xl font-black text-slate-800 mb-0.5 tracking-tight">Cat-tastic Match</h5>
+				<p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em]">Find all 4 matching pairs</p>
+			</div>
+
+			<div class="w-full relative z-10 px-1">
+				<div id="game-grid" class="grid grid-cols-4 gap-3 perspective-1000 mx-auto w-full" style="max-width: 300px !important;">
+					<!-- Cards injected by JS -->
+				</div>
+			</div>
+		</div>
+
+		{# 2. Victory (Congratulations) Modal #}
+		<div id="win-modal" class="hidden absolute z-[1000000] flex flex-col items-center justify-center bg-white p-14 rounded-[3rem] shadow-[0_35px_80px_rgba(0,0,0,0.3)] text-center max-w-[420px] w-[95%] border-0 premium-modal animate-pop">
+			<h4 class="text-3xl font-black text-slate-800 mb-4 tracking-tight">WOW Congratulations!</h4>
+			<p class="text-slate-500 mb-12 font-medium leading-relaxed text-lg px-4">
+				You matched everything perfectly!
+			</p>
+
+			<div class="w-full flex justify-center px-4">
+				<button type="button" id="victory-continue" class="w-full max-w-[280px] py-4 text-white rounded-2xl font-black text-lg shadow-lg transition-all hover:scale-105 active:scale-95 btn-magenta">
+					Continue ✨
+				</button>
+			</div>
+		</div>
+
+		{# 3. Motivational Phrase Modal #}
+		<div id="motivational-modal" class="hidden absolute z-[1000001] flex flex-col items-center justify-center bg-white p-14 rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.35)] text-center max-w-[550px] w-[95%] border-0 premium-modal animate-pop">
+			<p id="motivational-phrase" class="text-slate-800 mb-14 italic font-black leading-relaxed text-2xl px-2">
+				"Loading inspiration..."
+			</p>
+
+			<div class="flex flex-row items-center justify-center w-full px-6 modal-button-row" style="gap: 2.5rem !important;">
+				<button type="button" id="close-game-final" class="py-4 px-8 text-white rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95 btn-slate whitespace-nowrap min-w-[140px]">
+					Cancel
+				</button>
+				<button type="button" id="play-again" class="py-4 px-8 text-white rounded-2xl font-black text-lg shadow-lg transition-all hover:scale-105 active:scale-95 btn-magenta whitespace-nowrap min-w-[180px]">
+					Play Again 🎮
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	/* FORCED PREMIUM STYLES */
+	.premium-modal {
+		background-color: #ffffff !important;
+		border-radius: 3rem !important;
+		padding: 4rem !important;
+		box-shadow: 0 40px 100px rgba(0,0,0,0.35) !important;
+		transform: scale(0);
+	}
+
+	.modal-button-row {
+		display: flex !important;
+		flex-direction: row !important;
+		justify-content: center !important;
+		align-items: center !important;
+		gap: 2.5rem !important;
+	}
+
+	.animate-pop {
+		animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+	}
+
+	@keyframes popIn {
+		0% { opacity: 0; transform: scale(0.5); }
+		100% { opacity: 1; transform: scale(1); }
+	}
+
+	.btn-magenta {
+		background-color: #d81b60 !important; /* Richer Magenta from screenshot */
+		color: white !important;
+		box-shadow: 0 10px 20px -5px rgba(216, 27, 96, 0.4) !important;
+		border: none !important;
+		cursor: pointer !important;
+	}
+
+	.btn-magenta:hover {
+		background-color: #ad1457 !important;
+		transform: translateY(-2px) scale(1.05) !important;
+	}
+
+	.btn-slate {
+		background-color: #78909c !important; /* Steel Gray from screenshot */
+		color: white !important;
+		box-shadow: 0 10px 20px -5px rgba(120, 144, 156, 0.3) !important;
+		border: none !important;
+		cursor: pointer !important;
+	}
+
+	.btn-slate:hover {
+		background-color: #546e7a !important;
+		transform: translateY(-2px) !important;
+	}
+
+	/* Memory Game Fixes - Scaling Forced */
+	#game-grid {
+		display: grid !important;
+		grid-template-columns: repeat(4, 1fr) !important;
+		gap: 0.75rem !important;
+		width: 100% !important;
+		max-width: 300px !important;
+	}
+
+	.memory-card {
+		width: 100% !important;
+		aspect-ratio: 1 / 1 !important;
+		max-width: 65px !important;
+		position: relative;
+		cursor: pointer;
+		transform-style: preserve-3d;
+		transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+		margin: 0 auto;
+	}
+
+	.memory-card:hover:not(.flipped):not(.matched) {
+		transform: translateY(-3px) !important;
+	}
+
+	.memory-card.flipped {
+		transform: rotateY(180deg) !important;
+	}
+
+	.memory-card .front,
+	.memory-card .back {
+		position: absolute !important;
+		inset: 0 !important;
+		backface-visibility: hidden !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		border-radius: 0.75rem !important;
+		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+		border: 1.5px solid transparent !important;
+		width: 100% !important;
+		height: 100% !important;
+	}
+
+	.memory-card .back {
+		background: #fdfdfd !important;
+		color: #e2e8f0 !important;
+		font-size: 1.125rem !important;
+		border: 1px solid #f8fafc !important;
+	}
+
+	.memory-card .front {
+		background: #ffffff !important;
+		transform: rotateY(180deg) !important;
+		border: 1px solid #f1f5f9 !important;
+		font-size: 1.5rem !important;
+	}
+
+	.memory-card.matched .front {
+		background: #f0f9ff !important;
+		border-color: #e0f2fe !important;
+		color: #0c4a6e !important;
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	
+	.animate-fade-in {
+		animation: fadeIn 0.3s ease-out forwards;
+	}
+
+	@media(max-width: 640px) {
+		#game-grid {
+			gap: 0.5rem !important;
+			max-width: 250px !important;
+		}
+		.memory-card {
+			max-width: 55px !important;
+		}
+	}
+
+	.perspective-1000 {
+		perspective: 800px !important;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar {
+		width: 3px !important;
+	}
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background: #f1f5f9 !important;
+		border-radius: 10px !important;
+	}
+</style>
