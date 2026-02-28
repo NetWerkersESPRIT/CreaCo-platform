@@ -24,7 +24,7 @@ final class FrontController extends AbstractController
 {
     // READ LISTE DES CATEGORIES DE COUR
     #[Route('/front', name: 'app_front_home')]
-    public function index(\Symfony\Component\HttpFoundation\Request $request, CategorieCoursRepository $catRepo): Response
+    public function index(\Symfony\Component\HttpFoundation\Request $request, CategorieCoursRepository $catRepo, CoursRepository $coursRepo): Response
     {
         // Redirection Admin vers Back-office
         $userRole = $request->getSession()->get('user_role');
@@ -39,9 +39,12 @@ final class FrontController extends AbstractController
              $categories = $catRepo->findAll();
         }
 
+        $randomCourses = $coursRepo->findRandom(5);
+
         return $this->render('front/home/index.html.twig', [
             'categories' => $categories,
-            'search' => $search
+            'search' => $search,
+            'random_courses' => $randomCourses,
         ]);
     }
 
