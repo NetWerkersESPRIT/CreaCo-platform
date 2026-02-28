@@ -4,6 +4,7 @@ namespace App\Controller\Collab\Manager;
 
 use App\Entity\CollabRequest;
 use App\Entity\Contract;
+use App\Entity\Notification;
 use App\Entity\Users;
 use App\Service\CollaborationAIService;
 use App\Form\RejectionReasonType;
@@ -34,10 +35,16 @@ class ManagerCollabRequestController extends AbstractController
             throw $this->createAccessDeniedException("Accès réservé aux managers.");
         }
 
-        $user = $em->getRepository(Users::class)->find($userId);
+        $status = $request->query->get('status');
+        $search = $request->query->get('search');
 
-        // Liste toutes les demandes assignées au manager, PENDING en priorité
-        $requests = $repo->findBy(['revisor' => $user], ['status' => 'ASC', 'createdAt' => 'DESC']);
+        $requests = $repo->filterRequests($userId, $userRole, $status, $search);
+
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('manager/collab_request/_list.html.twig', [
+                'collab_requests' => $requests,
+            ]);
+        }
 
         return $this->render('manager/collab_request/index.html.twig', [
             'collab_requests' => $requests,
@@ -115,6 +122,21 @@ class ManagerCollabRequestController extends AbstractController
         $em->persist($contract);
         $em->flush();
 
+        // Notify Creator
+        $creator = $collabRequest->getCreator();
+        if ($creator) {
+            $notification = new Notification();
+            $notification->setMessage("Your collaboration request '" . $collabRequest->getTitle() . "' has been approved. A draft contract is now available.");
+            $notification->setUserId($creator);
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $notification->setType('collab_request_approved');
+            $notification->setRelatedId($collabRequest->getId());
+            $notification->setTargetUrl($this->generateUrl('app_collab_request_show', ['id' => $collabRequest->getId()]));
+            $em->persist($notification);
+            $em->flush();
+        }
+
         $this->addFlash('success', 'The request has been approved and a draft contract has been generated.');
 
         return $this->redirectToRoute('app_manager_collab_request_index');
@@ -153,6 +175,21 @@ class ManagerCollabRequestController extends AbstractController
             $collabRequest->setRespondedAt(new \DateTime());
 
             $em->flush();
+
+            // Notify Creator
+            $creator = $collabRequest->getCreator();
+            if ($creator) {
+                $notification = new Notification();
+                $notification->setMessage("Your collaboration request '" . $collabRequest->getTitle() . "' has been rejected.");
+                $notification->setUserId($creator);
+                $notification->setIsRead(false);
+                $notification->setCreatedAt(new \DateTime());
+                $notification->setType('collab_request_rejected');
+                $notification->setRelatedId($collabRequest->getId());
+                $notification->setTargetUrl($this->generateUrl('app_collab_request_show', ['id' => $collabRequest->getId()]));
+                $em->persist($notification);
+                $em->flush();
+            }
 
             $this->addFlash('danger', 'The collaboration request has been rejected.');
 
@@ -198,6 +235,21 @@ class ManagerCollabRequestController extends AbstractController
             $collabRequest->setRespondedAt(new \DateTime());
 
             $em->flush();
+
+            // Notify Creator
+            $creator = $collabRequest->getCreator();
+            if ($creator) {
+                $notification = new Notification();
+                $notification->setMessage("A modification has been requested for your collaboration request '" . $collabRequest->getTitle() . "'.");
+                $notification->setUserId($creator);
+                $notification->setIsRead(false);
+                $notification->setCreatedAt(new \DateTime());
+                $notification->setType('collab_request_modification');
+                $notification->setRelatedId($collabRequest->getId());
+                $notification->setTargetUrl($this->generateUrl('app_collab_request_show', ['id' => $collabRequest->getId()]));
+                $em->persist($notification);
+                $em->flush();
+            }
 
             $this->addFlash('info', 'A modification request has been sent to the creator.');
 

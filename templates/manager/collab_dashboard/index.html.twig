@@ -1,0 +1,221 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Collaboration Hub - CreaCo Ecosystem{% endblock %}
+{% block breadcrumb %}Manager / Ecosystem{% endblock %}
+{% block page_title %}Collaboration Ecosystem Hub{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 mx-auto mb-6">
+    <!-- Header Hero -->
+    <div class="relative flex items-center p-0 mt-2 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-position-y: 50%">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-800/80 to-fuchsia-600/80 opacity-90"></span>
+        <div class="relative z-1 w-full px-8 py-10">
+            <h2 class="text-white font-bold mb-2 animate-fade-in-down">Network Intelligence Central</h2>
+            <p class="text-white/80 max-w-lg mb-0">Overseeing the tactical alignment of creators and strategic partners. Monitor velocity, budget, and contract lifecycle from a single vantage point.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="mt-6">
+        {% include 'collaborator/_nav.html.twig' %}
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="flex flex-wrap -mx-3 -mt-12 relative z-2">
+        <!-- Partners -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-1">
+            <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Global Partners</p>
+                                <h5 class="mb-0 font-bold counter" data-target="{{ stats.total_partners }}">0</h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl">
+                                <i class="ni ni-world text-lg relative top-2.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Active Contracts -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-2">
+            <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Active Power</p>
+                                <h5 class="mb-0 font-bold"><span class="counter" data-target="{{ stats.active_contracts }}">0</span> / {{ stats.managed_contracts }}</h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-green-600 to-lime-400 shadow-soft-2xl">
+                                <i class="ni ni-paper-diploma text-lg relative top-2.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Budget -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-3">
+            <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Controlled Budget</p>
+                                <h5 class="mb-0 font-bold"><span class="counter" data-target="{{ stats.total_budget }}">0</span> DT</h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 shadow-soft-2xl">
+                                <i class="ni ni-money-coins text-lg relative top-2.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- PENDING -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300 {{ stats.pending_requests > 0 ? 'animate-pulse-glow ring-2 ring-fuchsia-500 ring-opacity-50' : '' }}">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Pending Sync</p>
+                                <h5 class="mb-0 font-bold text-fuchsia-600"><span class="counter" data-target="{{ stats.pending_requests }}">0</span> Items</h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-red-600 to-rose-400 shadow-soft-2xl">
+                                <i class="ni ni-bell-55 text-lg relative top-2.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Tables -->
+    <div class="flex flex-wrap mt-6 -mx-3">
+        <!-- Main Chart Placeholder (Network Velocity) -->
+        <div class="w-full max-w-full px-3 mb-6 lg:w-7/12 animate-reveal-scale stagger-2">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border overflow-hidden">
+                <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                    <h6 class="font-bold">Strategic Network Velocity</h6>
+                    <p class="text-xs leading-normal opacity-60">
+                        <i class="fa fa-arrow-up text-green-500"></i>
+                        <span class="font-semibold">4% more</span> in 2026
+                    </p>
+                </div>
+                <div class="flex-auto p-4 pt-0">
+                    <div class="h-80 bg-gradient-to-br from-gray-50 to-white rounded-xl flex items-center justify-center relative group">
+                        <div class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+                        <!-- Mockup of a chart using CSS -->
+                        <div class="relative flex items-end space-x-2 h-48">
+                            {% for i in 1..12 %}
+                                <div class="w-4 bg-fuchsia-500/20 rounded-t-sm hover:bg-fuchsia-500 transition-all duration-300" style="height: {{ random(40, 100) }}%"></div>
+                            {% endfor %}
+                            <div class="absolute -bottom-6 left-0 right-0 flex justify-between text-[10px] text-slate-400 uppercase font-bold tracking-widest">
+                                <span>Jan</span><span>Dec</span>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 backdrop-blur-[2px]">
+                            <span class="bg-white px-4 py-2 rounded-lg shadow-xl text-xs font-bold text-slate-700">Predictive Analysis Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Movements -->
+        <div class="w-full max-w-full px-3 mb-6 lg:w-5/12 animate-reveal-scale stagger-3">
+            <div class="relative flex flex-col h-full min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between">
+                    <h6 class="font-bold">Recent Pulsations</h6>
+                    <a href="{{ path('app_manager_contract_index') }}" class="text-xs font-bold text-fuchsia-500 hover:text-fuchsia-700 uppercase">View All</a>
+                </div>
+                <div class="flex-auto p-4">
+                    <div class="flex flex-col">
+                        {% for contract in recent_contracts %}
+                            <div class="flex items-center mb-4 last:mb-0 group cursor-default">
+                                <div class="flex-none p-2 mr-3 bg-fuchsia-50 rounded-lg group-hover:bg-fuchsia-500 transition-colors">
+                                    <i class="fas fa-file-signature text-fuchsia-500 group-hover:text-white transition-colors"></i>
+                                </div>
+                                <div class="flex flex-col flex-grow">
+                                    <h6 class="mb-0 text-xs font-bold text-slate-700">#{{ contract.contractNumber }} - {{ contract.title|slice(0, 20) }}...</h6>
+                                    <p class="mb-0 text-xxs font-semibold opacity-60 uppercase">{{ contract.collaborator.companyName }}</p>
+                                </div>
+                                <div class="text-right">
+                                    {% if contract.status == 'SIGNED_BY_COLLABORATOR' %}
+                                        <span class="text-[10px] font-bold text-green-500">CLOSED</span>
+                                    {% else %}
+                                        <span class="text-[10px] font-bold text-blue-500">FLOWING</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="text-xs italic text-slate-400">The ecosystem is quiet today.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+@keyframes fade-in-down {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down {
+    animation: fade-in-down 0.8s ease-out;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    counters.forEach(counter => {
+        const animate = () => {
+            const target = +counter.getAttribute('data-target');
+            const data = +counter.innerText;
+            const time = target / speed;
+            if (data < target) {
+                counter.innerText = Math.ceil(data + time);
+                setTimeout(animate, 1);
+            } else {
+                counter.innerText = target.toLocaleString();
+            }
+        };
+        animate();
+    });
+
+    // 2. Bar Chart animation trigger
+    const bars = document.querySelectorAll('.bg-fuchsia-500\\/20');
+    bars.forEach((bar, index) => {
+        bar.style.opacity = '0';
+        bar.style.transform = 'scaleY(0)';
+        bar.style.transformOrigin = 'bottom';
+        bar.style.transition = `all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${0.1 * index}s`;
+        
+        setTimeout(() => {
+            bar.style.opacity = '1';
+            bar.style.transform = 'scaleY(1)';
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

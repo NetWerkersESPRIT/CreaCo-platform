@@ -6,6 +6,12 @@
             {% if userRole == 'ROLE_MANAGER' %}
                 <!-- Manager Tabs -->
                 <li class="flex-auto text-center">
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') == 'app_manager_collab_dashboard' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ path('app_manager_collab_dashboard') }}" role="tab">
+                        <i class="ni ni-chart-bar-32 mr-2"></i>Ecosystem Hub
+                    </a>
+                </li>
+                <li class="flex-auto text-center">
                     <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_collab_request' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
                        href="{{ path('app_manager_collab_request_index') }}" role="tab">
                         <i class="ni ni-building mr-2"></i>Review Dashboard

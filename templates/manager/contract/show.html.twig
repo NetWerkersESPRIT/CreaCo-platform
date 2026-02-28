@@ -5,6 +5,14 @@
 {% block page_title %}Contract Consultation{% endblock %}
 
 {% block body %}
+<div class="w-full px-6 mx-auto mb-6">
+    <div class="relative flex items-center p-0 mt-2 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/curved-images/curved0.jpg'); background-position-y: 50%">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
+    </div>
+    <div class="relative flex flex-col flex-auto min-w-0 p-4 mx-6 -mt-16 overflow-hidden break-words border-0 shadow-blur rounded-2xl bg-white/80 bg-clip-border backdrop-blur-2xl backdrop-saturate-200">
+        <h4 class="mb-0 font-bold px-3">Contract Consultation</h4>
+    </div>
+</div>
 <div class="flex flex-wrap -mx-3">
     <!-- Main Content (Document Preview) -->
     <div class="w-full max-w-full px-3 lg:w-8/12">
@@ -201,8 +209,8 @@
                             <i class="ni ni-ruler-pencil mr-2"></i> Update Specifications
                         </a>
 
-                        <form action="{{ path('app_manager_contract_send', {'id': contract.id}) }}" method="POST" onsubmit="return confirm('Officially send this contract to the partner?')">
-                            <button type="submit" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-xl cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-[1.02] hover:shadow-soft-lg active:opacity-85">
+                        <form id="send-form-{{ contract.id }}" action="{{ path('app_manager_contract_send', {'id': contract.id}) }}" method="POST">
+                            <button type="button" onclick="confirmSend({{ contract.id }})" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-xl cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-[1.02] hover:shadow-soft-lg active:opacity-85">
                                 <i class="ni ni-paper-plane mr-2"></i> Transmit to Partner
                             </button>
                         </form>
@@ -220,4 +228,27 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmSend(id) {
+        Swal.fire({
+            title: 'Officially send this contract?',
+            text: "This will transmit the contract to the partner for their signature.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#cb0c9f', /* Fuchsia 600 ish */
+            cancelButtonColor: '#8392ab',
+            confirmButtonText: 'Yes, send it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('send-form-' + id).submit();
+            }
+        });
+    }
+</script>
 {% endblock %}

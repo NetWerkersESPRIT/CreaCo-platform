@@ -153,6 +153,16 @@
                             Thank you! Your digital signature was successfully recorded on <strong>{{ contract.collaboratorSignatureDate|date('d/m/Y') }}</strong> at <strong>{{ contract.collaboratorSignatureDate|date('H:i') }}</strong>.
                         </p>
                     </div>
+                {% elseif contract.status != 'SENT_TO_COLLABORATOR' %}
+                    <div class="p-8 text-center bg-gradient-to-tr from-orange-50 to-white rounded-2xl border border-orange-100 shadow-soft-xxs">
+                        <div class="w-16 h-16 mx-auto mb-6 bg-white rounded-full shadow-soft-md flex items-center justify-center">
+                            <i class="ni ni-time-alarm text-orange-500 text-xl"></i>
+                        </div>
+                        <h5 class="text-slate-800 font-bold mb-2">Preview Mode</h5>
+                        <p class="text-xs text-slate-500 mb-0 leading-relaxed">
+                            This contract has not been officially sent for signature yet. This is only a preview of the signature page.
+                        </p>
+                    </div>
                 {% else %}
                     <p class="text-xs text-slate-500 mb-8 leading-relaxed">
                         By applying your digital signature, you formally acknowledge and accept all terms, conditions, and deliverables specified in this document.

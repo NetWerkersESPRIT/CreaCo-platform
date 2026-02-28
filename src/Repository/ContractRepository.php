@@ -81,4 +81,59 @@ class ContractRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return Contract[]
+     */
+    public function filterContracts(int $userId, string $role, ?string $status = null, ?string $search = null): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->leftJoin('c.collaborator', 'collab')
+            ->leftJoin('c.collabRequest', 'r');
+
+        if ($role === 'ROLE_MANAGER') {
+            $qb->andWhere('r.revisor = :userId');
+        } else {
+            $qb->andWhere('c.creator = :userId');
+        }
+        $qb->setParameter('userId', $userId);
+
+        if ($status && $status !== 'ALL') {
+            $qb->andWhere('c.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($search) {
+            $qb->andWhere('c.title LIKE :search OR collab.companyName LIKE :search OR c.contractNumber LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countActiveForRevisor(int $revisorId): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('count(c.id)')
+            ->innerJoin('c.collabRequest', 'r')
+            ->andWhere('r.revisor = :revisorId')
+            ->andWhere('c.status = :status')
+            ->setParameter('revisorId', $revisorId)
+            ->setParameter('status', 'ACTIVE')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getTotalBudgetForRevisor(int $revisorId): float
+    {
+        return (float) $this->createQueryBuilder('c')
+            ->select('SUM(c.amount)')
+            ->innerJoin('c.collabRequest', 'r')
+            ->andWhere('r.revisor = :revisorId')
+            ->setParameter('revisorId', $revisorId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
