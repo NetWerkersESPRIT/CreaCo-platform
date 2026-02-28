@@ -106,6 +106,20 @@
 									Access
 								</a>
 							</div>
+
+							<!-- Rating: 5 clickable stars (frontend only) -->
+							<div class="mt-4">
+								{% set avg = rating_averages[course.id].avg|default(0) %}
+								{% set cnt = rating_averages[course.id].count|default(0) %}
+								<div class="flex items-center rating" data-course-id="{{ course.id }}" data-average="{{ avg }}" data-count="{{ cnt }}">
+									{% for i in 1..5 %}
+										<button type="button" class="rating-star text-sm px-1 focus:outline-none" data-value="{{ i }}" aria-label="Rate {{ i }} stars" title="{{ i }} stars">
+											<i class="fas fa-star text-gray-300"></i>
+										</button>
+									{% endfor %}
+									<span class="ml-3 text-sm text-slate-400 rating-value">{% if cnt > 0 %}{{ avg|round(1) }}/5 ({{ cnt }}){% endif %}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -119,4 +133,84 @@
 			{% endfor %}
 		</div>
 	</div>
+	{% set csrf_rate_token = csrf_token('rate_course') %}
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+			console.log('rating script DOMContentLoaded');
+			const setStars = (container, value) => {
+				const icons = container.querySelectorAll('.rating-star i');
+				icons.forEach((icon, idx) => {
+					if (idx < value) {
+						icon.style.color = '#facc15'; // yellow-400
+					} else {
+						icon.style.color = '#9ca3af'; // gray-400 approximate
+					}
+				});
+			};
+
+			const containers = document.querySelectorAll('.rating');
+			console.log('found', containers.length, 'rating containers');
+			containers.forEach(container => {				let avg = parseFloat(container.dataset.average || 0) || 0;
+				let cnt = parseInt(container.dataset.count || 0) || 0;
+				let selected = parseInt(container.dataset.selected || 0) || 0;
+
+				const updateVal = txt => {
+					const vs = container.querySelector('.rating-value');
+					if (vs) vs.textContent = txt;
+				};
+
+				if (selected) {
+					setStars(container, selected);
+					updateVal(selected + '/5');
+				} else if (avg) {
+					setStars(container, Math.round(avg));
+					updateVal(avg.toFixed(1) + '/5 (' + cnt + ')');
+				}
+
+				container.addEventListener('click', e => {
+					const btn = e.target.closest('.rating-star');
+					if (!btn) return;
+					const val = parseInt(btn.dataset.value);
+					selected = val;
+					container.dataset.selected = val;
+					setStars(container, val);
+					updateVal(val + '/5');
+					const courseId = container.dataset.courseId;
+					fetch('/course/' + courseId + '/rate', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_rate_token }}' },
+						body: JSON.stringify({ rating: val })
+					})
+					.then(r => {
+						if (!r.ok) throw new Error('Rating failed');
+						return r.json();
+					})
+					.then(data => {
+						if (data.avg !== undefined) {
+							avg = data.avg;
+							cnt = data.count || cnt;
+							container.dataset.average = avg;
+							container.dataset.count = cnt;
+						}
+					})
+					.catch(console.error);
+				});
+
+				container.addEventListener('mouseover', e => {
+					if (selected) return;
+					const btn = e.target.closest('.rating-star');
+					if (!btn) return;
+					setStars(container, parseInt(btn.dataset.value));
+				});
+
+				container.addEventListener('mouseout', () => {
+					if (selected) {
+						setStars(container, selected);
+					} else if (avg) {
+						setStars(container, Math.round(avg));
+					}
+				});
+			});
+		});
+	</script>
 {% endblock %}
