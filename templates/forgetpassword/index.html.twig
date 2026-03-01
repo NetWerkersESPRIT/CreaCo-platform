@@ -32,6 +32,14 @@
       defer
       data-site="YOUR_DOMAIN_HERE"
       src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
+    {% if app.environment == 'dev' %}
+    <style>
+      /* Force Symfony Debug Bar Visibility */
+      .sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+      .sf-display-none { display: block !important; }
+    </style>
+    {% endif %}
   </head>
 
   <body

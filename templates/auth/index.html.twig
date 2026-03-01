@@ -19,6 +19,14 @@
 		<!-- Main Styling -->
 		<link href="../assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5" rel="stylesheet"/><!-- Nepcha Analytics (nepcha.com) -->
 		<!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. --><script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"> </script>
+
+		{% if app.environment == 'dev' %}
+		<style>
+			/* Force Symfony Debug Bar Visibility */
+			.sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+			.sf-display-none { display: block !important; }
+		</style>
+		{% endif %}
 	</head>
 
 	<body class="m-0 font-sans antialiased font-normal bg-white text-start text-base leading-default text-slate-500">
@@ -45,7 +53,7 @@
 										</a>
 									</li>
 									<li class="p-2">
-										<a href="#">
+										<a href={{path('app_cours_index')}}>
 											<button class="leading-pro ease-soft-in text-white border-0 text-xs tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 rounded-3.5xl hover:scale-102 active:opacity-85 active:shadow-soft-xs mb-0 inline-block cursor-pointer py-2 px-8 text-center align-middle font-bold uppercase shadow-soft-md transition-all">
 												Free Courses
 											</button>
