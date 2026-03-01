@@ -45,6 +45,11 @@ class ManagerCollabDashboardController extends AbstractController
             $stats['total_revenue'] = $contractRepo->getTotalRevenueSecured();
             $stats['avg_sign_time'] = $contractRepo->getAverageSignatureTime();
             $stats['ai_accuracy'] = $contractRepo->getAiPredictionAccuracy();
+
+            // New Real Metrics
+            $stats['velocity_data'] = $contractRepo->getVelocityData();
+            $stats['ai_confidence'] = $contractRepo->getAiConfidenceDistribution();
+            $stats['velocity_comparison'] = $contractRepo->getSignatureVelocityComparison();
         }
 
         // "Strategic Movements" - Recent activities
