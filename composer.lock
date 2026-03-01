@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96030548a7b73520cfdc62a69dfc71d6",
+    "content-hash": "7da313e9bd91a9cc656d42369bf9a2d5",
     "packages": [
         {
             "name": "composer/semver",
@@ -1323,6 +1323,86 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+            "name": "ehyiah/ux-quill",
+            "version": "3.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Ehyiah/ux-quill.git",
+                "reference": "7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Ehyiah/ux-quill/zipball/7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb",
+                "reference": "7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1.0",
+                "symfony/form": "^6.1|^7.0|^8.0",
+                "symfony/stimulus-bundle": "^2.9.1",
+                "symfony/translation": "^6.1|^7.0|^8.0",
+                "symfony/twig-bundle": "^6.1|^7.0|^8.0"
+            },
+            "require-dev": {
+                "dg/bypass-finals": "^1.6",
+                "easycorp/easyadmin-bundle": "^4.7",
+                "friendsofphp/php-cs-fixer": "^3.1",
+                "friendsoftwig/twigcs": "^6.4",
+                "phpdocumentor/reflection-docblock": "<5.2|>=6",
+                "phpstan/phpstan": "^2.1.17",
+                "phpunit/phpunit": "^9.5",
+                "symfony/asset-mapper": "^6.3|^7.0",
+                "symfony/browser-kit": "^6.1|^7.0",
+                "symfony/framework-bundle": "^6.1|^7.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ux",
+                    "name": "symfony/ux"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ehyiah\\QuillJsBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matthieu Gostiaux",
+                    "email": "rei_eva@hotmail.com",
+                    "role": "Author"
+                }
+            ],
+            "description": "Symfony UX Bundle to use Quill JS wysiwyg text editor with full and easy customisation",
+            "homepage": "https://github.com/Ehyiah/ux-quill",
+            "keywords": [
+                "easyadmin",
+                "easyadmin wysiwyg",
+                "quill",
+                "quilljs",
+                "symfony form",
+                "symfony quill",
+                "symfony ux",
+                "symfony ux bundle",
+                "symfony wysiwyg",
+                "symfony-ux",
+                "wysiwyg"
+            ],
+            "support": {
+                "issues": "https://github.com/Ehyiah/ux-quill/issues",
+                "source": "https://github.com/Ehyiah/ux-quill"
+            },
+            "time": "2026-02-28T20:00:50+00:00"
+        },
+        {
+>>>>>>> 15792b1a1e67c8833fe976fc64b9f695d94b80d7
             "name": "firebase/php-jwt",
             "version": "v6.11.1",
             "source": {
@@ -13213,5 +13293,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
