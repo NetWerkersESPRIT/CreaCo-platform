@@ -6,6 +6,7 @@ use App\Entity\CollabRequest;
 use App\Entity\Collaborator;
 use App\Entity\Notification;
 use App\Entity\Users;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Form\CollabRequestType;
 use App\Repository\CollabRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,7 +52,7 @@ class CollabRequestController extends AbstractController
     }
 
     #[Route('/new/{id?}', name: 'app_collab_request_new', methods: ['GET', 'POST'])]
-    public function new(?Collaborator $collaborator, Request $request, EntityManagerInterface $em): Response
+    public function new(?Collaborator $collaborator, Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -65,7 +66,7 @@ class CollabRequestController extends AbstractController
             throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
         }
 
-        $collabRequest = new CollabRequest();
+        $collabRequest = $factory->createCollabRequest();
         if ($collaborator) {
             $collabRequest->setCollaborator($collaborator);
         }
@@ -76,9 +77,7 @@ class CollabRequestController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($user) {
-                $collabRequest->setCreator($user);
-            }
+            $collabRequest->setCreator($user);
             $em->persist($collabRequest);
             $em->flush();
             $this->addFlash('success', 'Collaboration request sent successfully.');
@@ -86,7 +85,7 @@ class CollabRequestController extends AbstractController
             // Notify the revisor
             $revisor = $collabRequest->getRevisor();
             if ($revisor) {
-                $notification = new Notification();
+                $notification = $factory->createNotification();
                 $notification->setMessage("New collaboration request: " . $collabRequest->getTitle() . " from " . $user->getUsername());
                 $notification->setUserId($revisor);
                 $notification->setIsRead(false);
