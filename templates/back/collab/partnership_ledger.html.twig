@@ -1,0 +1,215 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partnership Ledger - Admin{% endblock %}
+
+{% block breadcrumb %}
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Partnership Ledger
+    </li>
+{% endblock %}
+
+{% block page_title %}Partnership Ledger{% endblock %}
+
+{% block body %}
+<!-- Navigation Bar -->
+<div class="mb-6">
+    {% include 'collaborator/_nav.html.twig' %}
+</div>
+
+<!-- Smart Filters -->
+<div class="flex flex-wrap -mx-3 mb-6">
+    <div class="w-full px-3">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border p-4">
+            <h6 class="mb-4 text-sm font-bold uppercase text-slate-400">Smart Filters</h6>
+            <form method="get" action="{{ path('admin_collab_ledger_index') }}" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div>
+                    <label class="text-xxs font-bold uppercase text-slate-400">Status</label>
+                    <select name="status" class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                        <option value="ALL">All Statuses</option>
+                        <option value="DRAFT" {{ filters.status == 'DRAFT' ? 'selected' : '' }}>Draft</option>
+                        <option value="SENT_TO_COLLABORATOR" {{ filters.status == 'SENT_TO_COLLABORATOR' ? 'selected' : '' }}>Sent to Partner</option>
+                        <option value="ACTIVE" {{ filters.status == 'ACTIVE' ? 'selected' : '' }}>Active</option>
+                        <option value="COMPLETED" {{ filters.status == 'COMPLETED' ? 'selected' : '' }}>Completed</option>
+                        <option value="ARCHIVED" {{ filters.status == 'ARCHIVED' ? 'selected' : '' }}>Archived</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xxs font-bold uppercase text-slate-400">Assigned Manager</label>
+                    <select name="manager" class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                        <option value="">All Managers</option>
+                        {% for manager in managers %}
+                            <option value="{{ manager.id }}" {{ filters.manager == manager.id ? 'selected' : '' }}>{{ manager.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xxs font-bold uppercase text-slate-400">Risk Level (AI)</label>
+                    <select name="risk_level" class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                        <option value="">All Risks</option>
+                        <option value="LOW" {{ filters.risk_level == 'LOW' ? 'selected' : '' }}>Low (High Score)</option>
+                        <option value="MEDIUM" {{ filters.risk_level == 'MEDIUM' ? 'selected' : '' }}>Medium</option>
+                        <option value="HIGH" {{ filters.risk_level == 'HIGH' ? 'selected' : '' }}>High (Low Score)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xxs font-bold uppercase text-slate-400">Budget Range (Max)</label>
+                    <input type="number" name="budget_max" value="{{ filters.budget_max }}" placeholder="Max DT" class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                </div>
+                <div>
+                    <label class="text-xxs font-bold uppercase text-slate-400">Signature State</label>
+                    <select name="signature_state" class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+                        <option value="">Any</option>
+                        <option value="FULLY_SIGNED" {{ filters.signature_state == 'FULLY_SIGNED' ? 'selected' : '' }}>Fully Signed</option>
+                        <option value="PENDING_CREATOR" {{ filters.signature_state == 'PENDING_CREATOR' ? 'selected' : '' }}>Pending Creator</option>
+                        <option value="PENDING_COLLABORATOR" {{ filters.signature_state == 'PENDING_COLLABORATOR' ? 'selected' : '' }}>Pending Partner</option>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="w-full bg-gradient-to-tl from-fuchsia-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-soft-md hover:scale-102 transition-all">Filter</button>
+                    <a href="{{ path('admin_collab_ledger_index') }}" class="w-full bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-lg shadow-soft-md text-center">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-wrap -mx-3">
+    <div class="flex-none w-full max-w-full px-3">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex justify-between items-center">
+                <h6>Partnership Ledger</h6>
+                <div class="flex gap-2">
+                    <span class="text-xxs font-bold px-2 py-1 bg-green-100 text-green-600 rounded-lg">LIVE REGISTRY</span>
+                </div>
+            </div>
+            <div class="flex-auto px-0 pt-0 pb-2">
+                <div class="p-0 overflow-x-auto">
+                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead class="align-bottom">
+                            <tr>
+                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Reference</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Creator & Brand</th>
+                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Manager</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Budget</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">AI Score</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Dates</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in contracts %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <div class="flex px-4 py-1">
+                                            <div class="flex flex-col justify-center">
+                                                <h6 class="mb-0 text-sm leading-normal">{{ contract.contractNumber }}</h6>
+                                                <p class="mb-0 text-xs leading-tight text-slate-400">{{ contract.title }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-slate-700">👤 {{ contract.creator ? contract.creator.username : 'Unknown' }}</span>
+                                            <span class="text-xs text-slate-400">🏢 {{ contract.collaborator.companyName }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <p class="mb-0 text-xs font-semibold leading-tight">{{ contract.collabRequest and contract.collabRequest.revisor ? contract.collabRequest.revisor.username : 'Unassigned' }}</p>
+                                    </td>
+                                    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <span class="text-sm font-bold text-slate-800">{{ contract.amount }} DT</span>
+                                    </td>
+                                    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        {% set score = contract.collabRequest ? contract.collabRequest.aiSuccessScore : null %}
+                                        {% if score is not null %}
+                                            <div class="flex flex-col items-center">
+                                                <span class="text-xs font-bold {% if score > 70 %}text-green-500{% elseif score > 40 %}text-orange-500{% else %}text-red-500{% endif %}">{{ score }}%</span>
+                                                <div class="w-16 bg-gray-200 rounded-full h-1 mt-1">
+                                                    <div class="h-1 rounded-full {% if score > 70 %}bg-green-500{% elseif score > 40 %}bg-orange-500{% else %}bg-red-500{% endif %}" style="width: {{ score }}%"></div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-xxs text-slate-300 italic">No Prediction</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                        <p class="mb-0 text-xxs font-semibold">{{ contract.startDate|date('d/m/y') }} - {{ contract.endDate|date('d/m/y') }}</p>
+                                    </td>
+                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+                                        {% set status_class = 'from-slate-600 to-slate-300' %}
+                                        {% if contract.status == 'ACTIVE' %}
+                                            {% set status_class = 'from-green-600 to-lime-400' %}
+                                        {% elseif contract.status == 'SENT_TO_COLLABORATOR' %}
+                                            {% set status_class = 'from-blue-600 to-cyan-400' %}
+                                        {% elseif contract.status == 'DRAFT' %}
+                                            {% set status_class = 'from-gray-400 to-gray-200' %}
+                                        {% elseif contract.status == 'ARCHIVED' %}
+                                            {% set status_class = 'from-red-600 to-rose-400 text-white' %}
+                                        {% endif %}
+                                        <span class="bg-gradient-to-tl {{ status_class }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ contract.status }}</span>
+                                        <div class="mt-1 flex justify-center gap-1">
+                                            <span class="text-xxs {% if contract.signedByCreator %}text-green-500{% else %}text-slate-300{% endif %}" title="Creator Signature">C</span>
+                                            <span class="text-xxs {% if contract.signedByCollaborator %}text-green-500{% else %}text-slate-300{% endif %}" title="Partner Signature">P</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-center align-middle bg-transparent border-b shadow-transparent">
+                                        <div class="flex justify-center gap-1">
+                                            <!-- Force Transition Dropdown -->
+                                            <div class="relative inline-block text-left text-xxs transition-all">
+                                                <button type="button" onclick="this.nextElementSibling.classList.toggle('hidden')" class="bg-white border text-xxs px-2 py-1 rounded shadow-sm hover:bg-gray-50">Force Transition</button>
+                                                <div class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                    <div class="py-1" role="none">
+                                                        {% for s in ['DRAFT', 'SENT_TO_COLLABORATOR', 'ACTIVE', 'ARCHIVED', 'COMPLETED'] %}
+                                                            <form method="post" action="{{ path('admin_collab_ledger_force_transition', {id: contract.id}) }}">
+                                                                <input type="hidden" name="status" value="{{ s }}">
+                                                                <button type="submit" class="block w-full px-4 py-2 text-left text-xxs text-gray-700 hover:bg-gray-100" role="menuitem">{{ s }}</button>
+                                                            </form>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <form method="post" action="{{ path('admin_collab_ledger_retrigger_docusign', {id: contract.id}) }}" onsubmit="return confirm('Re-trigger DocuSign envelope?')">
+                                                <button type="submit" class="p-1 text-blue-500 hover:text-blue-700" title="Re-trigger DocuSign">
+                                                    <i class="fas fa-sync-alt text-xs"></i>
+                                                </button>
+                                            </form>
+
+                                            <form method="post" action="{{ path('admin_collab_ledger_archive', {id: contract.id}) }}" onsubmit="return confirm('Archive this contract?')">
+                                                <button type="submit" class="p-1 text-red-500 hover:text-red-700" title="Archive">
+                                                    <i class="fas fa-archive text-xs"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            <a href="{{ path('app_manager_contract_show', {id: contract.id}) }}" class="p-1 text-purple-500 hover:text-purple-700" title="View Details">
+                                                <i class="fas fa-eye text-xs"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="8" class="p-4 text-center">No contracts found in the registry.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inline Scripts for Force Transition Dropdown -->
+<script>
+document.addEventListener('click', function(event) {
+    const isDropdownButton = event.target.matches('button[onclick*="classList.toggle(\'hidden\')"]');
+    if (!isDropdownButton) {
+        document.querySelectorAll('div[role="menu"]').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Open Sans', Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .header { background: linear-gradient(to right, #7b2cbf, #d90429); padding: 40px 20px; text-align: center; color: white; }
+        .content { padding: 40px; color: #344767; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #8392ab; font-size: 12px; }
+        .tag { display: inline-block; padding: 4px 12px; border-radius: 50px; background-color: #f1f5f9; color: #64748b; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        h1 { margin: 0 0 10px; font-size: 24px; font-weight: 700; color: #ffffff; }
+        h2 { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; }
+        p { line-height: 1.6; margin-bottom: 20px; }
+        .section { margin-bottom: 30px; padding: 20px; border-left: 4px solid #cb0c9f; background-color: #fafbff; border-radius: 4px; }
+        .btn { display: inline-block; padding: 14px 30px; background: linear-gradient(to bottom right, #7928ca, #ff0080); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; text-transform: uppercase; box-shadow: 0 4px 7px -1px rgba(0, 0, 0, 0.11), 0 2px 4px -1px rgba(0, 0, 0, 0.07); }
+        .manager-info { display: flex; align-items: center; margin-top: 10px; }
+        .manager-details { font-size: 13px; color: #67748e; }
+        .deadline-alert { color: #ea0606; font-weight: bold; padding: 10px; border: 1px dashed #ea0606; border-radius: 8px; text-align: center; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://creaco-platform.vercel.app/static/media/logo-ct.c202029b.png" alt="CreaCo" style="height: 40px; margin-bottom: 20px; filter: brightness(0) invert(1);">
+            <h1>Official Agreement Dispatch</h1>
+            <p style="opacity: 0.8; margin-bottom: 0;">Securing our next strategic collaboration</p>
+        </div>
+        
+        <div class="content">
+            <div class="tag">Tactical Notification // {{ contract.contractNumber }}</div>
+            
+            <p>Hello <strong>{{ collaborator.name }}</strong>,</p>
+            
+            <p>On behalf of the <strong>CreaCo Ecosystem</strong>, we are pleased to present the formal collaboration agreement for your review and digital signature. This document outlines the tactical objectives and financial commitments for the upcoming campaign.</p>
+
+            <div class="section">
+                <h2 style="margin-top:0; color: #cb0c9f;">Campaign Intelligence Summary</h2>
+                <p style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">{{ contract.title }}</p>
+                <p style="font-size: 13px; color: #67748e; margin-bottom: 0;">{{ collabRequest.description }}</p>
+            </div>
+
+            <div class="section" style="border-left-color: #17c1e8;">
+                <h2 style="margin-top:0; color: #17c1e8;">Strategic Contact Personnel</h2>
+                <div class="manager-details">
+                    <strong>Manager:</strong> {{ manager.username }}<br>
+                    <strong>Global ID:</strong> #{{ manager.id }}<br>
+                    <strong>Email:</strong> {{ manager.email }}
+                </div>
+            </div>
+
+            <div class="deadline-alert">
+                VIGILANCE NOTICE: Please complete the signature process by<br>
+                <span style="font-size: 16px;">{{ deadline|date('d F Y - H:i') }} (48h Protocol)</span>
+            </div>
+
+            <div style="text-align: center; margin: 40px 0;">
+                <a href="{{ signatureUrl }}" class="btn">Enter Validation Center</a>
+                <p style="font-size: 11px; color: #8392ab; margin-top: 15px;">Secure transaction protected by CreaCo Digital Protocol</p>
+            </div>
+
+            <p style="font-size: 13px; font-style: italic;">
+                Best regards,<br>
+                <strong>The CreaCo Automations Team</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            &copy; {{ "now"|date("Y") }} CreaCo Innovation Hub. All rights reserved.<br>
+            Protected by Digital Signature Technology.
+        </div>
+    </div>
+</body>
+</html>

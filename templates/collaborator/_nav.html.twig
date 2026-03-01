@@ -3,26 +3,34 @@
         <ul class="flex flex-wrap list-none bg-white rounded-xl shadow-soft-xl px-4 py-2" role="tablist">
             {% set userRole = app.session.get('user_role') %}
 
-            {% if userRole == 'ROLE_MANAGER' %}
-                <!-- Manager Tabs -->
+            {% if userRole in ['ROLE_MANAGER', 'ROLE_ADMIN'] %}
+                <!-- Manager/Admin Tabs -->
                 <li class="flex-auto text-center">
                     <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') == 'app_manager_collab_dashboard' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
                        href="{{ path('app_manager_collab_dashboard') }}" role="tab">
-                        <i class="ni ni-chart-bar-32 mr-2"></i>Ecosystem Hub
+                        <i class="ni ni-chart-bar-32 mr-2"></i>{{ userRole == 'ROLE_ADMIN' ? 'Control Tower' : 'Ecosystem Hub' }}
                     </a>
                 </li>
                 <li class="flex-auto text-center">
-                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_collab_request' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
-                       href="{{ path('app_manager_collab_request_index') }}" role="tab">
-                        <i class="ni ni-building mr-2"></i>Review Dashboard
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_collab_request' or app.request.get('_route') == 'admin_collab_ai_oversight' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ userRole == 'ROLE_ADMIN' ? path('admin_collab_ai_oversight') : path('app_manager_collab_request_index') }}" role="tab">
+                        <i class="ni ni-building mr-2"></i>{{ userRole == 'ROLE_ADMIN' ? 'AI Oversight Hub' : 'Review Dashboard' }}
                     </a>
                 </li>
                 <li class="flex-auto text-center">
-                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_contract' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
-                       href="{{ path('app_manager_contract_index') }}" role="tab">
-                        <i class="ni ni-paper-diploma mr-2"></i>Managed Contracts
+                    <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') starts with 'app_manager_contract' or app.request.get('_route') == 'admin_collab_legal_engine' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                       href="{{ userRole == 'ROLE_ADMIN' ? path('admin_collab_legal_engine') : path('app_manager_contract_index') }}" role="tab">
+                        <i class="ni ni-paper-diploma mr-2"></i>{{ userRole == 'ROLE_ADMIN' ? 'Legal Engine Room' : 'Managed Contracts' }}
                     </a>
                 </li>
+                {% if userRole == 'ROLE_ADMIN' %}
+                    <li class="flex-auto text-center">
+                        <a class="block py-2 px-4 text-sm font-semibold rounded-lg transition-all ease-in-out {{ app.request.get('_route') == 'admin_collab_ledger_index' ? 'bg-gradient-to-tl from-purple-700 to-pink-500 text-white shadow-soft-md' : 'text-slate-500 bg-transparent hover:bg-gray-100' }}"
+                           href="{{ path('admin_collab_ledger_index') }}" role="tab">
+                            <i class="ni ni-books mr-2"></i>Partnership Ledger
+                        </a>
+                    </li>
+                {% endif %}
             {% elseif userRole == 'ROLE_CONTENT_CREATOR' %}
                 <!-- Creator Tabs -->
                 <li class="flex-auto text-center">

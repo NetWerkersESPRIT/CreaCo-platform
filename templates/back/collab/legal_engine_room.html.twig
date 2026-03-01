@@ -1,0 +1,262 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Legal Engine Room - CreaCo Infrastructure{% endblock %}
+{% block breadcrumb %}Collaborations / Legal Engine Room{% endblock %}
+{% block page_title %}Contract Infrastructure Panel – “Legal Engine Room”{% endblock %}
+
+{% block body %}
+{% include 'collaborator/_nav.html.twig' %}
+
+<div class="flex flex-wrap -mx-3 mt-6">
+    <div class="w-full max-w-full px-3">
+        <!-- Main Navigation Tabs -->
+        <div class="flex flex-wrap list-none border-b-0 pl-0 mb-4" role="tablist">
+            <button class="px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl border-b-2 border-fuchsia-500 text-fuchsia-600 mr-2" id="btn-clauses" onclick="switchTab('clauses')">
+                <i class="ni ni-books mr-2"></i> Clause Library
+            </button>
+            <button class="px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl text-slate-500 hover:text-fuchsia-600 transition-all mr-2" id="btn-template" onclick="switchTab('template')">
+                <i class="ni ni-paper-diploma mr-2"></i> Master Template
+            </button>
+        </div>
+
+        <!-- Section: Clause Library -->
+        <div id="section-clauses" class="block">
+            <div class="flex flex-wrap -mx-3">
+                <!-- Clause List -->
+                <div class="w-full lg:w-8/12 px-3">
+                    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                        <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+                            <h6>Legal Clause Library</h6>
+                            <span class="text-xs font-semibold text-slate-400 uppercase">{{ clauses|length }} Active Components</span>
+                        </div>
+                        <div class="flex-auto p-6">
+                            <div class="overflow-x-auto">
+                                <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                                    <thead class="align-bottom text-left">
+                                        <tr>
+                                            <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Clause Component</th>
+                                            <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Category</th>
+                                            <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Status</th>
+                                            <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for clause in clauses %}
+                                        <tr class="hover:bg-gray-50 transition-all cursor-pointer" onclick="loadClause({{ clause.id }})">
+                                            <td class="px-6 py-4 align-middle">
+                                                <div class="flex flex-col">
+                                                    <h6 class="mb-0 text-sm">{{ clause.title }}</h6>
+                                                    <p class="mb-0 text-xs text-slate-400">v{{ clause.version }} • Created {{ clause.createdAt|date('d/m/Y') }}</p>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 align-middle">
+                                                <span class="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-600 uppercase tracking-tighter">{{ clause.category }}</span>
+                                            </td>
+                                            <td class="px-6 py-4 align-middle">
+                                                <div class="flex items-center">
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input class="form-check-input bg-fuchsia-500" type="checkbox" {{ clause.isActive ? 'checked' : '' }} onchange="toggleClause({{ clause.id }}, event)">
+                                                    </div>
+                                                    <span class="text-xxs font-bold ml-2 {{ clause.isMandatory ? 'text-red-500' : 'text-slate-300' }}">
+                                                        {{ clause.isMandatory ? 'MANDATORY' : 'OPTIONAL' }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 align-middle">
+                                                <button class="text-fuchsia-600 hover:text-fuchsia-800 transition-all">
+                                                    <i class="ni ni-settings-gear-65"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Sidebar -->
+                <div class="w-full lg:w-4/12 px-3">
+                    <div class="relative flex flex-col min-w-0 mb-6 break-words bg-slate-800 shadow-soft-xl rounded-2xl bg-clip-border text-white">
+                        <div class="p-6">
+                            <h6 class="text-white mb-4">Clause Editor</h6>
+                            <div id="editor-empty" class="text-center py-12">
+                                <i class="ni ni-caps-small text-slate-500 text-3xl mb-3"></i>
+                                <p class="text-xs text-slate-400">Select a clause from the library to edit its content and legal scope.</p>
+                            </div>
+                            <div id="editor-active" class="hidden">
+                                <input type="hidden" id="edit-id">
+                                <div class="mb-4">
+                                    <label class="text-xxs font-bold text-slate-400 uppercase mb-1 block">Title</label>
+                                    <input type="text" id="edit-title" class="w-full bg-slate-700 border-0 rounded-lg p-3 text-sm text-white focus:ring-1 focus:ring-fuchsia-500">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="text-xxs font-bold text-slate-400 uppercase mb-1 block">Legal Content</label>
+                                    <textarea id="edit-content" rows="8" class="w-full bg-slate-700 border-0 rounded-lg p-3 text-sm text-white focus:ring-1 focus:ring-fuchsia-500"></textarea>
+                                </div>
+                                <div class="flex justify-between items-center mt-6">
+                                    <button onclick="saveClause()" class="px-6 py-2 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg text-white font-bold text-xs uppercase shadow-soft-2xl hover:scale-105 transition-all">
+                                        Safe Save Version
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Master Template -->
+        <div id="section-template" class="hidden animate-fade-in">
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+                    <div>
+                        <h6>Master Executive Template</h6>
+                        <p class="text-xs text-slate-500 mb-0">Define the global structure using Twig variables. Mandatory clauses will be injected at the <code>{% verbatim %}{{ clauses }}{% endverbatim %}</code> placeholder.</p>
+                    </div>
+                </div>
+                <div class="p-6 pt-0">
+                    <textarea id="template-editor" rows="15" class="w-full font-mono text-sm p-4 bg-slate-50 border border-gray-200 rounded-xl focus:border-fuchsia-300 outline-none transition-all">{{ master_template.content|default('') }}</textarea>
+                    
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <span class="px-2 py-1 bg-fuchsia-100 text-fuchsia-700 text-xxs font-bold rounded">{% verbatim %}{{ title }}{% endverbatim %}</span>
+                        <span class="px-2 py-1 bg-fuchsia-100 text-fuchsia-700 text-xxs font-bold rounded">{% verbatim %}{{ budget }}{% endverbatim %}</span>
+                        <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xxs font-bold rounded">{% verbatim %}{{ creator_name }}{% endverbatim %}</span>
+                        <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xxs font-bold rounded">{% verbatim %}{{ collaborator_name }}{% endverbatim %}</span>
+                        <span class="px-2 py-1 bg-red-100 text-red-700 text-xxs font-bold rounded">{% verbatim %}{{ clauses }}{% endverbatim %}</span>
+                    </div>
+
+                    <div class="flex justify-end mt-6">
+                        <button onclick="saveTemplate()" class="px-8 py-3 bg-slate-800 text-white font-bold text-xs uppercase rounded-xl hover:bg-slate-700 transition-all shadow-soft-xl">
+                            Update Master Infrastructure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+let currentClauses = {{ clauses|map(c => {id: c.id, title: c.title, content: c.content})|json_encode|raw }};
+
+function switchTab(tab) {
+    document.getElementById('section-clauses').classList.toggle('hidden', tab !== 'clauses');
+    document.getElementById('section-template').classList.toggle('hidden', tab !== 'template');
+    
+    document.getElementById('btn-clauses').className = tab === 'clauses' 
+        ? 'px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl border-b-2 border-fuchsia-500 text-fuchsia-600 mr-2'
+        : 'px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl text-slate-500 hover:text-fuchsia-600 transition-all mr-2';
+        
+    document.getElementById('btn-template').className = tab === 'template'
+        ? 'px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl border-b-2 border-fuchsia-500 text-fuchsia-600 mr-2'
+        : 'px-4 py-2 font-bold text-xs uppercase cursor-pointer bg-white rounded-t-xl text-slate-500 hover:text-fuchsia-600 transition-all mr-2';
+}
+
+function loadClause(id) {
+    const clause = currentClauses.find(c => c.id === id);
+    if (clause) {
+        document.getElementById('editor-empty').classList.add('hidden');
+        document.getElementById('editor-active').classList.remove('hidden');
+        document.getElementById('edit-id').value = clause.id;
+        document.getElementById('edit-title').value = clause.title;
+        document.getElementById('edit-content').value = clause.content;
+    }
+}
+
+async function toggleClause(id, event) {
+    event.stopPropagation();
+    try {
+        const response = await fetch(`/admin/collab/legal-engine/clause/toggle/${id}`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            showToast('Component Status Updated', 'success');
+        }
+    } catch (e) {
+        showToast('Update Failed', 'error');
+    }
+}
+
+async function saveClause() {
+    const id = document.getElementById('edit-id').value;
+    const title = document.getElementById('edit-title').value;
+    const content = document.getElementById('edit-content').value;
+    
+    try {
+        const response = await fetch('/admin/collab/legal-engine/clause/edit', {
+            method: 'POST',
+            body: JSON.stringify({ id, title, content })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast('Clause Version Saved!', 'success');
+            // Refresh local data
+            const idx = currentClauses.findIndex(c => c.id == id);
+            currentClauses[idx].title = title;
+            currentClauses[idx].content = content;
+        }
+    } catch (e) {
+        showToast('Saving Failed', 'error');
+    }
+}
+
+async function saveTemplate() {
+    const content = document.getElementById('template-editor').value;
+    try {
+        const response = await fetch('/admin/collab/legal-engine/template/update', {
+            method: 'POST',
+            body: JSON.stringify({ content })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showToast('Master Infrastructure Updated', 'success');
+        }
+    } catch (e) {
+        showToast('Update Failed', 'error');
+    }
+}
+
+function showToast(msg, type) {
+    if (typeof Swal !== 'undefined') {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+        Toast.fire({
+            icon: type,
+            title: msg
+        });
+    } else {
+        alert(msg);
+    }
+}
+</script>
+<style>
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+    background-image: none;
+    background-color: #e2e8f0;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: background-color .15s ease-in-out,background-position .15s ease-in-out;
+}
+.form-switch .form-check-input:checked {
+    background-color: #cb0c9f;
+}
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% endblock %}

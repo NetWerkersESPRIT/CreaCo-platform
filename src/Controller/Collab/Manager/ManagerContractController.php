@@ -103,8 +103,13 @@ class ManagerContractController extends AbstractController
     // ...
 
     #[Route('/{id}/send', name: 'app_manager_contract_send', methods: ['POST'])]
-    public function send(Contract $contract, EntityManagerInterface $em, Request $request, DocuSignService $docuSignService): Response
-    {
+    public function send(
+        Contract $contract,
+        EntityManagerInterface $em,
+        Request $request,
+        DocuSignService $docuSignService,
+        \App\Service\EmailService $emailService
+    ): Response {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
         $userId = $session->get('user_id');
@@ -147,6 +152,9 @@ class ManagerContractController extends AbstractController
             $contract->setDocusignEnvelopeId($envelopeId);
             $em->flush();
 
+            // SEND FORMAL BRANDED EMAIL WITH CONTEXT
+            $emailService->sendFormalContractNotice($contract);
+
             // Notify Creator
             $creator = $contract->getCreator();
             if ($creator) {
@@ -162,9 +170,9 @@ class ManagerContractController extends AbstractController
                 $em->flush();
             }
 
-            $this->addFlash('success', 'The contract has been sent successfully to the partner via DocuSign.');
+            $this->addFlash('success', 'The contract and formal notice have been sent successfully to the partner.');
         } catch (\Throwable $e) {
-            $this->addFlash('error', 'Failed to dispatch document via DocuSign: ' . $e->getMessage());
+            $this->addFlash('error', 'Failed to dispatch document or notice: ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_manager_contract_index');

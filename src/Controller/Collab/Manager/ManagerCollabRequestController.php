@@ -7,6 +7,7 @@ use App\Entity\Contract;
 use App\Entity\Notification;
 use App\Entity\Users;
 use App\Service\CollaborationAIService;
+use App\Service\LegalEngineService;
 use App\Form\RejectionReasonType;
 use App\Repository\CollabRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -84,7 +85,7 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/approve', name: 'app_manager_collab_request_approve', methods: ['POST'])]
-    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request): Response
+    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request, LegalEngineService $legalEngine): Response
     {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
@@ -106,17 +107,24 @@ class ManagerCollabRequestController extends AbstractController
         $collabRequest->setStatus('APPROVED');
         $collabRequest->setRespondedAt(new \DateTime());
 
-        // Génération automatique du contrat
+        // Génération automatique du contrat via la Legal Engine Room
         $contract = new Contract();
         $contract->setCollabRequest($collabRequest);
         $contract->setCreator($collabRequest->getCreator());
         $contract->setCollaborator($collabRequest->getCollaborator());
-        $contract->setTitle('Contrat pour : ' . $collabRequest->getTitle());
+        $contract->setTitle('Contract for: ' . $collabRequest->getTitle());
         $contract->setStartDate($collabRequest->getStartDate());
         $contract->setEndDate($collabRequest->getEndDate());
         $contract->setAmount($collabRequest->getBudget() ?? '0');
+
+        // Use basic details for placeholders
         $contract->setTerms($collabRequest->getDeliverables());
         $contract->setPaymentSchedule($collabRequest->getPaymentTerms());
+
+        // Apply Template & Mandatory Clauses
+        $finalTerms = $legalEngine->generateContractContent($contract);
+        $contract->setTerms($finalTerms);
+
         $contract->setStatus('DRAFT');
 
         $em->persist($contract);

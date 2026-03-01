@@ -22,10 +22,12 @@ class ContractType extends AbstractType
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Start date',
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'End date',
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
             ->add('amount', MoneyType::class, [
                 'label' => 'Amount (excl. VAT)',

@@ -24,18 +24,28 @@ class ManagerCollabDashboardController extends AbstractController
         $userId = $session->get('user_id');
         $userRole = $session->get('user_role');
 
-        if (!$userId || $userRole !== 'ROLE_MANAGER') {
+        if (!$userId || !in_array($userRole, ['ROLE_MANAGER', 'ROLE_ADMIN'])) {
             return $this->redirectToRoute('app_auth');
         }
 
         // Stats for the dashboard
         $stats = [
-            'total_partners' => $collabRepo->count([]), // Total visibility of ecosystem
+            'total_partners' => $collabRepo->count([]),
             'managed_contracts' => count($contractRepo->findForRevisor($userId)),
             'active_contracts' => $contractRepo->countActiveForRevisor($userId),
             'total_budget' => $contractRepo->getTotalBudgetForRevisor($userId),
             'pending_requests' => $requestRepo->countPendingByRevisor($userId),
         ];
+
+        // "Executive Control Tower": Specific KPIs for Admin
+        if ($userRole === 'ROLE_ADMIN') {
+            $stats['global_active'] = $contractRepo->countGlobalActive();
+            $stats['pending_signatures'] = $contractRepo->getPendingSignatureStats();
+            $stats['signed_this_month'] = $contractRepo->countSignedThisMonth();
+            $stats['total_revenue'] = $contractRepo->getTotalRevenueSecured();
+            $stats['avg_sign_time'] = $contractRepo->getAverageSignatureTime();
+            $stats['ai_accuracy'] = $contractRepo->getAiPredictionAccuracy();
+        }
 
         // "Strategic Movements" - Recent activities
         $recentContracts = $contractRepo->filterContracts($userId, $userRole, null, null);
