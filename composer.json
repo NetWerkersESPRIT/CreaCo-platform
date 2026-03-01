@@ -13,6 +13,7 @@
         "docusign/esign-client": "^8.7",
         "ehyiah/ux-quill": "^3.4",
         "google/apiclient": "2.15",
+        "google/apiclient-services": "0.434",
         "knplabs/knp-paginator-bundle": "^6.10",
         "knplabs/knp-snappy-bundle": "^1.10",
         "knpuniversity/oauth2-client-bundle": "^2.20",

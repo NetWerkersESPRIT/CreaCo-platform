@@ -321,7 +321,8 @@
 		/**
 		 * Check if AI service is available
 		 */
-		async function checkAIServiceHealth() {
+		// try pinging the AI backend several times to give it a chance to start
+		async function checkAIServiceHealth(maxRetries = 5, delayMs = 2000) {
 			const statusDiv = document.getElementById('aiServiceStatus');
 			try {
 				const response = await fetch('{{ path("app_ai_health") }}');
@@ -335,11 +336,16 @@
 					document.getElementById('questionInput').disabled = false;
 					document.getElementById('askButton').disabled = false;
 				} else {
-					setAIStatus('offline');
+					throw new Error('AI not ready');
 				}
 			} catch (error) {
-				console.error('AI Health Check Error:', error);
-				setAIStatus('offline');
+				if (maxRetries > 0) {
+					// wait then retry
+					setTimeout(() => checkAIServiceHealth(maxRetries - 1, delayMs), delayMs);
+				} else {
+					console.error('AI Health Check Error:', error);
+					setAIStatus('offline');
+				}
 			}
 		}
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7da313e9bd91a9cc656d42369bf9a2d5",
+    "content-hash": "72975bf91cca5e8bec8ee396ffc0aaa7",
     "packages": [
         {
             "name": "composer/semver",
@@ -1323,8 +1323,6 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
-<<<<<<< HEAD
-=======
             "name": "ehyiah/ux-quill",
             "version": "3.5.0",
             "source": {
@@ -1402,7 +1400,6 @@
             "time": "2026-02-28T20:00:50+00:00"
         },
         {
->>>>>>> 15792b1a1e67c8833fe976fc64b9f695d94b80d7
             "name": "firebase/php-jwt",
             "version": "v6.11.1",
             "source": {

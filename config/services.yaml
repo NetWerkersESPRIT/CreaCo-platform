@@ -1,6 +1,7 @@
 parameters:
     textgears_default_language: 'en-US'
     logos_directory: '%kernel.project_dir%/public/uploads/logos'
+    ai_script_path: '%kernel.project_dir%/learning_assistant/app.py'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -22,6 +23,12 @@ services:
     App\Service\ProfanityFilterService:
         arguments:
             $apiKey: '%env(APIVERVE_API_KEY)%'
+
+    App\Service\AiProcessManager:
+        arguments:
+            $scriptPath: '%ai_script_path%'
+
+    App\EventSubscriber\AiStartupSubscriber: ~
 
     App\Service\TextGearsService:
         arguments:
