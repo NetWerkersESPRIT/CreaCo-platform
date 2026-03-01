@@ -98,7 +98,8 @@
             "@auto-scripts"
         ],
         "phpstan": "phpstan analyse",
-        "phpstan:collab": "phpstan analyse -c phpstan.collaboration.neon"
+        "phpstan:collab": "phpstan analyse -c phpstan.collaboration.neon",
+        "test:collab": "vendor/bin/phpunit tests/Unit/Service/Collaboration"
     },
     "conflict": {
         "symfony/symfony": "*"
