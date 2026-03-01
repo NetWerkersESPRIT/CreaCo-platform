@@ -59,8 +59,6 @@ class GoogleSignupAuthenticator extends OAuth2Authenticator
             $user->setPassword('GOOGLE_AUTH');
             $this->em->persist($user);
             $this->em->flush();
-            $user->setGroupid($user->getId());
-            $this->em->flush();
 
             // Notify Admins
             $admins = $userRepository->findBy(['role' => 'ROLE_ADMIN']);

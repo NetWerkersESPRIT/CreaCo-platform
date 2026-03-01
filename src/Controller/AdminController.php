@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AdminController extends AbstractController
 {
@@ -133,7 +134,8 @@ final class AdminController extends AbstractController
     public function edit(
         Users $user,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
     ): Response {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
@@ -149,6 +151,9 @@ final class AdminController extends AbstractController
             $newPassword = $form->get('password')->getData();
             if (empty($newPassword)) {
                 $user->setPassword($oldPassword);
+            } else {
+                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($hashedPassword);
             }
             $em->flush();
 
