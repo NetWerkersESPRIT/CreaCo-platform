@@ -61,6 +61,30 @@ class CollabRequest
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $respondedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $aiSuccessScore = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $aiClarityScore = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $aiBudgetRealismScore = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $aiTimelineFeasibilityScore = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $aiFlags = null;
+
+    #[ORM\Column]
+    private int $aiUsageCount = 0;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $aiOriginalContent = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $aiRephrasedContent = null;
+
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'collabRequestsCreated')]
     #[ORM\JoinColumn(nullable: true, onDelete: "CASCADE")]
     private ?Users $creator = null;
@@ -239,6 +263,18 @@ class CollabRequest
         return $this;
     }
 
+    public function getAiSuccessScore(): ?int
+    {
+        return $this->aiSuccessScore;
+    }
+
+    public function setAiSuccessScore(?int $aiSuccessScore): static
+    {
+        $this->aiSuccessScore = $aiSuccessScore;
+
+        return $this;
+    }
+
     public function getCreator(): ?Users
     {
         return $this->creator;
@@ -275,25 +311,94 @@ class CollabRequest
         return $this;
     }
 
-    public function getContract(): ?Contract
+    public function getAiClarityScore(): ?int
     {
-        return $this->contract;
+        return $this->aiClarityScore;
     }
 
-    public function setContract(?Contract $contract): static
+    public function setAiClarityScore(?int $aiClarityScore): static
     {
-        // unset the owning side of the relation if necessary
-        if ($contract === null && $this->contract !== null) {
-            $this->contract->setCollabRequest(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($contract !== null && $contract->getCollabRequest() !== $this) {
-            $contract->setCollabRequest($this);
-        }
-
-        $this->contract = $contract;
-
+        $this->aiClarityScore = $aiClarityScore;
         return $this;
+    }
+
+    public function getAiBudgetRealismScore(): ?int
+    {
+        return $this->aiBudgetRealismScore;
+    }
+
+    public function setAiBudgetRealismScore(?int $aiBudgetRealismScore): static
+    {
+        $this->aiBudgetRealismScore = $aiBudgetRealismScore;
+        return $this;
+    }
+
+    public function getAiTimelineFeasibilityScore(): ?int
+    {
+        return $this->aiTimelineFeasibilityScore;
+    }
+
+    public function setAiTimelineFeasibilityScore(?int $aiTimelineFeasibilityScore): static
+    {
+        $this->aiTimelineFeasibilityScore = $aiTimelineFeasibilityScore;
+        return $this;
+    }
+
+    public function getAiFlags(): ?array
+    {
+        return $this->aiFlags;
+    }
+
+    public function setAiFlags(?array $aiFlags): static
+    {
+        $this->aiFlags = $aiFlags;
+        return $this;
+    }
+
+    public function getAiUsageCount(): int
+    {
+        return $this->aiUsageCount;
+    }
+
+    public function setAiUsageCount(int $aiUsageCount): static
+    {
+        $this->aiUsageCount = $aiUsageCount;
+        return $this;
+    }
+
+    public function incrementAiUsageCount(): static
+    {
+        $this->aiUsageCount++;
+        return $this;
+    }
+
+    public function getAiOriginalContent(): ?string
+    {
+        return $this->aiOriginalContent;
+    }
+
+    public function setAiOriginalContent(?string $aiOriginalContent): static
+    {
+        $this->aiOriginalContent = $aiOriginalContent;
+        return $this;
+    }
+
+    public function getAiRephrasedContent(): ?string
+    {
+        return $this->aiRephrasedContent;
+    }
+
+    public function setAiRephrasedContent(?string $aiRephrasedContent): static
+    {
+        $this->aiRephrasedContent = $aiRephrasedContent;
+        return $this;
+    }
+
+    public function getOverallAcceptancePrediction(): int
+    {
+        if ($this->aiClarityScore === null || $this->aiBudgetRealismScore === null || $this->aiTimelineFeasibilityScore === null) {
+            return $this->aiSuccessScore ?? 0;
+        }
+        return (int) (($this->aiClarityScore + $this->aiBudgetRealismScore + $this->aiTimelineFeasibilityScore) / 3);
     }
 }

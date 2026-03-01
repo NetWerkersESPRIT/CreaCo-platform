@@ -56,9 +56,10 @@
     }
     /* User Requested Styles */
     .ai-assistant-container {
-        bottom: 2px !important;
-        right: 8px !important;
+        bottom: 30px !important;
+        right: 30px !important;
         left: auto !important;
+        position: fixed !important;
     }
     div#chat-window {
         border-radius: 20px;
@@ -330,69 +331,71 @@
     </div>
 </div>
 
-<!-- 🤖 AI Assistant Bot -->
-<div class="fixed z-[999] ai-assistant-container shadow-soft-2xl rounded-full m-4">
-    <!-- Chat Icon -->
-    <button id="chat-bot-toggle" class="group w-12 h-12 rounded-full bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl flex items-center justify-center text-white text-3xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none ring-4 ring-white/20">
-        <i class="fas fa-robot group-hover:rotate-12 transition-transform" id="chat-icon"></i>
-        <i class="fas fa-times hidden" id="close-icon"></i>
-    </button>
-
-    <!-- Chat Window -->
-    <div id="chat-window" class="absolute glass-chat rounded-3xl shadow-soft-2xl border border-white/40 flex flex-col scale-0 opacity-0 origin-bottom-right transition-all duration-500 ease-out pointer-events-none overflow-hidden">
-        <!-- Header -->
-        <div class="p-5 bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mr-4 shadow-inner">
-                    <i class="fas fa-robot text-white text-xl"></i>
-                </div>
-                <div>
-                    <h6 class="text-white mb-0 font-bold tracking-tight">System Assistant</h6>
-                    <p class="text-white/80 text-xs mb-0 flex items-center">
-                        <span class="pulse-dot"></span> Online Intelligence
-                    </p>
-                </div>
-            </div>
-            <button id="clear-chat" class="mr-4 text-white/60 hover:text-white transition-colors">
-                <i class="fas fa-trash-alt text-sm"></i>
-            </button>
-        </div>
-
-        <!-- Chat Area -->
-        <div id="chat-messages" class="flex-auto h-[450px] overflow-y-auto p-5 space-y-5 custom-scrollbar bg-slate-50/30 p-2">
-            <div class="flex items-start animate-fade-in">
-                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-1">
-                    <i class="fas fa-robot text-purple-600 text-xs"></i>
-                </div>
-                <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-soft-xs text-sm text-slate-700 max-w-[85%] border border-slate-100 leading-relaxed">
-                    Hello <span class="font-bold text-purple-600">Admin</span>! I've loaded the latest system analytics. How can I assist you today?
-                </div>
-            </div>
-            <!-- Action Chips Container -->
-            <div id="quick-actions" class="flex flex-wrap gap-2 mt-2">
-                <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="Give me a general statistics overview">📊 Overview</span>
-                <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="How many users and courses are there?">👥 Users & Courses</span>
-                <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="What is the forum engagement level?">💬 Forum Health</span>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-2 bg-white/50 border-t border-white/40">
-            <form id="chat-form" class="flex items-center gap-3">
-                <div class="relative flex-auto">
-                    <input type="text" id="chat-input" placeholder="Ask about platform stats..." class="w-full bg-white border border-slate-200 rounded-2xl pl-4 pr-10 py-2 text-sm focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all outline-none" required>
-                </div>
-                <button type="submit" class="ml-2 w-10 h-12 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center text-white shadow-soft-md hover:shadow-soft-lg active:scale-95 transition-all outline-none">
-                    <i class="fas fa-location-arrow rotate-45"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
+<div id="ai-assistant-wrapper">
+    <!-- 🤖 AI Assistant Bot -->
+    <div class="fixed z-[9999] ai-assistant-container">
+        <!-- Chat Icon -->
+        <button id="chat-bot-toggle" class="group w-12 h-12 rounded-full bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl flex items-center justify-center text-white text-2xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none ring-4 ring-white/20">
+            <i class="fas fa-robot group-hover:rotate-12 transition-transform" id="chat-icon"></i>
+            <i class="fas fa-times hidden" id="close-icon"></i>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="absolute glass-chat rounded-3xl shadow-soft-2xl border border-white/40 flex flex-col scale-0 opacity-0 origin-bottom-right transition-all duration-500 ease-out pointer-events-none overflow-hidden" style="bottom: calc(100% + 16px); right: 0; width: 380px; height: 500px; max-width: 90vw;">
+            <!-- Header -->
+            <div class="p-5 bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mr-4 shadow-inner">
+                        <i class="fas fa-robot text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0 font-bold tracking-tight">System Assistant</h6>
+                        <p class="text-white/80 text-xs mb-0 flex items-center">
+                            <span class="pulse-dot"></span> Online Intelligence
+                        </p>
+                    </div>
+                </div>
+                <button id="clear-chat" class="mr-4 text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-trash-alt text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="chat-messages" class="flex-auto overflow-y-auto p-5 space-y-5 custom-scrollbar bg-slate-50/30">
+                <div class="flex items-start animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                        <i class="fas fa-robot text-purple-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-soft-xs text-sm text-slate-700 max-w-[85%] border border-slate-100 leading-relaxed">
+                        Hello <span class="font-bold text-purple-600">Admin</span>! I've loaded the latest system analytics. How can I assist you today?
+                    </div>
+                </div>
+                <!-- Action Chips Container -->
+                <div id="quick-actions" class="flex flex-wrap gap-2 mt-2">
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="Give me a general statistics overview">📊 Overview</span>
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="How many users and courses are there?">👥 Users & Courses</span>
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="What is the forum engagement level?">💬 Forum Health</span>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 bg-white/50 border-t border-white/40">
+                <form id="chat-form" class="flex items-center gap-3">
+                    <div class="relative flex-auto">
+                        <input type="text" id="chat-input" placeholder="Ask about platform stats..." class="w-full bg-white border border-slate-200 rounded-2xl pl-4 pr-10 py-2 text-sm focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all outline-none" required>
+                    </div>
+                    <button type="submit" class="w-10 h-10 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center text-white shadow-soft-md hover:shadow-soft-lg active:scale-95 transition-all outline-none">
+                        <i class="fas fa-location-arrow rotate-45"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

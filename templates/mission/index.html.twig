@@ -1,413 +1,451 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mission List{% endblock %}
+{% block title %}Mission List
+{% endblock %}
 
 {% block stylesheets %}
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css" />
-    <style>
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        .fc .fc-button-primary {
-            background-color: #cb0c9f;
-            border-color: #cb0c9f;
-        }
-        .fc .fc-button-primary:hover {
-            background-color: #83107a;
-            border-color: #83107a;
-        }
-        .fc .fc-button-primary:disabled {
-            background-color: #cb0c9f;
-            border-color: #cb0c9f;
-            opacity: 0.65;
-        }
-        .fc-event {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        .fc-event:hover {
-            transform: scale(1.02);
-            z-index: 999;
-        }
-        /* Hover Plus Sign for Creation */
-        .fc-daygrid-day-frame,
-        .fc-timegrid-col-frame {
-            position: relative;
-            cursor: pointer;
-        }
-        .fc-daygrid-day-frame::after,
-        .fc-timegrid-col-frame::after {
-            content: '+';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            font-weight: bold;
-            color: #cb0c9f;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 1;
-        }
-        /* Disable plus sign for members */
-        .no-plus .fc-daygrid-day-frame::after,
-        .no-plus .fc-timegrid-col-frame::after {
-            display: none !important;
-        }
-        .fc-daygrid-day-frame:hover::after,
-        .fc-timegrid-col-frame:hover::after {
-            opacity: 0.2;
-        }
-        /* Hide plus sign for past dates */
-        .fc-day-past .fc-daygrid-day-frame::after,
-        .fc-day-past .fc-timegrid-col-frame::after {
-            display: none;
-        }
-        /* Ensure events stay on top of the plus sign */
-        .fc-daygrid-day-events,
-        .fc-timegrid-col-events,
-        .fc-daygrid-day-top {
-            z-index: 2;
-            position: relative;
-        }
-        /* Tippy Tooltip Custom Styles */
-        .tippy-box[data-theme~='creaco'] {
-            background-color: white;
-            color: #344767;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-radius: 1rem;
-            padding: 0.5rem;
-            border: 1px solid #e2e8f0;
-            width: 250px;
-            max-width: 250px;
-            z-index: 9999;
-        }
-        .tippy-box[data-theme~='creaco'] .tippy-content {
-            padding: 0;
-        }
-    </style>
-{% endblock %}
+	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+	<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css"/>
+	<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css"/>
+	<style>
+	::-webkit-scrollbar {
+		display: none;
+	}
+	.fc .fc-button-primary {
+		background-color: #cb0c9f;
+		border-color: #cb0c9f;
+	}
+	.fc .fc-button-primary:hover {
+		background-color: #83107a;
+		border-color: #83107a;
+	}
+	.fc .fc-button-primary:disabled {
+		background-color: #cb0c9f;
+		border-color: #cb0c9f;
+		opacity: 0.65;
+	}
+	.fc-event {
+		cursor: pointer;
+		transition: transform 0.2s ease;
+	}
+	.fc-event:hover {
+		transform: scale(1.02);
+		z-index: 999;
+	}
+	/* Hover Plus Sign for Creation */
+	.fc-daygrid-day-frame,
+	.fc-timegrid-col-frame {
+		position: relative;
+		cursor: pointer;
+	}
+	.fc-daygrid-day-frame::after,
+	.fc-timegrid-col-frame::after {
+		content: '+';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 4rem;
+		font-weight: bold;
+		color: #cb0c9f;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+		z-index: 1;
+	}
+	/* Disable plus sign for members */
+	.no-plus .fc-daygrid-day-frame::after,
+	.no-plus .fc-timegrid-col-frame::after {
+		display: none !important;
+	}
+	.fc-daygrid-day-frame:hover::after,
+	.fc-timegrid-col-frame:hover::after {
+		opacity: 0.2;
+	}
+	/* Hide plus sign for past dates */
+	.fc-day-past .fc-daygrid-day-frame::after,
+	.fc-day-past .fc-timegrid-col-frame::after {
+		display: none;
+	}
+	/* Ensure events stay on top of the plus sign */
+	.fc-daygrid-day-events,
+	.fc-timegrid-col-events,
+	.fc-daygrid-day-top {
+		z-index: 2;
+		position: relative;
+	}
+	/* Tippy Tooltip Custom Styles */
+	.tippy-box[data-theme~='creaco'] {
+		background-color: white;
+		color: #344767;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+		border-radius: 1rem;
+		padding: 0.5rem;
+		border: 1px solid #e2e8f0;
+		width: 250px;
+		max-width: 250px;
+		z-index: 9999;
+	}
+	.tippy-box[data-theme~='creaco'] .tippy-content {
+		padding: 0;
+	}
+</style>{% endblock %}{% block body %}
+<div class="flex flex-wrap -mx-3 mt-6">
+	<div
+		class="flex-none w-full max-w-full px-3">
+		<!-- Block 1: Identification & Search -->
+		<div class="flex flex-col mb-4 px-4 gap-4">
+			<h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Missions</h3>
+			<div class="relative w-full md:w-96">
+				<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+					<i class="fas fa-search text-xs"></i>
+				</span>
+				<input type="text" id="mission-search" style="padding-left: 2.25rem;" class="block w-full pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search missions...">
+			</div>
+		</div>
 
-{% block body %}
-    <div class="flex flex-wrap -mx-3 mt-6">
-        <div class="flex-none w-full max-w-full px-3">
-            <!-- Block 1: Identification & Search -->
-            <div class="flex flex-col mb-4 px-4 gap-4">
-                <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Missions</h3>
-                <div class="relative w-full md:w-96">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                        <i class="fas fa-search text-xs"></i>
-                    </span>
-                    <input type="text" id="mission-search" style="padding-left: 2.25rem;" class="block w-full pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search missions...">
-                </div>
-            </div>
+		<!-- Block 2: View Switcher (Isolated) -->
+		<div class="flex justify-start mb-4 px-4">
+			<div class="flex p-1 bg-gray-100 rounded-lg w-fit border border-gray-200">
+				<button id="btn-calendar" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 bg-white shadow-soft-xs text-slate-700" onclick="switchView('calendar')">
+					<i class="fas fa-calendar-alt mr-1"></i>
+					Calendar
+				</button>
+				<button id="btn-list" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 text-slate-600 hover:text-slate-700 ml-1" onclick="switchView('list')">
+					<i class="fas fa-list mr-1"></i>
+					Table
+				</button>
+			</div>
+		</div>
 
-            <!-- Block 2: View Switcher (Isolated) -->
-            <div class="flex justify-start mb-4 px-4">
-                <div class="flex p-1 bg-gray-100 rounded-lg w-fit border border-gray-200">
-                    <button id="btn-calendar" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 bg-white shadow-soft-xs text-slate-700" onclick="switchView('calendar')">
-                        <i class="fas fa-calendar-alt mr-1"></i> Calendar
-                    </button>
-                    <button id="btn-list" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 text-slate-600 hover:text-slate-700 ml-1" onclick="switchView('list')">
-                        <i class="fas fa-list mr-1"></i> Table
-                    </button>
-                </div>
-            </div>
+		<!-- Block 3: Filters & Primary Action (Table View Only) -->
+		<div id="mission-table-controls" class="hidden flex flex-wrap items-center justify-between mb-8 px-4 gap-4">
+			<div class="flex flex-wrap gap-2" id="status-boxes">
+				<div data-status="new" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+					New
+				</div>
+				<div data-status="in_progress" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+					In Progress
+				</div>
+				<div data-status="completed" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
+					Completed
+				</div>
+			</div>
 
-            <!-- Block 3: Filters & Primary Action (Table View Only) -->
-            <div id="mission-table-controls" class="hidden flex flex-wrap items-center justify-between mb-8 px-4 gap-4">
-                <div class="flex flex-wrap gap-2" id="status-boxes">
-                    <div data-status="new" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
-                        New
-                    </div>
-                    <div data-status="in_progress" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
-                        In Progress
-                    </div>
-                    <div data-status="completed" class="status-box cursor-pointer border border-gray-200 px-4 py-3.5 rounded-lg text-xs font-bold uppercase transition-all bg-gray-50 text-slate-400 hover:bg-gray-100" onclick="toggleStatusBox(this)">
-                        Completed
-                    </div>
-                </div>
+			{% if app.session.get('user_role') != 'ROLE_MEMBER' %}
+				<a href="{{ path('app_mission_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+					<i class="fas fa-plus mr-1"></i>
+					New Mission
+				</a>
+			{% endif %}
+		</div>
 
-                {% if app.session.get('user_role') != 'ROLE_MEMBER' %}
-                <a href="{{ path('app_mission_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-                    <i class="fas fa-plus mr-1"></i> New Mission
-                </a>
-                {% endif %}
-            </div>
+		<!-- Block 4: Content Display -->
+		<div
+			class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
 
-            <!-- Block 4: Content Display -->
-            <div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+			<!-- Calendar View Container -->
+			<div id="calendar-view" class="pt-0">
+				<div id="calendar" class="mt-4 {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'no-plus' : '' }}"></div>
+			</div>
 
-                <!-- Calendar View Container -->
-                <div id="calendar-view" class="pt-0">
-                    <div id="calendar" class="mt-4 {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'no-plus' : '' }}"></div>
-                </div>
+			<!-- List View Container (Hidden by default) -->
+			<div id="list-view" class="hidden flex-auto px-0 pt-0 pb-2 bg-transparent">
+				<div class="p-0 overflow-x-auto">
+					<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+						<thead class="align-bottom">
+							<tr>
+								<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Mission</th>
+								<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+								<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
+								<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Date</th>
+								<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for mission in missions %}
+								<tr>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<div class="flex flex-col justify-center">
+											<h6 class="mb-0 text-sm leading-normal font-semibold">{{ mission.title }}</h6>
+											<p class="mb-0 text-xs leading-tight text-slate-400">{{ mission.description|length > 60 ? mission.description|slice(0, 60) ~ '...' : mission.description }}</p>
+										</div>
+									</td>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										{% set stateBadgeClass = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
+										{% if mission.state == 'new' %}
+											{% set stateBadgeClass = 'bg-gradient-to-tl from-purple-700 to-pink-500' %}
+										{% elseif mission.state == 'in_progress' %}
+											{% set stateBadgeClass = 'bg-gradient-to-tl from-blue-600 to-cyan-400' %}
+										{% elseif mission.state == 'completed' %}
+											{% set stateBadgeClass = 'bg-gradient-to-tl from-green-600 to-lime-400' %}
+										{% endif %}
+										<span class="{{ stateBadgeClass }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ mission.state }}</span>
+									</td>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<span class="text-xs font-semibold leading-tight text-slate-700">
+											{{ mission.implementIdea ? mission.implementIdea.title : 'N/A' }}
+										</span>
+									</td>
+									<td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<span class="text-xs font-semibold leading-tight text-slate-400">
+											{{ mission.missionDate ? mission.missionDate|date('d/m/Y H:i') : (mission.createdAt ? mission.createdAt|date('d/m/Y H:i') : 'N/A') }}
+										</span>
+									</td>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+										<a href="{{ path('app_mission_show', {'id': mission.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
+											<i class="fas fa-eye text-info"></i>
+											View
+										</a>
+										{% if app.session.get('user_role') != 'ROLE_MEMBER' %}
+											<a href="{{ path('app_mission_edit', {'id': mission.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
+												<i class="fas fa-edit text-primary"></i>
+												Edit
+											</a>
+										{% endif %}
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="6" class="p-4 text-center text-sm">No missions found</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div></div>{% endblock %}{% block javascripts %}{{ parent() }}<script src="https://unpkg.com/@popperjs/core@2"></script><script src="https://unpkg.com/tippy.js@6"></script><script>
+let calendar;
 
-                <!-- List View Container (Hidden by default) -->
-                <div id="list-view" class="hidden flex-auto px-0 pt-0 pb-2 bg-transparent">
-                    <div class="p-0 overflow-x-auto">
-                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                            <thead class="align-bottom">
-                                <tr>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Mission</th>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Date</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for mission in missions %}
-                                    <tr>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex flex-col justify-center">
-                                                <h6 class="mb-0 text-sm leading-normal font-semibold">{{ mission.title }}</h6>
-                                                <p class="mb-0 text-xs leading-tight text-slate-400">{{ mission.description|length > 60 ? mission.description|slice(0, 60) ~ '...' : mission.description }}</p>
-                                            </div>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            {% set stateBadgeClass = 'bg-gradient-to-tl from-slate-600 to-slate-300' %}
-                                            {% if mission.state == 'new' %}{% set stateBadgeClass = 'bg-gradient-to-tl from-purple-700 to-pink-500' %}
-                                            {% elseif mission.state == 'in_progress' %}{% set stateBadgeClass = 'bg-gradient-to-tl from-blue-600 to-cyan-400' %}
-                                            {% elseif mission.state == 'completed' %}{% set stateBadgeClass = 'bg-gradient-to-tl from-green-600 to-lime-400' %}
-                                            {% endif %}
-                                            <span class="{{ stateBadgeClass }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ mission.state }}</span>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-700">
-                                                {{ mission.implementIdea ? mission.implementIdea.title : 'N/A' }}
-                                            </span>
-                                        </td>
-                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400">
-                                                {{ mission.missionDate ? mission.missionDate|date('d/m/Y H:i') : (mission.createdAt ? mission.createdAt|date('d/m/Y H:i') : 'N/A') }}
-                                            </span>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-                                            <a href="{{ path('app_mission_show', {'id': mission.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-                                                <i class="fas fa-eye text-info"></i> View
-                                            </a>
-                                            {% if app.session.get('user_role') != 'ROLE_MEMBER' %}
-                                            <a href="{{ path('app_mission_edit', {'id': mission.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
-                                                <i class="fas fa-edit text-primary"></i> Edit
-                                            </a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="p-4 text-center text-sm">No missions found</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+function switchView(view) {
+const calendarView = document.getElementById('calendar-view');
+const listView = document.getElementById('list-view');
+const btnCalendar = document.getElementById('btn-calendar');
+const btnList = document.getElementById('btn-list');
+const tableControls = document.getElementById('mission-table-controls');
 
-{% block javascripts %}
-    {{ parent() }}
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <script>
-        let calendar;
+if (view === 'calendar') {
+calendarView.classList.remove('hidden');
+listView.classList.add('hidden');
+if (tableControls) 
+tableControls.classList.add('hidden');
 
-        function switchView(view) {
-            const calendarView = document.getElementById('calendar-view');
-            const listView = document.getElementById('list-view');
-            const btnCalendar = document.getElementById('btn-calendar');
-            const btnList = document.getElementById('btn-list');
-            const tableControls = document.getElementById('mission-table-controls');
 
-            if (view === 'calendar') {
-                calendarView.classList.remove('hidden');
-                listView.classList.add('hidden');
-                if (tableControls) tableControls.classList.add('hidden');
-                
-                // Update button styles
-                btnCalendar.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
-                btnCalendar.classList.remove('text-slate-600');
-                
-                btnList.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
-                btnList.classList.add('text-slate-600');
 
-                // Force calendar update
-                if (calendar) {
-                    calendar.updateSize();
-                }
-            } else {
-                calendarView.classList.add('hidden');
-                listView.classList.remove('hidden');
-                if (tableControls) tableControls.classList.remove('hidden');
-                
-                // Update button styles
-                btnList.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
-                btnList.classList.remove('text-slate-600');
-                
-                btnCalendar.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
-                btnCalendar.classList.add('text-slate-600');
-            }
-        }
+// Update button styles
+btnCalendar.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
+btnCalendar.classList.remove('text-slate-600');
 
-        const activeStatuses = new Set();
+btnList.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
+btnList.classList.add('text-slate-600');
 
-        function toggleStatusBox(el) {
-            const status = el.getAttribute('data-status');
-            const isActive = activeStatuses.has(status);
-            
-            // Define active classes mapping
-            const activeClasses = {
-                'new': ['bg-gradient-to-tl', 'from-purple-700', 'to-pink-500', 'text-white', 'border-transparent'],
-                'in_progress': ['bg-gradient-to-tl', 'from-blue-600', 'to-cyan-400', 'text-white', 'border-transparent'],
-                'completed': ['bg-gradient-to-tl', 'from-green-600', 'to-lime-400', 'text-white', 'border-transparent']
-            };
+// Force calendar update
+if (calendar) {
+calendar.updateSize();
+}
+} else {
+calendarView.classList.add('hidden');
+listView.classList.remove('hidden');
+if (tableControls) 
+tableControls.classList.remove('hidden');
 
-            if (isActive) {
-                activeStatuses.delete(status);
-                el.classList.remove(...activeClasses[status]);
-                el.classList.add('bg-gray-50', 'text-slate-400', 'border-gray-200');
-            } else {
-                activeStatuses.add(status);
-                el.classList.remove('bg-gray-50', 'text-slate-400', 'border-gray-200');
-                el.classList.add(...activeClasses[status]);
-            }
-            
-            filterMissions();
-            // Don't filter calendar anymore as per request to keep it functional only in table view
-        }
 
-        function filterMissions() {
-            const searchTerm = document.getElementById('mission-search').value.toLowerCase().trim();
-            const tableBody = document.querySelector('#list-view table tbody');
-            const rows = tableBody.querySelectorAll('tr');
 
-            rows.forEach(row => {
-                if (row.querySelector('td[colspan]')) return;
-                const title = row.querySelector('h6').textContent.toLowerCase();
-                const description = row.querySelector('p').textContent.toLowerCase();
-                const status = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
-                const idea = row.querySelector('td:nth-child(3) span').textContent.toLowerCase();
+// Update button styles
+btnList.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
+btnList.classList.remove('text-slate-600');
 
-                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm) || idea.includes(searchTerm);
-                const matchesStatus = activeStatuses.size === 0 || activeStatuses.has(status);
+btnCalendar.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
+btnCalendar.classList.add('text-slate-600');
+}
+}
 
-                if (matchesSearch && matchesStatus) {
-                    row.classList.remove('hidden');
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
+const activeStatuses = new Set();
 
-            // Sync search with calendar
-            filterCalendar(searchTerm);
-        }
+function toggleStatusBox(el) {
+const status = el.getAttribute('data-status');
+const isActive = activeStatuses.has(status);
 
-        function filterCalendar(searchTerm = '') {
-            if (!calendar) return;
-            
-            // If searchTerm not provided, get it from input
-            if (searchTerm === '') {
-                searchTerm = document.getElementById('mission-search').value.toLowerCase().trim();
-            }
+// Define active classes mapping
+const activeClasses = {
+'new': [
+'bg-gradient-to-tl',
+'from-purple-700',
+'to-pink-500',
+'text-white',
+'border-transparent'
+],
+'in_progress': [
+'bg-gradient-to-tl',
+'from-blue-600',
+'to-cyan-400',
+'text-white',
+'border-transparent'
+],
+'completed': [
+'bg-gradient-to-tl',
+'from-green-600',
+'to-lime-400',
+'text-white',
+'border-transparent'
+]
+};
 
-            calendar.getEvents().forEach(event => {
-                const title = event.title.toLowerCase();
-                const description = (event.extendedProps.description || '').toLowerCase();
-                const idea = (event.extendedProps.idea || '').toLowerCase();
-                const status = event.extendedProps.state.toLowerCase().trim();
-                
-                const matchesSearch = title.includes(searchTerm) || 
-                                    description.includes(searchTerm) || 
-                                    idea.includes(searchTerm);
-                
-                const matchesStatus = activeStatuses.size === 0 || activeStatuses.has(status);
-                
-                if (matchesSearch && matchesStatus) {
-                    event.setProp('display', 'auto');
-                } else {
-                    event.setProp('display', 'none');
-                }
-            });
-        }
+if (isActive) {
+activeStatuses.delete(status);
+el.classList.remove(... activeClasses[status]);
+el.classList.add('bg-gray-50', 'text-slate-400', 'border-gray-200');
+} else {
+activeStatuses.add(status);
+el.classList.remove('bg-gray-50', 'text-slate-400', 'border-gray-200');
+el.classList.add(... activeClasses[status]);
+} filterMissions();
+// Don't filter calendar anymore as per request to keep it functional only in table view
+}
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('mission-search');
-            searchInput.addEventListener('input', filterMissions);
+function filterMissions() {
+const searchTerm = document.getElementById('mission-search').value.toLowerCase().trim();
+const tableBody = document.querySelector('#list-view table tbody');
+const rows = tableBody.querySelectorAll('tr');
 
-            var calendarEl = document.getElementById('calendar');
-            const isMember = {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'true' : 'false' }};
+rows.forEach(row => {
+if (row.querySelector('td[colspan]')) 
+return;
 
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'en',
-                fixedWeekCount: false,
-                showNonCurrentDates: false,
-                allDaySlot: false,
-                displayEventTime: false,
-                noEventsText: "No missions to display.",
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listMonth'
-                },
-                footerToolbar: {
-                    left: 'prev,next today',
-                    right: 'dayGridMonth,timeGridWeek,listMonth'
-                },
-                buttonText: {
-                    today: 'Now',
-                    month: 'Month',
-                    week: 'Week',
-                    list: 'List'
-                },
-                events: {{ calendar_data|raw }},
-                dateClick: function(info) {
-                    // prevent members from creating missions via calendar click
-                    if (isMember) return;
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const clickedDate = new Date(info.dateStr);
-                    clickedDate.setHours(0, 0, 0, 0);
+const title = row.querySelector('h6').textContent.toLowerCase();
+const description = row.querySelector('p').textContent.toLowerCase();
+const status = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
+const idea = row.querySelector('td:nth-child(3) span').textContent.toLowerCase();
 
-                    if (clickedDate < today) {
-                        Swal.fire({
-                            title: 'Operation Restricted',
-                            text: "Missions cannot be scheduled in the past.",
-                            icon: 'warning',
-                            confirmButtonColor: '#cb0c9f',
-                            confirmButtonText: 'Got it'
-                        });
-                        return;
-                    }
-                    window.location.href = '{{ path("app_mission_new") }}?date=' + info.dateStr;
-                },
-                eventDidMount: function(info) {
-                    const desc = info.event.extendedProps.description || 'No description';
-                    const state = info.event.extendedProps.state || 'N/A';
-                    const idea = info.event.extendedProps.idea || 'N/A';
-                    
-                    const eventTime = info.event.start ? info.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm) || idea.includes(searchTerm);
+const matchesStatus = activeStatuses.size === 0 || activeStatuses.has(status);
 
-                    let stateBadgeClass = 'bg-gradient-to-tl from-slate-600 to-slate-300';
-                    if (state === 'new') stateBadgeClass = 'bg-gradient-to-tl from-purple-700 to-pink-500';
-                    else if (state === 'in_progress') stateBadgeClass = 'bg-gradient-to-tl from-blue-600 to-cyan-400';
-                    else if (state === 'completed') stateBadgeClass = 'bg-gradient-to-tl from-green-600 to-lime-400';
+if (matchesSearch && matchesStatus) {
+row.classList.remove('hidden');
+} else {
+row.classList.add('hidden');
+}
+});
 
-                    const tooltipContent = `
+// Sync search with calendar
+filterCalendar(searchTerm);
+}
+
+function filterCalendar(searchTerm = '') {
+if (! calendar) 
+return;
+
+
+// If searchTerm not provided, get it from input
+if (searchTerm === '') {
+searchTerm = document.getElementById('mission-search').value.toLowerCase().trim();
+}
+
+calendar.getEvents().forEach(event => {
+const title = event.title.toLowerCase();
+const description = (event.extendedProps.description || '').toLowerCase();
+const idea = (event.extendedProps.idea || '').toLowerCase();
+const status = event.extendedProps.state.toLowerCase().trim();
+
+const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm) || idea.includes(searchTerm);
+
+const matchesStatus = activeStatuses.size === 0 || activeStatuses.has(status);
+
+if (matchesSearch && matchesStatus) {
+event.setProp('display', 'auto');
+} else {
+event.setProp('display', 'none');
+}
+});
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+const searchInput = document.getElementById('mission-search');
+searchInput.addEventListener('input', filterMissions);
+
+var calendarEl = document.getElementById('calendar');
+const isMember = {{ app.session.get('user_role') == 'ROLE_MEMBER' ? 'true' : 'false' }};
+
+calendar = new FullCalendar.Calendar(calendarEl, {
+initialView: 'dayGridMonth',
+locale: 'en',
+fixedWeekCount: false,
+showNonCurrentDates: false,
+allDaySlot: false,
+displayEventTime: false,
+noEventsText: "No missions to display.",
+headerToolbar: {
+left: 'prev,next today',
+center: 'title',
+right: 'dayGridMonth,timeGridWeek,listMonth'
+},
+footerToolbar: {
+left: 'prev,next today',
+right: 'dayGridMonth,timeGridWeek,listMonth'
+},
+buttonText: {
+today: 'Now',
+month: 'Month',
+week: 'Week',
+list: 'List'
+},
+events: {{ calendar_data|raw }},
+dateClick: function (info) { // prevent members from creating missions via calendar click
+if (isMember) 
+return;
+
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const clickedDate = new Date(info.dateStr);
+clickedDate.setHours(0, 0, 0, 0);
+
+if (clickedDate < today) {
+Swal.fire({
+title: 'Operation Restricted',
+text: "Missions cannot be scheduled in the past.",
+icon: 'warning',
+confirmButtonColor: '#cb0c9f',
+confirmButtonText: 'Got it'
+});
+return;
+}
+window.location.href = '{{ path("app_mission_new") }}?date=' + info.dateStr;
+},
+eventDidMount: function (info) {
+const desc = info.event.extendedProps.description || 'No description';
+const state = info.event.extendedProps.state || 'N/A';
+const idea = info.event.extendedProps.idea || 'N/A';
+const creator = info.event.extendedProps.creator || 'Unknown';
+
+const eventTime = info.event.start ? info.event.start.toLocaleTimeString([], {
+hour: '2-digit',
+minute: '2-digit'
+}) : '';
+
+let stateBadgeClass = 'bg-gradient-to-tl from-slate-600 to-slate-300';
+if (state === 'new') 
+stateBadgeClass = 'bg-gradient-to-tl from-purple-700 to-pink-500';
+ else if (state === 'in_progress') 
+stateBadgeClass = 'bg-gradient-to-tl from-blue-600 to-cyan-400';
+ else if (state === 'completed') 
+stateBadgeClass = 'bg-gradient-to-tl from-green-600 to-lime-400';
+
+
+
+const tooltipContent = `
                         <div class="p-3 w-full text-left">
                             <div class="mb-2">
                                 <div class="flex justify-between items-start mb-1">
-                                    <h6 class="text-xs font-bold m-0 text-slate-700">${info.event.title}</h6>
+                                    <h6 class="text-xs font-bold m-0 text-slate-700">${
+info.event.title
+}</h6>
                                     <span class="text-[10px] font-bold text-slate-500 ml-2">${eventTime}</span>
                                 </div>
-                                <span class="${stateBadgeClass} px-2 py-0.5 text-[9px] rounded-1.8 font-bold text-white uppercase block w-fit select-none">${state}</span>
+                                <span class="${stateBadgeClass} px-2 py-0.5 text-[9px] rounded-1.8 font-bold text-white uppercase block w-fit select-none mb-1">${state}</span>
+                                <span class="text-[10px] font-medium text-slate-500 block"><i class="fas fa-user text-slate-400 mr-1"></i> ${creator}</span>
                             </div>
                             <div class="mb-2">
                                 <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Description</span>
@@ -420,27 +458,25 @@
                         </div>
                     `;
 
-                    tippy(info.el, {
-                        content: tooltipContent,
-                        allowHTML: true,
-                        theme: 'creaco',
-                        interactive: true,
-                        placement: 'top',
-                        animation: 'shift-away',
-                        arrow: true,
-                        maxWidth: 250,
-                        appendTo: () => document.body,
-                        boundary: 'viewport',
-                    });
-                },
-                eventClick: function(info) {
-                    if (info.event.url) {
-                        window.location.href = info.event.url;
-                        return false;
-                    }
-                }
-            });
-            calendar.render();
-        });
-    </script>
-{% endblock %}
+tippy(info.el, {
+content: tooltipContent,
+allowHTML: true,
+theme: 'creaco',
+interactive: true,
+placement: 'top',
+animation: 'shift-away',
+arrow: true,
+maxWidth: 250,
+appendTo: () => document.body,
+boundary: 'viewport'
+});
+},
+eventClick: function (info) {
+if (info.event.url) {
+window.location.href = info.event.url;
+return false;
+}
+}
+});
+calendar.render();
+});</script>{% endblock %}

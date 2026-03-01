@@ -59,6 +59,9 @@
             "./migrations/.gitignore"
         ]
     },
+    "ehyiah/ux-quill": {
+        "version": "3.4.2"
+    },
     "google/apiclient": {
         "version": "2.15",
         "recipe": {

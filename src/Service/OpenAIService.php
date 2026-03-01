@@ -8,34 +8,38 @@ class OpenAIService
 {
     private $httpClient;
     private $apiKey;
+    private $groqApiKey;
 
-    public function __construct(HttpClientInterface $httpClient, string $geminiApiKey)
+    public function __construct(HttpClientInterface $httpClient, string $geminiApiKey, string $groqApiKey)
     {
         $this->httpClient = $httpClient;
         $this->apiKey = $geminiApiKey;
+        $this->groqApiKey = $groqApiKey;
     }
 
     public function generateContent(string $prompt): string
     {
-        if (empty($this->apiKey)) {
-            return "ERROR_AUTH: Gemini API Key is not configured in .env.";
+        if (empty($this->groqApiKey)) {
+            return "ERROR_AUTH: Groq API Key is not configured in .env.";
         }
 
         try {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $this->apiKey;
+            // Migrated to Groq for better reliability and performance (Gemini was returning 404)
+            $url = "https://api.groq.com/openai/v1/chat/completions";
 
             $response = $this->httpClient->request('POST', $url, [
                 'headers' => [
+                    'Authorization' => 'Bearer ' . $this->groqApiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
-                            ]
-                        ]
-                    ]
+                    'model' => 'llama-3.3-70b-versatile',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are a professional business assistant for CreaCo. Provide clear, formal, and authoritative output.'],
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                    'temperature' => 0.5,
+                    'max_tokens' => 1000
                 ],
             ]);
 
@@ -48,7 +52,7 @@ class OpenAIService
             }
 
             $data = $response->toArray();
-            return $data['candidates'][0]['content']['parts'][0]['text'] ?? 'No content generated.';
+            return $data['choices'][0]['message']['content'] ?? 'No content generated.';
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
