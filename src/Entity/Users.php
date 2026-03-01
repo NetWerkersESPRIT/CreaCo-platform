@@ -108,12 +108,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $ideas;
 
     /**
-     * @var Collection<int, Idea>
-     */
-    #[ORM\ManyToMany(mappedBy: 'usedBy', targetEntity: Idea::class)]
-    private Collection $ideasUsed;
-
-    /**
      * @var Collection<int, Contract>
      */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Contract::class)]
@@ -134,6 +128,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
     private Collection $groups;
 
+    /**
+     * @var Collection<int, IdeaUsage>
+     */
+    #[ORM\OneToMany(targetEntity: IdeaUsage::class, mappedBy: 'User')]
+    private Collection $ideaUsages;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -146,11 +146,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->collabRequestsRevised = new ArrayCollection();
         $this->missionsCreated = new ArrayCollection();
         $this->ideas = new ArrayCollection();
-        $this->ideasUsed = new ArrayCollection();
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
+        $this->ideaUsages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -440,13 +440,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Idea>
-     */
-    public function getIdeasUsed(): Collection
-    {
-        return $this->ideasUsed;
-    }
-    /**
      * @return Collection<int, Contract>
      */
     public function getContracts(): Collection
@@ -492,6 +485,36 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->groups->removeElement($group)) {
             $group->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IdeaUsage>
+     */
+    public function getIdeaUsages(): Collection
+    {
+        return $this->ideaUsages;
+    }
+
+    public function addIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if (!$this->ideaUsages->contains($ideaUsage)) {
+            $this->ideaUsages->add($ideaUsage);
+            $ideaUsage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if ($this->ideaUsages->removeElement($ideaUsage)) {
+            // set the owning side to null (unless already changed)
+            if ($ideaUsage->getUser() === $this) {
+                $ideaUsage->setUser(null);
+            }
         }
 
         return $this;
