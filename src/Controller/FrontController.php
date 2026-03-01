@@ -8,7 +8,11 @@ use App\Repository\RessourceRepository;
 use App\Entity\CategorieCours;
 use App\Entity\Cours;
 use App\Service\GamificationService;
+use App\Repository\CoursRatingRepository;
+use App\Entity\CoursRating;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +24,7 @@ final class FrontController extends AbstractController
 {
     // READ LISTE DES CATEGORIES DE COUR
     #[Route('/front', name: 'app_front_home')]
-    public function index(\Symfony\Component\HttpFoundation\Request $request, CategorieCoursRepository $catRepo): Response
+    public function index(\Symfony\Component\HttpFoundation\Request $request, CategorieCoursRepository $catRepo, CoursRepository $coursRepo): Response
     {
         // Redirection Admin vers Back-office
         $userRole = $request->getSession()->get('user_role');
@@ -35,9 +39,12 @@ final class FrontController extends AbstractController
              $categories = $catRepo->findAll();
         }
 
+        $randomCourses = $coursRepo->findRandom(5);
+
         return $this->render('front/home/index.html.twig', [
             'categories' => $categories,
-            'search' => $search
+            'search' => $search,
+            'random_courses' => $randomCourses,
         ]);
     }
 
@@ -88,6 +95,14 @@ final class FrontController extends AbstractController
             }
         }
 
+        // Compute averages for listed courses
+        $courseIds = array_map(fn($c) => $c->getId(), $courses);
+        $ratingRepo = $em->getRepository(\App\Entity\CoursRating::class);
+        $averages = [];
+        if (!empty($courseIds)) {
+            $averages = $ratingRepo instanceof CoursRatingRepository ? $ratingRepo->getAveragesForCourseIds($courseIds) : [];
+        }
+
         return $this->render('front/category/show.html.twig', [
             'category' => $category,
             'courses' => $courses,
@@ -95,7 +110,54 @@ final class FrontController extends AbstractController
             'current_sort' => $sortField,
             'current_order' => $sortOrder,
             'category_completed' => $categoryCompleted,
+            'rating_averages' => $averages,
         ]);
+    }
+
+    #[Route('/course/{id}/rate', name: 'app_front_course_rate', methods: ['POST'])]
+    public function rateCourse(HttpRequest $request, Cours $course, EntityManagerInterface $em, CoursRatingRepository $coursRatingRepo): JsonResponse
+    {
+        // require login
+        $userId = $request->getSession()->get('user_id');
+        if (!$userId) {
+            return new JsonResponse(['error' => 'Authentication required'], 401);
+        }
+        $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 401);
+        }
+
+        // CSRF token validation
+        $token = $request->headers->get('X-CSRF-TOKEN');
+        if (!$this->isCsrfTokenValid('rate_course', $token)) {
+            return new JsonResponse(['error' => 'Invalid CSRF token'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $rating = isset($data['rating']) ? (int)$data['rating'] : null;
+        if (!$rating || $rating < 1 || $rating > 5) {
+            return new JsonResponse(['error' => 'Invalid rating'], 400);
+        }
+
+        // look for existing rating by this user
+        $existing = $coursRatingRepo->findOneBy(['cours' => $course, 'user' => $user]);
+        if ($existing) {
+            $existing->setRating($rating);
+            $coursRatingRepo->save($existing, true);
+        } else {
+            $coursRating = new CoursRating();
+            $coursRating->setCours($course);
+            $coursRating->setRating($rating);
+            $coursRating->setUser($user);
+            $coursRatingRepo->save($coursRating, true);
+        }
+
+        // return new averages
+        $averages = $coursRatingRepo->getAveragesForCourseIds([$course->getId()]);
+        $avg = $averages[$course->getId()]['avg'] ?? (float)$rating;
+        $count = $averages[$course->getId()]['count'] ?? 1;
+
+        return new JsonResponse(['avg' => $avg, 'count' => $count]);
     }
 
     /**

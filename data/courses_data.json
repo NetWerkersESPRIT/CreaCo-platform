@@ -1,0 +1,526 @@
+[
+  {
+    "id": 1,
+    "titre": "Les bases du montage vidéo",
+    "description": "Apprenez les fondamentaux du montage vidéo avec des tutoriels pas à pas pour débutants",
+    "niveau": "beginner",
+    "slug": "les-bases-du-montage-video",
+    "categorie": "Video editing",
+    "resources": [
+      {
+        "id": 1,
+        "titre": "Guide de l'interface Premiere Pro",
+        "contenu": "Guide complet de l'interface Adobe Premiere Pro avec explication détaillée de tous les panneaux, outils et raccourcis pour les débutants",
+        "type": "PDF"
+      },
+      {
+        "id": 2,
+        "titre": "Tutoriel coupes de base",
+        "contenu": "Vidéo tutoriel pas à pas sur les techniques de coupe essentielles : coupe simple, ripple edit, roll edit et ajustements sur la timeline",
+        "type": "video"
+      },
+      {
+        "id": 3,
+        "titre": "Aide-mémoire raccourcis clavier",
+        "contenu": "Infographie imprimable avec 50+ raccourcis clavier essentiels pour accélérer votre montage sur Premiere Pro",
+        "type": "image"
+      },
+      {
+        "id": 4,
+        "titre": "Guide paramètres d'exportation",
+        "contenu": "Guide complet des paramètres d'exportation pour YouTube, Vimeo, Instagram et diffusion TV avec recommandations de bitrate",
+        "type": "PDF"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "titre": "Effets avancés sur Premiere Pro",
+    "description": "Maîtrisez les effets avancés et les techniques professionnelles sur Adobe Premiere Pro",
+    "niveau": "advanced",
+    "slug": "effets-avances-premiere-pro",
+    "categorie": "Adobe Premiere Pro",
+    "resources": [
+      {
+        "id": 5,
+        "titre": "Workflow montage multicam",
+        "contenu": "Techniques professionnelles de montage multicaméras pour interviews, concerts et événements en direct",
+        "type": "video"
+      },
+      {
+        "id": 6,
+        "titre": "Techniques de coupes avancées",
+        "contenu": "Maîtrisez les J-cuts, L-cuts et autres techniques avancées utilisées par les monteurs professionnels à Hollywood",
+        "type": "video"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "titre": "Color grading cinématographique",
+    "description": "Créez des looks hollywoodiens avec des techniques avancées de color grading",
+    "niveau": "intermediate",
+    "slug": "color-grading-cinematographique",
+    "categorie": "Color Grading",
+    "resources": [
+      {
+        "id": 10,
+        "titre": "Théorie des couleurs appliquée",
+        "contenu": "Explication approfondie des roues chromatiques lift, gamma, gain et comment créer des ambiances spécifiques avec la couleur",
+        "type": "text"
+      },
+      {
+        "id": 11,
+        "titre": "Création de looks cinéma",
+        "contenu": "Processus pas à pas pour créer des looks cinématographiques style Hollywood : teal and orange, bleach bypass, émulation pellicule",
+        "type": "video"
+      },
+      {
+        "id": 12,
+        "titre": "Correction des tons de peau",
+        "contenu": "Techniques professionnelles pour corriger et améliorer les tons de peau tout en gardant un rendu naturel",
+        "type": "video"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "titre": "Animation de texte sur After Effects",
+    "description": "Créez des animations de texte dynamiques pour vos vidéos avec After Effects",
+    "niveau": "beginner",
+    "slug": "animation-texte-after-effects",
+    "categorie": "After Effects",
+    "resources": [
+      {
+        "id": 13,
+        "titre": "Guide After Effects",
+        "contenu": "Introduction complète à l'interface d'After Effects : compositions, calques, timeline et panneaux essentiels",
+        "type": "PDF"
+      },
+      {
+        "id": 14,
+        "titre": "Animation keyframe",
+        "contenu": "Maîtrisez l'animation par keyframes dans After Effects : easing, courbes de vitesse et chemins d'animation",
+        "type": "video"
+      },
+      {
+        "id": 15,
+        "titre": "Modèles de bandeaux",
+        "contenu": "Collection de templates de bandeaux inférieurs professionnels pour vous inspirer et adapter à vos projets",
+        "type": "image"
+      },
+      {
+        "id": 16,
+        "titre": "Presets d'animation texte",
+        "contenu": "Bibliothèque de techniques d'animation de texte avec instructions pas à pas pour créer des titres accrocheurs",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "titre": "Tutoriel DaVinci Resolve pour débutants",
+    "description": "Apprenez à utiliser DaVinci Resolve de A à Z pour l'édition et l'étalonnage",
+    "niveau": "beginner",
+    "slug": "tutoriel-davinci-resolve-debutants",
+    "categorie": "DaVinci Resolve",
+    "resources": [
+      {
+        "id": 7,
+        "titre": "Guide DaVinci Resolve",
+        "contenu": "Présentation complète des différentes pages de DaVinci Resolve : Cut, Edit, Fusion, Color, Fairlight et Deliver",
+        "type": "PDF"
+      },
+      {
+        "id": 8,
+        "titre": "Bases de l'étalonnage",
+        "contenu": "Introduction aux outils d'étalonnage de DaVinci Resolve : utilisation des scopes, primaires et nodes",
+        "type": "video"
+      },
+      {
+        "id": 9,
+        "titre": "Exemples d'arbres de nodes",
+        "contenu": "Collection d'arbres de nodes professionnels pour différentes situations d'étalonnage et styles cinématographiques",
+        "type": "image"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "titre": "Création de contenu pour YouTube",
+    "description": "Optimisez vos vidéos pour la plateforme YouTube et développez votre chaîne",
+    "niveau": "beginner",
+    "slug": "creation-contenu-youtube",
+    "categorie": "YouTube Content",
+    "resources": [
+      {
+        "id": 17,
+        "titre": "Tutoriel rotoscopie",
+        "contenu": "Maîtrisez les techniques de rotoscopie dans After Effects avec Rotobrush et masquage manuel pour extraire des sujets",
+        "type": "video"
+      },
+      {
+        "id": 18,
+        "titre": "Guide motion tracking",
+        "contenu": "Guide complet du tracking : point tracking, planar tracking et camera tracking 3D pour attacher des graphiques",
+        "type": "video"
+      },
+      {
+        "id": 19,
+        "titre": "Techniques de compositing",
+        "contenu": "Workflow professionnel de compositing pour intégrer des effets visuels : modes de fusion, mattes et matching colorimétrique",
+        "type": "text"
+      },
+      {
+        "id": 23,
+        "titre": "Algorithme YouTube expliqué",
+        "contenu": "Comprenez le fonctionnement de l'algorithme YouTube et les métriques importantes pour la découverte de vidéos",
+        "type": "PDF"
+      },
+      {
+        "id": 24,
+        "titre": "Création de hooks engageants",
+        "contenu": "Techniques pour créer des intros vidéo captivantes qui retiennent l'attention dans les 30 premières secondes",
+        "type": "video"
+      },
+      {
+        "id": 25,
+        "titre": "Stratégies de rétention",
+        "contenu": "Stratégies avancées pour maintenir l'attention des spectateurs : rythme, patterns et techniques d'engagement",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "titre": "Vidéos virales pour TikTok",
+    "description": "Techniques pour créer des vidéos courtes et engageantes qui deviennent virales",
+    "niveau": "beginner",
+    "slug": "videos-virales-tiktok",
+    "categorie": "TikTok & Short-form",
+    "resources": [
+      {
+        "id": 20,
+        "titre": "Nettoyage audio",
+        "contenu": "Éliminez les bruits de fond, souffle et clics de vos pistes audio avec des techniques professionnelles",
+        "type": "video"
+      },
+      {
+        "id": 21,
+        "titre": "Bibliothèques d'effets sonores",
+        "contenu": "Guide pour constituer et organiser vos bibliothèques d'effets sonores, avec sources gratuites et payantes",
+        "type": "PDF"
+      },
+      {
+        "id": 22,
+        "titre": "Mixage audio basique",
+        "contenu": "Introduction au mixage audio pour la vidéo : équilibrage des niveaux, panoramique et ajout d'effets",
+        "type": "text"
+      },
+      {
+        "id": 26,
+        "titre": "Analyse tendances TikTok",
+        "contenu": "Guide pour identifier et utiliser les tendances TikTok afin de créer du contenu viral",
+        "type": "PDF"
+      },
+      {
+        "id": 27,
+        "titre": "Composition vidéo verticale",
+        "contenu": "Maîtrisez la composition pour formats verticaux : cadrage spécifique pour visualisation mobile",
+        "type": "video"
+      },
+      {
+        "id": 28,
+        "titre": "Guide audio tendance",
+        "contenu": "Guide hebdomadaire des sons tendance sur TikTok et Reels pour intégrer les audios populaires",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "titre": "Incrustation fond vert",
+    "description": "Maîtrisez les techniques d'incrustation chroma key pour des résultats professionnels",
+    "niveau": "intermediate",
+    "slug": "incrustation-fond-vert",
+    "categorie": "Visual Effects",
+    "resources": [
+      {
+        "id": 29,
+        "titre": "Guide installation fond vert",
+        "contenu": "Guide complet pour installer un fond vert professionnel : éclairage, choix du tissu et erreurs à éviter",
+        "type": "PDF"
+      },
+      {
+        "id": 30,
+        "titre": "Tutoriel Keylight",
+        "contenu": "Maîtrisez l'incrustation chroma key avec Keylight sur Premiere Pro et After Effects",
+        "type": "video"
+      },
+      {
+        "id": 31,
+        "titre": "Suppression des reflets verts",
+        "contenu": "Techniques avancées pour éliminer les reflets verts sur les sujets tout en conservant des couleurs naturelles",
+        "type": "video"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "titre": "Montage multicaméras",
+    "description": "Techniques avancées pour le montage de projets avec plusieurs caméras",
+    "niveau": "intermediate",
+    "slug": "montage-multicameras",
+    "categorie": "Video editing",
+    "resources": [
+      {
+        "id": 32,
+        "titre": "Timeline magnétique Final Cut",
+        "contenu": "Maîtrisez la timeline magnétique unique de Final Cut Pro pour un montage plus rapide",
+        "type": "video"
+      },
+      {
+        "id": 33,
+        "titre": "Rôles et métadonnées",
+        "contenu": "Organisez vos rushs avec les rôles et métadonnées dans Final Cut Pro pour des projets complexes",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "titre": "Éclairage à 3 points",
+    "description": "Maîtrisez l'éclairage professionnel avec la technique des 3 points",
+    "niveau": "beginner",
+    "slug": "eclairage-3-points",
+    "categorie": "Cinematography",
+    "resources": [
+      {
+        "id": 34,
+        "titre": "Éclairage 3 points",
+        "contenu": "Maîtrisez l'éclairage professionnel avec key light, fill light et back light pour plus de dimension",
+        "type": "video"
+      },
+      {
+        "id": 35,
+        "titre": "Guide des angles de caméra",
+        "contenu": "Guide visuel des angles de caméra et leur impact émotionnel : plans larges, gros plans, plongées et contre-plongées",
+        "type": "image"
+      },
+      {
+        "id": 36,
+        "titre": "Sélection des objectifs",
+        "contenu": "Guide pour choisir le bon objectif : focales, ouverture et leurs effets créatifs",
+        "type": "PDF"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "titre": "Formats et codecs vidéo",
+    "description": "Comprenez les formats vidéo, codecs et paramètres d'exportation",
+    "niveau": "intermediate",
+    "slug": "formats-codecs-video",
+    "categorie": "Video Compression",
+    "resources": [
+      {
+        "id": 37,
+        "titre": "H.264 vs H.265",
+        "contenu": "Comparaison technique des codecs vidéo : quand utiliser chacun et impact sur qualité et taille",
+        "type": "PDF"
+      },
+      {
+        "id": 38,
+        "titre": "Paramètres YouTube recommandés",
+        "contenu": "Paramètres d'exportation recommandés pour YouTube, optimisés pour l'algorithme de compression",
+        "type": "text"
+      },
+      {
+        "id": 39,
+        "titre": "Calculateur de bitrate",
+        "contenu": "Tableau de référence des bitrates optimaux selon résolution et framerate pour meilleure qualité",
+        "type": "image"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "titre": "Création de transitions personnalisées",
+    "description": "Créez vos propres transitions vidéo dans After Effects et Premiere Pro",
+    "niveau": "advanced",
+    "slug": "transitions-personnalisees",
+    "categorie": "Motion Graphics",
+    "resources": [
+      {
+        "id": 40,
+        "titre": "Création de bandeaux",
+        "contenu": "Créez des bandeaux inférieurs professionnels dans After Effects avec principes de design broadcast",
+        "type": "video"
+      },
+      {
+        "id": 41,
+        "titre": "Principes d'animation",
+        "contenu": "Appliquez les 12 principes d'animation de Disney à vos motion graphics pour plus de professionnalisme",
+        "type": "text"
+      },
+      {
+        "id": 42,
+        "titre": "Inspiration bandeaux",
+        "contenu": "Collection de 100+ designs de bandeaux inférieurs pour inspiration et tendances actuelles",
+        "type": "image"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "titre": "Montage vidéo de mariage",
+    "description": "Workflow professionnel pour le montage de vidéos de mariage",
+    "niveau": "intermediate",
+    "slug": "montage-video-mariage",
+    "categorie": "Video editing",
+    "resources": [
+      {
+        "id": 43,
+        "titre": "Transitions wipe",
+        "contenu": "Créez des transitions personnalisées dans After Effects qui correspondent à votre marque",
+        "type": "video"
+      },
+      {
+        "id": 44,
+        "titre": "Effets glitch",
+        "contenu": "Créez des transitions et effets glitch populaires avec multiples techniques de distorsion numérique",
+        "type": "video"
+      },
+      {
+        "id": 45,
+        "titre": "Pack inspiration transitions",
+        "contenu": "Bibliothèque visuelle des types de transitions et quand les utiliser selon l'ambiance",
+        "type": "image"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "titre": "Montage de clips musicaux",
+    "description": "Techniques pour éditer des clips musicaux en rythme avec la musique",
+    "niveau": "advanced",
+    "slug": "montage-clips-musicaux",
+    "categorie": "Video editing",
+    "resources": [
+      {
+        "id": 46,
+        "titre": "Workflow vidéo mariage",
+        "contenu": "Workflow complet pour le montage de vidéos de mariage : storytelling, sélection musicale et rythme",
+        "type": "video"
+      },
+      {
+        "id": 47,
+        "titre": "Montage cérémonie",
+        "contenu": "Techniques pour le montage de cérémonies de mariage : synchronisation multicam et gestion audio",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "titre": "Création de LUTs personnalisées",
+    "description": "Créez et vendez vos propres LUTs de color grading",
+    "niveau": "advanced",
+    "slug": "creation-luts-personnalisees",
+    "categorie": "Color Grading",
+    "resources": [
+      {
+        "id": 48,
+        "titre": "Rythme clips musicaux",
+        "contenu": "Montez des clips musicaux en rythme avec la musique : coupes synchronisées et storytelling visuel",
+        "type": "video"
+      },
+      {
+        "id": 49,
+        "titre": "Performance vs narrative",
+        "contenu": "Équilibre entre footage de performance et éléments narratifs dans les clips musicaux",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "titre": "Design de miniatures YouTube",
+    "description": "Créez des miniatures qui augmentent votre taux de clic sur YouTube",
+    "niveau": "intermediate",
+    "slug": "design-miniatures-youtube",
+    "categorie": "YouTube Content",
+    "resources": [
+      {
+        "id": 50,
+        "titre": "Intégration B-roll",
+        "contenu": "Maîtrisez l'ajout de B-roll aux vidéos talking head pour maintenir l'engagement des spectateurs",
+        "type": "video"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "titre": "Nettoyage audio pour vidéo",
+    "description": "Techniques pour nettoyer l'audio et éliminer les bruits de fond",
+    "niveau": "intermediate",
+    "slug": "nettoyage-audio-video",
+    "categorie": "Sound Design",
+    "resources": [
+      {
+        "id": null,
+        "titre": null,
+        "contenu": null,
+        "type": null
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "titre": "Titres animés professionnels",
+    "description": "Créez des titres animés de qualité broadcast dans After Effects",
+    "niveau": "intermediate",
+    "slug": "titres-animes-professionnels",
+    "categorie": "Motion Graphics",
+    "resources": [
+      {
+        "id": null,
+        "titre": null,
+        "contenu": null,
+        "type": null
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "titre": "Compositing VFX avancé",
+    "description": "Techniques avancées de compositing pour effets visuels professionnels",
+    "niveau": "advanced",
+    "slug": "compositing-vfx-avance",
+    "categorie": "Visual Effects",
+    "resources": [
+      {
+        "id": null,
+        "titre": null,
+        "contenu": null,
+        "type": null
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "titre": "Création de contenu pour stock videos",
+    "description": "Créez et vendez vos vidéos sur les plateformes de stock",
+    "niveau": "intermediate",
+    "slug": "stock-videos-creation",
+    "categorie": "Stock Footage",
+    "resources": [
+      {
+        "id": 51,
+        "titre": "C'est quoi le personal branding",
+        "contenu": "<p>nozlcnbmOUBCUCEBjdzbczhbejrcbuzbczhebffcjehbcizukbe</p>",
+        "type": "TEXTE"
+      }
+    ]
+  }
+]
