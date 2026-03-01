@@ -4,6 +4,7 @@ namespace App\Controller\Collab;
 
 use App\Entity\Collaborator;
 use App\Entity\Users;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Form\CollaboratorType;
 use App\Repository\CollaboratorRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -58,7 +59,7 @@ class CollaboratorController extends AbstractController
     }
 
     #[Route('/new', name: 'app_collaborator_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -70,7 +71,7 @@ class CollaboratorController extends AbstractController
 
 
 
-        $collaborator = new Collaborator();
+        $collaborator = $factory->createCollaborator();
         $form = $this->createForm(CollaboratorType::class, $collaborator);
         $form->handleRequest($request);
 
@@ -78,7 +79,7 @@ class CollaboratorController extends AbstractController
             $collaborator->setAddedBy($user);
             $collaborator->setIsPublic(true); // Rendu public par défaut pour faciliter les tests sans auth
 
-            /** @var UploadedFile $logoFile */
+            /** @var UploadedFile|null $logoFile */
             $logoFile = $form->get('logoFile')->getData();
 
             if ($logoFile) {
@@ -157,7 +158,7 @@ class CollaboratorController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $logoFile */
+            /** @var UploadedFile|null $logoFile */
             $logoFile = $form->get('logoFile')->getData();
 
             if ($logoFile) {

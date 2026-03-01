@@ -4,6 +4,7 @@ namespace App\Controller\Collab;
 
 use App\Entity\Contract;
 use App\Entity\Notification;
+use App\Service\Collaboration\CollaborationFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,7 @@ use Psr\Log\LoggerInterface;
 class DocuSignWebhookController extends AbstractController
 {
     #[Route('/api/docusign/webhook', name: 'app_api_docusign_webhook', methods: ['POST'])]
-    public function handleWebhook(Request $request, EntityManagerInterface $em, LoggerInterface $logger): Response
+    public function handleWebhook(Request $request, EntityManagerInterface $em, LoggerInterface $logger, CollaborationFactory $factory): Response
     {
         // 1. Get raw payload
         $payload = $request->getContent();
@@ -77,7 +78,7 @@ class DocuSignWebhookController extends AbstractController
                     // Optional: Notify Manager/Creator
                     $manager = $contract->getCollabRequest()->getRevisor();
                     if ($manager) {
-                        $notification = new Notification();
+                        $notification = $factory->createNotification();
                         $notification->setMessage("The partner has signed the contract: '" . $contract->getTitle() . "'. It's fully executed!");
                         $notification->setUserId($manager);
                         $notification->setIsRead(false);
