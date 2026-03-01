@@ -5,6 +5,14 @@
 {% block page_title %}My Collaboration Contracts{% endblock %}
 
 {% block body %}
+<div class="w-full px-6 mx-auto mb-6">
+    <div class="relative flex items-center p-0 mt-2 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1950'); background-position-y: 50%">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-700 to-pink-500 opacity-60"></span>
+    </div>
+    <div class="relative flex flex-col flex-auto min-w-0 p-4 mx-6 -mt-16 overflow-hidden break-words border-0 shadow-blur rounded-2xl bg-white/80 bg-clip-border backdrop-blur-2xl backdrop-saturate-200">
+        <h4 class="mb-0 font-bold px-3">My Collaboration Contracts</h4>
+    </div>
+</div>
 <div class="flex flex-wrap -mx-3">
     {% include 'collaborator/_nav.html.twig' %}
     <div class="flex-none w-full max-w-full px-3">
@@ -12,6 +20,24 @@
             <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex justify-between">
                 <h6>Manage my contracts</h6>
             </div>
+            <div class="px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50 border-b border-gray-100">
+                <div class="flex items-center space-x-2 bg-white rounded-lg border border-gray-200 px-3 py-1 shadow-sm focus-within:ring-2 focus-within:ring-fuchsia-500/20 transition-all">
+                    <i class="fas fa-search text-slate-400 text-xs"></i>
+                    <input type="text" id="listing-search" placeholder="Search #, title, partner..." class="border-0 focus:ring-0 text-xs text-slate-600 w-48 md:w-64" autocomplete="off">
+                </div>
+                <div class="flex items-center space-x-3">
+                    <label for="status-filter" class="text-xxs font-bold text-slate-400 uppercase">Status:</label>
+                    <select id="status-filter" class="text-xs border-gray-200 rounded-lg focus:ring-fuchsia-500/20 focus:border-fuchsia-500 py-1 pl-2 pr-8 shadow-sm text-slate-600">
+                        <option value="ALL">All Statuses</option>
+                        <option value="DRAFT">Draft</option>
+                        <option value="SENT_TO_COLLABORATOR">Sent</option>
+                        <option value="SIGNED_BY_COLLABORATOR">Signed</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="flex-auto px-0 pt-0 pb-2">
                 <div class="p-0 overflow-x-auto">
                     <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
@@ -24,45 +50,8 @@
                                 <th class="px-6 py-3 font-semibold capitalize align-middle bg-transparent border-b border-gray-200 border-solid shadow-none tracking-none whitespace-nowrap text-slate-400 opacity-70"></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for contract in contracts %}
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                    <div class="flex px-4 py-1">
-                                        <div class="flex flex-col justify-center">
-                                            <h6 class="mb-0 text-sm leading-normal">
-                                                <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="hover:text-fuchsia-500 transition-colors">
-                                                    #{{ contract.contractNumber }}
-                                                </a>
-                                            </h6>
-                                            <p class="mb-0 text-xs leading-tight text-slate-400">Partner : {{ contract.collabRequest.collaborator.companyName }}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-xs font-bold text-slate-700">
-                                     {{ contract.collabRequest.collaborator.domain }}
-                                </td>
-                                <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                    {% if contract.status == 'SIGNED_BY_COLLABORATOR' %}
-                                        <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Signed</span>
-                                    {% elseif contract.status == 'GENERATED' %}
-                                        <span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Ready to send</span>
-                                    {% else %}
-                                        <span class="bg-gray-100 text-slate-400 px-2.5 text-xs rounded-1.8 py-1.4 font-bold uppercase">{{ contract.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-xs">
-                                    {{ contract.collabRequest.startDate|date('d/m/Y') }}
-                                </td>
-                                <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="text-xs font-bold text-fuchsia-500 hover:underline">
-                                        View
-                                    </a>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr><td colspan="5" class="p-6 text-center text-sm text-slate-400 italic">You don't have any contracts at the moment.</td></tr>
-                            {% endfor %}
+                        <tbody id="listing-container">
+                            {% include 'contract/_list.html.twig' %}
                         </tbody>
                     </table>
                 </div>
@@ -70,4 +59,50 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('listing-search');
+    const statusFilter = document.getElementById('status-filter');
+    const container = document.getElementById('listing-container');
+    let debounceTimer;
+
+    function updateList() {
+        const search = searchInput.value;
+        const status = statusFilter.value;
+        const url = new URL(window.location.href);
+        
+        url.searchParams.set('search', search);
+        url.searchParams.set('status', status);
+
+        container.style.opacity = '0.4';
+        container.style.filter = 'blur(1px)';
+        container.style.transition = 'all 0.3s ease';
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            container.innerHTML = html;
+            container.style.opacity = '1';
+            container.style.filter = 'blur(0)';
+            window.history.pushState({}, '', url);
+        })
+        .catch(error => {
+            console.error('Error fetching filtered list:', error);
+            container.style.opacity = '1';
+        });
+    }
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updateList, 300);
+    });
+
+    statusFilter.addEventListener('change', updateList);
+});
+</script>
 {% endblock %}

@@ -65,6 +65,9 @@ class Contract
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $signatureToken = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $docusignEnvelopeId = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private \DateTimeInterface $createdAt;
 
@@ -313,6 +316,18 @@ class Contract
     public function setSignatureToken(?string $signatureToken): static
     {
         $this->signatureToken = $signatureToken;
+
+        return $this;
+    }
+
+    public function getDocusignEnvelopeId(): ?string
+    {
+        return $this->docusignEnvelopeId;
+    }
+
+    public function setDocusignEnvelopeId(?string $docusignEnvelopeId): static
+    {
+        $this->docusignEnvelopeId = $docusignEnvelopeId;
 
         return $this;
     }

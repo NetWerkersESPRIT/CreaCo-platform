@@ -68,4 +68,34 @@ class CollabRequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return CollabRequest[]
+     */
+    public function filterRequests(int $userId, string $role, ?string $status = null, ?string $search = null): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.collaborator', 'c');
+
+        if ($role === 'ROLE_MANAGER') {
+            $qb->andWhere('r.revisor = :userId');
+        } else {
+            $qb->andWhere('r.creator = :userId');
+        }
+        $qb->setParameter('userId', $userId);
+
+        if ($status && $status !== 'ALL') {
+            $qb->andWhere('r.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if ($search) {
+            $qb->andWhere('r.title LIKE :search OR c.companyName LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

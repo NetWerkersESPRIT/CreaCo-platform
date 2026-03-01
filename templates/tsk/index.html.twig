@@ -1,137 +1,133 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Idea List{% endblock %}
+{% block title %}Idea List
+{% endblock %}
 
 {% block stylesheets %}
-    <style>
-        ::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
-{% endblock %}
+	<style>
+	::-webkit-scrollbar {
+		display: none;
+	}
+</style>{% endblock %}{% block body %}
+<div class="flex flex-wrap -mx-3 mt-6">
+	<div
+		class="flex-none w-full max-w-full px-3">
+		<!-- Block 1: Identification & Filter -->
+		<div class="flex flex-col mb-4 px-4 gap-4">
+			<div>
+				<h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Ideas</h3>
+				<p class="text-sm mb-0 text-slate-400">Share your best ideas with the team</p>
+			</div>
 
-{% block body %}
-    <div class="flex flex-wrap -mx-3 mt-6">
-        <div class="flex-none w-full max-w-full px-3">
-            <!-- Block 1: Identification & Filter -->
-            <div class="flex flex-col mb-4 px-4 gap-4">
-                <div>
-                    <h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Ideas</h3>
-                    <p class="text-sm mb-0 text-slate-400">Share your best ideas with the team</p>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-4 w-full">
-                    <div class="relative w-full md:w-80">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                            <i class="fas fa-search text-xs"></i>
-                        </span>
-                        <input type="text" id="idea-search" style="padding-left: 2.25rem;" class="block w-full pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search ideas...">
-                    </div>
-                    
-                    <select id="category-filter" class="block w-full md:w-48 px-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200">
-                        <option value="">All Categories</option>
-                        {% set categories = [] %}
-                        {% for idea in ideas %}
-                            {% if idea.category not in categories %}
-                                {% set categories = categories|merge([idea.category]) %}
-                            {% endif %}
-                        {% endfor %}
-                        {% for category in categories %}
-                            <option value="{{ category }}">{{ category }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
+			<div class="flex flex-wrap items-center gap-4 w-full">
+				<div class="relative w-full md:w-80">
+					<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+						<i class="fas fa-search text-xs"></i>
+					</span>
+					<input type="text" id="idea-search" style="padding-left: 2.25rem;" class="block w-full pr-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200" placeholder="Search ideas...">
+				</div>
 
-            <!-- Block 2: Primary Action (New Idea) -->
-            <div class="flex justify-end mb-8 px-4">
-                <a href="{{ path('app_idea_new') }}" class="inline-block ml-8 px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-                    <i class="fas fa-lightbulb mr-1"></i> New Idea
-                </a>
-            </div>
+				<select id="category-filter" class="block w-full md:w-48 px-3 py-3.5 text-sm text-slate-700 bg-gray-50 border border-gray-200 rounded-lg focus:ring-fuchsia-500 focus:border-fuchsia-500 transition-all duration-200">
+					<option value="">All Categories</option>
+					{% set categories = [] %}
+					{% for idea in ideas %}
+						{% if idea.category not in categories %}
+							{% set categories = categories|merge([idea.category]) %}
+						{% endif %}
+					{% endfor %}
+					{% for category in categories %}
+						<option value="{{ category }}">{{ category }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
 
-            <!-- Block 3: Content -->
-            <div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
-                <div class="p-0 overflow-x-auto">
-                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                            <thead class="align-bottom">
-                                <tr>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
-                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Category</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
-                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for idea in ideas %}
-                                    <tr>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <div class="flex flex-col justify-center">
-                                                <h6 class="mb-0 text-sm leading-normal font-semibold">{{ idea.title }}</h6>
-                                                <p class="mb-0 text-xs leading-tight text-slate-400">{{ idea.description|length > 60 ? idea.description|slice(0, 60) ~ '...' : idea.description }}</p>
-                                            </div>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="bg-gradient-to-tl from-gray-400 to-slate-100 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-slate-700 border border-slate-200">{{ idea.category }}</span>
-                                        </td>
-                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400">{{ idea.createdAt ? idea.createdAt|date('d/m/Y') : '' }}</span>
-                                        </td>
-                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-                                            <a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-                                                <i class="fas fa-rocket text-success"></i> Mission
-                                            </a>
-                                            <a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-                                                <i class="fas fa-eye text-info"></i> View
-                                            </a>
-                                            <a href="{{ path('app_idea_edit', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
-                                                <i class="fas fa-edit text-primary"></i> Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="5" class="p-4 text-center text-sm">No ideas found</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+		<!-- Block 2: Primary Action (New Idea) -->
+		<div class="flex justify-end mb-8 px-4">
+			<a href="{{ path('app_idea_new') }}" class="inline-block ml-8 px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+				<i class="fas fa-lightbulb mr-1"></i>
+				New Idea
+			</a>
+		</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('idea-search');
-            const categoryFilter = document.getElementById('category-filter');
-            const tableBody = document.querySelector('table tbody');
-            const rows = tableBody.querySelectorAll('tr:not(:has(td[colspan]))');
+		<!-- Block 3: Content -->
+		<div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+			<div class="p-0 overflow-x-auto">
+				<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+					<thead class="align-bottom">
+						<tr>
+							<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
+							<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Category</th>
+							<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
+							<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for idea in ideas %}
+							<tr>
+								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+									<div class="flex flex-col justify-center">
+										<h6 class="mb-0 text-sm leading-normal font-semibold">{{ idea.title }}</h6>
+										<p class="mb-0 text-xs leading-tight text-slate-400">{{ idea.description|length > 60 ? idea.description|slice(0, 60) ~ '...' : idea.description }}</p>
+									</div>
+								</td>
+								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+									<span class="bg-gradient-to-tl from-gray-400 to-slate-100 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-slate-700 border border-slate-200">{{ idea.category }}</span>
+								</td>
+								<td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+									<span class="text-xs font-semibold leading-tight text-slate-400">{{ idea.createdAt ? idea.createdAt|date('d/m/Y') : '' }}</span>
+								</td>
+								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+									<a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
+										<i class="fas fa-rocket text-success"></i>
+										Mission
+									</a>
+									<a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
+										<i class="fas fa-eye text-info"></i>
+										View
+									</a>
+									<a href="{{ path('app_idea_edit', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
+										<i class="fas fa-edit text-primary"></i>
+										Edit
+									</a>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5" class="p-4 text-center text-sm">No ideas found</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div></div></div><script>document.addEventListener('DOMContentLoaded', function () {
+const searchInput = document.getElementById('idea-search');
+const categoryFilter = document.getElementById('category-filter');
+const tableBody = document.querySelector('table tbody');
+const rows = tableBody.querySelectorAll('tr:not(:has(td[colspan]))');
 
-            function filterIdeas() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                const selectedCategory = categoryFilter.value.toLowerCase();
+function filterIdeas() {
+const searchTerm = searchInput.value.toLowerCase().trim();
+const selectedCategory = categoryFilter.value.toLowerCase();
 
-                rows.forEach(row => {
-                    const title = row.querySelector('h6').textContent.toLowerCase();
-                    const description = row.querySelector('p').textContent.toLowerCase();
-                    const category = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
+rows.forEach(row => {
+const title = row.querySelector('h6').textContent.toLowerCase();
+const description = row.querySelector('p').textContent.toLowerCase();
+const category = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
 
-                    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
-                    const matchesCategory = selectedCategory === "" || category === selectedCategory;
+const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm) || (selectedCategory === "" && category.includes(searchTerm));
+const matchesCategory = selectedCategory === "" || category === selectedCategory;
 
-                    if (matchesSearch && matchesCategory) {
-                        row.classList.remove('hidden');
-                    } else {
-                        row.classList.add('hidden');
-                    }
-                });
-            }
+if (matchesSearch && matchesCategory) {
+row.classList.remove('hidden');
+} else {
+row.classList.add('hidden');
+}
+});
+}
 
-            searchInput.addEventListener('input', filterIdeas);
-            categoryFilter.addEventListener('change', filterIdeas);
-        });
-    </script>
-{% endblock %}
+searchInput.addEventListener('input', filterIdeas);
+categoryFilter.addEventListener('change', filterIdeas);
+});</script>{% endblock %}

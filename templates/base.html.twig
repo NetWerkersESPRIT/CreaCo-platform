@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no"/>
 		<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}"/>
 		<link rel="icon" type="image/png" href="{{ asset('assets/img/logocrea.png') }}"/>
 		<title>
@@ -30,69 +30,148 @@
 		<!-- CreaCo Alert Helpers -->
 		<script src="{{ asset('assets/js/alerts.js') }}"></script>
 		<!-- Main Styling -->
-		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet"/> {% block stylesheets %}{% endblock %}
-		</head>
+		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet"/>
 
-		<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
+		<style>
+			@keyframes fadeInUp {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+			@keyframes revealScale {
+				from {
+					opacity: 0;
+					transform: scale(0.95);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
+			@keyframes pulseGlow {
+				0% {
+					box-shadow: 0 0 0 0 rgba(235, 78, 150, 0.4);
+				}
+				70% {
+					box-shadow: 0 0 0 10px rgba(235, 78, 150, 0);
+				}
+				100% {
+					box-shadow: 0 0 0 0 rgba(235, 78, 150, 0);
+				}
+			}
+			@keyframes slideRight {
+				from {
+					transform: translateX(-10px);
+					opacity: 0;
+				}
+				to {
+					transform: translateX(0);
+					opacity: 1;
+				}
+			}
+			.animate-fade-in-up {
+				animation: fadeInUp 0.6s ease-out forwards;
+			}
+			.animate-reveal-scale {
+				animation: revealScale 0.5s ease-out forwards;
+			}
+			.animate-pulse-glow {
+				animation: pulseGlow 2s infinite;
+			}
+			.animate-slide-right {
+				animation: slideRight 0.4s ease-out forwards;
+			}
+
+			.stagger-1 {
+				animation-delay: 0.1s;
+			}
+			.stagger-2 {
+				animation-delay: 0.2s;
+			}
+			.stagger-3 {
+				animation-delay: 0.3s;
+			}
+			.stagger-4 {
+				animation-delay: 0.4s;
+			}
+
+			.hover-scale {
+				transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+			}
+			.hover-scale:hover {
+				transform: scale(1.03);
+			}
+		</style>
+
+		{% block stylesheets %}{% endblock %}
+	</head>
+
+	<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
+		{% if app_user %}
+			{% include 'partials/_sidebar.html.twig' %}
+		{% endif %}
+
+		<main
+			class="ease-soft-in-out {% if app_user %}xl:ml-68.5{% endif %} relative h-full max-h-screen rounded-xl transition-all duration-200">
+			<!-- Navbar -->
 			{% if app_user %}
-				{% include 'partials/_sidebar.html.twig' %}
+				{% include 'partials/_navbar.html.twig' %}
 			{% endif %}
 
-			<main
-				class="ease-soft-in-out {% if app_user %}xl:ml-68.5{% endif %} relative h-full max-h-screen rounded-xl transition-all duration-200">
-				<!-- Navbar -->
-				{% if app_user %}
-					{% include 'partials/_navbar.html.twig' %}
-				{% endif %}
+			<div
+				class="w-full px-6 py-6 mx-auto">
 
-				<div
-					class="w-full px-6 py-6 mx-auto">
+				{# ✅ SUCCESS (Green) #}
+				{% for message in app.flashes('success') %}
+					<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl">
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# ✅ SUCCESS (Green) #}
-					{% for message in app.flashes('success') %}
-						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{# ⚠️ ERROR (Red) #}
+				{% for message in app.flashes('error') %}
+					<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-600 to-pink-500 rounded-lg shadow-soft-xl">
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# ⚠️ ERROR (Red) #}
-					{% for message in app.flashes('error') %}
-						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-600 to-pink-500 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{# ⚠️ WARNING (Yellow/Red) #}
+				{% for message in app.flashes('warning') %}
+					<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-500 to-yellow-400 rounded-lg shadow-soft-xl">
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# ⚠️ WARNING (Yellow/Red) #}
-					{% for message in app.flashes('warning') %}
-						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-red-500 to-yellow-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{# ⚠️ DANGER / REFUSAL (Orange/Yellow) #}
+				{% for message in app.flashes('danger') %}
+					<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg shadow-soft-xl">
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# ⚠️ DANGER / REFUSAL (Orange/Yellow) #}
-					{% for message in app.flashes('danger') %}
-						<div class="flash-alert relative w-full p-4 mb-4 text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg shadow-soft-xl">
-							{{ message }}
-						</div>
-					{% endfor %}
+				{# 🚀 POST APPROVED (Green Strong Pulse) #}
+				{% for message in app.flashes('post_approved') %}
+					<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
+						<i class="fas fa-check-circle mr-2"></i>
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# 🚀 POST APPROVED (Green Strong Pulse) #}
-					{% for message in app.flashes('post_approved') %}
-						<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
-							<i class="fas fa-check-circle mr-2"></i>
-							{{ message }}
-						</div>
-					{% endfor %}
+				{# 🛑 POST REFUSED (Red/Orange Strong Pulse) #}
+				{% for message in app.flashes('post_refused') %}
+					<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-red-600 to-orange-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
+						<i class="fas fa-exclamation-triangle mr-2"></i>
+						{{ message }}
+					</div>
+				{% endfor %}
 
-					{# 🛑 POST REFUSED (Red/Orange Strong Pulse) #}
-					{% for message in app.flashes('post_refused') %}
-						<div class="flash-alert relative w-full p-6 mb-6 text-white bg-gradient-to-tl from-red-600 to-orange-400 rounded-lg shadow-soft-xl border-0 font-bold text-center animate-pulse">
-							<i class="fas fa-exclamation-triangle mr-2"></i>
-							{{ message }}
-						</div>
-					{% endfor %}
-
-					{% block body %}{% endblock %}
+				<div class="animate-fade-in-up"> {% block body %}{% endblock %}
+					</div>
 
 				</div>
 
@@ -164,5 +243,160 @@ setInterval(syncNotifBadge, 30000);
 });
 				</script>
 			{% endblock %}
+
+			{# Global Memory Game Modal #}
+			{% include 'forum/post/game.html.twig' %}
+			<script>
+				// Global game state and functions
+window.initMemoryGame = function () {
+const grid = document.getElementById('game-grid');
+const winModal = document.getElementById('win-modal');
+const motivationalModal = document.getElementById('motivational-modal');
+const gameMainCard = document.getElementById('game-main-card');
+if (! grid) 
+return;
+
+grid.innerHTML = '';
+let firstCard = null,
+secondCard = null,
+lockBoard = false,
+matches = 0;
+const gameIcons = [
+'🐱',
+'🐱',
+'🦁',
+'🦁',
+'🦉',
+'🦉',
+'🦄',
+'🦄'
+];
+if (winModal) 
+winModal.classList.add('hidden');
+
+if (motivationalModal) 
+motivationalModal.classList.add('hidden');
+
+if (gameMainCard) 
+gameMainCard.style.setProperty('display', 'flex', 'important');
+
+const shuffled = [... gameIcons].sort(() => 0.5 - Math.random());
+shuffled.forEach((value) => {
+const card = document.createElement('div');
+card.className = 'memory-card';
+card.dataset.value = value;
+card.innerHTML = `<div class="front">${value}</div><div class="back"><i class="fas fa-paw"></i></div>`;
+card.addEventListener('click', () => {
+if (lockBoard || card === firstCard || card.classList.contains('matched')) 
+return;
+
+card.classList.add('flipped');
+if (! firstCard) {
+firstCard = card;
+return;
+}
+secondCard = card;
+lockBoard = true;
+if (firstCard.dataset.value === secondCard.dataset.value) {
+firstCard.classList.add('matched');
+secondCard.classList.add('matched');
+matches++;
+firstCard = null;
+secondCard = null;
+lockBoard = false;
+if (matches === 4) {
+setTimeout(() => {
+if (gameMainCard) 
+gameMainCard.style.setProperty('display', 'none', 'important');
+
+winModal.classList.remove('hidden');
+winModal.style.setProperty('display', 'flex', 'important');
+}, 500);
+}
+} else {
+setTimeout(() => {
+if (firstCard) 
+firstCard.classList.remove('flipped');
+
+if (secondCard) 
+secondCard.classList.remove('flipped');
+
+firstCard = null;
+secondCard = null;
+lockBoard = false;
+}, 800);
+}
+});
+grid.appendChild(card);
+});
+};
+
+document.addEventListener('DOMContentLoaded', () => { // We use querySelectorAll because there might be multiple 'start-game' triggers (sidebar + forum)
+const startButtons = document.querySelectorAll('#start-game');
+const overlay = document.getElementById('game-overlay');
+const winModal = document.getElementById('win-modal');
+const motivationalModal = document.getElementById('motivational-modal');
+const phraseEl = document.getElementById('motivational-phrase');
+const playAgainBtn = document.getElementById('play-again');
+const victoryContinueBtn = document.getElementById('victory-continue');
+const closeGameFinalBtn = document.getElementById('close-game-final');
+const backBtn = document.getElementById('back-from-game');
+
+startButtons.forEach(btn => {
+btn.addEventListener('click', (e) => {
+e.preventDefault();
+if (overlay) {
+overlay.style.setProperty('display', 'flex', 'important');
+window.initMemoryGame();
+}
+});
+});
+
+if (victoryContinueBtn) 
+victoryContinueBtn.addEventListener('click', () => {
+winModal.style.setProperty('display', 'none', 'important');
+motivationalModal.classList.remove('hidden');
+motivationalModal.style.setProperty('display', 'flex', 'important');
+fetchMotivationalPhrase();
+});
+
+if (playAgainBtn) 
+playAgainBtn.addEventListener('click', () => {
+motivationalModal.style.setProperty('display', 'none', 'important');
+window.initMemoryGame();
+});
+
+if (closeGameFinalBtn) 
+closeGameFinalBtn.addEventListener('click', () => {
+overlay.style.setProperty('display', 'none', 'important');
+if (typeof transformCalmBot === 'function') 
+transformCalmBot();
+
+});
+
+if (backBtn) 
+backBtn.addEventListener('click', () => {
+if (overlay) {
+overlay.style.setProperty('display', 'none', 'important');
+overlay.style.display = 'none';
+}
+});
+
+
+function fetchMotivationalPhrase() {
+if (! phraseEl) 
+return;
+
+fetch('/data/motivational_phrases.json').then(res => res.json()).then(phrases => {
+phraseEl.textContent = `"${
+phrases[Math.floor(Math.random() * phrases.length)]
+}"`;
+}).catch(() => {
+phraseEl.textContent = `"You're doing amazing!"`;
+});
+}
+});
+			</script>
+
 		</body>
 	</html>

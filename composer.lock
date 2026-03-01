@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "935b676a566c4c70a5e1a3b6052910b4",
+    "content-hash": "5c95958f1a42aa31607328773c851a7a",
     "packages": [
         {
             "name": "composer/semver",
@@ -1197,6 +1197,65 @@
             "time": "2026-02-08T16:21:46+00:00"
         },
         {
+            "name": "docusign/esign-client",
+            "version": "v8.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/docusign/docusign-esign-php-client.git",
+                "reference": "819bba23337e4573970af090144f6cbcf6f11cf7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/docusign/docusign-esign-php-client/zipball/819bba23337e4573970af090144f6cbcf6f11cf7",
+                "reference": "819bba23337e4573970af090144f6cbcf6f11cf7",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "firebase/php-jwt": "^6.0",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "*",
+                "phpunit/phpunit": "~4.8",
+                "satooshi/php-coveralls": "~1.0",
+                "squizlabs/php_codesniffer": "~2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DocuSign\\eSign\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "DocuSign",
+                    "homepage": "https://developers.docusign.com"
+                }
+            ],
+            "description": "The Docusign PHP library makes integrating Docusign into your apps and websites a super fast and painless process. The library is open sourced on GitHub, look for the docusign-esign-php-client repository. Join the eSign revolution!",
+            "homepage": "https://developers.docusign.com",
+            "keywords": [
+                "agreement",
+                "api",
+                "docusign",
+                "eSignature",
+                "php",
+                "sdk"
+            ],
+            "support": {
+                "issues": "https://github.com/docusign/docusign-esign-php-client/issues",
+                "source": "https://github.com/docusign/docusign-esign-php-client/tree/v8.7.0"
+            },
+            "time": "2026-01-28T12:32:47+00:00"
+        },
+        {
             "name": "egulias/email-validator",
             "version": "4.0.4",
             "source": {
@@ -1262,6 +1321,81 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "ehyiah/ux-quill",
+            "version": "3.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Ehyiah/ux-quill.git",
+                "reference": "7a2a4d2df7cf9f758b836097288bcc460543a07b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Ehyiah/ux-quill/zipball/7a2a4d2df7cf9f758b836097288bcc460543a07b",
+                "reference": "7a2a4d2df7cf9f758b836097288bcc460543a07b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1.0",
+                "symfony/form": "^6.1|^7.0|^8.0",
+                "symfony/stimulus-bundle": "^2.9.1",
+                "symfony/translation": "^6.1|^7.0|^8.0",
+                "symfony/twig-bundle": "^6.1|^7.0|^8.0"
+            },
+            "require-dev": {
+                "dg/bypass-finals": "^1.6",
+                "easycorp/easyadmin-bundle": "^4.7",
+                "friendsofphp/php-cs-fixer": "^3.1",
+                "friendsoftwig/twigcs": "^6.4",
+                "phpstan/phpstan": "^2.1.17",
+                "phpunit/phpunit": "^9.5",
+                "symfony/asset-mapper": "^6.3|^7.0",
+                "symfony/browser-kit": "^6.1|^7.0",
+                "symfony/framework-bundle": "^6.1|^7.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ux",
+                    "name": "symfony/ux"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ehyiah\\QuillJsBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matthieu Gostiaux",
+                    "email": "rei_eva@hotmail.com",
+                    "role": "Author"
+                }
+            ],
+            "description": "Symfony UX Bundle to use Quill JS wysiwyg text editor with full and easy customisation",
+            "keywords": [
+                "easyadmin",
+                "easyadmin wysiwyg",
+                "quill",
+                "quilljs",
+                "symfony form",
+                "symfony quill",
+                "symfony ux",
+                "symfony ux bundle",
+                "symfony wysiwyg",
+                "symfony-ux",
+                "wysiwyg"
+            ],
+            "support": {
+                "issues": "https://github.com/Ehyiah/ux-quill/issues",
+                "source": "https://github.com/Ehyiah/ux-quill/tree/3.4.2"
+            },
+            "time": "2026-02-21T09:35:39+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -13027,5 +13161,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

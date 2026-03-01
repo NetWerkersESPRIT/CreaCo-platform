@@ -123,6 +123,36 @@ class CoursRepository extends ServiceEntityRepository
 	        ];
 	    }
 
+    /**
+     * Return a random selection of courses.
+     *
+     * @param int $limit
+     * @return Cours[]
+     */
+    public function findRandom(int $limit = 5): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT id FROM cours ORDER BY RAND() LIMIT :limit';
+        // use RANDOM() for SQLite/PostgreSQL
+        $platform = $conn->getDatabasePlatform();
+        if ($platform instanceof \Doctrine\DBAL\Platforms\SqlitePlatform
+            || $platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
+            $sql = 'SELECT id FROM cours ORDER BY RANDOM() LIMIT :limit';
+        }
+        // LIMIT cannot be parameterized on some platforms (MariaDB/MySQL), so insert the integer directly.
+        $limit = (int) $limit;
+        $stmt = $conn->prepare(str_replace(':limit', $limit, $sql));
+        $ids = array_column($stmt->executeQuery()->fetchAllAssociative(), 'id');
+        if (empty($ids)) {
+            return [];
+        }
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function save(Cours $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);

@@ -474,35 +474,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->groups;
     }
 
-    /**
-     * @return Collection<int, PostReaction>
-     */
-    public function getReactions(): Collection
-    {
-        return $this->reactions;
-    }
-
-    public function addReaction(PostReaction $reaction): static
-    {
-        if (!$this->reactions->contains($reaction)) {
-            $this->reactions->add($reaction);
-            $reaction->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReaction(PostReaction $reaction): static
-    {
-        if ($this->reactions->removeElement($reaction)) {
-            // set the owning side to null (unless already changed)
-            if ($reaction->getUser() === $this) {
-                $reaction->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function addGroup(Group $group): static
     {

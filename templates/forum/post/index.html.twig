@@ -158,170 +158,293 @@ document.querySelectorAll('.share-dropdown-menu').forEach(d => d.classList.add('
 		}
 
 		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(5px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
+			from { opacity: 0; transform: translateY(5px); }
+			to { opacity: 1; transform: translateY(0); }
 		}
 
 		@keyframes reactionPop {
-			from {
-				opacity: 0;
-				transform: scale(0.5) translateY(20px);
-			}
-			to {
-				opacity: 1;
-				transform: scale(1) translateY(0);
-			}
+			0% { opacity: 0; transform: scale(0.8) translateY(12px); }
+			60% { transform: scale(1.05) translateY(-2px); }
+			100% { opacity: 1; transform: scale(1) translateY(0); }
 		}
 
-		.reaction-bar {
-			transform-origin: bottom left;
+		/* Staggered entrance for emojis */
+		.stagger-1 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.02s; }
+		.stagger-2 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.06s; }
+		.stagger-3 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.10s; }
+		.stagger-4 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.14s; }
+		.stagger-5 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.18s; }
+		.stagger-6 { animation: reactionPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; animation-delay: 0.22s; }
+
+		/* Popup Reaction Bar Styling */
+		.reaction-picker {
+			transform-origin: bottom center;
+			backdrop-filter: blur(12px);
+			background-color: rgba(255, 255, 255, 0.7) !important;
 		}
-		.reaction-item:hover {
-			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+		/* Hover Bridge: Prevents flickering when moving mouse from button to picker */
+		.reaction-picker::after {
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			height: 15px;
+			background: transparent;
+		}
+
+		.active-glow {
+			background-color: transparent !important;
+			box-shadow: none !important;
+			border-color: transparent !important;
+			position: relative;
+			font-weight: 800 !important;
+		}
+
+		/* Indicator dot for active reaction */
+		.active-glow::after {
+			content: '';
+			position: absolute;
+			bottom: 4px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 4px;
+			height: 4px;
+			background-color: #d946ef;
+			border-radius: 50%;
 		}
 	</style>
 
 	<script>
 		const reactionMap = {
-'like': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png',
-label: 'Like'
-},
-'love': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png',
-label: 'Love'
-},
-'haha': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png',
-label: 'Haha'
-},
-'wow': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png',
-label: 'Wow'
-},
-'sad': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png',
-label: 'Sad'
-},
-'angry': {
-emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png',
-label: 'Angry'
-}
-};
+			'like': { emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png', label: 'Like' },
+			'love': { emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png', label: 'Love' },
+			'haha': { emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png', label: 'Haha' },
+			'wow':  { emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png', label: 'Wow' },
+			'sad':  { emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png', label: 'Sad' },
+			'angry':{ emoji: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png', label: 'Angry' }
+		};
 
-async function handleReaction(postId, type) {
-const btn = document.getElementById (`react-btn-${postId}`);
-const countSpan = document.getElementById (`react-count-${postId}`);
+		async function handleMainReaction(postId) {
+			const btn = document.getElementById(`react-btn-${postId}`);
+			const currentType = btn.getAttribute('data-reaction-type');
+			
+			// If already reacted, toggle it off by sending the same type
+			// If not reacted, default to 'like'
+			const typeToSend = currentType || 'like';
+			handleReaction(postId, typeToSend);
+		}
 
-try {
-const response = await fetch (`/posts/${postId}/react`, {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify({type})
-});
+		async function handleReaction(postId, type) {
+			const btn = document.getElementById(`react-btn-${postId}`);
 
-if (response.status === 401) {
-window.location.href = "{{ path('app_auth') }}";
-return;
-}
+			try {
+				const response = await fetch(`/posts/${postId}/react`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ type })
+				});
 
-const data = await response.json();
-if (data.success) { // Update Count
-countSpan.textContent = data.counts.total;
+				if (response.status === 401) {
+					window.location.href = "{{ path('app_auth') }}";
+					return;
+				}
 
-// Update Button UI
-if (data.user_reaction) {
-const react = reactionMap[data.user_reaction];
-btn.innerHTML = `
-							<img src="${
-react.emoji
-}" class="w-5 h-5 mr-2" alt="${
-data.user_reaction
-}">
-							<span class="text-xs font-bold">${
-react.label
-}</span>
-							<span id="react-count-${postId}" class="ml-2 text-[10px] text-slate-400 bg-white px-1.5 py-0.5 rounded-full shadow-soft-sm">
-								${
-data.counts.total
-}
+				const data = await response.json();
+				if (data.success) {
+					// Update Main Button UI & State
+					if (data.user_reaction) {
+						const react = reactionMap[data.user_reaction];
+						btn.setAttribute('data-reaction-type', data.user_reaction);
+						btn.innerHTML = `
+							<img src="${react.emoji}" class="w-5 h-5 mr-2" alt="${data.user_reaction}">
+							<span class="text-xs font-bold">${react.label}</span>
+							<span id="react-count-${postId}" class="ml-1 text-[10px] text-fuchsia-600 font-bold">
+								${data.counts.total}
 							</span>
 						`;
-btn.classList.add('text-fuchsia-600');
-btn.classList.remove('text-slate-600');
-
-// Re-assign countSpan reference because innerHTML changed
-const newCountSpan = document.getElementById (`react-count-${postId}`);
-newCountSpan.classList.add('animate-reaction-pop');
-} else {
-btn.innerHTML = `
+						btn.classList.add('text-fuchsia-600', 'active-glow');
+						btn.classList.remove('text-slate-600');
+					} else {
+						btn.setAttribute('data-reaction-type', '');
+						btn.innerHTML = `
 							<i class="far fa-thumbs-up text-xs mr-2 text-slate-400"></i>
 							<span class="text-xs font-bold">Like</span>
-							<span id="react-count-${postId}" class="ml-2 text-[10px] text-slate-400 bg-white px-1.5 py-0.5 rounded-full shadow-soft-sm">
-								${
-data.counts.total
-}
+							<span id="react-count-${postId}" class="ml-1 text-[10px] text-slate-400 font-bold">
+								${data.counts.total}
 							</span>
 						`;
-btn.classList.remove('text-fuchsia-600');
-btn.classList.add('text-slate-600');
-}
-}
-} catch (err) {
-console.error('Reaction failed', err);
-}
-}
+						btn.classList.remove('text-fuchsia-600', 'active-glow');
+						btn.classList.add('text-slate-600');
+					}
 
-// Long-press support for mobile
-document.addEventListener('DOMContentLoaded', () => {
-let pressTimer;
-const reactionContainers = document.querySelectorAll('.reaction-container');
+					// Animation Trigger
+					const newCountSpan = document.getElementById(`react-count-${postId}`);
+					if (newCountSpan) {
+						newCountSpan.classList.add('animate-reaction-pop');
+						setTimeout(() => newCountSpan.classList.remove('animate-reaction-pop'), 300);
+					}
 
-reactionContainers.forEach(container => {
-const btn = container.querySelector('button[id^="react-btn-"]');
-const bar = container.querySelector('.reaction-bar');
+					// Auto-hide picker
+					const picker = btn.closest('.reaction-container').querySelector('.reaction-picker');
+					if (picker) {
+						picker.classList.add('hidden');
+						picker.classList.remove('flex');
+					}
+				}
+			} catch (err) {
+				console.error('Reaction failed', err);
+			}
+		}
 
-const start = (e) => {
-pressTimer = setTimeout(() => {
-bar.classList.remove('hidden');
-bar.classList.add('flex');
-}, 500);
-};
+		// Mobile/Stability Logic: Long-press or click support
+		document.addEventListener('DOMContentLoaded', () => {
+			let pressTimer;
+			
+			document.addEventListener('mousedown', (e) => {
+				const btn = e.target.closest('[id^="react-btn-"]');
+				if (!btn) return;
+				
+				pressTimer = setTimeout(() => {
+					const picker = btn.closest('.reaction-container').querySelector('.reaction-picker');
+					if (picker) {
+						picker.classList.remove('hidden');
+						picker.classList.add('flex');
+					}
+				}, 400); // 400ms for long-press
+			});
 
-const cancel = (e) => {
-clearTimeout(pressTimer);
-};
+			document.addEventListener('mouseup', () => clearTimeout(pressTimer));
+			document.addEventListener('touchstart', (e) => {
+				const btn = e.target.closest('[id^="react-btn-"]');
+				if (!btn) return;
+				pressTimer = setTimeout(() => {
+					const picker = btn.closest('.reaction-container').querySelector('.reaction-picker');
+					if (picker) {
+						picker.classList.remove('hidden');
+						picker.classList.add('flex');
+					}
+				}, 400);
+			});
+			document.addEventListener('touchend', () => clearTimeout(pressTimer));
 
-btn.addEventListener('touchstart', start);
-btn.addEventListener('touchend', cancel);
-btn.addEventListener('mousedown', start);
-btn.addEventListener('mouseup', cancel);
-btn.addEventListener('mouseleave', cancel);
+			// Hide bars when clicking outside
+			document.addEventListener('click', (e) => {
+				if (!e.target.closest('.reaction-container')) {
+					document.querySelectorAll('.reaction-picker').forEach(picker => {
+						picker.classList.add('hidden');
+						picker.classList.remove('flex');
+					});
+				}
+			});
+		});
+	</script>
 
-// Hide bar when clicking a reaction
-bar.addEventListener('click', () => {
-bar.classList.add('hidden');
-bar.classList.remove('flex');
-});
-});
+	<script>
+		// --- Text-to-Speech Implementation for Forum List ---
+		let currentUtterance = null;
+		let currentPostId = null;
+		const synth = window.speechSynthesis;
 
-// Hide bars when clicking outside
-document.addEventListener('click', (e) => {
-if (!e.target.closest('.reaction-container')) {
-document.querySelectorAll('.reaction-bar').forEach(bar => {
-bar.classList.add('hidden');
-bar.classList.remove('flex');
-});
-}
-});
-});
+		function handleTTS(action, postId) {
+			const readBtn = document.getElementById(`tts-read-${postId}`);
+			const pauseBtn = document.getElementById(`tts-pause-${postId}`);
+			const resumeBtn = document.getElementById(`tts-resume-${postId}`);
+			const stopBtn = document.getElementById(`tts-stop-${postId}`);
+
+			if (action === 'read') {
+				// Stop any previous speech
+				if (synth.speaking) {
+					synth.cancel();
+					if (currentPostId !== null) {
+						resetPostButtons(currentPostId);
+					}
+				}
+
+				const titleElem = document.getElementById(`post-title-${postId}`);
+				const contentElem = document.getElementById(`post-content-${postId}`);
+				
+				const title = titleElem ? titleElem.textContent : "";
+				const content = contentElem ? contentElem.textContent : "";
+				const fullText = title + ". " + content;
+
+				currentUtterance = new SpeechSynthesisUtterance(fullText);
+				currentPostId = postId;
+
+				currentUtterance.onstart = () => {
+					readBtn.classList.add('hidden');
+					pauseBtn.classList.remove('hidden');
+					stopBtn.classList.remove('hidden');
+					resumeBtn.classList.add('hidden');
+				};
+
+				currentUtterance.onend = () => {
+					resetPostButtons(postId);
+					currentPostId = null;
+				};
+
+				currentUtterance.onerror = (event) => {
+					console.error('TTS Error:', event);
+					resetPostButtons(postId);
+					currentPostId = null;
+				};
+
+				synth.speak(currentUtterance);
+
+			} else if (action === 'pause') {
+				synth.pause();
+				pauseBtn.classList.add('hidden');
+				resumeBtn.classList.remove('hidden');
+			} else if (action === 'resume') {
+				synth.resume();
+				resumeBtn.classList.add('hidden');
+				pauseBtn.classList.remove('hidden');
+			} else if (action === 'stop') {
+				synth.cancel();
+				resetPostButtons(postId);
+				currentPostId = null;
+			}
+		}
+
+		function resetPostButtons(postId) {
+			const readBtn = document.getElementById(`tts-read-${postId}`);
+			const pauseBtn = document.getElementById(`tts-pause-${postId}`);
+			const resumeBtn = document.getElementById(`tts-resume-${postId}`);
+			const stopBtn = document.getElementById(`tts-stop-${postId}`);
+			
+			if (readBtn) readBtn.classList.remove('hidden');
+			if (pauseBtn) pauseBtn.classList.add('hidden');
+			if (resumeBtn) resumeBtn.classList.add('hidden');
+			if (stopBtn) stopBtn.classList.add('hidden');
+		}
+
+		// Initialize TTS visibility
+		function initTTS() {
+			if ('speechSynthesis' in window) {
+				document.querySelectorAll('.tts-container').forEach(c => {
+					c.classList.remove('hidden');
+					c.classList.add('flex');
+				});
+			} else {
+				console.warn('Text-to-Speech not supported in this browser.');
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', initTTS);
+
+		// Re-initialize TTS after AJAX search updates
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.type === 'childList') {
+					initTTS();
+				}
+			});
+		});
+
+		const postListContainer = document.getElementById('post-list-container');
+		if (postListContainer) {
+			observer.observe(postListContainer, { childList: true });
+		}
 	</script>
 {% endblock %}

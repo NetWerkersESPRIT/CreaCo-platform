@@ -19,16 +19,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class TSKController extends AbstractController
 {
 
     #[Route('/idea', name: 'app_idea_index', methods: ['GET'])]
-    public function ideaIndex(IdeaRepository $ideaRepository): Response
+    public function ideaIndex(Request $request, IdeaRepository $ideaRepository, \App\Service\IdeaRecommendationService $recommendationService, EntityManagerInterface $entityManager): Response
     {
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            $recommendedIdeas = $ideaRepository->findBy([], ['id' => 'DESC'], 5);
+        } else {
+            $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 5);
+        }
+
+        $trendingIdeas = $recommendationService->getTrendingIdeas(5);
+
         return $this->render('tsk/index.html.twig', [
             'ideas' => $ideaRepository->findAll(),
+            'recommended_ideas' => $recommendedIdeas,
+            'trending_ideas' => $trendingIdeas,
         ]);
     }
 
@@ -154,6 +167,7 @@ final class TSKController extends AbstractController
                 'description' => $mission->getDescription(),
                 'state' => $mission->getState(),
                 'idea' => $mission->getImplementIdea() ? $mission->getImplementIdea()->getTitle() : 'N/A',
+                'creator' => $mission->getAssignedBy() ? $mission->getAssignedBy()->getUsername() : 'Unknown',
             ];
         }
 
@@ -221,6 +235,17 @@ final class TSKController extends AbstractController
                 $mission->setDescription($aiDesc);
             }
 
+            // Track Idea Usage
+            if ($mission->getImplementIdea() && $user) {
+                $ideaUsage = new \App\Entity\IdeaUsage();
+                $ideaUsage->setIdea($mission->getImplementIdea());
+                $ideaUsage->setUser($user);
+                $ideaUsage->setDateUsed(new \DateTimeImmutable());
+                $entityManager->persist($ideaUsage);
+
+                $mission->getImplementIdea()->setLastUsed(new \DateTime());
+            }
+
             $entityManager->persist($mission);
             $entityManager->flush();
 
@@ -275,6 +300,31 @@ final class TSKController extends AbstractController
         $aiDesc = $generator->generate($title, $ideaTitle, $ideaDescription, $ideaCategory);
 
         return $this->json(['description' => $aiDesc]);
+    }
+
+    #[Route('/mission/api/recommend', name: 'app_mission_recommend_idea', methods: ['GET'])]
+    public function recommendIdea(Request $request, \App\Service\IdeaRecommendationService $recommendationService, EntityManagerInterface $entityManager): Response
+    {
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            $ideas = $entityManager->getRepository(Idea::class)->findBy([], ['id' => 'DESC'], 1);
+            $recommendedIdea = !empty($ideas) ? $ideas[0] : null;
+        } else {
+            $recommendations = $recommendationService->getHybridRecommendations($user, 1);
+            $recommendedIdea = !empty($recommendations) ? $recommendations[0] : null;
+        }
+
+        if (!$recommendedIdea) {
+            return $this->json(['error' => 'No ideas available'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'id' => $recommendedIdea->getId(),
+            'title' => $recommendedIdea->getTitle()
+        ]);
     }
 
     #[Route('/mission/{id}', name: 'app_mission_show', methods: ['GET'])]

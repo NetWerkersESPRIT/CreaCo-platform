@@ -1,0 +1,48 @@
+{% for request in collab_requests %}
+<tr class="hover:bg-gray-50 transition-colors animate-slide-right stagger-{{ (loop.index0 % 4) + 1 }}">
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex px-4 py-1">
+            <div class="flex flex-col justify-center">
+                <h6 class="mb-0 text-sm leading-normal font-bold">{{ request.title }}</h6>
+                <p class="mb-0 text-xs leading-tight text-slate-400">{{ request.collaborator.companyName }}</p>
+            </div>
+        </div>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex items-center">
+            <div class="flex flex-col">
+                <h6 class="mb-0 text-xs font-bold leading-tight">{{ request.creator.username }}</h6>
+                <p class="mb-0 text-xxs leading-tight text-slate-400">Content Creator</p>
+            </div>
+        </div>
+    </td>
+    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <span class="font-bold text-slate-700">{{ request.budget|number_format(2, '.', ' ') }} DT</span>
+    </td>
+    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        {% if request.status == 'PENDING' %}
+            <span class="bg-gradient-to-tl from-gray-900 to-slate-800 px-3 text-xxs rounded-pill py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Pending</span>
+        {% elseif request.status == 'APPROVED' %}
+            <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-3 text-xxs rounded-pill py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Approved</span>
+        {% elseif request.status == 'REJECTED' %}
+            <span class="bg-gradient-to-tl from-red-600 to-rose-400 px-3 text-xxs rounded-pill py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Rejected</span>
+        {% elseif request.status == 'MODIFICATION_REQUESTED' %}
+            <span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-3 text-xxs rounded-pill py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Revision</span>
+        {% else %}
+            <span class="bg-gray-100 text-slate-400 px-3 text-xxs rounded-pill py-1 font-bold uppercase">{{ request.status }}</span>
+        {% endif %}
+    </td>
+    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <span class="text-xs font-bold leading-tight text-slate-400">{{ request.createdAt|date('d/m/Y') }}</span>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-right pr-6">
+        <a href="{{ path('app_manager_collab_request_show', {'id': request.id}) }}" class="text-xs font-bold text-fuchsia-500 hover:text-fuchsia-700 transition-all uppercase">
+            Review <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="6" class="p-6 text-center text-sm text-slate-400 italic">No collaboration requests matching your revision list.</td>
+</tr>
+{% endfor %}
