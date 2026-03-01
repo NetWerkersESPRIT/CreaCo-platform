@@ -35,12 +35,26 @@ final class TSKController extends AbstractController
             $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 5);
         }
 
-        $trendingIdeas = $recommendationService->getTrendingIdeas(5);
+        $period = $request->query->get('trend_period', 'week');
+        $trendingIdeas = $recommendationService->getTrendingIdeas(5, $period);
 
         return $this->render('tsk/index.html.twig', [
             'ideas' => $ideaRepository->findAll(),
             'recommended_ideas' => $recommendedIdeas,
             'trending_ideas' => $trendingIdeas,
+            'current_period' => $period,
+        ]);
+    }
+
+    #[Route('/idea/trending', name: 'app_idea_trending', methods: ['GET'])]
+    public function trendingIdeas(Request $request, \App\Service\IdeaRecommendationService $recommendationService): Response
+    {
+        $period = $request->query->get('period', 'week');
+        $trendingIdeas = $recommendationService->getTrendingIdeas(5, $period);
+
+        return $this->render('tsk/_trending_ideas.html.twig', [
+            'trending_ideas' => $trendingIdeas,
+            'current_period' => $period,
         ]);
     }
 
@@ -132,22 +146,26 @@ final class TSKController extends AbstractController
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
+        $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
 
-        // If user is a member, only show missions from people with the same group ID
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            if ($currentUser && $currentUser->getGroupid()) {
-                $missions = $missionRepository->createQueryBuilder('m')
-                    ->innerJoin('m.assignedBy', 'u')
-                    ->where('u.groupid = :groupId')
-                    ->setParameter('groupId', $currentUser->getGroupid())
-                    ->getQuery()
-                    ->getResult();
-            } else {
-                $missions = [];
-            }
-        } else {
+        if ($userRole === 'ROLE_ADMIN') {
             $missions = $missionRepository->findAll();
+        } elseif ($currentUser) {
+            $qb = $missionRepository->createQueryBuilder('m')
+                ->innerJoin('m.assignedBy', 'u');
+
+            $condition = 'u.id = :userId';
+            if ($currentUser->getGroupid()) {
+                $condition .= ' OR u.groupid = :groupId';
+                $qb->setParameter('groupId', $currentUser->getGroupid());
+            }
+
+            $missions = $qb->where($condition)
+                ->setParameter('userId', $userId)
+                ->getQuery()
+                ->getResult();
+        } else {
+            $missions = [];
         }
 
         $calendarData = [];
@@ -328,10 +346,14 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+        // Consistent visibility check: only show if admin, creator, or in same group
+        if ($userRole !== 'ROLE_ADMIN') {
+            $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+            $creator = $mission->getAssignedBy();
+            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
+            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
+
+            if (!$isCreator && !$isSameGroup) {
                 throw $this->createAccessDeniedException('You do not have access to this mission.');
             }
         }
@@ -347,10 +369,14 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+        // Consistent visibility check
+        if ($userRole !== 'ROLE_ADMIN') {
+            $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+            $creator = $mission->getAssignedBy();
+            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
+            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
+
+            if (!$isCreator && !$isSameGroup) {
                 throw $this->createAccessDeniedException('You do not have access to edit this mission.');
             }
         }
@@ -379,10 +405,14 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            if (!$currentUser || !$mission->getAssignedBy() || $currentUser->getGroupid() !== $mission->getAssignedBy()->getGroupid()) {
+        // Consistent visibility check
+        if ($userRole !== 'ROLE_ADMIN') {
+            $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+            $creator = $mission->getAssignedBy();
+            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
+            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
+
+            if (!$isCreator && !$isSameGroup) {
                 throw $this->createAccessDeniedException('You do not have access to delete this mission.');
             }
         }

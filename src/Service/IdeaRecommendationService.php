@@ -36,9 +36,16 @@ class IdeaRecommendationService
         );
     }
 
-    public function getTrendingIdeas(int $limit = 5): array
+    public function getTrendingIdeas(int $limit = 5, string $period = 'week'): array
     {
-        $trendingIdeaIds = $this->getTrendingIdeaIds(7);
+        $days = match ($period) {
+            'today' => 1,
+            'week' => 7,
+            'month' => 30,
+            default => 7,
+        };
+
+        $trendingIdeaIds = $this->getTrendingIdeaIds($days);
 
         if (empty($trendingIdeaIds)) {
             return [];
@@ -77,10 +84,13 @@ GROUP BY i.category";
 
     private function getTrendingIdeaIds(int $days): array
     {
+        // For 'today', we might want to use a different approach if $days is 1
+        // but (CURRENT_DATE - INTERVAL 1 DAY) actually covers last 24h roughly if using date comparison.
+        // If we want strictly TODAY, we could use mission_date >= CURRENT_DATE
+
         $sql = "SELECT implement_idea_id FROM mission
 WHERE implement_idea_id IS NOT NULL 
   AND mission_date >= (CURRENT_DATE - INTERVAL $days DAY)
-  AND mission_date <= (CURRENT_DATE + INTERVAL 1 MONTH)
 GROUP BY implement_idea_id ORDER BY COUNT(*) DESC LIMIT 50";
 
         return $this->connection->fetchFirstColumn($sql);

@@ -13,10 +13,16 @@
 	<div
 		class="flex-none w-full max-w-full px-3">
 		<!-- Block 1: Identification & Filter -->
-		<div class="flex flex-col mb-4 px-4 gap-4">
-			<div>
-				<h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Ideas</h3>
-				<p class="text-sm mb-0 text-slate-400">Share your best ideas with the team</p>
+		<div class="flex flex-col mb-8 px-4 gap-4">
+			<div class="flex justify-between items-end">
+				<div>
+					<h3 class="font-bold text-transparent bg-gradient-to-tl from-purple-700 to-pink-500 bg-clip-text m-0 whitespace-nowrap">Explore Ideas</h3>
+					<p class="text-sm mb-0 text-slate-400">Discover and fuel your next big project</p>
+				</div>
+				<a href="{{ path('app_idea_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
+					<i class="fas fa-plus mr-1"></i>
+					New Idea
+				</a>
 			</div>
 
 			<div class="flex flex-wrap items-center gap-4 w-full">
@@ -42,67 +48,131 @@
 			</div>
 		</div>
 
-		<!-- Block 2: Primary Action (New Idea) -->
-		<div class="flex justify-end mb-8 px-4">
-			<a href="{{ path('app_idea_new') }}" class="inline-block ml-8 px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-sm ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85">
-				<i class="fas fa-lightbulb mr-1"></i>
-				New Idea
-			</a>
+		<!-- Trending Ideas Section -->
+		<div class="mb-10 px-4">
+			<div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+				<div class="flex items-center gap-2">
+					<div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+						<i class="fas fa-fire text-orange-500"></i>
+					</div>
+					<div>
+						<h5 class="font-bold text-slate-700 m-0">Trending Now</h5>
+						<p class="text-xxs text-slate-400 mb-0 uppercase tracking-wider font-bold">Most implemented ideas</p>
+					</div>
+				</div>
+				<div class="flex bg-gray-50 p-1 rounded-xl border border-gray-100 gap-1 shadow-sm">
+					<button class="trend-filter px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 {{ current_period == 'today' ? 'bg-white shadow-soft-xs text-fuchsia-500' : 'text-slate-400 hover:text-slate-600' }}" data-period="today">Today</button>
+					<button class="trend-filter px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 {{ current_period == 'week' ? 'bg-white shadow-soft-xs text-fuchsia-500' : 'text-slate-400 hover:text-slate-600' }}" data-period="week">This Week</button>
+					<button class="trend-filter px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 {{ current_period == 'month' ? 'bg-white shadow-soft-xs text-fuchsia-500' : 'text-slate-400 hover:text-slate-600' }}" data-period="month">This Month</button>
+				</div>
+			</div>
+
+			<div id="trending-ideas-wrapper" class="transition-all duration-300">
+				{{ include('tsk/_trending_ideas.html.twig') }}
+			</div>
 		</div>
 
-		<!-- Block 3: Content -->
-		<div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
-			<div class="p-0 overflow-x-auto">
-				<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-					<thead class="align-bottom">
-						<tr>
-							<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
-							<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Category</th>
-							<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
-							<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for idea in ideas %}
-							<tr>
-								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-									<div class="flex flex-col justify-center">
-										<h6 class="mb-0 text-sm leading-normal font-semibold">{{ idea.title }}</h6>
-										<p class="mb-0 text-xs leading-tight text-slate-400">{{ idea.description|length > 60 ? idea.description|slice(0, 60) ~ '...' : idea.description }}</p>
+		<!-- Recommended Ideas Section -->
+		{% if recommended_ideas is not empty %}
+			<div class="mb-10 px-4">
+				<div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+					<div class="flex items-center gap-2">
+						<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+							<i class="fas fa-magic text-blue-500"></i>
+						</div>
+						<div>
+							<h5 class="font-bold text-slate-700 m-0">Picked For You</h5>
+							<p class="text-xxs text-slate-400 mb-0 uppercase tracking-wider font-bold">Personalized recommendations</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex flex-wrap -mx-3">
+					{% for idea in recommended_ideas %}
+						<div class="w-full md:w-1/2 lg:w-1/5 px-3 mb-6">
+							<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border h-full hover:shadow-soft-2xl transition-all duration-300">
+								<div class="flex-auto p-4 flex flex-col">
+									<div class="mb-2">
+										<span class="bg-gradient-to-tl from-blue-600 to-cyan-400 px-2.5 text-xxs rounded-1.8 py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ idea.category }}</span>
 									</div>
-								</td>
-								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-									<span class="bg-gradient-to-tl from-gray-400 to-slate-100 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-slate-700 border border-slate-200">{{ idea.category }}</span>
-								</td>
-								<td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-									<span class="text-xs font-semibold leading-tight text-slate-400">{{ idea.createdAt ? idea.createdAt|date('d/m/Y') : '' }}</span>
-								</td>
-								<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-									<a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-										<i class="fas fa-rocket text-success"></i>
-										Mission
-									</a>
-									<a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
-										<i class="fas fa-eye text-info"></i>
-										View
-									</a>
-									<a href="{{ path('app_idea_edit', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
-										<i class="fas fa-edit text-primary"></i>
-										Edit
-									</a>
-								</td>
-							</tr>
-						{% else %}
+									<h6 class="font-bold mb-1 text-sm">{{ idea.title }}</h6>
+									<p class="text-xs mb-4 text-slate-500 flex-grow">{{ idea.description|length > 80 ? idea.description|slice(0, 80) ~ '...' : idea.description }}</p>
+									<div class="flex items-center justify-between mt-auto">
+										<a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xxs font-bold text-slate-400 hover:text-blue-500 transition-all uppercase">Details</a>
+										<a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xxs font-bold text-blue-500 uppercase">
+											<i class="fas fa-rocket mr-1"></i>
+											Launch
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+
+		<hr
+		class="h-px mx-4 my-8 bg-transparent bg-gradient-to-r from-transparent via-black/10 to-transparent border-0 opacity-25">
+
+		<!-- Block 3: All Ideas Content -->
+		<div class="px-4 mb-4">
+			<h5 class="font-bold text-slate-700 mb-4">All Community Ideas</h5>
+			<div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+				<div class="p-0 overflow-x-auto">
+					<table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+						<thead class="align-bottom">
 							<tr>
-								<td colspan="5" class="p-4 text-center text-sm">No ideas found</td>
+								<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Idea</th>
+								<th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Category</th>
+								<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Created At</th>
+								<th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{% for idea in ideas %}
+								<tr>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<div class="flex flex-col justify-center">
+											<h6 class="mb-0 text-sm leading-normal font-semibold">{{ idea.title }}</h6>
+											<p class="mb-0 text-xs leading-tight text-slate-400">{{ idea.description|length > 60 ? idea.description|slice(0, 60) ~ '...' : idea.description }}</p>
+										</div>
+									</td>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<span class="bg-gradient-to-tl from-gray-400 to-slate-100 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-slate-700 border border-slate-200">{{ idea.category }}</span>
+									</td>
+									<td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+										<span class="text-xs font-semibold leading-tight text-slate-400">{{ idea.createdAt ? idea.createdAt|date('d/m/Y') : '' }}</span>
+									</td>
+									<td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
+										<a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
+											<i class="fas fa-rocket text-success"></i>
+											Mission
+										</a>
+										<a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 mr-4">
+											<i class="fas fa-eye text-info"></i>
+											View
+										</a>
+										<a href="{{ path('app_idea_edit', {'id': idea.id}) }}" class="text-xs font-semibold leading-tight text-slate-400">
+											<i class="fas fa-edit text-primary"></i>
+											Edit
+										</a>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="5" class="p-4 text-center text-sm">No ideas found</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
-</div></div></div><script>document.addEventListener('DOMContentLoaded', function () {
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', function () { // Search and Category Filter Logic
 const searchInput = document.getElementById('idea-search');
 const categoryFilter = document.getElementById('category-filter');
 const tableBody = document.querySelector('table tbody');
@@ -128,6 +198,41 @@ row.classList.add('hidden');
 });
 }
 
+if (searchInput) 
 searchInput.addEventListener('input', filterIdeas);
+
+
+if (categoryFilter) 
 categoryFilter.addEventListener('change', filterIdeas);
-});</script>{% endblock %}
+
+
+
+// Trending Filter Logic (AJAX)
+const trendFilters = document.querySelectorAll('.trend-filter');
+const trendingWrapper = document.getElementById('trending-ideas-wrapper');
+
+trendFilters.forEach(button => {
+button.addEventListener('click', function () {
+const period = this.getAttribute('data-period');
+
+// Update button UI
+trendFilters.forEach(btn => {
+btn.classList.remove('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+btn.classList.add('text-slate-400');
+});
+this.classList.add('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+this.classList.remove('text-slate-400');
+
+// Fetch trending ideas
+trendingWrapper.style.opacity = '0.5';
+fetch (`{{ path('app_idea_trending') }}?period=${period}`).then(response => response.text()).then(html => {
+trendingWrapper.innerHTML = html;
+trendingWrapper.style.opacity = '1';
+}).catch(error => {
+console.error('Error fetching trending ideas:', error);
+trendingWrapper.style.opacity = '1';
+});
+});
+});
+});
+</script>{% endblock %}

@@ -1,0 +1,31 @@
+<div class="flex flex-wrap -mx-3" id="trending-container">
+	{% for idea in trending_ideas %}
+		<div class="w-full md:w-1/2 lg:w-1/5 px-3 mb-6">
+			<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border h-full">
+				<div class="flex-auto p-4 flex flex-col">
+					<div class="mb-2">
+						<span class="bg-gradient-to-tl from-purple-700 to-pink-500 px-2.5 text-xxs rounded-1.8 py-1 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ idea.category }}</span>
+					</div>
+					<h6 class="font-bold mb-1 text-sm">{{ idea.title }}</h6>
+					<p class="text-xs mb-4 text-slate-500 flex-grow">{{ idea.description|length > 80 ? idea.description|slice(0, 80) ~ '...' : idea.description }}</p>
+					<div class="flex items-center justify-between mt-auto">
+						<a href="{{ path('app_idea_show', {'id': idea.id}) }}" class="text-xxs font-bold text-slate-400 hover:text-fuchsia-500 transition-all uppercase">Details</a>
+						<a href="{{ path('app_mission_new', {'idea_id': idea.id}) }}" class="text-xxs font-bold text-fuchsia-500 uppercase">
+							<i class="fas fa-rocket mr-1"></i>
+							Launch
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="w-full px-3">
+			<div class="p-8 text-center bg-white rounded-2xl shadow-soft-sm border border-dashed border-gray-200">
+				<div class="inline-block p-3 bg-gray-100 rounded-circle mb-3">
+					<i class="fas fa-chart-line text-slate-300"></i>
+				</div>
+				<p class="text-slate-500 text-sm mb-0">No trending ideas found for this period.</p>
+			</div>
+		</div>
+	{% endfor %}
+</div>
