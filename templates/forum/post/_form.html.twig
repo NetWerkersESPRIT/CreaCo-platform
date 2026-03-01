@@ -2,9 +2,15 @@
 {{ form_errors(form) }}
 <style>
 	@keyframes pulse-red {
-		0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-		70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		0% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		}
 	}
 	.mic-recording {
 		color: #ef4444 !important;
@@ -50,7 +56,8 @@
 	</div>
 
 	<div id="calm-bot-container" class="hidden w-full px-3 mb-6 animate-fade-in">
-		<div id="calm-bot-card" class="relative p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 shadow-soft-xl overflow-hidden transition-all duration-700">
+		<div
+			id="calm-bot-card" class="relative p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 shadow-soft-xl overflow-hidden transition-all duration-700">
 			{# Background Decoration #}
 			<div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-200/20 rounded-full blur-3xl"></div>
 
@@ -121,86 +128,98 @@ let editorInstance = null;
 let analysisTimeout = null;
 
 // Global Transformation Function for CalmBot
-window.transformCalmBot = function() {
-    const card = document.getElementById('calm-bot-card');
-    const title = document.getElementById('calm-bot-title');
-    const desc = document.getElementById('calm-bot-desc');
-    const dot = document.getElementById('calm-bot-dot');
-    const gameBtn = document.getElementById('start-game');
+window.transformCalmBot = function () {
+const card = document.getElementById('calm-bot-card');
+const title = document.getElementById('calm-bot-title');
+const desc = document.getElementById('calm-bot-desc');
+const dot = document.getElementById('calm-bot-dot');
+const gameBtn = document.getElementById('start-game');
 
-    if (card && title && desc && dot) {
-        console.log('[CalmBot] Transforming to Calm/Green Mode ✨');
-        card.style.setProperty('background', 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)', 'important');
-        card.style.setProperty('border-color', '#bbf7d0', 'important');
-        dot.style.setProperty('background-color', '#4ade80', 'important');
-        title.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready to rephrase calmly? ✨';
-        title.style.setProperty('color', '#166534', 'important');
-        desc.textContent = "You look much calmer now! Why not try to rephrase your thoughts into a more positive post?";
-        desc.style.setProperty('color', '#14532d', 'important');
-        if (gameBtn) gameBtn.style.setProperty('display', 'none', 'important');
-    }
+if (card && title && desc && dot) {
+console.log('[CalmBot] Transforming to Calm/Green Mode ✨');
+card.style.setProperty('background', 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)', 'important');
+card.style.setProperty('border-color', '#bbf7d0', 'important');
+dot.style.setProperty('background-color', '#4ade80', 'important');
+title.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready to rephrase calmly? ✨';
+title.style.setProperty('color', '#166534', 'important');
+desc.textContent = "You look much calmer now! Why not try to rephrase your thoughts into a more positive post?";
+desc.style.setProperty('color', '#14532d', 'important');
+if (gameBtn) 
+gameBtn.style.setProperty('display', 'none', 'important');
+
+}
 };
 
 // --- Sentiment Analysis Logic ---
 const analyzeSentiment = async (text) => {
-    if (text.trim().length < 10) {
-        calmBot.classList.add('hidden');
-        return;
-    }
+if (text.trim().length < 10) {
+calmBot.classList.add('hidden');
+return;
+}
 
-    console.log('CalmBot: Working...');
-    if (debugDiv) {
-        debugDiv.classList.remove('hidden');
-        debugDiv.textContent = 'Analyzing...';
-        debugDiv.style.color = '#f59e0b';
-    }
+console.log('CalmBot: Working...');
+if (debugDiv) {
+debugDiv.classList.remove('hidden');
+debugDiv.textContent = 'Analyzing...';
+debugDiv.style.color = '#f59e0b';
+}
 
-    try {
-        const response = await fetch('{{ path("forum_analyze_sentiment") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({text: text})
-        });
+try {
+const response = await fetch('{{ path("forum_analyze_sentiment") }}', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{text: text}
+)
+});
 
-        if (response.ok) {
-            const data = await response.json();
-            console.log('CalmBot Data:', data);
-            if (debugDiv) {
-                debugDiv.textContent = 'Sentiment: ' + data.label + ' (' + (data.score * 100).toFixed(0) + '%)';
-                debugDiv.style.color = data.label === 'NEGATIVE' ? '#ef4444' : '#10b981';
-            }
+if (response.ok) {
+const data = await response.json();
+console.log('CalmBot Data:', data);
+if (debugDiv) {
+debugDiv.textContent = 'Sentiment: ' + data.label + ' (' + (
+data.score * 100
+).toFixed(0) + '%)';
+debugDiv.style.color = data.label === 'NEGATIVE' ? '#ef4444' : '#10b981';
+}
 
-            if (data.label === 'NEGATIVE' || data.label === 'ANGRY' || (data.score > 0.4 && data.label !== 'POSITIVE')) {
-                calmBot.classList.remove('hidden');
-            } else {
-                calmBot.classList.add('hidden');
-            }
-        } else {
-            if (debugDiv) debugDiv.textContent = 'API Error: ' + response.status;
-        }
-    } catch (err) {
-        console.error('CalmBot Fetch Fail:', err);
-        if (debugDiv) debugDiv.textContent = 'Network/CORS Error';
-    }
+if (data.label === 'NEGATIVE' || data.label === 'ANGRY' || (data.score > 0.4 && data.label !== 'POSITIVE')) {
+calmBot.classList.remove('hidden');
+} else {
+calmBot.classList.add('hidden');
+}
+} else {
+if (debugDiv) 
+debugDiv.textContent = 'API Error: ' + response.status;
+
+}
+} catch (err) {
+console.error('CalmBot Fetch Fail:', err);
+if (debugDiv) 
+debugDiv.textContent = 'Network/CORS Error';
+
+}
 };
 
 const debouncedAnalyze = (text) => {
-    clearTimeout(analysisTimeout);
-    analysisTimeout = setTimeout(() => analyzeSentiment(text), 1000);
+clearTimeout(analysisTimeout);
+analysisTimeout = setTimeout(() => analyzeSentiment(text), 1000);
 };
 
 if (textarea) {
-    textarea.addEventListener('input', (e) => debouncedAnalyze(e.target.value));
+textarea.addEventListener('input', (e) => debouncedAnalyze(e.target.value));
 }
 
 // Also listen to Title for extra coverage
 const titleInput = document.getElementById('{{ form.title.vars.id }}') || document.querySelector('input[name*="title"]');
 if (titleInput) {
-    titleInput.addEventListener('input', (e) => {
-        if (e.target.value.length > 20) debouncedAnalyze(e.target.value);
-    });
+titleInput.addEventListener('input', (e) => {
+if (e.target.value.length > 20) 
+debouncedAnalyze(e.target.value);
+
+});
 }
 
 // --- Editor Toggle Logic ---
@@ -249,126 +268,126 @@ debouncedAnalyze(data.replace(/<[^>]*>/g, ''));
 // --- Voice to Text Logic ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SpeechRecognition) {
-	const micBtns = document.querySelectorAll('.mic-btn');
-	let recognition = null;
-	let currentMicBtn = null;
-	let isRecording = false;
+const micBtns = document.querySelectorAll('.mic-btn');
+let recognition = null;
+let currentMicBtn = null;
+let isRecording = false;
 
-	// Initialize recognition
-	recognition = new SpeechRecognition();
-	recognition.continuous = true;
-	recognition.interimResults = true;
-	recognition.lang = navigator.language || 'en-US'; // Use browser's current language for multi-language support
+// Initialize recognition
+recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.lang = navigator.language || 'en-US'; // Use browser's current language for multi-language support
 
-	recognition.onstart = function() {
-		isRecording = true;
-		if (currentMicBtn) {
-			currentMicBtn.classList.add('mic-recording');
-			currentMicBtn.innerHTML = '<i class="fas fa-stop text-xs"></i>';
-			const hint = currentMicBtn.nextElementSibling;
-			if (hint && hint.classList.contains('mic-hint')) {
-				hint.textContent = 'Listening...';
-				hint.classList.add('text-red-500');
-			}
-		}
-	};
+recognition.onstart = function () {
+isRecording = true;
+if (currentMicBtn) {
+currentMicBtn.classList.add('mic-recording');
+currentMicBtn.innerHTML = '<i class="fas fa-stop text-xs"></i>';
+const hint = currentMicBtn.nextElementSibling;
+if (hint && hint.classList.contains('mic-hint')) {
+hint.textContent = 'Listening...';
+hint.classList.add('text-red-500');
+}
+}
+};
 
-	recognition.onresult = function(event) {
-		if (!currentMicBtn) return;
-		
-		let interimTranscript = '';
-		let finalTranscript = '';
+recognition.onresult = function (event) {
+if (! currentMicBtn) 
+return;
 
-		for (let i = event.resultIndex; i < event.results.length; ++i) {
-			if (event.results[i].isFinal) {
-				finalTranscript += event.results[i][0].transcript;
-			} else {
-				interimTranscript += event.results[i][0].transcript;
-			}
-		}
 
-		const targetId = currentMicBtn.getAttribute('data-target');
-		
-		if (targetId === 'editor-content') {
-			// Handle Content Field (CKEditor or Textarea)
-			if (editorInstance) {
-				// We append the final text to CKEditor's current data
-				if (finalTranscript) {
-					const currentData = editorInstance.getData();
-					editorInstance.setData(currentData + ' ' + finalTranscript);
-				}
-			} else {
-				// Standard textarea
-				const val = textarea.value;
-				if (finalTranscript) {
-					textarea.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
-				}
-			}
-		} else {
-			// Handle Title Field
-			const titleInput = document.getElementById(targetId);
-			if (titleInput) {
-				const val = titleInput.value;
-				if (finalTranscript) {
-					titleInput.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
-				}
-			}
-		}
-	};
+let interimTranscript = '';
+let finalTranscript = '';
 
-	recognition.onerror = function(event) {
-		console.error('Speech recognition error detected: ' + event.error);
-		stopDictation();
-	};
-
-	recognition.onend = function() {
-		stopDictation();
-	};
-
-	function stopDictation() {
-		isRecording = false;
-		if (currentMicBtn) {
-			currentMicBtn.classList.remove('mic-recording');
-			currentMicBtn.innerHTML = '<i class="fas fa-microphone text-xs"></i>';
-			const hint = currentMicBtn.nextElementSibling;
-			if (hint && hint.classList.contains('mic-hint')) {
-				hint.textContent = 'Click to dictate';
-				hint.classList.remove('text-red-500');
-			}
-			currentMicBtn = null;
-		}
-		if (recognition) {
-			try { recognition.stop(); } catch(e){}
-		}
-	}
-
-	micBtns.forEach(btn => {
-		btn.addEventListener('click', function(e) {
-			e.preventDefault();
-			
-			// If already recording this field, stop it
-			if (isRecording && currentMicBtn === this) {
-				stopDictation();
-				return;
-			}
-			
-			// If recording somewhere else, stop that first
-			if (isRecording) {
-				stopDictation();
-			}
-
-			// Start new recording
-			currentMicBtn = this;
-			try {
-				recognition.start();
-			} catch(e) {
-				console.error("Could not start recognition", e);
-			}
-		});
-	});
+for (let i = event.resultIndex; i < event.results.length; ++ i) {
+if (event.results[i].isFinal) {
+finalTranscript += event.results[i][0].transcript;
 } else {
-	console.warn('Speech Recognition API not supported in this browser.');
-	document.querySelectorAll('.mic-btn').forEach(btn => btn.style.display = 'none');
+interimTranscript += event.results[i][0].transcript;
+}
+}
+
+const targetId = currentMicBtn.getAttribute('data-target');
+
+if (targetId === 'editor-content') { // Handle Content Field (CKEditor or Textarea)
+if (editorInstance) { // We append the final text to CKEditor's current data
+if (finalTranscript) {
+const currentData = editorInstance.getData();
+editorInstance.setData(currentData + ' ' + finalTranscript);
+}
+} else { // Standard textarea
+const val = textarea.value;
+if (finalTranscript) {
+textarea.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
+}
+}
+} else { // Handle Title Field
+const titleInput = document.getElementById(targetId);
+if (titleInput) {
+const val = titleInput.value;
+if (finalTranscript) {
+titleInput.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
+}
+}
+}
+};
+
+recognition.onerror = function (event) {
+console.error('Speech recognition error detected: ' + event.error);
+stopDictation();
+};
+
+recognition.onend = function () {
+stopDictation();
+};
+
+function stopDictation() {
+isRecording = false;
+if (currentMicBtn) {
+currentMicBtn.classList.remove('mic-recording');
+currentMicBtn.innerHTML = '<i class="fas fa-microphone text-xs"></i>';
+const hint = currentMicBtn.nextElementSibling;
+if (hint && hint.classList.contains('mic-hint')) {
+hint.textContent = 'Click to dictate';
+hint.classList.remove('text-red-500');
+}
+currentMicBtn = null;
+}
+if (recognition) {
+try {
+recognition.stop();
+} catch (e) {}
+}
+}
+
+micBtns.forEach(btn => {
+btn.addEventListener('click', function (e) {
+e.preventDefault();
+
+// If already recording this field, stop it
+if (isRecording && currentMicBtn === this) {
+stopDictation();
+return;
+}
+
+// If recording somewhere else, stop that first
+if (isRecording) {
+stopDictation();
+}
+
+// Start new recording
+currentMicBtn = this;
+try {
+recognition.start();
+} catch (e) {
+console.error("Could not start recognition", e);
+}
+});
+});
+} else {
+console.warn('Speech Recognition API not supported in this browser.');
+document.querySelectorAll('.mic-btn').forEach(btn => btn.style.display = 'none');
 }
 
 });
