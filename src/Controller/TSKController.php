@@ -18,16 +18,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class TSKController extends AbstractController
 {
 
     #[Route('/idea', name: 'app_idea_index', methods: ['GET'])]
-    public function ideaIndex(IdeaRepository $ideaRepository): Response
+    public function ideaIndex(Request $request, IdeaRepository $ideaRepository, \App\Service\IdeaRecommendationService $recommendationService, EntityManagerInterface $entityManager): Response
     {
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            $recommendedIdeas = $ideaRepository->findBy([], ['id' => 'DESC'], 5);
+        } else {
+            $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 5);
+        }
+
+        $trendingIdeas = $recommendationService->getTrendingIdeas(5);
+
         return $this->render('tsk/index.html.twig', [
             'ideas' => $ideaRepository->findAll(),
+            'recommended_ideas' => $recommendedIdeas,
+            'trending_ideas' => $trendingIdeas,
         ]);
     }
 

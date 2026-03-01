@@ -36,6 +36,34 @@ class IdeaRecommendationService
         );
     }
 
+    public function getTrendingIdeas(int $limit = 5): array
+    {
+        $trendingIdeaIds = $this->getTrendingIdeaIds(7);
+
+        if (empty($trendingIdeaIds)) {
+            return [];
+        }
+
+        // Fetch ideas and ensure they are returned in the order of trendingIdeaIds
+        $ideas = $this->ideaRepository->findBy(['id' => array_slice($trendingIdeaIds, 0, $limit)]);
+
+        // Sort the results manually to match the trending order
+        $orderedIdeas = [];
+        foreach ($trendingIdeaIds as $id) {
+            foreach ($ideas as $idea) {
+                if ($idea->getId() == $id) {
+                    $orderedIdeas[] = $idea;
+                    break;
+                }
+            }
+            if (count($orderedIdeas) >= $limit) {
+                break;
+            }
+        }
+
+        return $orderedIdeas;
+    }
+
     private function getUserCategoryWeights(Users $user): array
     {
         $sql = "SELECT i.category, COUNT(iu.id) as weight
