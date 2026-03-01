@@ -16,7 +16,7 @@
 
 			<li class="mt-0.5 w-full">
 				{% set homePath = app.session.get('user_role') == 'ROLE_ADMIN' ? path('app_admin_dashboard') : path('app_home') %}
-				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ (currentRoute == 'app_home' or currentRoute == 'app_admin_dashboard') ? 'bg-white shadow-soft-xl' : '' }}" href="{{ homePath }}">
+				<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 hover-scale {{ (currentRoute == 'app_home' or currentRoute == 'app_admin_dashboard') ? 'bg-white shadow-soft-xl' : '' }}" href="{{ homePath }}">
 					<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ (currentRoute == 'app_home' or currentRoute == 'app_admin_dashboard') ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
 						<i class="ni ni-shop {{ (currentRoute == 'app_home' or currentRoute == 'app_admin_dashboard') ? 'text-white' : 'text-slate-700' }}"></i>
 					</div>
@@ -49,6 +49,8 @@
 						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Post Moderation</span>
 					</a>
 				</li>
+
+
 			{% endif %}
 			{#
 																																										   												 <li class="mt-0.5 w-full">
@@ -164,9 +166,10 @@
 
 				<!-- Collaborations -->
 				<li class="mt-0.5 w-full">
-					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ currentRoute starts with 'app_collaborator' ? 'bg-white shadow-soft-xl' : '' }}" href="{{ path('app_collaborator_index') }}">
-						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ currentRoute starts with 'app_collaborator' ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
-							<i class="ni ni-briefcase-24 {{ currentRoute starts with 'app_collaborator' ? 'text-white' : 'text-slate-700' }}"></i>
+					{% set collab_path = app.session.get('user_role') in ['ROLE_MANAGER', 'ROLE_ADMIN'] ? path('app_manager_collab_dashboard') : path('app_collaborator_index') %}
+					<a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors hover:bg-gray-100 {{ (currentRoute starts with 'app_collaborator' or currentRoute starts with 'app_manager_collab_dashboard' or currentRoute == 'admin_collab_ledger_index') ? 'bg-white shadow-soft-xl' : '' }}" href="{{ collab_path }}">
+						<div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5 transition-all {{ (currentRoute starts with 'app_collaborator' or currentRoute starts with 'app_manager_collab_dashboard' or currentRoute == 'admin_collab_ledger_index') ? 'bg-gradient-to-tl from-purple-700 to-pink-500' : 'bg-white shadow-soft-2xl' }}">
+							<i class="ni ni-briefcase-24 {{ (currentRoute starts with 'app_collaborator' or currentRoute starts with 'app_manager_collab_dashboard' or currentRoute == 'admin_collab_ledger_index') ? 'text-white' : 'text-slate-700' }}"></i>
 						</div>
 						<span class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Collaborations</span>
 					</a>

@@ -62,19 +62,34 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                <div class="mb-4 relative">
+                    <div class="flex justify-between items-center mb-2 ml-1">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'mb-0 font-bold text-xs text-slate-700'}}) }}
+                        <button type="button" class="ai-rephrase-btn text-xxs font-bold uppercase py-1 px-2 rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 text-white border-0 cursor-pointer hover:scale-105 transition-all" data-target="{{ form.description.vars.id }}" data-context="description">
+                            <i class="ni ni-wand-06 mr-1"></i> AI Formal Assist
+                        </button>
+                    </div>
                     {{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '4'}}) }}
                     <div class="text-red-500 text-xs mt-1">{{ form_errors(form.description) }}</div>
                 </div>
 
                 <div class="mb-4">
-                    {{ form_label(form.deliverables, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    <div class="flex justify-between items-center mb-2 ml-1">
+                        {{ form_label(form.deliverables, null, {'label_attr': {'class': 'mb-0 font-bold text-xs text-slate-700'}}) }}
+                        <button type="button" class="ai-rephrase-btn text-xxs font-bold uppercase py-1 px-2 rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 text-white border-0 cursor-pointer hover:scale-105 transition-all" data-target="{{ form.deliverables.vars.id }}" data-context="deliverables">
+                            <i class="ni ni-wand-06 mr-1"></i> AI Formal Assist
+                        </button>
+                    </div>
                     {{ form_widget(form.deliverables, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '3'}}) }}
                 </div>
 
                 <div class="mb-4">
-                    {{ form_label(form.paymentTerms, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+                    <div class="flex justify-between items-center mb-2 ml-1">
+                        {{ form_label(form.paymentTerms, null, {'label_attr': {'class': 'mb-0 font-bold text-xs text-slate-700'}}) }}
+                        <button type="button" class="ai-rephrase-btn text-xxs font-bold uppercase py-1 px-2 rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 text-white border-0 cursor-pointer hover:scale-105 transition-all" data-target="{{ form.paymentTerms.vars.id }}" data-context="payment">
+                            <i class="ni ni-wand-06 mr-1"></i> AI Formal Assist
+                        </button>
+                    </div>
                     {{ form_widget(form.paymentTerms, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none', 'rows': '3'}}) }}
                 </div>
 
@@ -90,4 +105,120 @@
         </div>
     </div>
 </div>
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const aiButtons = document.querySelectorAll('.ai-rephrase-btn');
+    
+    aiButtons.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const targetId = this.getAttribute('data-target');
+            const context = this.getAttribute('data-context');
+            const textarea = document.getElementById(targetId);
+            const originalValue = textarea.value.trim();
+            
+            if (!originalValue) {
+                // Use SweetAlert2 for nice alerts (assuming it's available as used in previous sessions)
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Empty Field',
+                        text: 'Please type some initial thoughts first so the AI can rephrase them into formal language.',
+                        confirmButtonColor: '#cb0c9f'
+                    });
+                } else {
+                    alert('Please type some initial thoughts first.');
+                }
+                return;
+            }
+            
+            // Visual loading state
+            const originalIcon = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<i class="ni ni-settings spin-slow mr-1"></i> Processing...';
+            this.classList.add('opacity-70');
+            textarea.classList.add('animate-pulse', 'bg-slate-50');
+            
+            try {
+                const response = await fetch('{{ path("app_collab_ai_rephrase") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        text: originalValue,
+                        context: context,
+                        requestId: {{ collab_request.id|default('null') }}
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.rephrased) {
+                    // Smoothly update the value
+                    textarea.value = data.rephrased;
+                    
+                    if (typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Formally Rephrased!'
+                        });
+                    }
+                } else {
+                    throw new Error(data.error || 'AI Failed to rephrase');
+                }
+            } catch (error) {
+                console.error('AI Assist Error:', error);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'AI Assist Failed',
+                        text: error.message || 'We couldn\'t reach the AI rephrasing service. Please try again later.',
+                        confirmButtonColor: '#cb0c9f'
+                    });
+                }
+            } finally {
+                this.disabled = false;
+                this.innerHTML = originalIcon;
+                this.classList.remove('opacity-70');
+                textarea.classList.remove('animate-pulse', 'bg-slate-50');
+            }
+        });
+    });
+
+    // Date synchronization logic
+    const startDateInput = document.getElementById('{{ form.startDate.vars.id }}');
+    const endDateInput = document.getElementById('{{ form.endDate.vars.id }}');
+
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (this.value) {
+                endDateInput.min = this.value;
+                if (endDateInput.value && endDateInput.value < this.value) {
+                    endDateInput.value = this.value;
+                }
+            }
+        });
+    }
+});
+</script>
+<style>
+.spin-slow {
+    display: inline-block;
+    animation: fa-spin 2s infinite linear;
+}
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(359deg); }
+}
+</style>
+{% endblock %}
 {% endblock %}

@@ -1,0 +1,49 @@
+{% for request in requests %}
+<tr class="hover:bg-gray-50 transition-colors animate-slide-right stagger-{{ (loop.index0 % 4) + 1 }}">
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex px-2 py-1">
+            <div class="flex flex-col justify-center">
+                <h6 class="mb-0 text-sm leading-normal font-bold text-slate-700">{{ request.title }}</h6>
+                <p class="mb-0 text-xs leading-tight text-slate-400">
+                    <i class="fas fa-building mr-1"></i> {{ request.collaborator.companyName }}
+                </p>
+            </div>
+        </div>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <p class="mb-0 text-sm font-bold leading-tight text-slate-600">{{ request.budget ? request.budget|number_format(2, '.', ' ') ~ ' DT' : '—' }}</p>
+    </td>
+    <td class="p-2 text-sm leading-normal text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        {% if request.status == 'PENDING' %}
+            <span class="bg-blue-100 text-blue-600 px-3 text-xxs border border-blue-200 rounded-lg py-1 inline-block font-bold uppercase">Pending Review</span>
+        {% elseif request.status == 'APPROVED' %}
+            <span class="bg-green-100 text-green-600 px-3 text-xxs border border-green-200 rounded-lg py-1 inline-block font-bold uppercase">Approved</span>
+        {% elseif request.status == 'REJECTED' %}
+            <span class="bg-red-100 text-red-600 px-3 text-xxs border border-red-200 rounded-lg py-1 inline-block font-bold uppercase">Rejected</span>
+        {% elseif request.status == 'MODIFICATION_REQUESTED' %}
+            <span class="bg-orange-100 text-orange-600 px-3 text-xxs border border-orange-200 rounded-lg py-1 inline-block font-bold uppercase">Action Required</span>
+        {% else %}
+            <span class="bg-gray-100 text-slate-400 px-3 text-xxs border border-gray-200 rounded-lg py-1 inline-block font-bold uppercase">{{ request.status }}</span>
+        {% endif %}
+    </td>
+    <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <span class="text-xs font-semibold leading-tight text-slate-400">{{ request.createdAt|date('d/m/Y') }}</span>
+    </td>
+    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+        <div class="flex items-center justify-center space-x-3">
+            <a href="{{ path('app_collab_request_show', {'id': request.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 hover:text-fuchsia-500">
+                <i class="fa fa-eye"></i>
+            </a>
+            {% if request.status == 'PENDING' or request.status == 'MODIFICATION_REQUESTED' %}
+                <a href="{{ path('app_collab_request_edit', {'id': request.id}) }}" class="text-xs font-semibold leading-tight text-slate-400 hover:text-fuchsia-500">
+                    <i class="fa fa-edit"></i>
+                </a>
+            {% endif %}
+        </div>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="5" class="p-4 text-center">No request found.</td>
+</tr>
+{% endfor %}

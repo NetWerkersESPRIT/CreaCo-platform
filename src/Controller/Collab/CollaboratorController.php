@@ -30,6 +30,10 @@ class CollaboratorController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
+        if ($user->getRole() === 'ROLE_MANAGER') {
+            return $this->redirectToRoute('app_manager_collab_dashboard');
+        }
+
 
 
         $search = $request->query->get('q', '');

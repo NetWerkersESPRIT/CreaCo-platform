@@ -1,0 +1,377 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Agency Control Tower - CreaCo Ecosystem{% endblock %}
+{% block breadcrumb %}{{ app.session.get('user_role') == 'ROLE_ADMIN' ? 'Admin / Executive' : 'Manager / Ecosystem' }}{% endblock %}
+{% block page_title %}{{ app.session.get('user_role') == 'ROLE_ADMIN' ? 'Agency Control Tower' : 'Collaboration Ecosystem Hub' }}{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 mx-auto mb-6">
+    <!-- Header Hero -->
+    <div class="relative flex items-center p-0 mt-2 overflow-hidden bg-center bg-cover min-h-75 rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-position-y: 50%">
+        <span class="absolute inset-y-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-purple-800/80 to-fuchsia-600/80 opacity-90"></span>
+        <div class="relative z-1 w-full px-8 py-10">
+            <h2 class="text-white font-bold mb-2 animate-fade-in-down">
+                {{ app.session.get('user_role') == 'ROLE_ADMIN' ? 'Executive Command Center' : 'Network Intelligence Central' }}
+            </h2>
+            <p class="text-white/80 max-w-lg mb-0 text-sm">
+                {{ app.session.get('user_role') == 'ROLE_ADMIN' 
+                   ? 'Strategic oversight of the agency’s partnership velocity, financial health, and AI-driven success metrics.' 
+                   : 'Overseeing the tactical alignment of creators and strategic partners. Monitor velocity and contract lifecycle.' 
+                }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="mt-6">
+        {% include 'collaborator/_nav.html.twig' %}
+    </div>
+
+    {% if app.session.get('user_role') == 'ROLE_ADMIN' %}
+        <!-- EXECUTIVE DASHBOARD (CONTROL TOWER) -->
+        <div class="flex flex-wrap -mx-3 mt-6">
+            <!-- Global KPIs Row 1 -->
+            <div class="w-full px-3 mb-6 lg:w-3/12 animate-fade-in-up stagger-1">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale p-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl flex items-center justify-center mr-4">
+                            <i class="ni ni-spaceship text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase opacity-50 mb-0">Active Missions</p>
+                            <h4 class="font-bold mb-0 counter" data-target="{{ stats.global_active }}">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full px-3 mb-6 lg:w-3/12 animate-fade-in-up stagger-2">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale p-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 shadow-soft-2xl flex items-center justify-center mr-4">
+                            <i class="ni ni-money-coins text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase opacity-50 mb-0">Revenue Secured</p>
+                            <h4 class="font-bold mb-0"><span class="counter" data-target="{{ stats.total_revenue }}">0</span> DT</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full px-3 mb-6 lg:w-3/12 animate-fade-in-up stagger-3">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale p-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-tl from-green-600 to-lime-400 shadow-soft-2xl flex items-center justify-center mr-4">
+                            <i class="ni ni-check-bold text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase opacity-50 mb-0">Signed This Month</p>
+                            <h4 class="font-bold mb-0 counter" data-target="{{ stats.signed_this_month }}">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full px-3 mb-6 lg:w-3/12 animate-fade-in-up stagger-4">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale p-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-tl from-orange-500 to-yellow-400 shadow-soft-2xl flex items-center justify-center mr-4">
+                            <i class="ni ni-atom text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase opacity-50 mb-0">AI Accuracy</p>
+                            <h4 class="font-bold mb-0"><span class="counter" data-target="{{ stats.ai_accuracy }}">0</span>%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis Section -->
+            <div class="w-full lg:w-7/12 px-3 mb-6">
+                <div class="bg-white shadow-soft-xl rounded-2xl p-6 h-full border border-gray-100 relative overflow-hidden">
+                   <div class="absolute top-0 right-0 p-4 opacity-5">
+                       <i class="ni ni-chart-bar-32 text-8xl"></i>
+                   </div>
+                   <h6 class="font-bold mb-4">Signature Velocity & Lifecycle</h6>
+                   <div class="flex items-center mb-6">
+                       <div class="mr-10">
+                           <p class="text-xs font-semibold uppercase text-slate-400 mb-1">Avg. Dispatch to Sign</p>
+                           <h3 class="font-bold text-fuchsia-600 mb-0">{{ stats.avg_sign_time }} <span class="text-sm">Hours</span></h3>
+                           <small class="text-green-500 font-bold"><i class="fa fa-caret-down"></i> 12% vs last month</small>
+                       </div>
+                       <div class="flex-grow">
+                           <div class="flex justify-between mb-1">
+                               <span class="text-xs font-bold">Optimization Target (24h)</span>
+                               <span class="text-xs font-bold">92%</span>
+                           </div>
+                           <div class="w-full bg-gray-100 rounded-full h-1.5">
+                               <div class="bg-gradient-to-r from-fuchsia-600 to-purple-600 h-1.5 rounded-full" style="width: 92%"></div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <hr class="horizontal dark my-4">
+
+                   <h6 class="font-bold mb-4 text-xs uppercase opacity-60">Signature Pipeline (DocuSign Status)</h6>
+                   <div class="flex flex-wrap -mx-2">
+                       <div class="w-1/3 px-2">
+                           <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-fuchsia-50">
+                               <h5 class="font-bold mb-0 text-fuchsia-600">{{ stats.pending_signatures.SENT }}</h5>
+                               <p class="text-xxs font-bold uppercase opacity-60 mb-0">Sent</p>
+                           </div>
+                       </div>
+                       <div class="w-1/3 px-2">
+                           <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-blue-50">
+                               <h5 class="font-bold mb-0 text-blue-600">{{ stats.pending_signatures.VIEWED|default(0) }}</h5>
+                               <p class="text-xxs font-bold uppercase opacity-60 mb-0">Viewed</p>
+                           </div>
+                       </div>
+                       <div class="w-1/3 px-2">
+                           <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-green-50">
+                               <h5 class="font-bold mb-0 text-green-600">{{ (stats.pending_signatures.SIGNED|default(0)) }}</h5>
+                               <p class="text-xxs font-bold uppercase opacity-60 mb-0">Partial Sign</p>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+            </div>
+
+            <!-- AI Intelligence Card -->
+            <div class="w-full lg:w-5/12 px-3 mb-6">
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 shadow-soft-xl rounded-2xl p-6 h-full text-white relative">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h6 class="text-white font-bold mb-0">AI Strategic Confidence</h6>
+                            <p class="text-white/60 text-xs">Based on current network pulsations</p>
+                        </div>
+                        <div class="bg-white/10 p-2 rounded-lg">
+                            <i class="ni ni-bulb-61 text-xl text-yellow-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center py-6">
+                        <div class="inline-flex relative items-center justify-center">
+                            <!-- Circular SVG progress can go here, using CSS for now -->
+                             <div class="w-32 h-32 rounded-full border-8 border-white/5 flex items-center justify-center border-t-fuchsia-500 animate-spin-slow">
+                                <h2 class="text-white font-bold mb-0 text-4xl">{{ stats.ai_accuracy|round }}%</h2>
+                             </div>
+                        </div>
+                        <p class="mt-4 text-xs font-semibold leading-relaxed">
+                            Your agency's predictive model is performing at high-efficiency.<br>
+                            <span class="text-fuchsia-400">Tactical recommendation:</span> Prioritize pending signatures with high AI scores.
+                        </p>
+                    </div>
+
+                    <div class="mt-4 flex justify-between bg-white/5 p-3 rounded-xl">
+                        <div class="text-center px-2 border-r border-white/10">
+                            <p class="text-[10px] uppercase font-bold opacity-60 mb-0">High Conviction</p>
+                            <span class="text-sm font-bold">84%</span>
+                        </div>
+                        <div class="text-center px-4 border-r border-white/10">
+                            <p class="text-[10px] uppercase font-bold opacity-60 mb-0">Risk Signal</p>
+                            <span class="text-sm font-bold text-red-400">12%</span>
+                        </div>
+                        <div class="text-center px-2">
+                            <p class="text-[10px] uppercase font-bold opacity-60 mb-0">Neutral</p>
+                            <span class="text-sm font-bold opacity-60">4%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- STANDARD MANAGER HUB -->
+        <div class="flex flex-wrap -mx-3 -mt-12 relative z-2">
+            <!-- Partners -->
+            <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-1">
+                <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Global Partners</p>
+                                    <h5 class="mb-0 font-bold counter" data-target="{{ stats.total_partners }}">0</h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl">
+                                    <i class="ni ni-world text-lg relative top-2.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Active Contracts -->
+            <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-2">
+                <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Active Power</p>
+                                    <h5 class="mb-0 font-bold"><span class="counter" data-target="{{ stats.active_contracts }}">0</span> / {{ stats.managed_contracts }}</h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-green-600 to-lime-400 shadow-soft-2xl">
+                                    <i class="ni ni-paper-diploma text-lg relative top-2.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Budget -->
+            <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-3">
+                <div class="relative flex flex-col min-w-0 break-words bg-white/90 backdrop-blur-md shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Controlled Budget</p>
+                                    <h5 class="mb-0 font-bold"><span class="counter" data-target="{{ stats.total_budget|round }}">0</span> DT</h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-blue-600 to-cyan-400 shadow-soft-2xl">
+                                    <i class="ni ni-money-coins text-lg relative top-2.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- PENDING -->
+            <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4 animate-fade-in-up stagger-4">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover-scale cursor-default transition-all duration-300 {{ (stats.pending_requests|default(0)) > 0 ? 'animate-pulse-glow ring-2 ring-fuchsia-500 ring-opacity-50' : '' }}">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-xs font-semibold leading-normal uppercase opacity-60">Pending Sync</p>
+                                    <h5 class="mb-0 font-bold text-fuchsia-600"><span class="counter" data-target="{{ stats.pending_requests|default(0) }}">0</span> Items</h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-red-600 to-rose-400 shadow-soft-2xl">
+                                    <i class="ni ni-bell-55 text-lg relative top-2.5 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts & Tables -->
+        <div class="flex flex-wrap mt-6 -mx-3">
+            <div class="w-full max-w-full px-3 mb-6 lg:w-7/12 animate-reveal-scale stagger-2">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border overflow-hidden">
+                    <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                        <h6 class="font-bold">Strategic Network Velocity</h6>
+                        <p class="text-xs leading-normal opacity-60">
+                            <i class="fa fa-arrow-up text-green-500"></i>
+                            <span class="font-semibold">4% more</span> in 2026
+                        </p>
+                    </div>
+                    <div class="flex-auto p-4 pt-0">
+                        <div class="h-80 bg-gradient-to-br from-gray-50 to-white rounded-xl flex items-center justify-center relative group">
+                            <div class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+                            <div class="relative flex items-end space-x-2 h-48">
+                                {% for i in 1..12 %}
+                                    <div class="w-4 bg-fuchsia-500/20 rounded-t-sm hover:bg-fuchsia-500 transition-all duration-300" style="height: {{ random(40, 100) }}%"></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full max-w-full px-3 mb-6 lg:w-5/12 animate-reveal-scale stagger-3">
+                <div class="relative flex flex-col h-full min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                    <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between">
+                        <h6 class="font-bold">Recent Pulsations</h6>
+                        <a href="{{ path('app_manager_contract_index') }}" class="text-xs font-bold text-fuchsia-500 hover:text-fuchsia-700 uppercase">View All</a>
+                    </div>
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-col">
+                            {% for contract in recent_contracts %}
+                                <div class="flex items-center mb-4 last:mb-0 group cursor-default">
+                                    <div class="flex-none p-2 mr-3 bg-fuchsia-50 rounded-lg group-hover:bg-fuchsia-500 transition-colors">
+                                        <i class="fas fa-file-signature text-fuchsia-500 group-hover:text-white transition-colors"></i>
+                                    </div>
+                                    <div class="flex flex-col flex-grow">
+                                        <h6 class="mb-0 text-xs font-bold text-slate-700">#{{ contract.contractNumber }} - {{ contract.title|slice(0, 20) }}...</h6>
+                                        <p class="mb-0 text-xxs font-semibold opacity-60 uppercase">{{ contract.collaborator.companyName }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        {% if contract.status == 'SIGNED_BY_COLLABORATOR' %}
+                                            <span class="text-[10px] font-bold text-green-500">CLOSED</span>
+                                        {% else %}
+                                            <span class="text-[10px] font-bold text-blue-500">FLOWING</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p class="text-xs italic text-slate-400">The ecosystem is quiet today.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+@keyframes fade-in-down {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+}
+.animate-fade-in-down {
+    animation: fade-in-down 0.8s ease-out;
+}
+.animate-fade-in-up {
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out forwards;
+}
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Counter Animation
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    counters.forEach(counter => {
+        const animate = () => {
+            const target = +counter.getAttribute('data-target');
+            const data = +counter.innerText.replace(/,/g, '');
+            const time = Math.max(target / speed, 1);
+            if (data < target) {
+                counter.innerText = Math.ceil(data + time);
+                setTimeout(animate, 10);
+            } else {
+                counter.innerText = target.toLocaleString();
+            }
+        };
+        animate();
+    });
+});
+</script>
+{% endblock %}
