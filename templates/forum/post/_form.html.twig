@@ -114,31 +114,32 @@ const toggleBtn = document.getElementById('toggle-editor');
 const statusLabel = document.getElementById('editor-status');
 const calmBot = document.getElementById('calm-bot-container');
 const debugDiv = document.getElementById('calm-bot-debug');
-
-// Game elements
 const startBtn = document.getElementById('start-game');
-const overlay = document.getElementById('game-overlay');
-const gameMainCard = document.getElementById('game-main-card');
-const grid = document.getElementById('game-grid');
-const winModal = document.getElementById('win-modal');
-const motivationalModal = document.getElementById('motivational-modal');
-const phraseEl = document.getElementById('motivational-phrase');
-const playAgainBtn = document.getElementById('play-again');
-const victoryContinueBtn = document.getElementById('victory-continue');
-const closeGameFinalBtn = document.getElementById('close-game-final');
-const backBtn = document.getElementById('back-from-game');
-
-console.log('Elements found:', {
-    startBtn: !!startBtn,
-    overlay: !!overlay,
-    mainCard: !!gameMainCard,
-    grid: !!grid,
-    winModal: !!winModal
-});
 
 // Editor variables
 let editorInstance = null;
 let analysisTimeout = null;
+
+// Global Transformation Function for CalmBot
+window.transformCalmBot = function() {
+    const card = document.getElementById('calm-bot-card');
+    const title = document.getElementById('calm-bot-title');
+    const desc = document.getElementById('calm-bot-desc');
+    const dot = document.getElementById('calm-bot-dot');
+    const gameBtn = document.getElementById('start-game');
+
+    if (card && title && desc && dot) {
+        console.log('[CalmBot] Transforming to Calm/Green Mode ✨');
+        card.style.setProperty('background', 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)', 'important');
+        card.style.setProperty('border-color', '#bbf7d0', 'important');
+        dot.style.setProperty('background-color', '#4ade80', 'important');
+        title.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready to rephrase calmly? ✨';
+        title.style.setProperty('color', '#166534', 'important');
+        desc.textContent = "You look much calmer now! Why not try to rephrase your thoughts into a more positive post?";
+        desc.style.setProperty('color', '#14532d', 'important');
+        if (gameBtn) gameBtn.style.setProperty('display', 'none', 'important');
+    }
+};
 
 // --- Sentiment Analysis Logic ---
 const analyzeSentiment = async (text) => {
@@ -199,201 +200,6 @@ const titleInput = document.getElementById('{{ form.title.vars.id }}') || docume
 if (titleInput) {
     titleInput.addEventListener('input', (e) => {
         if (e.target.value.length > 20) debouncedAnalyze(e.target.value);
-    });
-}
-
-// Variables
-let firstCard = null;
-let secondCard = null;
-let lockBoard = false;
-let matches = 0;
-const gameIcons = ['🐱', '🐱', '🦁', '🦁', '🦉', '🦉', '🦄', '🦄'];
-
-// --- Game Functions ---
-function initGame() {
-    if (!grid) return;
-    
-    console.log('[Game] Initializing...');
-    grid.innerHTML = '';
-    firstCard = null;
-    secondCard = null;
-    lockBoard = false;
-    matches = 0;
-    
-    // Hide modals and show main card
-    if(winModal) winModal.classList.add('hidden');
-    if(motivationalModal) motivationalModal.classList.add('hidden');
-    if(gameMainCard) gameMainCard.style.setProperty('display', 'flex', 'important');
-
-    const shuffled = [...gameIcons];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    shuffled.forEach((value) => {
-        const card = document.createElement('div');
-        card.className = 'memory-card';
-        card.dataset.value = value;
-        card.innerHTML = `
-            <div class="front">${value}</div>
-            <div class="back"><i class="fas fa-paw"></i></div>
-        `;
-        card.addEventListener('click', () => flipCard(card));
-        grid.appendChild(card);
-    });
-}
-
-function flipCard(card) {
-    if (lockBoard || card === firstCard || card.classList.contains('matched')) return;
-
-    card.classList.add('flipped');
-
-    if (!firstCard) {
-        firstCard = card;
-        return;
-    }
-
-    secondCard = card;
-    lockBoard = true;
-    checkMatch();
-}
-
-function checkMatch() {
-    const isMatch = firstCard.dataset.value === secondCard.dataset.value;
-    if (isMatch) {
-        disableCards();
-    } else {
-        unflipCards();
-    }
-}
-
-function disableCards() {
-    firstCard.classList.add('matched');
-    secondCard.classList.add('matched');
-    matches++;
-    console.log(`[Game] Match found! Total: ${matches}`);
-    
-    resetBoard();
-
-    if (matches === 4) {
-        console.log('[Game] 🏆 VICTORY reached.');
-        setTimeout(() => {
-            if (winModal) {
-                // Hide game card to avoid confusion
-                if(gameMainCard) gameMainCard.style.setProperty('display', 'none', 'important');
-                
-                winModal.classList.remove('hidden');
-                winModal.style.setProperty('display', 'flex', 'important');
-                winModal.style.setProperty('z-index', '1000000', 'important');
-                console.log('[Game] Win Modal should be visible now');
-            }
-        }, 500);
-    }
-}
-
-function unflipCards() {
-    setTimeout(() => {
-        if (firstCard) firstCard.classList.remove('flipped');
-        if (secondCard) secondCard.classList.remove('flipped');
-        resetBoard();
-    }, 800);
-}
-
-function resetBoard() {
-    [firstCard, secondCard] = [null, null];
-    lockBoard = false;
-}
-
-function fetchMotivationalPhrase() {
-    if (!phraseEl) return;
-    phraseEl.textContent = "Loading inspiration...";
-    
-    fetch('/data/motivational_phrases.json').then(res => res.json()).then(phrases => {
-        const random = phrases[Math.floor(Math.random() * phrases.length)];
-        phraseEl.textContent = `"${random}"`;
-    }).catch(err => {
-        console.warn('[Game] Fallback phrases used');
-        const fallbacks = ["You're doing amazing!", "Paws-itively perfect!", "Keep moving forward!"];
-        phraseEl.textContent = `"${fallbacks[Math.floor(Math.random() * fallbacks.length)]}"`;
-    });
-}
-
-// --- Transformation Function ---
-function transformCalmBot() {
-    const card = document.getElementById('calm-bot-card');
-    const title = document.getElementById('calm-bot-title');
-    const desc = document.getElementById('calm-bot-desc');
-    const dot = document.getElementById('calm-bot-dot');
-    const gameBtn = document.getElementById('start-game');
-
-    if (card && title && desc && dot) {
-        console.log('[CalmBot] Transforming to Calm/Green Mode ✨');
-        
-        // Force Green Styles directly to bypass any override issues
-        card.style.setProperty('background', 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)', 'important');
-        card.style.setProperty('border-color', '#bbf7d0', 'important');
-        
-        dot.style.setProperty('background-color', '#4ade80', 'important');
-
-        // Update Text
-        title.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready to rephrase calmly? ✨';
-        title.style.setProperty('color', '#166534', 'important');
-
-        desc.textContent = "You look much calmer now! Why not try to rephrase your thoughts into a more positive post?";
-        desc.style.setProperty('color', '#14532d', 'important');
-
-        // Hide game button
-        if (gameBtn) gameBtn.style.setProperty('display', 'none', 'important');
-    }
-}
-
-// --- Event Listeners ---
-
-if (startBtn) {
-    startBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (overlay) {
-            overlay.style.setProperty('display', 'flex', 'important');
-            initGame();
-        }
-    });
-}
-
-if (victoryContinueBtn) {
-    victoryContinueBtn.addEventListener('click', () => {
-        if (winModal) {
-            winModal.classList.add('hidden');
-            winModal.style.setProperty('display', 'none', 'important');
-        }
-        if (motivationalModal) {
-            motivationalModal.classList.remove('hidden');
-            motivationalModal.style.setProperty('display', 'flex', 'important');
-            fetchMotivationalPhrase();
-        }
-    });
-}
-
-if (playAgainBtn) {
-    playAgainBtn.addEventListener('click', () => {
-        if (motivationalModal) {
-            motivationalModal.classList.add('hidden');
-            motivationalModal.style.setProperty('display', 'none', 'important');
-        }
-        initGame();
-    });
-}
-
-if (closeGameFinalBtn) {
-    closeGameFinalBtn.addEventListener('click', () => {
-        overlay.style.setProperty('display', 'none', 'important');
-        transformCalmBot();
-    });
-}
-
-if (backBtn) {
-    backBtn.addEventListener('click', () => {
-        overlay.style.setProperty('display', 'none', 'important');
     });
 }
 
@@ -611,5 +417,4 @@ if (SpeechRecognition) {
 </div>
 {{ form_end(form) }}
 
-{# Include Shared Memory Game Template #}
-{% include 'forum/post/game.html.twig' %}
+{# Include Shared Memory Game Template removed as it is now global in base.html.twig #}

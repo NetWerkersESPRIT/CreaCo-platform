@@ -200,5 +200,82 @@ setInterval(syncNotifBadge, 30000);
 });
 				</script>
 			{% endblock %}
+
+			{# Global Memory Game Modal #}
+			{% if app.session.get('user_role') %}
+				{% include 'forum/post/game.html.twig' %}
+				<script>
+					// Global game state and functions
+					window.initMemoryGame = function() {
+						const grid = document.getElementById('game-grid');
+						const winModal = document.getElementById('win-modal');
+						const motivationalModal = document.getElementById('motivational-modal');
+						const gameMainCard = document.getElementById('game-main-card');
+						if (!grid) return;
+						grid.innerHTML = '';
+						let firstCard = null, secondCard = null, lockBoard = false, matches = 0;
+						const gameIcons = ['🐱', '🐱', '🦁', '🦁', '🦉', '🦉', '🦄', '🦄'];
+						if(winModal) winModal.classList.add('hidden');
+						if(motivationalModal) motivationalModal.classList.add('hidden');
+						if(gameMainCard) gameMainCard.style.setProperty('display', 'flex', 'important');
+						const shuffled = [...gameIcons].sort(() => 0.5 - Math.random());
+						shuffled.forEach((value) => {
+							const card = document.createElement('div');
+							card.className = 'memory-card';
+							card.dataset.value = value;
+							card.innerHTML = `<div class="front">${value}</div><div class="back"><i class="fas fa-paw"></i></div>`;
+							card.addEventListener('click', () => {
+								if (lockBoard || card === firstCard || card.classList.contains('matched')) return;
+								card.classList.add('flipped');
+								if (!firstCard) { firstCard = card; return; }
+								secondCard = card; lockBoard = true;
+								if (firstCard.dataset.value === secondCard.dataset.value) {
+									firstCard.classList.add('matched'); secondCard.classList.add('matched');
+									matches++; firstCard = null; secondCard = null; lockBoard = false;
+									if (matches === 4) {
+										setTimeout(() => {
+											if(gameMainCard) gameMainCard.style.setProperty('display', 'none', 'important');
+											winModal.classList.remove('hidden');
+											winModal.style.setProperty('display', 'flex', 'important');
+										}, 500);
+									}
+								} else {
+									setTimeout(() => {
+										if(firstCard) firstCard.classList.remove('flipped');
+										if(secondCard) secondCard.classList.remove('flipped');
+										firstCard = null; secondCard = null; lockBoard = false;
+									}, 800);
+								}
+							});
+							grid.appendChild(card);
+						});
+					};
+
+					document.addEventListener('DOMContentLoaded', () => {
+						const startBtnSidebar = document.getElementById('start-game'); // Sidebar item
+						const overlay = document.getElementById('game-overlay');
+						const winModal = document.getElementById('win-modal');
+						const motivationalModal = document.getElementById('motivational-modal');
+						const phraseEl = document.getElementById('motivational-phrase');
+						const playAgainBtn = document.getElementById('play-again');
+						const victoryContinueBtn = document.getElementById('victory-continue');
+						const closeGameFinalBtn = document.getElementById('close-game-final');
+						const backBtn = document.getElementById('back-from-game');
+
+						if (startBtnSidebar) startBtnSidebar.addEventListener('click', (e) => { e.preventDefault(); if (overlay) { overlay.style.setProperty('display', 'flex', 'important'); window.initMemoryGame(); } });
+						if (victoryContinueBtn) victoryContinueBtn.addEventListener('click', () => { winModal.style.setProperty('display', 'none', 'important'); motivationalModal.classList.remove('hidden'); motivationalModal.style.setProperty('display', 'flex', 'important'); fetchMotivationalPhrase(); });
+						if (playAgainBtn) playAgainBtn.addEventListener('click', () => { motivationalModal.style.setProperty('display', 'none', 'important'); window.initMemoryGame(); });
+						if (closeGameFinalBtn) closeGameFinalBtn.addEventListener('click', () => { overlay.style.setProperty('display', 'none', 'important'); if(typeof transformCalmBot === 'function') transformCalmBot(); });
+						if (backBtn) backBtn.addEventListener('click', () => { if (overlay) { overlay.style.setProperty('display', 'none', 'important'); overlay.style.display = 'none'; } });
+
+						function fetchMotivationalPhrase() {
+							if (!phraseEl) return;
+							fetch('/data/motivational_phrases.json').then(res => res.json()).then(phrases => {
+								phraseEl.textContent = `"${phrases[Math.floor(Math.random() * phrases.length)]}"`;
+							}).catch(() => { phraseEl.textContent = `"You're doing amazing!"`; });
+						}
+					});
+				</script>
+			{% endif %}
 		</body>
 	</html>

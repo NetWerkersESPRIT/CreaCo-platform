@@ -128,16 +128,13 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
     private Collection $groups;
 
-<<<<<<< HEAD
     /**
      * @var Collection<int, IdeaUsage>
      */
     #[ORM\OneToMany(targetEntity: IdeaUsage::class, mappedBy: 'User')]
     private Collection $ideaUsages;
-=======
     #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $reactions;
->>>>>>> 117050be2cbfae77c499d67346be221fcf8fc4e8
 
     public function __construct()
     {
@@ -155,11 +152,8 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
-<<<<<<< HEAD
         $this->ideaUsages = new ArrayCollection();
-=======
         $this->reactions = new ArrayCollection();
->>>>>>> 117050be2cbfae77c499d67346be221fcf8fc4e8
     }
 
     public function getId(): ?int
@@ -500,7 +494,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-<<<<<<< HEAD
      * @return Collection<int, IdeaUsage>
      */
     public function getIdeaUsages(): Collection
@@ -512,8 +505,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->ideaUsages->contains($ideaUsage)) {
             $this->ideaUsages->add($ideaUsage);
-            $ideaUsage->setUser($this);
-=======
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, PostReaction>
      */
     public function getReactions(): Collection
@@ -526,27 +523,29 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         if (!$this->reactions->contains($reaction)) {
             $this->reactions->add($reaction);
             $reaction->setUser($this);
->>>>>>> 117050be2cbfae77c499d67346be221fcf8fc4e8
         }
 
         return $this;
     }
 
-<<<<<<< HEAD
     public function removeIdeaUsage(IdeaUsage $ideaUsage): static
     {
         if ($this->ideaUsages->removeElement($ideaUsage)) {
             // set the owning side to null (unless already changed)
             if ($ideaUsage->getUser() === $this) {
                 $ideaUsage->setUser(null);
-=======
+            }
+        }
+
+        return $this;
+    }
+
     public function removeReaction(PostReaction $reaction): static
     {
         if ($this->reactions->removeElement($reaction)) {
             // set the owning side to null (unless already changed)
             if ($reaction->getUser() === $this) {
                 $reaction->setUser(null);
->>>>>>> 117050be2cbfae77c499d67346be221fcf8fc4e8
             }
         }
 
