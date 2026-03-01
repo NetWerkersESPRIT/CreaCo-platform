@@ -2,6 +2,8 @@
 
 namespace App\EventListener;
 
+use App\Repository\NotificationRepository;
+use App\Repository\PostRepository;
 use App\Repository\UsersRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -10,13 +12,21 @@ use Twig\Environment;
 
 class UserSessionListener implements EventSubscriberInterface
 {
-    private $usersRepository;
-    private $twig;
+    private UsersRepository $usersRepository;
+    private Environment $twig;
+    private NotificationRepository $notificationRepository;
+    private PostRepository $postRepository;
 
-    public function __construct(UsersRepository $usersRepository, Environment $twig)
-    {
+    public function __construct(
+        UsersRepository $usersRepository,
+        Environment $twig,
+        NotificationRepository $notificationRepository,
+        PostRepository $postRepository
+    ) {
         $this->usersRepository = $usersRepository;
         $this->twig = $twig;
+        $this->notificationRepository = $notificationRepository;
+        $this->postRepository = $postRepository;
     }
 
     public function onKernelController(ControllerEvent $event): void
@@ -37,12 +47,10 @@ class UserSessionListener implements EventSubscriberInterface
         $pendingCount = 0;
 
         if ($user) {
-            $unreadCount = $request->get('notification_repo', $this->usersRepository->getEntityManager()->getRepository(\App\Entity\Notification::class))
-                ->countUnreadForUser($user);
-            
-            if (strtolower(trim($user->getRole())) === 'role_admin' || $session->get('user_role') === 'ROLE_ADMIN') {
-                $pendingCount = $this->usersRepository->getEntityManager()->getRepository(\App\Entity\Post::class)
-                    ->countPending();
+            $unreadCount = $this->notificationRepository->countUnreadForUser($user);
+
+            if (strtolower(trim($user->getRole() ?? '')) === 'role_admin' || $session->get('user_role') === 'ROLE_ADMIN') {
+                $pendingCount = $this->postRepository->countPending();
             }
         }
 
