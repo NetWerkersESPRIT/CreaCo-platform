@@ -59,7 +59,6 @@ class SessionAuthListener implements EventSubscriberInterface
             $session->remove('user_id');
             $session->remove('user_role');
             $session->remove('username');
-            $session->remove('groupid');
             return;
         }
 

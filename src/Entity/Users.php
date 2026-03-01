@@ -35,8 +35,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $role = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $groupid = null;
+
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
@@ -129,11 +128,17 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $groups;
 
     /**
+<<<<<<< HEAD
      * @var Collection<int, IdeaUsage>
      */
     #[ORM\OneToMany(targetEntity: IdeaUsage::class, mappedBy: 'User')]
     private Collection $ideaUsages;
     #[ORM\OneToMany(targetEntity: PostReaction::class, mappedBy: 'user', orphanRemoval: true)]
+=======
+     * @var Collection<int, PostReaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
+>>>>>>> 45e3811a5ac112cea5b5b19121ebea6a4d63b1ff
     private Collection $reactions;
 
     public function __construct()
@@ -152,7 +157,10 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
+<<<<<<< HEAD
         $this->ideaUsages = new ArrayCollection();
+=======
+>>>>>>> 45e3811a5ac112cea5b5b19121ebea6a4d63b1ff
         $this->reactions = new ArrayCollection();
     }
 
@@ -236,17 +244,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGroupid(): ?int
-    {
-        return $this->groupid;
-    }
 
-    public function setGroupid(?int $groupid): static
-    {
-        $this->groupid = $groupid;
-
-        return $this;
-    }
 
     public function getNumtel(): ?string
     {
@@ -472,6 +470,36 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getGroups(): Collection
     {
         return $this->groups;
+    }
+
+    /**
+     * @return Collection<int, PostReaction>
+     */
+    public function getReactions(): Collection
+    {
+        return $this->reactions;
+    }
+
+    public function addReaction(PostReaction $reaction): static
+    {
+        if (!$this->reactions->contains($reaction)) {
+            $this->reactions->add($reaction);
+            $reaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReaction(PostReaction $reaction): static
+    {
+        if ($this->reactions->removeElement($reaction)) {
+            // set the owning side to null (unless already changed)
+            if ($reaction->getUser() === $this) {
+                $reaction->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
     public function addGroup(Group $group): static
