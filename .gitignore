@@ -17,5 +17,3 @@
 ###> symfony/asset-mapper ###
 /assets/vendor/
 ###< symfony/asset-mapper ###
-
-/config/docusign_private.key
