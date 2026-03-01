@@ -5,6 +5,7 @@ namespace App\Controller\Collab\Manager;
 use App\Entity\CollabRequest;
 use App\Entity\Contract;
 use App\Entity\Notification;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Entity\Users;
 use App\Service\CollaborationAIService;
 use App\Service\LegalEngineService;
@@ -85,7 +86,7 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/approve', name: 'app_manager_collab_request_approve', methods: ['POST'])]
-    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request, LegalEngineService $legalEngine): Response
+    public function approve(CollabRequest $collabRequest, EntityManagerInterface $em, Request $request, LegalEngineService $legalEngine, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
@@ -108,7 +109,7 @@ class ManagerCollabRequestController extends AbstractController
         $collabRequest->setRespondedAt(new \DateTime());
 
         // Génération automatique du contrat via la Legal Engine Room
-        $contract = new Contract();
+        $contract = $factory->createContract();
         $contract->setCollabRequest($collabRequest);
         $contract->setCreator($collabRequest->getCreator());
         $contract->setCollaborator($collabRequest->getCollaborator());
@@ -133,7 +134,7 @@ class ManagerCollabRequestController extends AbstractController
         // Notify Creator
         $creator = $collabRequest->getCreator();
         if ($creator) {
-            $notification = new Notification();
+            $notification = $factory->createNotification();
             $notification->setMessage("Your collaboration request '" . $collabRequest->getTitle() . "' has been approved. A draft contract is now available.");
             $notification->setUserId($creator);
             $notification->setIsRead(false);
@@ -151,7 +152,7 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/reject', name: 'app_manager_collab_request_reject', methods: ['GET', 'POST'])]
-    public function reject(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em): Response
+    public function reject(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
@@ -187,7 +188,7 @@ class ManagerCollabRequestController extends AbstractController
             // Notify Creator
             $creator = $collabRequest->getCreator();
             if ($creator) {
-                $notification = new Notification();
+                $notification = $factory->createNotification();
                 $notification->setMessage("Your collaboration request '" . $collabRequest->getTitle() . "' has been rejected.");
                 $notification->setUserId($creator);
                 $notification->setIsRead(false);
@@ -211,7 +212,7 @@ class ManagerCollabRequestController extends AbstractController
     }
 
     #[Route('/{id}/request-modification', name: 'app_manager_collab_request_modify', methods: ['GET', 'POST'])]
-    public function requestModification(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em): Response
+    public function requestModification(CollabRequest $collabRequest, Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
@@ -247,7 +248,7 @@ class ManagerCollabRequestController extends AbstractController
             // Notify Creator
             $creator = $collabRequest->getCreator();
             if ($creator) {
-                $notification = new Notification();
+                $notification = $factory->createNotification();
                 $notification->setMessage("A modification has been requested for your collaboration request '" . $collabRequest->getTitle() . "'.");
                 $notification->setUserId($creator);
                 $notification->setIsRead(false);

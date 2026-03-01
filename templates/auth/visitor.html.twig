@@ -36,6 +36,14 @@
 				100% { transform: translateY(0px); }
 			}
 		</style>
+
+		{% if app.environment == 'dev' %}
+		<style>
+			/* Force Symfony Debug Bar Visibility */
+			.sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+			.sf-display-none { display: block !important; }
+		</style>
+		{% endif %}
 	</head>
 
 	<body class="m-0 font-sans antialiased font-normal bg-gray-50 text-start text-base leading-default text-slate-500 overflow-x-hidden">
@@ -200,7 +208,7 @@
 							</a>
 
 {% if random_courses is defined and random_courses|length > 0 %}
-                                                              <div class="mt-12 container mx-auto px-6"> 
+                                                              <div class="mt-12 container mx-auto px-2"> 
                                                                     <h2 class="text-4xl font-bold text-slate-800 leading-tight mb-6">
                                                                     Handpicked <br>
                                                                     <span class="text-fuchsia-500">Learning Gems</span>
@@ -261,12 +269,7 @@
 							The definitive platform for creative collaboration and professional growth.
 						</p>
 					</div>
-					<div class="w-full md:w-6/12 px-3  text-center md:text-right">
-						<div class="flex justify-center md:justify-end gap-6 mb-4">
-							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-twitter"></i></a>
-							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-instagram"></i></a>
-							<a href="#" class="text-slate-400 hover:text-fuchsia-500 transition-all text-lg"><i class="fab fa-linkedin"></i></a>
-						</div>
+					<div class="w-full md:w-6/12 px-3 text-center md:text-right">
 						<p class="mb-0 text-slate-400 text-sm">
 							&copy; <script>document.write(new Date().getFullYear());</script> NetWorkers. Distributed with ❤️.
 						</p>

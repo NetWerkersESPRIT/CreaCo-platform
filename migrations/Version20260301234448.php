@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260301091328 extends AbstractMigration
+final class Version20260301234448 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -36,6 +36,7 @@ final class Version20260301091328 extends AbstractMigration
         $this->addSql('CREATE TABLE `group` (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, owner_id INT NOT NULL, INDEX IDX_6DC044C57E3C61F9 (owner_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE group_user (group_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_A4C98D39FE54D947 (group_id), INDEX IDX_A4C98D3967B3B43D (users_id), PRIMARY KEY (group_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE idea (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_used DATETIME DEFAULT NULL, creator_id INT NOT NULL, INDEX IDX_A8BCA4561220EA6 (creator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE idea_users (idea_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_5544963C5B6FEF7D (idea_id), INDEX IDX_5544963C67B3B43D (users_id), PRIMARY KEY (idea_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE idea_usage (id INT AUTO_INCREMENT NOT NULL, date_used DATETIME NOT NULL, user_id INT NOT NULL, idea_id INT NOT NULL, INDEX IDX_912C6DA5A76ED395 (user_id), INDEX IDX_912C6DA55B6FEF7D (idea_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE message (id INT AUTO_INCREMENT NOT NULL, content LONGTEXT NOT NULL, created_at DATETIME NOT NULL, is_read TINYINT NOT NULL, read_at DATETIME DEFAULT NULL, is_profane TINYINT DEFAULT 0 NOT NULL, profane_words INT DEFAULT 0 NOT NULL, grammar_errors INT DEFAULT 0 NOT NULL, status VARCHAR(50) DEFAULT \'visible\' NOT NULL, conversation_id INT NOT NULL, sender_user_id INT NOT NULL, INDEX IDX_B6BD307F9AC0396 (conversation_id), INDEX IDX_B6BD307F2A98155E (sender_user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE mission (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(1000) NOT NULL, state VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_update DATETIME DEFAULT NULL, mission_date DATETIME DEFAULT NULL, completed_at DATETIME DEFAULT NULL, implement_idea_id INT NOT NULL, assigned_by_id INT NOT NULL, INDEX IDX_9067F23CE70560BA (implement_idea_id), INDEX IDX_9067F23C6E6F1246 (assigned_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
@@ -49,7 +50,7 @@ final class Version20260301091328 extends AbstractMigration
         $this->addSql('CREATE TABLE user_cours_progress (id INT AUTO_INCREMENT NOT NULL, progress_percentage NUMERIC(5, 2) NOT NULL, completed_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, total_ressources INT NOT NULL, opened_ressources INT NOT NULL, user_id INT NOT NULL, cours_id INT NOT NULL, INDEX IDX_8E1083C2A76ED395 (user_id), INDEX IDX_8E1083C27ECF78B0 (cours_id), UNIQUE INDEX user_cours_unique (user_id, cours_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE user_ressource_progress (id INT AUTO_INCREMENT NOT NULL, status VARCHAR(20) NOT NULL, opened_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, user_id INT NOT NULL, ressource_id INT NOT NULL, INDEX IDX_C0F4AD67A76ED395 (user_id), INDEX IDX_C0F4AD67FC6CD52A (ressource_id), UNIQUE INDEX user_ressource_unique (user_id, ressource_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE user_streak_day (id INT AUTO_INCREMENT NOT NULL, day DATE NOT NULL, created_at DATETIME NOT NULL, user_id INT NOT NULL, INDEX IDX_67E282A2A76ED395 (user_id), UNIQUE INDEX user_date_unique (user_id, day), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE users (id INT AUTO_INCREMENT NOT NULL, username VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(255) NOT NULL, groupid INT DEFAULT NULL, numtel VARCHAR(20) DEFAULT NULL, points INT DEFAULT 0 NOT NULL, created_at DATETIME DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE users (id INT AUTO_INCREMENT NOT NULL, username VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(255) NOT NULL, numtel VARCHAR(20) DEFAULT NULL, points INT DEFAULT 0 NOT NULL, created_at DATETIME DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE messenger_messages (id BIGINT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, headers LONGTEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, available_at DATETIME NOT NULL, delivered_at DATETIME DEFAULT NULL, INDEX IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750 (queue_name, available_at, delivered_at, id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('ALTER TABLE collab_request ADD CONSTRAINT FK_195F8ECF61220EA6 FOREIGN KEY (creator_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE collab_request ADD CONSTRAINT FK_195F8ECFBD3183DF FOREIGN KEY (revisor_id) REFERENCES users (id) ON DELETE SET NULL');
@@ -73,6 +74,8 @@ final class Version20260301091328 extends AbstractMigration
         $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D39FE54D947 FOREIGN KEY (group_id) REFERENCES `group` (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D3967B3B43D FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE idea ADD CONSTRAINT FK_A8BCA4561220EA6 FOREIGN KEY (creator_id) REFERENCES users (id)');
+        $this->addSql('ALTER TABLE idea_users ADD CONSTRAINT FK_5544963C5B6FEF7D FOREIGN KEY (idea_id) REFERENCES idea (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE idea_users ADD CONSTRAINT FK_5544963C67B3B43D FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE idea_usage ADD CONSTRAINT FK_912C6DA5A76ED395 FOREIGN KEY (user_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE idea_usage ADD CONSTRAINT FK_912C6DA55B6FEF7D FOREIGN KEY (idea_id) REFERENCES idea (id)');
         $this->addSql('ALTER TABLE message ADD CONSTRAINT FK_B6BD307F9AC0396 FOREIGN KEY (conversation_id) REFERENCES conversation (id)');
@@ -124,6 +127,8 @@ final class Version20260301091328 extends AbstractMigration
         $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D39FE54D947');
         $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D3967B3B43D');
         $this->addSql('ALTER TABLE idea DROP FOREIGN KEY FK_A8BCA4561220EA6');
+        $this->addSql('ALTER TABLE idea_users DROP FOREIGN KEY FK_5544963C5B6FEF7D');
+        $this->addSql('ALTER TABLE idea_users DROP FOREIGN KEY FK_5544963C67B3B43D');
         $this->addSql('ALTER TABLE idea_usage DROP FOREIGN KEY FK_912C6DA5A76ED395');
         $this->addSql('ALTER TABLE idea_usage DROP FOREIGN KEY FK_912C6DA55B6FEF7D');
         $this->addSql('ALTER TABLE message DROP FOREIGN KEY FK_B6BD307F9AC0396');
@@ -164,6 +169,7 @@ final class Version20260301091328 extends AbstractMigration
         $this->addSql('DROP TABLE `group`');
         $this->addSql('DROP TABLE group_user');
         $this->addSql('DROP TABLE idea');
+        $this->addSql('DROP TABLE idea_users');
         $this->addSql('DROP TABLE idea_usage');
         $this->addSql('DROP TABLE message');
         $this->addSql('DROP TABLE mission');

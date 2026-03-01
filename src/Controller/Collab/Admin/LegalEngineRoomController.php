@@ -4,6 +4,7 @@ namespace App\Controller\Collab\Admin;
 
 use App\Entity\ContractClause;
 use App\Entity\ContractTemplate;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Repository\ContractClauseRepository;
 use App\Repository\ContractTemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class LegalEngineRoomController extends AbstractController
 {
     #[Route('/', name: 'admin_collab_legal_engine', methods: ['GET'])]
-    public function index(ContractClauseRepository $clauseRepo, ContractTemplateRepository $templateRepo, EntityManagerInterface $em, Request $request): Response
+    public function index(ContractClauseRepository $clauseRepo, ContractTemplateRepository $templateRepo, EntityManagerInterface $em, Request $request, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         if ($session->get('user_role') !== 'ROLE_ADMIN') {
@@ -25,7 +26,7 @@ class LegalEngineRoomController extends AbstractController
 
         // Seed default clauses if empty
         if ($clauseRepo->count([]) === 0) {
-            $this->seedDefaults($em);
+            $this->seedDefaults($em, $factory);
         }
 
         return $this->render('back/collab/legal_engine_room.html.twig', [
@@ -63,13 +64,13 @@ class LegalEngineRoomController extends AbstractController
     }
 
     #[Route('/template/update', name: 'admin_collab_template_update', methods: ['POST'])]
-    public function updateTemplate(Request $request, EntityManagerInterface $em, ContractTemplateRepository $repo): Response
+    public function updateTemplate(Request $request, EntityManagerInterface $em, ContractTemplateRepository $repo, CollaborationFactory $factory): Response
     {
         $data = json_decode($request->getContent(), true);
         $template = $repo->findOneBy(['isMaster' => true]);
 
         if (!$template) {
-            $template = new ContractTemplate();
+            $template = $factory->createContractTemplate();
             $template->setName('Master Collaboration Contract');
             $em->persist($template);
         }
@@ -83,7 +84,7 @@ class LegalEngineRoomController extends AbstractController
         return $this->json(['success' => true]);
     }
 
-    private function seedDefaults(EntityManagerInterface $em): void
+    private function seedDefaults(EntityManagerInterface $em, CollaborationFactory $factory): void
     {
         $defaults = [
             [
@@ -119,7 +120,7 @@ class LegalEngineRoomController extends AbstractController
         ];
 
         foreach ($defaults as $d) {
-            $c = new ContractClause();
+            $c = $factory->createContractClause();
             $c->setCategory($d['cat']);
             $c->setTitle($d['title']);
             $c->setContent($d['content']);
@@ -128,7 +129,7 @@ class LegalEngineRoomController extends AbstractController
         }
 
         // Master Template
-        $mt = new ContractTemplate();
+        $mt = $factory->createContractTemplate();
         $mt->setName('Master Executive Template');
         $mt->setContent("<h1>{{ title }}</h1>\n<p>This agreement is entered into between {{ creator_name }} and {{ collaborator_name }}.</p>\n\n<h2>1. Scope of Work</h2>\n<p>{{ deliverables }}</p>\n\n<h2>2. Financial Terms</h2>\n<p>Total Budget: {{ budget }} DT</p>\n<p>{{ payment_terms }}</p>\n\n{{ clauses }}");
         $em->persist($mt);

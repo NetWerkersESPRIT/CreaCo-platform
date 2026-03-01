@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/apple-icon.png') }}"/>
+		<link rel="icon" type="image/png" href="{{ asset('assets/img/logocrea.png') }}"/>
+		<title>CreaCo | Unlock This Course</title>
+		
+		<!-- Fonts and icons -->
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"/>
+		<!-- Font Awesome Icons -->
+		<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+		<!-- Nucleo Icons -->
+		<link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet"/>
+		<link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet"/>
+		<!-- Main Styling -->
+		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5') }}" rel="stylesheet"/>
+		
+		<style>
+			.glass-card {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+			}
+			.animate-float {
+				animation: float 6s ease-in-out infinite;
+			}
+			@keyframes float {
+				0% { transform: translateY(0px); }
+				50% { transform: translateY(-15px); }
+				100% { transform: translateY(0px); }
+			}
+            .hero-pattern {
+                background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+                background-size: 24px 24px;
+            }
+		</style>
+
+		{% if app.environment == 'dev' %}
+		<style>
+			/* Force Symfony Debug Bar Visibility */
+			.sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+			.sf-display-none { display: block !important; }
+		</style>
+		{% endif %}
+	</head>
+
+	<body class="m-0 font-sans antialiased font-normal bg-gray-50 text-start text-base leading-default text-slate-500 overflow-x-hidden hero-pattern">
+		
+		<nav class="w-11/12 lg:w-1/2 z-30 flex justify-center items-center px-4 py-2 mx-auto my-4 shadow-soft-2xl rounded-blur bg-white/80 backdrop-blur-2xl backdrop-saturate-200 sticky top-4">
+			<div class="flex items-center justify-between w-full p-0 pl-6 mx-auto flex-wrap-inherit">
+				<a class="flex items-center" href="{{ path('app_visitor') }}">
+					<img src="{{ asset('assets/img/logocreaco.svg') }}" alt="Logo" class="w-12 h-10 mr-2">
+					<span class="text-sm whitespace-nowrap font-bold text-slate-700">CreaCo</span>
+				</a>
+				
+				<div navbar-menu class="items-center justify-end flex-grow overflow-hidden transition-all duration-500 ease-soft lg-max:max-h-0 basis-full lg:flex lg:basis-auto">
+					<a href="{{ path('app_auth') }}" class="leading-pro text-xs ease-soft-in inline-block cursor-pointer border-0 bg-gradient-to-tl from-gray-900 to-slate-800 px-8 py-2 text-center align-middle font-bold uppercase tracking-tight-soft text-white transition-all shadow-soft-md hover:scale-102 active:opacity-85 rounded-xl">
+						Sign In
+					</a>
+				</div>
+			</div>
+		</nav>
+
+		<main class="mt-12 transition-all duration-200 ease-soft-in-out">
+			
+			<div class="container mx-auto px-6">
+                <div class="flex flex-wrap justify-center -mx-3 items-center min-h-[70vh]">
+                    <div class="w-full max-w-full px-3 lg:w-5/12 text-center">
+
+                        <h2 class="text-4xl font-black text-slate-800 leading-tight mb-4">
+                            Unlock Your <span class="text-transparent bg-clip-text bg-gradient-to-tl from-blue-600 to-cyan-400">Potential.</span>
+                        </h2>
+                        <p class="text-slate-500 text-lg mb-10 max-w-md mx-auto leading-relaxed">
+                            You've discovered <strong>{{ course.titre }}</strong>, but it's currently locked for guest users. 
+                            <br><br>
+                            To access the resources and track your progress, please 
+                            <span class="font-bold text-slate-700">sign in</span> or <span class="font-bold text-slate-700">create an account</span>.
+                        </p>
+
+                        <div class="flex flex-wrap justify-center">
+                            <a href="{{ path('app_auth') }}" class="inline-block p-2 py-4 mr-2 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-gray-900 to-slate-800 rounded-2xl shadow-soft-2xl hover:scale-105 active:opacity-85 tracking-tight-soft text-sm">
+                                Sign In
+                            </a>
+                            <a href="{{ path('app_useradd') }}" class="inline-block p-2 py-4 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 rounded-2xl shadow-soft-2xl hover:scale-105 active:opacity-85 tracking-tight-soft text-sm">
+                                Create Account
+                            </a>
+                        </div>
+                        
+                        <div class="mt-12">
+                            <a href="{{ path('app_visitor_courses') }}" class="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to all courses
+                            </a>
+                        </div>
+                    </div>
+                </div>
+			</div>
+
+		</main>
+
+		<footer class="py-12">
+			<div class="container mx-auto px-6 text-center">
+				<p class="text-sm text-slate-400">
+					&copy; <script>document.write(new Date().getFullYear());</script> NetWorkers. Distributed with ❤️.
+				</p>
+			</div>
+		</footer>
+
+		<!-- Scripts -->
+		<script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+		<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js?v=1.0.5') }}"></script>
+	</body>
+</html>
