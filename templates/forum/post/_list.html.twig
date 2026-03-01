@@ -5,11 +5,13 @@
 		<div class="p-4 pb-0">
 			<div class="flex items-center">
 				<div class="avatar avatar-xs me-2">
-					<img src="https://ui-avatars.com/api/?name={{ post.user ? post.user.username : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
+					<img src="https://ui-avatars.com/api/?name={{ post.user ? post.user.username|capitalize : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
 				</div>
 				<div class="flex flex-col ml-3">
-					<span class="text-xs font-bold text-slate-700">
-						{{ post.user ? post.user.username : 'Anonymous' }}
+					<div class="flex items-center mb-0.5">
+						<span class="text-sm font-bold text-slate-800 tracking-tight">
+							{{ post.user ? post.user.username|capitalize : 'Anonymous' }}
+						</span>
 						{% if post.status == 'pending' %}
 							{% set isAdmin = app.session.get('user_role') == 'ROLE_ADMIN' %}
 							{% if isAdmin or (app_user and post.user == app_user) %}
@@ -28,7 +30,7 @@
 								Solved
 							</span>
 						{% endif %}
-					</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -36,9 +38,9 @@
 		<!-- Content Style -->
 		<div class="p-4 pt-2">
 			<a href="{{ path('app_post_show', {'id': post.id}) }}" class="block">
-				<h5 class="font-bold text-slate-800 mb-2 leading-tight hover:text-purple-700 transition-colors">{{ post.title }}</h5>
+				<h5 id="post-title-{{ post.id }}" class="font-bold text-slate-800 mb-2 leading-tight hover:text-purple-700 transition-colors">{{ post.title }}</h5>
 			</a>
-			<div class="text-sm leading-normal text-slate-600 mb-4 whitespace-pre-wrap">
+			<div id="post-content-{{ post.id }}" class="text-sm leading-normal text-slate-600 mb-4 whitespace-pre-wrap">
 				{{ post.content }}
 			</div>
 
@@ -67,7 +69,7 @@
 		<!-- Interaction Bar -->
 		<div
 			class="p-4 pt-0 flex flex-wrap items-center gap-2">
-			<!-- Reactions Button -->
+			<!-- Cute & Robust Reaction Bar -->
 			<div class="reaction-container relative group">
 				{% set userReaction = null %}
 				{% if app_user %}
@@ -78,30 +80,33 @@
 					{% endfor %}
 				{% endif %}
 
-				<!-- Reaction Popup Bar -->
-				<div class="reaction-bar hidden group-hover:flex absolute bottom-full mb-3 left-0 bg-white shadow-soft-2xl rounded-full px-1.5 py-1 items-center gap-1 animate-reaction-pop z-50 border border-gray-100">
-					<button type="button" onclick="handleReaction({{ post.id }}, 'like')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Like">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-7 h-7" alt="👍">
+				<!-- Staggered Emoji Picker (Cute Wave Effect) -->
+				<div class="reaction-picker hidden group-hover:flex absolute bottom-full mb-2.5 left-0 bg-white shadow-soft-2xl rounded-full px-1.5 py-1.5 items-center gap-0.5 animate-reaction-pop z-50 border border-white/40 backdrop-blur-md bg-white/70">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'like')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-1" title="Like">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5.5 h-5.5" alt="👍">
 					</button>
-					<button type="button" onclick="handleReaction({{ post.id }}, 'love')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Love">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-7 h-7" alt="❤️">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'love')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-2" title="Love">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-5.5 h-5.5" alt="❤️">
 					</button>
-					<button type="button" onclick="handleReaction({{ post.id }}, 'haha')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Haha">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-7 h-7" alt="😂">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'haha')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-3" title="Haha">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-5.5 h-5.5" alt="😂">
 					</button>
-					<button type="button" onclick="handleReaction({{ post.id }}, 'wow')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Wow">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-7 h-7" alt="😮">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'wow')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-4" title="Wow">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-5.5 h-5.5" alt="😮">
 					</button>
-					<button type="button" onclick="handleReaction({{ post.id }}, 'sad')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Sad">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-7 h-7" alt="😢">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'sad')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-5" title="Sad">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-5.5 h-5.5" alt="😢">
 					</button>
-					<button type="button" onclick="handleReaction({{ post.id }}, 'angry')" class="reaction-item hover:scale-120 hover:-translate-y-1 transition-all duration-200 p-1 rounded-full cursor-pointer bg-transparent border-0" title="Angry">
-						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-7 h-7" alt="😡">
+					<button type="button" onclick="handleReaction({{ post.id }}, 'angry')" class="hover:scale-125 transition-all duration-300 p-1.5 rounded-full stagger-6" title="Angry">
+						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-5.5 h-5.5" alt="😡">
 					</button>
 				</div>
 
-				<!-- Main Button -->
-				<button id="react-btn-{{ post.id }}" type="button" onclick="handleReaction({{ post.id }}, '{{ userReaction ?: 'like' }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer {{ userReaction ? 'text-fuchsia-600' : 'text-slate-600' }}">
+				<!-- Main Button - State aware with data-reaction-type -->
+				<button id="react-btn-{{ post.id }}" type="button" 
+					data-reaction-type="{{ userReaction ?: '' }}"
+					onclick="handleMainReaction({{ post.id }})" 
+					class="flex items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all border-0 shadow-none cursor-pointer {{ userReaction ? 'text-fuchsia-600 active-glow' : 'text-slate-600' }}">
 
 					{% if userReaction == 'like' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5 h-5 mr-2" alt="👍">
@@ -126,18 +131,38 @@
 						<span class="text-xs font-bold">Like</span>
 					{% endif %}
 
-					<span id="react-count-{{ post.id }}" class="ml-2 text-[10px] text-slate-400 bg-white px-1.5 py-0.5 rounded-full shadow-soft-sm">
+					<span id="react-count-{{ post.id }}" class="ml-1 text-[10px] {{ userReaction ? 'text-fuchsia-600' : 'text-slate-400' }} font-bold">
 						{{ post.reactions|length }}
 					</span>
 				</button>
 			</div>
 
 			<!-- Comment -->
-			<a href="{{ path('app_post_show', {'id': post.id}) }}" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all text-decoration-none border-0">
+			<a href="{{ path('app_post_show', {'id': post.id}) }}" class="flex items-center px-4 py-2 text-slate-600 hover:bg-gray-50 rounded-xl transition-all text-decoration-none border-0">
 				<i class="fas fa-comment text-xs text-slate-500 mr-2"></i>
 				<span class="text-xs font-bold">{{ post.comments|length }}
 					Comments</span>
 			</a>
+
+			<!-- TTS Controls -->
+			<div id="tts-container-{{ post.id }}" class="tts-container hidden flex items-center gap-2">
+				<button id="tts-read-{{ post.id }}" type="button" onclick="handleTTS('read', {{ post.id }})" class="flex items-center px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl transition-all border-0 shadow-none cursor-pointer">
+					<i class="fas fa-volume-up text-xs mr-2"></i>
+					<span class="text-xs font-bold">Read</span>
+				</button>
+				<button id="tts-pause-{{ post.id }}" type="button" onclick="handleTTS('pause', {{ post.id }})" class="hidden flex items-center px-4 py-2 text-orange-500 hover:bg-orange-50 rounded-xl transition-all border-0 shadow-none cursor-pointer">
+					<i class="fas fa-pause text-xs mr-2"></i>
+					<span class="text-xs font-bold">Pause</span>
+				</button>
+				<button id="tts-resume-{{ post.id }}" type="button" onclick="handleTTS('resume', {{ post.id }})" class="hidden flex items-center px-4 py-2 text-green-500 hover:bg-green-50 rounded-xl transition-all border-0 shadow-none cursor-pointer">
+					<i class="fas fa-play text-xs mr-2"></i>
+					<span class="text-xs font-bold">Resume</span>
+				</button>
+				<button id="tts-stop-{{ post.id }}" type="button" onclick="handleTTS('stop', {{ post.id }})" class="hidden flex items-center px-4 py-2 text-red-500 hover:bg-red-50 rounded-xl transition-all border-0 shadow-none cursor-pointer">
+					<i class="fas fa-stop text-xs mr-2"></i>
+					<span class="text-xs font-bold">Stop</span>
+				</button>
+			</div>
 
 			{% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
 			{% set isOwner = app_user and post.user == app_user %}
@@ -145,7 +170,7 @@
 
 			{% if canManagePost %}
 				<!-- Edit Button -->
-				<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-purple-100 hover:text-purple-700 transition-all text-decoration-none border-0">
+				<a href="{{ path('app_post_edit', {'id': post.id}) }}" class="flex items-center px-4 py-2 text-slate-600 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-all text-decoration-none border-0">
 					<i class="fas fa-edit text-xs mr-2"></i>
 					<span class="text-xs font-bold">Edit</span>
 				</a>
@@ -153,7 +178,7 @@
 				<!-- Delete Button -->
 				<form action="{{ path('app_post_delete', {'id': post.id}) }}" method="POST" class="mb-0" id="del-post-idx-{{ post.id }}">
 					<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ post.id) }}">
-					<button type="button" onclick="confirmDelete(document.getElementById('del-post-idx-{{ post.id }}'), '{{ post.title|e('js') }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-red-100 hover:text-red-700 transition-all border-0 shadow-none cursor-pointer">
+					<button type="button" onclick="confirmDelete(document.getElementById('del-post-idx-{{ post.id }}'), '{{ post.title|e('js') }}')" class="flex items-center px-4 py-2 text-slate-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-all border-0 shadow-none cursor-pointer">
 						<i class="fas fa-trash text-xs mr-2"></i>
 						<span class="text-xs font-bold">Delete</span>
 					</button>
@@ -163,7 +188,7 @@
 			<!-- Pin Button (Admin Only) -->
 			{% if isAdmin %}
 				<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="mb-0" id="pin-form-idx-{{ post.id }}">
-					<button type="button" onclick="confirmAction('{{ post.isPinned() ? 'Unpin' : 'Pin' }} Post?', 'Do you want to {{ post.isPinned() ? 'unpin' : 'pin' }} this post?', 'question', 'Yes').then(c => { if(c) document.getElementById('pin-form-idx-{{ post.id }}').submit(); })" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-yellow-100 hover:text-yellow-700 transition-all border-0 shadow-none cursor-pointer" title="{{ post.isPinned() ? 'Unpin' : 'Pin' }}">
+					<button type="button" onclick="confirmAction('{{ post.isPinned() ? 'Unpin' : 'Pin' }} Post?', 'Do you want to {{ post.isPinned() ? 'unpin' : 'pin' }} this post?', 'question', 'Yes').then(c => { if(c) document.getElementById('pin-form-idx-{{ post.id }}').submit(); })" class="flex items-center px-4 py-2 text-slate-600 hover:bg-yellow-50 hover:text-yellow-700 rounded-xl transition-all border-0 shadow-none cursor-pointer" title="{{ post.isPinned() ? 'Unpin' : 'Pin' }}">
 						<i class="fas fa-thumbtack text-xs mr-2 {{ post.isPinned() ? 'text-yellow-600' : '' }}"></i>
 						<span class="text-xs font-bold">{{ post.isPinned() ? 'Unpin' : 'Pin' }}</span>
 					</button>
@@ -172,7 +197,7 @@
 			<!-- Share Button -->
 			<div class="relative inline-block text-left">
 				{% set postUrl = url('app_post_show', {'id': post.id}) %}
-				<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="bg-gray-100 rounded-full flex items-center px-4 py-2 text-slate-600 hover:bg-gray-200 transition-all border-0 shadow-none cursor-pointer group">
+				<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="flex items-center px-4 py-2 text-slate-600 hover:bg-gray-50 rounded-xl transition-all border-0 shadow-none cursor-pointer group">
 					<i class="fas fa-share text-xs text-slate-400 group-hover:text-purple-700 transition-colors mr-2"></i>
 					<span class="text-xs font-bold">Share</span>
 				</button>

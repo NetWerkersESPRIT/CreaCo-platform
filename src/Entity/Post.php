@@ -89,8 +89,7 @@ class Post
 
 
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $tags = null;
+
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
@@ -252,16 +251,7 @@ class Post
 
 
 
-    public function getTags(): ?string
-    {
-        return $this->tags;
-    }
 
-    public function setTags(?string $tags): static
-    {
-        $this->tags = $tags;
-        return $this;
-    }
 
     public function getImageName(): ?string
     {

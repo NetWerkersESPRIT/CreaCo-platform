@@ -10,6 +10,9 @@ use App\Entity\UserRessourceProgress;
 use App\Entity\UserCoursProgress;
 use App\Repository\UserRessourceProgressRepository;
 use App\Repository\UserCoursProgressRepository;
+use App\Repository\UserStreakDayRepository;
+use App\Repository\BadgeRepository;
+use App\Repository\UserBadgeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class GamificationService
@@ -28,10 +31,42 @@ class GamificationService
     private const BADGE_MAITRE_COURS_CODE = 'maitre_cours';
     private const BADGE_MAITRE_COURS_THRESHOLD = 5;
 
+    // Monthly streak badges - one for each month
+    private const BADGE_JANVIER_CODE = 'janvier_streaker';
+    private const BADGE_FÉVRIER_CODE = 'février_streaker';
+    private const BADGE_MARS_CODE = 'mars_streaker';
+    private const BADGE_AVRIL_CODE = 'avril_streaker';
+    private const BADGE_MAI_CODE = 'mai_streaker';
+    private const BADGE_JUIN_CODE = 'juin_streaker';
+    private const BADGE_JUILLET_CODE = 'juillet_streaker';
+    private const BADGE_AOÛT_CODE = 'août_streaker';
+    private const BADGE_SEPTEMBRE_CODE = 'septembre_streaker';
+    private const BADGE_OCTOBRE_CODE = 'octobre_streaker';
+    private const BADGE_NOVEMBRE_CODE = 'novembre_streaker';
+    private const BADGE_DÉCEMBRE_CODE = 'décembre_streaker';
+
+    private const MONTHLY_STREAK_CODES = [
+        1 => self::BADGE_JANVIER_CODE,
+        2 => self::BADGE_FÉVRIER_CODE,
+        3 => self::BADGE_MARS_CODE,
+        4 => self::BADGE_AVRIL_CODE,
+        5 => self::BADGE_MAI_CODE,
+        6 => self::BADGE_JUIN_CODE,
+        7 => self::BADGE_JUILLET_CODE,
+        8 => self::BADGE_AOÛT_CODE,
+        9 => self::BADGE_SEPTEMBRE_CODE,
+        10 => self::BADGE_OCTOBRE_CODE,
+        11 => self::BADGE_NOVEMBRE_CODE,
+        12 => self::BADGE_DÉCEMBRE_CODE,
+    ];
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRessourceProgressRepository $ressourceProgressRepo,
-        private UserCoursProgressRepository $coursProgressRepo
+        private UserCoursProgressRepository $coursProgressRepo,
+        private UserStreakDayRepository $streakDayRepo,
+        private BadgeRepository $badgeRepo,
+        private UserBadgeRepository $userBadgeRepo
     ) {
     }
 
@@ -56,6 +91,15 @@ class GamificationService
             
             // Update course progress
             $this->updateCourseProgress($user, $ressource->getCours());
+
+            // after update we can award resource milestones
+            $totalOpened = $this->ressourceProgressRepo->countTotalOpenedByUser($user);
+            if ($totalOpened >= self::BADGE_EXPLORATEUR_RESOURCES_THRESHOLD) {
+                $this->awardBadge($user, self::BADGE_EXPLORATEUR_CODE);
+            }
+
+            // Mark streak day (Duolingo-style: one resource per day marks the day)
+            $this->markStreakDay($user);
             
             $this->entityManager->flush();
             
@@ -71,6 +115,43 @@ class GamificationService
             'points_earned' => 0,
             'total_points' => $user->getPoints()
         ];
+    }
+
+    /**
+     * Mark today's streak day for the user if not already marked.
+     */
+    private function markStreakDay(Users $user): void
+    {
+        $today = new \DateTime();
+
+        // check existing
+        $existing = $this->streakDayRepo->findOneByUserAndDate($user, $today);
+        if ($existing) {
+            return;
+        }
+
+        // if no entry for today, create one
+        $streakDay = new \App\Entity\UserStreakDay();
+        $streakDay->setUser($user);
+        $streakDay->setDay($today);
+
+        $this->entityManager->persist($streakDay);
+    }
+
+    /**
+     * Get leaderboard data
+     */
+    public function getLeaderboard(int $limit = 10): array
+    {
+        $qb = $this->entityManager->createQueryBuilder();
+        
+        return $qb->select('u.id, u.username, u.email, u.points')
+            ->from(Users::class, 'u')
+            ->where('u.points > 0')
+            ->orderBy('u.points', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -95,6 +176,15 @@ class GamificationService
         if ($coursProgress->isCompleted() && !$wasCompleted) {
             $user->addPoints(self::POINTS_PER_COURSE_COMPLETED);
             $this->entityManager->persist($user);
+
+            // badges: finisseur and maitre
+            $completedCourses = $this->coursProgressRepo->countCompletedByUser($user);
+            if ($completedCourses >= self::BADGE_FINISSEUR_COURSES_THRESHOLD) {
+                $this->awardBadge($user, self::BADGE_FINISSEUR_CODE);
+            }
+            if ($completedCourses >= self::BADGE_MAITRE_COURS_THRESHOLD) {
+                $this->awardBadge($user, self::BADGE_MAITRE_COURS_CODE);
+            }
         }
     }
 
@@ -117,24 +207,93 @@ class GamificationService
     }
 
     /**
-     * Get leaderboard data
+     * Award a badge to a user if not already awarded.
+     *
+     * @return bool true if the badge was newly created/awarded
      */
-    public function getLeaderboard(int $limit = 10): array
+    public function awardBadge(Users $user, string $code, ?array $metadata = null): bool
     {
-        $qb = $this->entityManager->createQueryBuilder();
-        
-        return $qb->select('u.id, u.username, u.email, u.points')
-            ->from(Users::class, 'u')
-            ->where('u.points > 0')
-            ->orderBy('u.points', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        // find or create badge definition
+        $badge = $this->badgeRepo->findOneByCode($code);
+        if (!$badge) {
+            $badge = new \App\Entity\Badge();
+            $badge->setCode($code);
+            $badge->setName(ucfirst(str_replace('_', ' ', $code)));
+            $badge->setDescription('Badge '.$code);
+            $this->entityManager->persist($badge);
+            // flush later
+        }
+
+        // check if user already has it
+        if ($this->userBadgeRepo->findOneByUserAndBadge($user, $badge)) {
+            return false;
+        }
+
+        $userBadge = new \App\Entity\UserBadge();
+        $userBadge->setUser($user);
+        $userBadge->setBadge($badge);
+        if ($metadata !== null) {
+            $userBadge->setMetadata($metadata);
+        }
+        $this->entityManager->persist($userBadge);
+        $this->entityManager->flush();
+        return true;
     }
 
     /**
-     * Get user statistics
+     * Check if a user has a specific badge
      */
+    public function hasBadge(Users $user, string $code): bool
+    {
+        $badge = $this->badgeRepo->findOneByCode($code);
+        if (!$badge) {
+            return false;
+        }
+        return (bool)$this->userBadgeRepo->findOneByUserAndBadge($user, $badge);
+    }
+
+    /**
+     * Get the monthly streak badge code for a given month
+     */
+    private function getMonthlyStreakBadgeCode(int $month): string
+    {
+        return self::MONTHLY_STREAK_CODES[$month] ?? 'janvier_streaker';
+    }
+
+    /**
+     * Award monthly streak badges for a specific month
+     */
+    public function awardMonthlyStreakBadges(int $year, int $month): array
+    {
+        // returns list of user ids who were awarded
+        $start = new \DateTime(sprintf('%04d-%02d-01', $year, $month));
+        $end = (clone $start)->modify('first day of next month');
+        $daysInMonth = (int)$start->format('t');
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('u')
+            ->from(Users::class, 'u')
+            ->join('App\\Entity\\UserStreakDay', 'usd', 'WITH', 'usd.user = u')
+            ->where('usd.day >= :start')
+            ->andWhere('usd.day < :end')
+            ->groupBy('u.id')
+            ->having('COUNT(usd.id) = :days')
+            ->setParameter('start', $start->format('Y-m-d'))
+            ->setParameter('end', $end->format('Y-m-d'))
+            ->setParameter('days', $daysInMonth);
+
+        $users = $qb->getQuery()->getResult();
+        $awarded = [];
+        $badgeCode = $this->getMonthlyStreakBadgeCode($month);
+        
+        foreach ($users as $u) {
+            if ($this->awardBadge($u, $badgeCode, ['year' => $year, 'month' => $month])) {
+                $awarded[] = $u->getId();
+            }
+        }
+        return $awarded;
+    }
+
     public function getUserStats(Users $user): array
     {
         $totalOpened = $this->ressourceProgressRepo->countTotalOpenedByUser($user);
@@ -154,55 +313,26 @@ class GamificationService
      *
      * Badges are computed dynamically; no persistence layer is used.
      */
+    /**
+     * Returns persisted badges for the user.
+     */
     public function getUserBadges(Users $user): array
     {
-        $stats = $this->getUserStats($user);
-
-        $totalOpened = $stats['total_resources_opened'] ?? 0;
-        $completedCourses = $stats['completed_courses'] ?? 0;
-
-        $badges = [];
-
-        // Explorateur – 5 resources opened
-        if ($totalOpened >= self::BADGE_EXPLORATEUR_RESOURCES_THRESHOLD) {
-            $badges[] = [
-                'code' => self::BADGE_EXPLORATEUR_CODE,
-                'name' => 'Explorateur',
-                'description' => sprintf(
-                    'A ouvert au moins %d ressources',
-                    self::BADGE_EXPLORATEUR_RESOURCES_THRESHOLD
-                ),
-                'icon' => 'fa-compass',
+        $userBadges = $this->userBadgeRepo->findByUser($user);
+        $result = [];
+        foreach ($userBadges as $ub) {
+            $b = $ub->getBadge();
+            $result[] = [
+                'code' => $b->getCode(),
+                'name' => $b->getName(),
+                'description' => $b->getDescription(),
+                'icon' => $b->getIcon(),
+                'rarity' => $b->getRarity(),
+                'awarded_at' => $ub->getAwardedAt(),
+                'metadata' => $ub->getMetadata(),
             ];
         }
-
-        // Finisseur – 1 course completed
-        if ($completedCourses >= self::BADGE_FINISSEUR_COURSES_THRESHOLD) {
-            $badges[] = [
-                'code' => self::BADGE_FINISSEUR_CODE,
-                'name' => 'Finisseur',
-                'description' => sprintf(
-                    'A terminé au moins %d cours',
-                    self::BADGE_FINISSEUR_COURSES_THRESHOLD
-                ),
-                'icon' => 'fa-flag-checkered',
-            ];
-        }
-
-        // Maître des cours – 5 courses completed
-        if ($completedCourses >= self::BADGE_MAITRE_COURS_THRESHOLD) {
-            $badges[] = [
-                'code' => self::BADGE_MAITRE_COURS_CODE,
-                'name' => 'Maître des cours',
-                'description' => sprintf(
-                    'A terminé au moins %d cours',
-                    self::BADGE_MAITRE_COURS_THRESHOLD
-                ),
-                'icon' => 'fa-crown',
-            ];
-        }
-
-        return $badges;
+        return $result;
     }
 
     /**

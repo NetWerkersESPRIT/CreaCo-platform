@@ -135,7 +135,7 @@
 					{% endif %}
 
 					<div class="post-body text-slate-600 leading-relaxed mb-6 text-lg">
-						{{ post.content|nl2br }}
+						{{ post.content|raw }}
 					</div>
 
 					{# ✅ PDF BLOCK (Drive first, fallback to local) #}

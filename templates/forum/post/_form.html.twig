@@ -1,22 +1,400 @@
 {{ form_start(form, {'attr': {'class': 'w-full', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 {{ form_errors(form) }}
+<style>
+	@keyframes pulse-red {
+		0% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+		}
+		70% {
+			box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		}
+	}
+	.mic-recording {
+		color: #ef4444 !important;
+		animation: pulse-red 1.5s infinite;
+		background-color: #fee2e2 !important;
+		border-color: #fca5a5 !important;
+	}
+</style>
+
 <div class="flex flex-wrap -mx-3 mb-4">
 	<div class="w-full px-3 mb-4">
-		<label class="mb-2 ml-1 font-bold text-xs text-slate-700">Title</label>
+		<div class="flex items-center mb-2">
+			<label class="ml-1 font-bold text-xs text-slate-700 mb-0">Title</label>
+			<button type="button" class="mic-btn ml-3 p-1.5 rounded-full border border-gray-200 text-gray-400 hover:text-fuchsia-600 hover:bg-fuchsia-50 transition-all duration-300 w-8 h-8 flex items-center justify-center focus:outline-none" data-target="{{ form.title.vars.id }}" title="Click to dictate" aria-label="Click to dictate">
+				<i class="fas fa-microphone text-xs"></i>
+			</button>
+			<span class="mic-hint ml-2 text-xxs font-medium text-slate-500 italic">Click to dictate</span>
+		</div>
 		{{ form_widget(form.title, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
 		<span class="text-xs text-red-500">{{ form_errors(form.title) }}</span>
 	</div>
 
 	<div class="w-full px-3 mb-4">
-		<label class="mb-2 ml-1 font-bold text-xs text-slate-700">Content</label>
-		{{ form_widget(form.content, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none'}}) }}
+		<div class="flex justify-between items-center mb-2">
+			<div class="flex items-center">
+				<label class="ml-1 font-bold text-xs text-slate-700 mb-0">Content</label>
+				<button type="button" class="mic-btn ml-3 p-1.5 rounded-full border border-gray-200 text-gray-400 hover:text-fuchsia-600 hover:bg-fuchsia-50 transition-all duration-300 w-8 h-8 flex items-center justify-center focus:outline-none" data-target="editor-content" title="Click to dictate" aria-label="Click to dictate">
+					<i class="fas fa-microphone text-xs"></i>
+				</button>
+				<span class="mic-hint ml-2 text-xxs font-medium text-slate-500 italic">Click to dictate</span>
+			</div>
+			<button type="button" id="toggle-editor" class="inline-block px-3 py-1 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer shadow-none leading-pro text-xxs ease-soft-in tracking-tight-soft bg-150 bg-x-25 border-slate-700 text-slate-700 hover:bg-transparent hover:text-slate-700 hover:shadow-none active:opacity-85">
+				<i class="fas fa-magic mr-1"></i>
+				<span id="editor-status">Switch to Advanced Editor</span>
+			</button>
+
+		</div>
+		{{ form_widget(form.content, {'attr': {
+            'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none',
+            'data-calmbot-target': 'textarea'
+        }}) }}
 		<span class="text-xs text-red-500">{{ form_errors(form.content) }}</span>
 	</div>
 
+	<div id="calm-bot-container" class="hidden w-full px-3 mb-6 animate-fade-in">
+		<div
+			id="calm-bot-card" class="relative p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 shadow-soft-xl overflow-hidden transition-all duration-700">
+			{# Background Decoration #}
+			<div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-200/20 rounded-full blur-3xl"></div>
+
+			<div class="flex items-start gap-4">
+				<div class="flex-shrink-0 mt-1">
+					<div class="breathing-dot-container w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-soft-sm">
+						<div id="calm-bot-dot" class="breathing-dot w-4 h-4 bg-orange-400 rounded-full transition-colors duration-700"></div>
+					</div>
+				</div>
+
+				<div class="flex-grow">
+					<h6 id="calm-bot-title" class="text-sm font-bold text-orange-800 mb-1">
+						<i class="fas fa-wind mr-2"></i>
+						It seems you're feeling a bit frustrated...
+					</h6>
+					<p id="calm-bot-desc" class="text-xs text-orange-700/80 mb-3 leading-relaxed">
+						Your words carry some heat. Take a moment to breathe! This advice is not a substitute for professional help.
+					</p>
+
+					<div id="calm-bot-debug" class="hidden text-[8px] text-gray-400 mb-2"></div>
+
+					<div id="calm-tips" class="space-y-2 mb-4">
+						<div class="flex items-center text-[10px] font-bold text-orange-600 bg-white/50 px-2 py-1 rounded-lg w-fit">
+							<i class="fas fa-check mr-2"></i>
+							Try 4 slow deep breaths
+						</div>
+						<div class="flex items-center text-[10px] font-bold text-orange-600 bg-white/50 px-2 py-1 rounded-lg w-fit">
+							<i class="fas fa-check mr-2"></i>
+							Step away for 1 minute
+						</div>
+						<div class="flex items-center text-[10px] font-bold text-orange-600 bg-white/50 px-2 py-1 rounded-lg w-fit">
+							<i class="fas fa-check mr-2"></i>
+							Rephrase calmly
+						</div>
+					</div>
+
+					<button type="button" id="start-game" class="text-xxs font-bold px-4 py-2 rounded-xl !bg-gradient-to-r !from-indigo-400 !to-purple-400 text-white hover:!from-indigo-500 hover:!to-purple-500 transition-all shadow-soft-md active:scale-95" style="background: linear-gradient(to right, #818cf8, #c084fc) !important;">
+						🐱 Click Me for a Cat-tastic Mini-Exercise! 🐱
+					</button>
+				</div>
+
+				<div class="flex-shrink-0">
+					<button type="button" onclick="document.getElementById('calm-bot-container').remove()" class="text-orange-400 hover:text-orange-600 transition-colors">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+console.log('CalmBot: DOM Loaded');
+
+// --- Get all elements ---
+const textarea = document.getElementById('{{ form.content.vars.id }}') || document.querySelector('[data-calmbot-target="textarea"]') || document.querySelector('textarea[name*="content"]');
+
+const toggleBtn = document.getElementById('toggle-editor');
+const statusLabel = document.getElementById('editor-status');
+const calmBot = document.getElementById('calm-bot-container');
+const debugDiv = document.getElementById('calm-bot-debug');
+const startBtn = document.getElementById('start-game');
+
+// Editor variables
+let editorInstance = null;
+let analysisTimeout = null;
+
+// Global Transformation Function for CalmBot
+window.transformCalmBot = function () {
+const card = document.getElementById('calm-bot-card');
+const title = document.getElementById('calm-bot-title');
+const desc = document.getElementById('calm-bot-desc');
+const dot = document.getElementById('calm-bot-dot');
+const gameBtn = document.getElementById('start-game');
+
+if (card && title && desc && dot) {
+console.log('[CalmBot] Transforming to Calm/Green Mode ✨');
+card.style.setProperty('background', 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)', 'important');
+card.style.setProperty('border-color', '#bbf7d0', 'important');
+dot.style.setProperty('background-color', '#4ade80', 'important');
+title.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready to rephrase calmly? ✨';
+title.style.setProperty('color', '#166534', 'important');
+desc.textContent = "You look much calmer now! Why not try to rephrase your thoughts into a more positive post?";
+desc.style.setProperty('color', '#14532d', 'important');
+if (gameBtn) 
+gameBtn.style.setProperty('display', 'none', 'important');
+
+}
+};
+
+// --- Sentiment Analysis Logic ---
+const analyzeSentiment = async (text) => {
+if (text.trim().length < 10) {
+calmBot.classList.add('hidden');
+return;
+}
+
+console.log('CalmBot: Working...');
+if (debugDiv) {
+debugDiv.classList.remove('hidden');
+debugDiv.textContent = 'Analyzing...';
+debugDiv.style.color = '#f59e0b';
+}
+
+try {
+const response = await fetch('{{ path("forum_analyze_sentiment") }}', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{text: text}
+)
+});
+
+if (response.ok) {
+const data = await response.json();
+console.log('CalmBot Data:', data);
+if (debugDiv) {
+debugDiv.textContent = 'Sentiment: ' + data.label + ' (' + (
+data.score * 100
+).toFixed(0) + '%)';
+debugDiv.style.color = data.label === 'NEGATIVE' ? '#ef4444' : '#10b981';
+}
+
+if (data.label === 'NEGATIVE' || data.label === 'ANGRY' || (data.score > 0.4 && data.label !== 'POSITIVE')) {
+calmBot.classList.remove('hidden');
+} else {
+calmBot.classList.add('hidden');
+}
+} else {
+if (debugDiv) 
+debugDiv.textContent = 'API Error: ' + response.status;
+
+}
+} catch (err) {
+console.error('CalmBot Fetch Fail:', err);
+if (debugDiv) 
+debugDiv.textContent = 'Network/CORS Error';
+
+}
+};
+
+const debouncedAnalyze = (text) => {
+clearTimeout(analysisTimeout);
+analysisTimeout = setTimeout(() => analyzeSentiment(text), 1000);
+};
+
+if (textarea) {
+textarea.addEventListener('input', (e) => debouncedAnalyze(e.target.value));
+}
+
+// Also listen to Title for extra coverage
+const titleInput = document.getElementById('{{ form.title.vars.id }}') || document.querySelector('input[name*="title"]');
+if (titleInput) {
+titleInput.addEventListener('input', (e) => {
+if (e.target.value.length > 20) 
+debouncedAnalyze(e.target.value);
+
+});
+}
+
+// --- Editor Toggle Logic ---
+if (toggleBtn) {
+toggleBtn.addEventListener('click', function () {
+if (editorInstance) {
+editorInstance.destroy().then(() => {
+editorInstance = null;
+statusLabel.textContent = 'Switch to Advanced Editor';
+toggleBtn.className = "inline-block px-3 py-1 font-bold text-center uppercase align-middle transition-all bg-transparent border border-solid rounded-lg cursor-pointer shadow-none leading-pro text-xxs ease-soft-in tracking-tight-soft bg-150 bg-x-25 border-slate-700 text-slate-700 hover:bg-transparent hover:text-slate-700 hover:shadow-none active:opacity-85";
+if (textarea) 
+textarea.style.display = 'block';
+
+
+
+});
+} else {
+ClassicEditor.create(textarea, {
+toolbar: [
+'bold',
+'italic',
+'underline',
+'|',
+'bulletedList',
+'numberedList',
+'|',
+'link'
+],
+link: {
+addTargetToExternalLinks: true
+}
+}).then(editor => {
+editorInstance = editor;
+statusLabel.textContent = 'Switch to Normal Editor';
+toggleBtn.className = "inline-block px-3 py-1 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 bg-x-25 leading-pro text-xxs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 hover:shadow-soft-xs active:opacity-85";
+editor.model.document.on('change:data', () => {
+const data = editor.getData();
+textarea.value = data;
+debouncedAnalyze(data.replace(/<[^>]*>/g, ''));
+});
+});
+}
+});
+}
+
+// --- Voice to Text Logic ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+const micBtns = document.querySelectorAll('.mic-btn');
+let recognition = null;
+let currentMicBtn = null;
+let isRecording = false;
+
+// Initialize recognition
+recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.lang = navigator.language || 'en-US'; // Use browser's current language for multi-language support
+
+recognition.onstart = function () {
+isRecording = true;
+if (currentMicBtn) {
+currentMicBtn.classList.add('mic-recording');
+currentMicBtn.innerHTML = '<i class="fas fa-stop text-xs"></i>';
+const hint = currentMicBtn.nextElementSibling;
+if (hint && hint.classList.contains('mic-hint')) {
+hint.textContent = 'Listening...';
+hint.classList.add('text-red-500');
+}
+}
+};
+
+recognition.onresult = function (event) {
+if (! currentMicBtn) 
+return;
+
+
+let interimTranscript = '';
+let finalTranscript = '';
+
+for (let i = event.resultIndex; i < event.results.length; ++ i) {
+if (event.results[i].isFinal) {
+finalTranscript += event.results[i][0].transcript;
+} else {
+interimTranscript += event.results[i][0].transcript;
+}
+}
+
+const targetId = currentMicBtn.getAttribute('data-target');
+
+if (targetId === 'editor-content') { // Handle Content Field (CKEditor or Textarea)
+if (editorInstance) { // We append the final text to CKEditor's current data
+if (finalTranscript) {
+const currentData = editorInstance.getData();
+editorInstance.setData(currentData + ' ' + finalTranscript);
+}
+} else { // Standard textarea
+const val = textarea.value;
+if (finalTranscript) {
+textarea.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
+}
+}
+} else { // Handle Title Field
+const titleInput = document.getElementById(targetId);
+if (titleInput) {
+const val = titleInput.value;
+if (finalTranscript) {
+titleInput.value = val + (val.endsWith(' ') || val.length === 0 ? '' : ' ') + finalTranscript;
+}
+}
+}
+};
+
+recognition.onerror = function (event) {
+console.error('Speech recognition error detected: ' + event.error);
+stopDictation();
+};
+
+recognition.onend = function () {
+stopDictation();
+};
+
+function stopDictation() {
+isRecording = false;
+if (currentMicBtn) {
+currentMicBtn.classList.remove('mic-recording');
+currentMicBtn.innerHTML = '<i class="fas fa-microphone text-xs"></i>';
+const hint = currentMicBtn.nextElementSibling;
+if (hint && hint.classList.contains('mic-hint')) {
+hint.textContent = 'Click to dictate';
+hint.classList.remove('text-red-500');
+}
+currentMicBtn = null;
+}
+if (recognition) {
+try {
+recognition.stop();
+} catch (e) {}
+}
+}
+
+micBtns.forEach(btn => {
+btn.addEventListener('click', function (e) {
+e.preventDefault();
+
+// If already recording this field, stop it
+if (isRecording && currentMicBtn === this) {
+stopDictation();
+return;
+}
+
+// If recording somewhere else, stop that first
+if (isRecording) {
+stopDictation();
+}
+
+// Start new recording
+currentMicBtn = this;
+try {
+recognition.start();
+} catch (e) {
+console.error("Could not start recognition", e);
+}
+});
+});
+} else {
+console.warn('Speech Recognition API not supported in this browser.');
+document.querySelectorAll('.mic-btn').forEach(btn => btn.style.display = 'none');
+}
+
+});
+	</script>
 
 	<div class="w-full md:w-1/2 px-3 mb-4">
 		<label class="mb-2 ml-1 font-bold text-xs text-slate-700">Cover Image</label>
-		{# Hide the real input, show a native-looking custom picker #}
 		<div class="flex items-center rounded-lg border border-solid border-gray-300 bg-white overflow-hidden">
 			<label for="{{ form.imageFile.vars.id }}" class="cursor-pointer shrink-0 px-3 py-2 text-sm font-normal bg-gray-100 border-r border-gray-300 hover:bg-gray-200 transition-colors">Choose File</label>
 			<span id="image-file-name" class="px-3 py-2 text-sm text-gray-700 truncate">
@@ -57,3 +435,5 @@
 	<a href="{{ path('forum_index') }}" class="inline-block w-full px-6 py-3 mt-2 mb-0 font-bold text-center uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-150 bg-x-25 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gray-100 hover:bg-gray-200 text-slate-700">Cancel</a>
 </div>
 {{ form_end(form) }}
+
+{# Include Shared Memory Game Template removed as it is now global in base.html.twig #}

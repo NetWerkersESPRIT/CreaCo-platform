@@ -15,12 +15,14 @@ use App\Entity\Group;
 use App\Entity\Notification;
 use App\Repository\GroupRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 
 
 final class UserController extends AbstractController
 {
     #[Route('/user/new', name: 'app_useradd')]
-    public function createuser(Request $request, EntityManagerInterface $em, UsersRepository $userRepository): Response
+    public function createuser(Request $request, EntityManagerInterface $em, UsersRepository $userRepository, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new Users();
 
@@ -29,11 +31,11 @@ final class UserController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+            $user->setPassword($hashedPassword);
 
             $em->persist($user);
             $em->flush();
-
-            $user->setGroupId($user->getId());
 
             // 🎉 Welcome notification for the new user
             $welcomeNotif = new Notification();
@@ -86,34 +88,34 @@ final class UserController extends AbstractController
         }
 
         $groupMembers = [];
-        if ($currentUser->getRole() === 'ROLE_CONTENT_CREATOR') {
-            $group = $em->getRepository(Group::class)->findOneBy(['owner' => $currentUser]);
-            if ($group) {
-                $groupMembers = $group->getMembers();
-            }
-        } elseif ($currentUser->getRole() === 'ROLE_MEMBER') {
-            // If they are a member, they might want to see all members of all groups they've joined
-            // But for simplicity, let's just keep it consistent with the creator's view or show all colleagues
-            foreach ($currentUser->getGroups() as $group) {
-                foreach ($group->getMembers() as $member) {
-                    if ($member->getId() !== $currentUser->getId() && !isset($groupMembers[$member->getId()])) {
-                        $groupMembers[$member->getId()] = $member;
-                    }
+        
+        // 1. Get members and owners of any group this user has JOINED
+        foreach ($currentUser->getGroups() as $group) {
+            // Add other members of the same group
+            foreach ($group->getMembers() as $member) {
+                if ($member->getId() !== $currentUser->getId()) {
+                    $groupMembers[$member->getId()] = $member;
                 }
             }
-        } else {
-             // Fallback for others (admin etc) using existing groupid logic if necessary
-             $groupMembers = $userRepository->createQueryBuilder('u')
-                ->where('u.groupid = :groupid')
-                ->andWhere('u.id != :id')
-                ->setParameter('groupid', $currentUser->getGroupid())
-                ->setParameter('id', $userId)
-                ->getQuery()
-                ->getResult();
+            // Also add the owner of this group as a colleague
+            $owner = $group->getOwner();
+            if ($owner && $owner->getId() !== $currentUser->getId()) {
+                $groupMembers[$owner->getId()] = $owner;
+            }
+        }
+
+        // 2. If the user OWNS any group (Content Creator), get all its members
+        $ownedGroups = $em->getRepository(Group::class)->findBy(['owner' => $currentUser]);
+        foreach ($ownedGroups as $group) {
+            foreach ($group->getMembers() as $member) {
+                if ($member->getId() !== $currentUser->getId()) {
+                    $groupMembers[$member->getId()] = $member;
+                }
+            }
         }
 
         return $this->render('user/profile.html.twig', [
-            'group_members' => $groupMembers,
+            'group_members' => array_values($groupMembers),
             'app_user' => $currentUser
         ]);
     }
@@ -133,7 +135,7 @@ final class UserController extends AbstractController
     public function googleSignupCheck() {}
 
     #[Route('/add-member', name: 'app_add_member', methods: ['GET', 'POST'])]
-    public function addMember(Request $request, EntityManagerInterface $em): Response
+    public function addMember(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -159,8 +161,7 @@ final class UserController extends AbstractController
             $em->persist($group);
             $em->flush();
             
-            // For backward compatibility with existing code that uses groupid
-            $currentUser->setGroupid($group->getId());
+            $em->persist($group);
             $em->flush();
         }
 
@@ -177,7 +178,9 @@ final class UserController extends AbstractController
             if ($existingUser) {
                 $this->addFlash('error', 'A user with this email already exists. Use "Add Existing Member" instead.');
             } else {
-                $user->setGroupid($group->getId());
+                $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+                $user->setPassword($hashedPassword);
+                
                 $group->addMember($user);
                 $em->persist($user);
                 $em->flush();
@@ -404,7 +407,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/profile/edit', name: 'app_profile_edit')]
-    public function editProfile(Request $request, EntityManagerInterface $em): Response
+    public function editProfile(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -425,14 +428,15 @@ final class UserController extends AbstractController
             $newPassword = $form->get('newPassword')->getData();
 
             if ($newPassword) {
-                if (!$currentPasswordInput || $currentPasswordInput !== $user->getPassword()) {
+                if (!$currentPasswordInput || !$passwordHasher->isPasswordValid($user, $currentPasswordInput)) {
                     $this->addFlash('error', 'You must provide your correct current password to set a new one.');
                     return $this->render('user/edit_profile.html.twig', [
                         'form' => $form->createView(),
                         'app_user' => $user
                     ]);
                 }
-                $user->setPassword($newPassword);
+                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($hashedPassword);
             }
 
             $em->flush();

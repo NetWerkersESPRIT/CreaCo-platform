@@ -58,6 +58,7 @@
             </div>
         </div>
 
+        {% if not is_granted('ROLE_ADMIN') %}
         <!-- Resources Opened -->
         <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4">
             <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
@@ -78,7 +79,9 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
+        {% if not is_granted('ROLE_ADMIN') %}
         <!-- Courses Completed -->
         <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/4">
             <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
@@ -99,6 +102,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- Top Users -->

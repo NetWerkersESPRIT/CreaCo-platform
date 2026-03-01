@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260223101100 extends AbstractMigration
+final class Version20260301091328 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,29 +20,35 @@ final class Version20260223101100 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE badge (id INT AUTO_INCREMENT NOT NULL, code VARCHAR(100) NOT NULL, name VARCHAR(255) NOT NULL, description LONGTEXT DEFAULT NULL, icon VARCHAR(255) DEFAULT NULL, rarity VARCHAR(50) DEFAULT NULL, created_at DATETIME NOT NULL, UNIQUE INDEX badge_code_unique (code), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE categorie_cours (id INT AUTO_INCREMENT NOT NULL, nom VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, description LONGTEXT DEFAULT NULL, date_de_creation DATETIME NOT NULL, date_de_modification DATETIME DEFAULT NULL, deleted_at DATETIME DEFAULT NULL, UNIQUE INDEX UNIQ_8B2614C6C6E55B5 (nom), UNIQUE INDEX UNIQ_8B2614C989D9B62 (slug), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE collab_request (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, budget NUMERIC(10, 2) DEFAULT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, status VARCHAR(50) NOT NULL, rejection_reason LONGTEXT DEFAULT NULL, deliverables LONGTEXT DEFAULT NULL, payment_terms LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, responded_at DATETIME DEFAULT NULL, creator_id INT DEFAULT NULL, revisor_id INT DEFAULT NULL, collaborator_id INT NOT NULL, INDEX IDX_195F8ECF61220EA6 (creator_id), INDEX IDX_195F8ECFBD3183DF (revisor_id), INDEX IDX_195F8ECF30098C8C (collaborator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE collab_request (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, budget NUMERIC(10, 2) DEFAULT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, status VARCHAR(50) NOT NULL, rejection_reason LONGTEXT DEFAULT NULL, deliverables LONGTEXT DEFAULT NULL, payment_terms LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, responded_at DATETIME DEFAULT NULL, ai_success_score INT DEFAULT NULL, ai_clarity_score INT DEFAULT NULL, ai_budget_realism_score INT DEFAULT NULL, ai_timeline_feasibility_score INT DEFAULT NULL, ai_flags JSON DEFAULT NULL, ai_usage_count INT NOT NULL, ai_original_content LONGTEXT DEFAULT NULL, ai_rephrased_content LONGTEXT DEFAULT NULL, creator_id INT DEFAULT NULL, revisor_id INT DEFAULT NULL, collaborator_id INT NOT NULL, INDEX IDX_195F8ECF61220EA6 (creator_id), INDEX IDX_195F8ECFBD3183DF (revisor_id), INDEX IDX_195F8ECF30098C8C (collaborator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE collaborator (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, company_name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, phone VARCHAR(50) DEFAULT NULL, address LONGTEXT DEFAULT NULL, website VARCHAR(255) DEFAULT NULL, domain VARCHAR(100) DEFAULT NULL, description LONGTEXT DEFAULT NULL, logo VARCHAR(255) DEFAULT NULL, is_public TINYINT NOT NULL, status VARCHAR(50) NOT NULL, created_at DATETIME NOT NULL, added_by_user_id INT DEFAULT NULL, UNIQUE INDEX UNIQ_606D487CE7927C74 (email), INDEX IDX_606D487CCA792C6B (added_by_user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE comment (id INT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, status VARCHAR(50) NOT NULL, likes INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, is_profane TINYINT DEFAULT 0 NOT NULL, profane_words INT DEFAULT 0 NOT NULL, grammar_errors INT DEFAULT 0 NOT NULL, post_id INT NOT NULL, user_id INT DEFAULT NULL, parent_comment_id INT DEFAULT NULL, INDEX IDX_9474526C4B89032C (post_id), INDEX IDX_9474526CA76ED395 (user_id), INDEX IDX_9474526CBF2AF943 (parent_comment_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE contract (id INT AUTO_INCREMENT NOT NULL, contract_number VARCHAR(100) NOT NULL, title VARCHAR(255) NOT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, amount NUMERIC(10, 2) NOT NULL, pdf_path VARCHAR(255) DEFAULT NULL, status VARCHAR(50) NOT NULL, signed_by_creator TINYINT NOT NULL, signed_by_collaborator TINYINT NOT NULL, creator_signature_date DATETIME DEFAULT NULL, collaborator_signature_date DATETIME DEFAULT NULL, terms LONGTEXT DEFAULT NULL, payment_schedule LONGTEXT DEFAULT NULL, confidentiality_clause LONGTEXT DEFAULT NULL, cancellation_terms LONGTEXT DEFAULT NULL, signature_token VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, sent_at DATETIME DEFAULT NULL, collab_request_id INT NOT NULL, creator_id INT DEFAULT NULL, collaborator_id INT NOT NULL, UNIQUE INDEX UNIQ_E98F2859AAD0FA19 (contract_number), UNIQUE INDEX UNIQ_E98F2859A266EDF4 (collab_request_id), INDEX IDX_E98F285961220EA6 (creator_id), INDEX IDX_E98F285930098C8C (collaborator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE contract (id INT AUTO_INCREMENT NOT NULL, contract_number VARCHAR(100) NOT NULL, title VARCHAR(255) NOT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, amount NUMERIC(10, 2) NOT NULL, pdf_path VARCHAR(255) DEFAULT NULL, status VARCHAR(50) NOT NULL, signed_by_creator TINYINT NOT NULL, signed_by_collaborator TINYINT NOT NULL, creator_signature_date DATETIME DEFAULT NULL, collaborator_signature_date DATETIME DEFAULT NULL, terms LONGTEXT DEFAULT NULL, payment_schedule LONGTEXT DEFAULT NULL, confidentiality_clause LONGTEXT DEFAULT NULL, cancellation_terms LONGTEXT DEFAULT NULL, signature_token VARCHAR(255) DEFAULT NULL, docusign_envelope_id VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, sent_at DATETIME DEFAULT NULL, collab_request_id INT NOT NULL, creator_id INT DEFAULT NULL, collaborator_id INT NOT NULL, UNIQUE INDEX UNIQ_E98F2859AAD0FA19 (contract_number), UNIQUE INDEX UNIQ_E98F2859A266EDF4 (collab_request_id), INDEX IDX_E98F285961220EA6 (creator_id), INDEX IDX_E98F285930098C8C (collaborator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE contract_clause (id INT AUTO_INCREMENT NOT NULL, category VARCHAR(100) NOT NULL, title VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, is_active TINYINT NOT NULL, is_mandatory TINYINT NOT NULL, is_editable TINYINT NOT NULL, version INT NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE contract_template (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, is_master TINYINT NOT NULL, version INT NOT NULL, updated_at DATETIME NOT NULL, custom_fields JSON DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE conversation (id INT AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, post_id INT NOT NULL, owner_user_id INT NOT NULL, admin_user_id INT NOT NULL, UNIQUE INDEX UNIQ_8A8E26E94B89032C (post_id), INDEX IDX_8A8E26E92B18554A (owner_user_id), INDEX IDX_8A8E26E96352511C (admin_user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE cours (id INT AUTO_INCREMENT NOT NULL, titre VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, image VARCHAR(255) DEFAULT NULL, date_de_creation DATETIME NOT NULL, date_de_modification DATETIME DEFAULT NULL, views INT DEFAULT NULL, statut VARCHAR(20) NOT NULL, niveau VARCHAR(20) DEFAULT NULL, duree_estimee INT DEFAULT NULL, deleted_at DATETIME DEFAULT NULL, categorie_id INT NOT NULL, UNIQUE INDEX UNIQ_FDCA8C9C989D9B62 (slug), INDEX IDX_FDCA8C9CBCF5E72D (categorie_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE cours_rating (id INT AUTO_INCREMENT NOT NULL, rating SMALLINT NOT NULL, created_at DATETIME NOT NULL, cours_id INT NOT NULL, user_id INT DEFAULT NULL, INDEX IDX_B709374A7ECF78B0 (cours_id), INDEX IDX_B709374AA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE event (id INT AUTO_INCREMENT NOT NULL, created_at DATETIME DEFAULT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, type VARCHAR(20) NOT NULL, category VARCHAR(30) NOT NULL, date DATE NOT NULL, time TIME NOT NULL, organizer VARCHAR(255) NOT NULL, is_for_all_users TINYINT NOT NULL, meeting_link VARCHAR(255) DEFAULT NULL, platform VARCHAR(255) DEFAULT NULL, address VARCHAR(255) DEFAULT NULL, google_maps_link LONGTEXT DEFAULT NULL, capacity INT DEFAULT NULL, contact VARCHAR(255) DEFAULT NULL, image_path VARCHAR(255) DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE event_users (event_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_559814C571F7E88B (event_id), INDEX IDX_559814C567B3B43D (users_id), PRIMARY KEY (event_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE `group` (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, owner_id INT NOT NULL, INDEX IDX_6DC044C57E3C61F9 (owner_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE group_user (group_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_A4C98D39FE54D947 (group_id), INDEX IDX_A4C98D3967B3B43D (users_id), PRIMARY KEY (group_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE idea (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_used DATETIME DEFAULT NULL, creator_id INT NOT NULL, INDEX IDX_A8BCA4561220EA6 (creator_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE idea_users (idea_id INT NOT NULL, users_id INT NOT NULL, INDEX IDX_5544963C5B6FEF7D (idea_id), INDEX IDX_5544963C67B3B43D (users_id), PRIMARY KEY (idea_id, users_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE idea_usage (id INT AUTO_INCREMENT NOT NULL, date_used DATETIME NOT NULL, user_id INT NOT NULL, idea_id INT NOT NULL, INDEX IDX_912C6DA5A76ED395 (user_id), INDEX IDX_912C6DA55B6FEF7D (idea_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE message (id INT AUTO_INCREMENT NOT NULL, content LONGTEXT NOT NULL, created_at DATETIME NOT NULL, is_read TINYINT NOT NULL, read_at DATETIME DEFAULT NULL, is_profane TINYINT DEFAULT 0 NOT NULL, profane_words INT DEFAULT 0 NOT NULL, grammar_errors INT DEFAULT 0 NOT NULL, status VARCHAR(50) DEFAULT \'visible\' NOT NULL, conversation_id INT NOT NULL, sender_user_id INT NOT NULL, INDEX IDX_B6BD307F9AC0396 (conversation_id), INDEX IDX_B6BD307F2A98155E (sender_user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE mission (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(1000) NOT NULL, state VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, last_update DATETIME DEFAULT NULL, mission_date DATETIME DEFAULT NULL, completed_at DATETIME DEFAULT NULL, implement_idea_id INT NOT NULL, assigned_by_id INT NOT NULL, INDEX IDX_9067F23CE70560BA (implement_idea_id), INDEX IDX_9067F23C6E6F1246 (assigned_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, message VARCHAR(255) NOT NULL, is_read TINYINT NOT NULL, created_at DATETIME NOT NULL, target_url VARCHAR(255) DEFAULT NULL, type VARCHAR(50) DEFAULT \'default\' NOT NULL, related_id INT DEFAULT NULL, status VARCHAR(20) DEFAULT NULL, user_id_id INT NOT NULL, INDEX IDX_BF5476CA9D86650F (user_id_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, status VARCHAR(50) NOT NULL, refusal_reason LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, pinned TINYINT DEFAULT 0 NOT NULL, is_comment_locked TINYINT DEFAULT 0 NOT NULL, is_moderation_notified TINYINT DEFAULT 1 NOT NULL, content LONGTEXT NOT NULL, tags VARCHAR(255) DEFAULT NULL, image_name VARCHAR(255) DEFAULT NULL, pdf_name VARCHAR(255) DEFAULT NULL, likes INT DEFAULT 0 NOT NULL, is_profane TINYINT DEFAULT 0 NOT NULL, profane_words INT DEFAULT 0 NOT NULL, grammar_errors INT DEFAULT 0 NOT NULL, spam_score INT DEFAULT 0, is_spam TINYINT DEFAULT 0 NOT NULL, solution_id INT DEFAULT NULL, user_id INT DEFAULT NULL, UNIQUE INDEX UNIQ_5A8A6C8D1C0BE183 (solution_id), INDEX IDX_5A8A6C8DA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, status VARCHAR(50) NOT NULL, refusal_reason LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, pinned TINYINT DEFAULT 0 NOT NULL, is_comment_locked TINYINT DEFAULT 0 NOT NULL, is_moderation_notified TINYINT DEFAULT 1 NOT NULL, content LONGTEXT NOT NULL, image_name VARCHAR(255) DEFAULT NULL, pdf_name VARCHAR(255) DEFAULT NULL, likes INT DEFAULT 0 NOT NULL, is_profane TINYINT DEFAULT 0 NOT NULL, profane_words INT DEFAULT 0 NOT NULL, grammar_errors INT DEFAULT 0 NOT NULL, spam_score INT DEFAULT 0, is_spam TINYINT DEFAULT 0 NOT NULL, solution_id INT DEFAULT NULL, user_id INT DEFAULT NULL, UNIQUE INDEX UNIQ_5A8A6C8D1C0BE183 (solution_id), INDEX IDX_5A8A6C8DA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE post_reaction (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(20) NOT NULL, created_at DATETIME NOT NULL, user_id INT NOT NULL, post_id INT NOT NULL, INDEX IDX_1B3A8E56A76ED395 (user_id), INDEX IDX_1B3A8E564B89032C (post_id), UNIQUE INDEX unique_user_post_reaction (user_id, post_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE reservation (id INT AUTO_INCREMENT NOT NULL, reserved_at DATETIME NOT NULL, status VARCHAR(255) NOT NULL, event_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_42C8495571F7E88B (event_id), INDEX IDX_42C84955A76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE ressource (id INT AUTO_INCREMENT NOT NULL, nom VARCHAR(255) NOT NULL, url VARCHAR(255) DEFAULT NULL, type VARCHAR(255) DEFAULT NULL, contenu LONGTEXT DEFAULT NULL, date_de_creation DATETIME DEFAULT NULL, date_de_modification DATETIME DEFAULT NULL, cours_id INT NOT NULL, INDEX IDX_939F45447ECF78B0 (cours_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE task (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, state VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, time_limit DATETIME DEFAULT NULL, completed_at DATETIME DEFAULT NULL, issued_by_id INT NOT NULL, assumed_by_id INT DEFAULT NULL, belong_to_id INT DEFAULT NULL, INDEX IDX_527EDB25784BB717 (issued_by_id), INDEX IDX_527EDB2523A6A192 (assumed_by_id), INDEX IDX_527EDB25568163B1 (belong_to_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE user_badge (id INT AUTO_INCREMENT NOT NULL, awarded_at DATETIME NOT NULL, metadata JSON DEFAULT NULL, user_id INT NOT NULL, badge_id INT NOT NULL, INDEX IDX_1C32B345A76ED395 (user_id), INDEX IDX_1C32B345F7A2C2FC (badge_id), UNIQUE INDEX user_badge_unique (user_id, badge_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE user_cours_progress (id INT AUTO_INCREMENT NOT NULL, progress_percentage NUMERIC(5, 2) NOT NULL, completed_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, total_ressources INT NOT NULL, opened_ressources INT NOT NULL, user_id INT NOT NULL, cours_id INT NOT NULL, INDEX IDX_8E1083C2A76ED395 (user_id), INDEX IDX_8E1083C27ECF78B0 (cours_id), UNIQUE INDEX user_cours_unique (user_id, cours_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE user_ressource_progress (id INT AUTO_INCREMENT NOT NULL, status VARCHAR(20) NOT NULL, opened_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, user_id INT NOT NULL, ressource_id INT NOT NULL, INDEX IDX_C0F4AD67A76ED395 (user_id), INDEX IDX_C0F4AD67FC6CD52A (ressource_id), UNIQUE INDEX user_ressource_unique (user_id, ressource_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE user_streak_day (id INT AUTO_INCREMENT NOT NULL, day DATE NOT NULL, created_at DATETIME NOT NULL, user_id INT NOT NULL, INDEX IDX_67E282A2A76ED395 (user_id), UNIQUE INDEX user_date_unique (user_id, day), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE users (id INT AUTO_INCREMENT NOT NULL, username VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, role VARCHAR(255) NOT NULL, groupid INT DEFAULT NULL, numtel VARCHAR(20) DEFAULT NULL, points INT DEFAULT 0 NOT NULL, created_at DATETIME DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE messenger_messages (id BIGINT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, headers LONGTEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, available_at DATETIME NOT NULL, delivered_at DATETIME DEFAULT NULL, INDEX IDX_75EA56E0FB7336F0E3BD61CE16BA31DBBF396750 (queue_name, available_at, delivered_at, id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('ALTER TABLE collab_request ADD CONSTRAINT FK_195F8ECF61220EA6 FOREIGN KEY (creator_id) REFERENCES users (id) ON DELETE CASCADE');
@@ -59,14 +65,16 @@ final class Version20260223101100 extends AbstractMigration
         $this->addSql('ALTER TABLE conversation ADD CONSTRAINT FK_8A8E26E92B18554A FOREIGN KEY (owner_user_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE conversation ADD CONSTRAINT FK_8A8E26E96352511C FOREIGN KEY (admin_user_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE cours ADD CONSTRAINT FK_FDCA8C9CBCF5E72D FOREIGN KEY (categorie_id) REFERENCES categorie_cours (id)');
+        $this->addSql('ALTER TABLE cours_rating ADD CONSTRAINT FK_B709374A7ECF78B0 FOREIGN KEY (cours_id) REFERENCES cours (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE cours_rating ADD CONSTRAINT FK_B709374AA76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL');
         $this->addSql('ALTER TABLE event_users ADD CONSTRAINT FK_559814C571F7E88B FOREIGN KEY (event_id) REFERENCES event (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE event_users ADD CONSTRAINT FK_559814C567B3B43D FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE `group` ADD CONSTRAINT FK_6DC044C57E3C61F9 FOREIGN KEY (owner_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D39FE54D947 FOREIGN KEY (group_id) REFERENCES `group` (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE group_user ADD CONSTRAINT FK_A4C98D3967B3B43D FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE idea ADD CONSTRAINT FK_A8BCA4561220EA6 FOREIGN KEY (creator_id) REFERENCES users (id)');
-        $this->addSql('ALTER TABLE idea_users ADD CONSTRAINT FK_5544963C5B6FEF7D FOREIGN KEY (idea_id) REFERENCES idea (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE idea_users ADD CONSTRAINT FK_5544963C67B3B43D FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE idea_usage ADD CONSTRAINT FK_912C6DA5A76ED395 FOREIGN KEY (user_id) REFERENCES users (id)');
+        $this->addSql('ALTER TABLE idea_usage ADD CONSTRAINT FK_912C6DA55B6FEF7D FOREIGN KEY (idea_id) REFERENCES idea (id)');
         $this->addSql('ALTER TABLE message ADD CONSTRAINT FK_B6BD307F9AC0396 FOREIGN KEY (conversation_id) REFERENCES conversation (id)');
         $this->addSql('ALTER TABLE message ADD CONSTRAINT FK_B6BD307F2A98155E FOREIGN KEY (sender_user_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE mission ADD CONSTRAINT FK_9067F23CE70560BA FOREIGN KEY (implement_idea_id) REFERENCES idea (id)');
@@ -82,10 +90,13 @@ final class Version20260223101100 extends AbstractMigration
         $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25784BB717 FOREIGN KEY (issued_by_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB2523A6A192 FOREIGN KEY (assumed_by_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25568163B1 FOREIGN KEY (belong_to_id) REFERENCES mission (id)');
+        $this->addSql('ALTER TABLE user_badge ADD CONSTRAINT FK_1C32B345A76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE user_badge ADD CONSTRAINT FK_1C32B345F7A2C2FC FOREIGN KEY (badge_id) REFERENCES badge (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_cours_progress ADD CONSTRAINT FK_8E1083C2A76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_cours_progress ADD CONSTRAINT FK_8E1083C27ECF78B0 FOREIGN KEY (cours_id) REFERENCES cours (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_ressource_progress ADD CONSTRAINT FK_C0F4AD67A76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_ressource_progress ADD CONSTRAINT FK_C0F4AD67FC6CD52A FOREIGN KEY (ressource_id) REFERENCES ressource (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE user_streak_day ADD CONSTRAINT FK_67E282A2A76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE');
     }
 
     public function down(Schema $schema): void
@@ -105,14 +116,16 @@ final class Version20260223101100 extends AbstractMigration
         $this->addSql('ALTER TABLE conversation DROP FOREIGN KEY FK_8A8E26E92B18554A');
         $this->addSql('ALTER TABLE conversation DROP FOREIGN KEY FK_8A8E26E96352511C');
         $this->addSql('ALTER TABLE cours DROP FOREIGN KEY FK_FDCA8C9CBCF5E72D');
+        $this->addSql('ALTER TABLE cours_rating DROP FOREIGN KEY FK_B709374A7ECF78B0');
+        $this->addSql('ALTER TABLE cours_rating DROP FOREIGN KEY FK_B709374AA76ED395');
         $this->addSql('ALTER TABLE event_users DROP FOREIGN KEY FK_559814C571F7E88B');
         $this->addSql('ALTER TABLE event_users DROP FOREIGN KEY FK_559814C567B3B43D');
         $this->addSql('ALTER TABLE `group` DROP FOREIGN KEY FK_6DC044C57E3C61F9');
         $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D39FE54D947');
         $this->addSql('ALTER TABLE group_user DROP FOREIGN KEY FK_A4C98D3967B3B43D');
         $this->addSql('ALTER TABLE idea DROP FOREIGN KEY FK_A8BCA4561220EA6');
-        $this->addSql('ALTER TABLE idea_users DROP FOREIGN KEY FK_5544963C5B6FEF7D');
-        $this->addSql('ALTER TABLE idea_users DROP FOREIGN KEY FK_5544963C67B3B43D');
+        $this->addSql('ALTER TABLE idea_usage DROP FOREIGN KEY FK_912C6DA5A76ED395');
+        $this->addSql('ALTER TABLE idea_usage DROP FOREIGN KEY FK_912C6DA55B6FEF7D');
         $this->addSql('ALTER TABLE message DROP FOREIGN KEY FK_B6BD307F9AC0396');
         $this->addSql('ALTER TABLE message DROP FOREIGN KEY FK_B6BD307F2A98155E');
         $this->addSql('ALTER TABLE mission DROP FOREIGN KEY FK_9067F23CE70560BA');
@@ -128,23 +141,30 @@ final class Version20260223101100 extends AbstractMigration
         $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB25784BB717');
         $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB2523A6A192');
         $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB25568163B1');
+        $this->addSql('ALTER TABLE user_badge DROP FOREIGN KEY FK_1C32B345A76ED395');
+        $this->addSql('ALTER TABLE user_badge DROP FOREIGN KEY FK_1C32B345F7A2C2FC');
         $this->addSql('ALTER TABLE user_cours_progress DROP FOREIGN KEY FK_8E1083C2A76ED395');
         $this->addSql('ALTER TABLE user_cours_progress DROP FOREIGN KEY FK_8E1083C27ECF78B0');
         $this->addSql('ALTER TABLE user_ressource_progress DROP FOREIGN KEY FK_C0F4AD67A76ED395');
         $this->addSql('ALTER TABLE user_ressource_progress DROP FOREIGN KEY FK_C0F4AD67FC6CD52A');
+        $this->addSql('ALTER TABLE user_streak_day DROP FOREIGN KEY FK_67E282A2A76ED395');
+        $this->addSql('DROP TABLE badge');
         $this->addSql('DROP TABLE categorie_cours');
         $this->addSql('DROP TABLE collab_request');
         $this->addSql('DROP TABLE collaborator');
         $this->addSql('DROP TABLE comment');
         $this->addSql('DROP TABLE contract');
+        $this->addSql('DROP TABLE contract_clause');
+        $this->addSql('DROP TABLE contract_template');
         $this->addSql('DROP TABLE conversation');
         $this->addSql('DROP TABLE cours');
+        $this->addSql('DROP TABLE cours_rating');
         $this->addSql('DROP TABLE event');
         $this->addSql('DROP TABLE event_users');
         $this->addSql('DROP TABLE `group`');
         $this->addSql('DROP TABLE group_user');
         $this->addSql('DROP TABLE idea');
-        $this->addSql('DROP TABLE idea_users');
+        $this->addSql('DROP TABLE idea_usage');
         $this->addSql('DROP TABLE message');
         $this->addSql('DROP TABLE mission');
         $this->addSql('DROP TABLE notification');
@@ -153,8 +173,10 @@ final class Version20260223101100 extends AbstractMigration
         $this->addSql('DROP TABLE reservation');
         $this->addSql('DROP TABLE ressource');
         $this->addSql('DROP TABLE task');
+        $this->addSql('DROP TABLE user_badge');
         $this->addSql('DROP TABLE user_cours_progress');
         $this->addSql('DROP TABLE user_ressource_progress');
+        $this->addSql('DROP TABLE user_streak_day');
         $this->addSql('DROP TABLE users');
         $this->addSql('DROP TABLE messenger_messages');
     }
