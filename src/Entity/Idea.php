@@ -35,22 +35,22 @@ class Idea
     private ?Users $creator = null;
 
     /**
-     * @var Collection<int, Users>
-     */
-    #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'ideasUsed')]
-    private Collection $usedBy;
-
-    /**
      * @var Collection<int, Mission>
      */
     #[ORM\OneToMany(targetEntity: Mission::class, mappedBy: 'implementIdea')]
     private Collection $missions;
 
+    /**
+     * @var Collection<int, IdeaUsage>
+     */
+    #[ORM\OneToMany(targetEntity: IdeaUsage::class, mappedBy: 'Idea')]
+    private Collection $ideaUsages;
+
 
     public function __construct()
     {
-        $this->usedBy = new ArrayCollection();
         $this->missions = new ArrayCollection();
+        $this->ideaUsages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,30 +131,6 @@ class Idea
     }
 
     /**
-     * @return Collection<int, Users>
-     */
-    public function getUsedBy(): Collection
-    {
-        return $this->usedBy;
-    }
-
-    public function addUsedBy(Users $usedBy): static
-    {
-        if (!$this->usedBy->contains($usedBy)) {
-            $this->usedBy->add($usedBy);
-        }
-
-        return $this;
-    }
-
-    public function removeUsedBy(Users $usedBy): static
-    {
-        $this->usedBy->removeElement($usedBy);
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Mission>
      */
     public function getMissions(): Collection
@@ -178,6 +154,36 @@ class Idea
             // set the owning side to null (unless already changed)
             if ($mission->getImplementIdea() === $this) {
                 $mission->setImplementIdea(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IdeaUsage>
+     */
+    public function getIdeaUsages(): Collection
+    {
+        return $this->ideaUsages;
+    }
+
+    public function addIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if (!$this->ideaUsages->contains($ideaUsage)) {
+            $this->ideaUsages->add($ideaUsage);
+            $ideaUsage->setIdea($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if ($this->ideaUsages->removeElement($ideaUsage)) {
+            // set the owning side to null (unless already changed)
+            if ($ideaUsage->getIdea() === $this) {
+                $ideaUsage->setIdea(null);
             }
         }
 

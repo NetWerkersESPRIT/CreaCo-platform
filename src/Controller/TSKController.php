@@ -149,6 +149,7 @@ final class TSKController extends AbstractController
                 'description' => $mission->getDescription(),
                 'state' => $mission->getState(),
                 'idea' => $mission->getImplementIdea() ? $mission->getImplementIdea()->getTitle() : 'N/A',
+                'creator' => $mission->getAssignedBy() ? $mission->getAssignedBy()->getUsername() : 'Unknown',
             ];
         }
 
@@ -216,6 +217,17 @@ final class TSKController extends AbstractController
                 $mission->setDescription($aiDesc);
             }
 
+            // Track Idea Usage
+            if ($mission->getImplementIdea() && $user) {
+                $ideaUsage = new \App\Entity\IdeaUsage();
+                $ideaUsage->setIdea($mission->getImplementIdea());
+                $ideaUsage->setUser($user);
+                $ideaUsage->setDateUsed(new \DateTimeImmutable());
+                $entityManager->persist($ideaUsage);
+
+                $mission->getImplementIdea()->setLastUsed(new \DateTime());
+            }
+
             $entityManager->persist($mission);
             $entityManager->flush();
 
@@ -270,6 +282,31 @@ final class TSKController extends AbstractController
         $aiDesc = $generator->generate($title, $ideaTitle, $ideaDescription, $ideaCategory);
 
         return $this->json(['description' => $aiDesc]);
+    }
+
+    #[Route('/mission/api/recommend', name: 'app_mission_recommend_idea', methods: ['GET'])]
+    public function recommendIdea(Request $request, \App\Service\IdeaRecommendationService $recommendationService, EntityManagerInterface $entityManager): Response
+    {
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+        if (!$user) {
+            $ideas = $entityManager->getRepository(Idea::class)->findBy([], ['id' => 'DESC'], 1);
+            $recommendedIdea = !empty($ideas) ? $ideas[0] : null;
+        } else {
+            $recommendations = $recommendationService->getHybridRecommendations($user, 1);
+            $recommendedIdea = !empty($recommendations) ? $recommendations[0] : null;
+        }
+
+        if (!$recommendedIdea) {
+            return $this->json(['error' => 'No ideas available'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'id' => $recommendedIdea->getId(),
+            'title' => $recommendedIdea->getTitle()
+        ]);
     }
 
     #[Route('/mission/{id}', name: 'app_mission_show', methods: ['GET'])]
