@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Notification;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class EventController extends AbstractController
 {
@@ -48,7 +49,7 @@ final class EventController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
+            if ($imageFile instanceof UploadedFile) {
                 $imageUrl = $imgbbService->upload($imageFile);
                 if ($imageUrl) {
                     $event->setImagePath($imageUrl);
@@ -73,9 +74,12 @@ final class EventController extends AbstractController
     public function generateDescription(Request $request, EventDescGenerator $generator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
         $eventName = $data['eventName'] ?? '';
 
-        if (empty($eventName)) {
+        if (empty($eventName) || !is_string($eventName)) {
             return new JsonResponse(['error' => 'Event name is required'], Response::HTTP_BAD_REQUEST);
         }
 
@@ -112,7 +116,7 @@ final class EventController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
+            if ($imageFile instanceof UploadedFile) {
                 $imageUrl = $imgbbService->upload($imageFile);
                 if ($imageUrl) {
                     $event->setImagePath($imageUrl);
@@ -234,10 +238,11 @@ final class EventController extends AbstractController
 
         // Notificationsssssssssssss
         $member = $reservation->getUser();
-        if ($member) {
+        $event = $reservation->getEvent();
+        if ($member && $event) {
             $notification = new Notification();
             $statusText = ($status === 'validated') ? 'confirmed' : 'cancelled';
-            $notification->setMessage("Your reservation for " . $reservation->getEvent()->getName() . " has been " . $statusText . ".");
+            $notification->setMessage("Your reservation for " . $event->getName() . " has been " . $statusText . ".");
             $notification->setUserId($member);
             $notification->setIsRead(false);
             $notification->setCreatedAt(new \DateTime());
@@ -248,6 +253,10 @@ final class EventController extends AbstractController
 
         $this->addFlash('success', 'Reservation status updated to ' . $status);
 
-        return $this->redirectToRoute('event_manage', ['id' => $reservation->getEvent()->getId()]);
+        if (!$event) {
+            throw $this->createNotFoundException('Event not found for this reservation.');
+        }
+
+        return $this->redirectToRoute('event_manage', ['id' => $event->getId()]);
     }
 }

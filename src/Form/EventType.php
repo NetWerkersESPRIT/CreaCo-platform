@@ -12,6 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 
+/**
+ * @extends AbstractType<Event>
+ */
 class EventType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
