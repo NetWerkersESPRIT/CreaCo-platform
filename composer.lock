@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c95958f1a42aa31607328773c851a7a",
+    "content-hash": "7da313e9bd91a9cc656d42369bf9a2d5",
     "packages": [
         {
             "name": "composer/semver",
@@ -1324,16 +1324,16 @@
         },
         {
             "name": "ehyiah/ux-quill",
-            "version": "3.4.2",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Ehyiah/ux-quill.git",
-                "reference": "7a2a4d2df7cf9f758b836097288bcc460543a07b"
+                "reference": "7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Ehyiah/ux-quill/zipball/7a2a4d2df7cf9f758b836097288bcc460543a07b",
-                "reference": "7a2a4d2df7cf9f758b836097288bcc460543a07b",
+                "url": "https://api.github.com/repos/Ehyiah/ux-quill/zipball/7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb",
+                "reference": "7d2d896664fb54d6b6e3e9d18a8ef03aaf1c0bdb",
                 "shasum": ""
             },
             "require": {
@@ -1348,6 +1348,7 @@
                 "easycorp/easyadmin-bundle": "^4.7",
                 "friendsofphp/php-cs-fixer": "^3.1",
                 "friendsoftwig/twigcs": "^6.4",
+                "phpdocumentor/reflection-docblock": "<5.2|>=6",
                 "phpstan/phpstan": "^2.1.17",
                 "phpunit/phpunit": "^9.5",
                 "symfony/asset-mapper": "^6.3|^7.0",
@@ -1378,6 +1379,7 @@
                 }
             ],
             "description": "Symfony UX Bundle to use Quill JS wysiwyg text editor with full and easy customisation",
+            "homepage": "https://github.com/Ehyiah/ux-quill",
             "keywords": [
                 "easyadmin",
                 "easyadmin wysiwyg",
@@ -1393,9 +1395,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Ehyiah/ux-quill/issues",
-                "source": "https://github.com/Ehyiah/ux-quill/tree/3.4.2"
+                "source": "https://github.com/Ehyiah/ux-quill"
             },
-            "time": "2026-02-21T09:35:39+00:00"
+            "time": "2026-02-28T20:00:50+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -13161,5 +13163,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
