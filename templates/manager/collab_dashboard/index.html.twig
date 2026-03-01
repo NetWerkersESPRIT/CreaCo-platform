@@ -95,16 +95,12 @@
                        <div class="mr-10">
                            <p class="text-xs font-semibold uppercase text-slate-400 mb-1">Avg. Dispatch to Sign</p>
                            <h3 class="font-bold text-fuchsia-600 mb-0">{{ stats.avg_sign_time }} <span class="text-sm">Hours</span></h3>
-                           <small class="text-green-500 font-bold"><i class="fa fa-caret-down"></i> 12% vs last month</small>
-                       </div>
-                       <div class="flex-grow">
-                           <div class="flex justify-between mb-1">
-                               <span class="text-xs font-bold">Optimization Target (24h)</span>
-                               <span class="text-xs font-bold">92%</span>
-                           </div>
-                           <div class="w-full bg-gray-100 rounded-full h-1.5">
-                               <div class="bg-gradient-to-r from-fuchsia-600 to-purple-600 h-1.5 rounded-full" style="width: 92%"></div>
-                           </div>
+                           {% if stats.velocity_comparison is defined %}
+                               <small class="text-{{ stats.velocity_comparison <= 0 ? 'green' : 'red' }}-500 font-bold">
+                                   <i class="fa fa-caret-{{ stats.velocity_comparison <= 0 ? 'down' : 'up' }}"></i> 
+                                   {{ stats.velocity_comparison|abs }}% vs last month
+                               </small>
+                           {% endif %}
                        </div>
                    </div>
 
@@ -112,19 +108,13 @@
 
                    <h6 class="font-bold mb-4 text-xs uppercase opacity-60">Signature Pipeline (DocuSign Status)</h6>
                    <div class="flex flex-wrap -mx-2">
-                       <div class="w-1/3 px-2">
+                       <div class="w-1/2 px-2">
                            <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-fuchsia-50">
                                <h5 class="font-bold mb-0 text-fuchsia-600">{{ stats.pending_signatures.SENT }}</h5>
                                <p class="text-xxs font-bold uppercase opacity-60 mb-0">Sent</p>
                            </div>
                        </div>
-                       <div class="w-1/3 px-2">
-                           <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-blue-50">
-                               <h5 class="font-bold mb-0 text-blue-600">{{ stats.pending_signatures.VIEWED|default(0) }}</h5>
-                               <p class="text-xxs font-bold uppercase opacity-60 mb-0">Viewed</p>
-                           </div>
-                       </div>
-                       <div class="w-1/3 px-2">
+                       <div class="w-1/2 px-2">
                            <div class="bg-gray-50 rounded-xl p-3 text-center transition-all hover:bg-green-50">
                                <h5 class="font-bold mb-0 text-green-600">{{ (stats.pending_signatures.SIGNED|default(0)) }}</h5>
                                <p class="text-xxs font-bold uppercase opacity-60 mb-0">Partial Sign</p>
@@ -136,11 +126,11 @@
 
             <!-- AI Intelligence Card -->
             <div class="w-full lg:w-5/12 px-3 mb-6">
-                <div class="bg-gradient-to-br from-slate-900 to-slate-800 shadow-soft-xl rounded-2xl p-6 h-full text-white relative">
+                <div class="bg-gradient-to-br from-gray-900 to-slate-800 shadow-soft-xl rounded-2xl p-6 h-full text-white relative border border-white/10" style="background: linear-gradient(135deg, #1a1f37 0%, #111827 100%)">
                     <div class="flex justify-between items-start mb-6">
                         <div>
                             <h6 class="text-white font-bold mb-0">AI Strategic Confidence</h6>
-                            <p class="text-white/60 text-xs">Based on current network pulsations</p>
+                            <p class="text-white/70 text-xs">Based on current network pulsations</p>
                         </div>
                         <div class="bg-white/10 p-2 rounded-lg">
                             <i class="ni ni-bulb-61 text-xl text-yellow-400"></i>
@@ -154,24 +144,20 @@
                                 <h2 class="text-white font-bold mb-0 text-4xl">{{ stats.ai_accuracy|round }}%</h2>
                              </div>
                         </div>
-                        <p class="mt-4 text-xs font-semibold leading-relaxed">
-                            Your agency's predictive model is performing at high-efficiency.<br>
-                            <span class="text-fuchsia-400">Tactical recommendation:</span> Prioritize pending signatures with high AI scores.
-                        </p>
                     </div>
 
                     <div class="mt-4 flex justify-between bg-white/5 p-3 rounded-xl">
                         <div class="text-center px-2 border-r border-white/10">
                             <p class="text-[10px] uppercase font-bold opacity-60 mb-0">High Conviction</p>
-                            <span class="text-sm font-bold">84%</span>
+                            <span class="text-sm font-bold">{{ stats.ai_confidence.high|default(0) }}%</span>
                         </div>
                         <div class="text-center px-4 border-r border-white/10">
                             <p class="text-[10px] uppercase font-bold opacity-60 mb-0">Risk Signal</p>
-                            <span class="text-sm font-bold text-red-400">12%</span>
+                            <span class="text-sm font-bold text-red-400">{{ stats.ai_confidence.risk|default(0) }}%</span>
                         </div>
                         <div class="text-center px-2">
                             <p class="text-[10px] uppercase font-bold opacity-60 mb-0">Neutral</p>
-                            <span class="text-sm font-bold opacity-60">4%</span>
+                            <span class="text-sm font-bold opacity-60">{{ stats.ai_confidence.neutral|default(0) }}%</span>
                         </div>
                     </div>
                 </div>
@@ -270,18 +256,21 @@
                     <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
                         <h6 class="font-bold">Strategic Network Velocity</h6>
                         <p class="text-xs leading-normal opacity-60">
-                            <i class="fa fa-arrow-up text-green-500"></i>
-                            <span class="font-semibold">4% more</span> in 2026
+                            Network activity for the current period
                         </p>
                     </div>
                     <div class="flex-auto p-4 pt-0">
                         <div class="h-80 bg-gradient-to-br from-gray-50 to-white rounded-xl flex items-center justify-center relative group">
                             <div class="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
-                            <div class="relative flex items-end space-x-2 h-48">
-                                {% for i in 1..12 %}
-                                    <div class="w-4 bg-fuchsia-500/20 rounded-t-sm hover:bg-fuchsia-500 transition-all duration-300" style="height: {{ random(40, 100) }}%"></div>
+                             <div class="relative flex items-end space-x-2 h-48">
+                                {% set max_count = stats.velocity_data|length > 0 ? max(stats.velocity_data) : 0 %}
+                                {% set scale_max = max_count > 0 ? max_count : 1 %}
+                                {% for count in stats.velocity_data|default([]) %}
+                                    <div class="w-4 bg-fuchsia-500/40 rounded-t-sm hover:bg-fuchsia-600 transition-all duration-300" 
+                                         style="height: {{ (count > 0 ? (count / scale_max * 100) : 5)|round }}%"
+                                         title="{{ count }} contracts"></div>
                                 {% endfor %}
-                            </div>
+                             </div>
                         </div>
                     </div>
                 </div>
