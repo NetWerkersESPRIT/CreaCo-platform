@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\VerifyCodeType;
@@ -53,11 +54,15 @@ final class ForgetpasswordController extends AbstractController
             return $code;
         });
 
-        $emailMessage = (new Email())
+        $emailMessage = (new TemplatedEmail())
             ->from('ricranim@gmail.com')
             ->to($user->getEmail())
-            ->subject('Password Reset Code')
-            ->text('Your reset code is: ' . $storedCode);
+            ->subject('CreaCo Platform - Réinitialisation de mot de passe')
+            ->htmlTemplate('emails/password_reset.html.twig')
+            ->context([
+                'resetCode' => $storedCode,
+                'user' => $user,
+            ]);
 
         $mailer->send($emailMessage);
 
@@ -98,7 +103,7 @@ final class ForgetpasswordController extends AbstractController
     }
 
     #[Route('/reset_password', name: 'app_reset_password')]
-    public function resetPassword(Request $request, EntityManagerInterface $em, ): Response
+    public function resetPassword(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
         $email = $request->get('email');
         $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
@@ -135,7 +140,8 @@ final class ForgetpasswordController extends AbstractController
                 return $this->redirectToRoute('app_reset_password', ['email' => $email]);
             }
 
-            $user->setPassword($newPassword);
+            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
             $em->flush();
 
             return $this->redirectToRoute('app_auth');
