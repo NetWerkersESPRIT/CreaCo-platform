@@ -97,7 +97,9 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "phpstan": "vendor/bin/phpstan analyse"
+        "phpstan": "phpstan analyse",
+        "phpstan:collab": "phpstan analyse -c phpstan.collaboration.neon",
+        "test:collab": "vendor/bin/phpunit tests/Unit/Service/Collaboration"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -109,6 +111,7 @@
         }
     },
     "require-dev": {
+        "ahmed-bhs/doctrine-doctor": "^1.0",
         "dama/doctrine-test-bundle": "^8.6",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
         "fakerphp/faker": "^1.24",

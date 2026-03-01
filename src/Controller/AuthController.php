@@ -16,8 +16,13 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 final class AuthController extends AbstractController
 {
     #[Route('/', name: 'app_visitor')]
-    public function index(CoursRepository $coursRepo): Response
+    public function index(Request $request, CoursRepository $coursRepo): Response
     {
+        // If already logged in, go to home
+        if ($request->getSession()->get('user_id')) {
+            return $this->redirectToRoute('app_home');
+        }
+
         // pull a handful of random courses for displaying on the visitor landing page
         $randomCourses = $coursRepo->findRandom(5);
 
@@ -30,8 +35,13 @@ final class AuthController extends AbstractController
 
 
     #[Route('/auth', name: 'app_auth')]
-    public function authenticate(): Response
+    public function authenticate(Request $request): Response
     {
+        // If already logged in, go to home
+        if ($request->getSession()->get('user_id')) {
+            return $this->redirectToRoute('app_home');
+        }
+
         return $this->render('auth/index.html.twig', [
             'controller_name' => 'AuthController',
             'error' => null,
