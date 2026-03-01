@@ -11,10 +11,10 @@ use App\Entity\Event;
 use App\Form\EventType;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\EventDescGenerator;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
 use App\Entity\Notification;
 
 final class EventController extends AbstractController
@@ -67,6 +67,21 @@ final class EventController extends AbstractController
         return $this->render('event/new.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/event/generate-description', name: 'app_event_generate_description', methods: ['POST'])]
+    public function generateDescription(Request $request, EventDescGenerator $generator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $eventName = $data['eventName'] ?? '';
+
+        if (empty($eventName)) {
+            return new JsonResponse(['error' => 'Event name is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $description = $generator->generate($eventName);
+
+        return new JsonResponse(['description' => $description]);
     }
 
 
