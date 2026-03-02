@@ -114,10 +114,7 @@
     },
     "require-dev": {
         "ahmed-bhs/doctrine-doctor": "^1.0",
-<<<<<<< HEAD
-=======
         "doctrine/instantiator": "^1.3",
->>>>>>> origin/anesch22
         "dama/doctrine-test-bundle": "^8.6",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
         "fakerphp/faker": "^1.24",

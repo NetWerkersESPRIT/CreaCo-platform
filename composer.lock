@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "199548baf39efe119a555a1c02a9c24d",
-=======
     "content-hash": "32e96f57d0a07993d7aa783d8d28a56d",
->>>>>>> origin/anesch22
     "packages": [
         {
             "name": "ahmed-bhs/doctrine-doctor",
@@ -11173,8 +11169,6 @@
             "time": "2022-02-21T01:04:05+00:00"
         },
         {
-<<<<<<< HEAD
-=======
             "name": "phpmyadmin/sql-parser",
             "version": "6.0.0",
             "source": {
@@ -11265,7 +11259,6 @@
             "time": "2025-10-31T22:05:33+00:00"
         },
         {
->>>>>>> origin/anesch22
             "name": "phpstan/phpstan",
             "version": "2.1.40",
             "dist": {
