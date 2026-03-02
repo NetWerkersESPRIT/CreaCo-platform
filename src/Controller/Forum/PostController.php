@@ -104,7 +104,6 @@ final class PostController extends AbstractController
             if ($user instanceof Users) {
                 $post->setUser($user);
                 $isAdmin = strtolower(trim((string)$user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
-
             } else {
                 $post->setUser(null);
             }
@@ -123,8 +122,9 @@ final class PostController extends AbstractController
                 $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
+                    $projectDir = $this->getParameter('kernel.project_dir');
                     $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $projectDir . '/public/uploads',
                         $newFilename
                     );
                     $post->setImageName($newFilename);

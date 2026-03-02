@@ -102,7 +102,7 @@
         "phpstan": "phpstan analyse",
         "phpstan:collab": "phpstan analyse -c phpstan.collaboration.neon",
         "test:collab": "vendor/bin/phpunit tests/Unit/Service/Collaboration",
-"phpstan:forum": "php bin/console cache:warmup --env=dev && vendor\\bin\\phpstan.bat analyse -c phpstan.forum.neon -vv --memory-limit=2G"
+        "phpstan:forum": "php bin/console cache:warmup --env=dev && vendor\\bin\\phpstan.bat analyse -c phpstan.forum.neon -vv --memory-limit=2G"
 
     },
     "conflict": {
