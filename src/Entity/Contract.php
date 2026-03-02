@@ -6,6 +6,7 @@ use App\Repository\ContractRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: ContractRepository::class)]
 class Contract
@@ -63,6 +64,7 @@ class Contract
     private ?string $cancellationTerms = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Ignore]
     private ?string $signatureToken = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -308,12 +310,13 @@ class Contract
         return $this;
     }
 
+    #[Ignore]
     public function getSignatureToken(): ?string
     {
         return $this->signatureToken;
     }
 
-    public function setSignatureToken(?string $signatureToken): static
+    public function setSignatureToken(#[\SensitiveParameter] ?string $signatureToken): static
     {
         $this->signatureToken = $signatureToken;
 
