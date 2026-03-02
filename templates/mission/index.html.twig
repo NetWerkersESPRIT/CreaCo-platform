@@ -104,16 +104,16 @@
 			</div>
 		</div>
 
-		<!-- Block 2: View Switcher (Isolated) -->
+		<!-- Block 2: View Switcher (Standardized) -->
 		<div class="flex justify-start mb-4 px-4">
-			<div class="flex p-1 bg-gray-100 rounded-lg w-fit border border-gray-200">
-				<button id="btn-calendar" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 bg-white shadow-soft-xs text-slate-700" onclick="switchView('calendar')">
+			<div class="flex p-1 bg-gray-100 rounded-xl border border-gray-200 gap-1 shadow-sm w-fit">
+				<button id="btn-calendar" class="px-6 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-white shadow-soft-xs text-fuchsia-500" onclick="switchView('calendar')">
 					<i class="fas fa-calendar-alt mr-1"></i>
 					Calendar
 				</button>
-				<button id="btn-list" class="px-8 py-2.5 text-sm font-bold rounded-md transition-all duration-200 text-slate-600 hover:text-slate-700 ml-1" onclick="switchView('list')">
+				<button id="btn-list" class="px-6 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-slate-400 hover:text-slate-600" onclick="switchView('list')">
 					<i class="fas fa-list mr-1"></i>
-					Table
+					Browse All
 				</button>
 			</div>
 		</div>
@@ -234,12 +234,12 @@ tableControls.classList.add('hidden');
 
 
 
-// Update button styles
-btnCalendar.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
-btnCalendar.classList.remove('text-slate-600');
+// Update button styles (Standardized)
+btnCalendar.classList.add('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+btnCalendar.classList.remove('text-slate-400');
 
-btnList.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
-btnList.classList.add('text-slate-600');
+btnList.classList.remove('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+btnList.classList.add('text-slate-400');
 
 // Force calendar update
 if (calendar) {
@@ -253,12 +253,12 @@ tableControls.classList.remove('hidden');
 
 
 
-// Update button styles
-btnList.classList.add('bg-white', 'shadow-soft-xs', 'text-slate-700');
-btnList.classList.remove('text-slate-600');
+// Update button styles (Standardized)
+btnList.classList.add('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+btnList.classList.remove('text-slate-400');
 
-btnCalendar.classList.remove('bg-white', 'shadow-soft-xs', 'text-slate-700');
-btnCalendar.classList.add('text-slate-600');
+btnCalendar.classList.remove('bg-white', 'shadow-soft-xs', 'text-fuchsia-500');
+btnCalendar.classList.add('text-slate-400');
 }
 }
 
@@ -314,6 +314,8 @@ rows.forEach(row => {
 if (row.querySelector('td[colspan]')) 
 return;
 
+
+
 const title = row.querySelector('h6').textContent.toLowerCase();
 const description = row.querySelector('p').textContent.toLowerCase();
 const status = row.querySelector('td:nth-child(2) span').textContent.toLowerCase().trim();
@@ -336,6 +338,7 @@ filterCalendar(searchTerm);
 function filterCalendar(searchTerm = '') {
 if (! calendar) 
 return;
+
 
 
 // If searchTerm not provided, get it from input
@@ -395,6 +398,7 @@ events: {{ calendar_data|raw }},
 dateClick: function (info) { // prevent members from creating missions via calendar click
 if (isMember) 
 return;
+
 
 
 const today = new Date();

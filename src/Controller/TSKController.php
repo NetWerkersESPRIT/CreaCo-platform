@@ -14,7 +14,9 @@ use App\Repository\MissionRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\MissionDescGenerator;
+use App\Service\IdeaCategoryClassifier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -30,13 +32,13 @@ final class TSKController extends AbstractController
         $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
 
         if (!$user) {
-            $recommendedIdeas = $ideaRepository->findBy([], ['id' => 'DESC'], 5);
+            $recommendedIdeas = $ideaRepository->findBy([], ['id' => 'DESC'], 6);
         } else {
-            $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 5);
+            $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 6);
         }
 
         $period = $request->query->get('trend_period', 'week');
-        $trendingIdeas = $recommendationService->getTrendingIdeas(5, $period);
+        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
 
         return $this->render('tsk/index.html.twig', [
             'ideas' => $ideaRepository->findAll(),
@@ -50,7 +52,7 @@ final class TSKController extends AbstractController
     public function trendingIdeas(Request $request, \App\Service\IdeaRecommendationService $recommendationService): Response
     {
         $period = $request->query->get('period', 'week');
-        $trendingIdeas = $recommendationService->getTrendingIdeas(5, $period);
+        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
 
         return $this->render('tsk/_trending_ideas.html.twig', [
             'trending_ideas' => $trendingIdeas,
@@ -59,7 +61,7 @@ final class TSKController extends AbstractController
     }
 
     #[Route('/idea/new', name: 'app_idea_new', methods: ['GET', 'POST'])]
-    public function ideaNew(Request $request, EntityManagerInterface $entityManager): Response
+    public function ideaNew(Request $request, EntityManagerInterface $entityManager, IdeaRepository $ideaRepository, IdeaCategoryClassifier $classifier): Response
     {
         $idea = new Idea();
         $form = $this->createForm(IdeaType::class, $idea);
@@ -74,6 +76,42 @@ final class TSKController extends AbstractController
 
             if ($user) {
                 $idea->setCreator($user);
+            }
+
+            // Duplicate title check (case-insensitive)
+            $existing = $ideaRepository->createQueryBuilder('i')
+                ->where('LOWER(i.title) = LOWER(:title)')
+                ->setParameter('title', trim($idea->getTitle() ?? ''))
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($existing !== null) {
+                $form->get('title')->addError(new FormError('An idea with this title already exists. Please choose another one.'));
+                return $this->render('tsk/new.html.twig', [
+                    'idea' => $idea,
+                    'form' => $form,
+                ]);
+            }
+
+            // AI category classification
+            $existingCategories = array_column(
+                $entityManager->createQuery('SELECT DISTINCT i.category FROM App\Entity\Idea i')->getResult(),
+                'category'
+            );
+
+            $proposedCategory = $idea->getCategory() ?? '';
+            $resolvedCategory = $classifier->classify(
+                $idea->getTitle() ?? '',
+                $idea->getDescription() ?? '',
+                $proposedCategory,
+                $existingCategories
+            );
+
+            $idea->setCategory($resolvedCategory);
+
+            if ($resolvedCategory !== $proposedCategory) {
+                $this->addFlash('info', 'Category of \'' . ($idea->getTitle() ?? 'idea') . '\' has been changed to \'' . $resolvedCategory . '\'.');
             }
 
             $entityManager->persist($idea);
