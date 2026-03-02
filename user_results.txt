@@ -1,0 +1,27 @@
+ ------ --------------- 
+  Line   UserControlle  
+         r.php          
+ ------ --------------- 
+  :353   Call to an     
+         undefined      
+         method         
+         App\Entity\Us  
+         ers::getGroup  
+         id().          
+         ????             
+         method.notFou  
+         nd             
+  :354   Call to an     
+         undefined      
+         method         
+         App\Entity\Us  
+         ers::setGroup  
+         id().          
+         ????             
+         method.notFou  
+         nd             
+ ------ --------------- 
+
+
+ [ERROR] Found 2 errors
+

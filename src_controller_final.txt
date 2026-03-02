@@ -1,0 +1,1087 @@
+ ------ --------------- 
+  Line   CollabAdminCo  
+         ntroller.php   
+ ------ --------------- 
+  :77    Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+  :93    Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+  :109   Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Admin\  
+         PartnershipLe  
+         dgerControlle  
+         r.php          
+ ------ --------------- 
+  :50    Method         
+         App\Controlle  
+         r\Collab\Admi  
+         n\Partnership  
+         LedgerControl  
+         ler::getFilte  
+         redContracts(  
+         ) has          
+         parameter      
+         $filters with  
+         no value type  
+         specified in   
+         iterable type  
+         array.         
+         ????             
+         missingType.i  
+         terableValue   
+         ????  See:       
+         https://phpst  
+         an.org/blog/s  
+         olving-phpsta  
+         n-no-value-ty  
+         pe-specified-  
+         in-iterable-t  
+         ype            
+  :50    Method         
+         App\Controlle  
+         r\Collab\Admi  
+         n\Partnership  
+         LedgerControl  
+         ler::getFilte  
+         redContracts(  
+         ) return type  
+         has no value   
+         type           
+         specified in   
+         iterable type  
+         array.         
+         ????             
+         missingType.i  
+         terableValue   
+         ????  See:       
+         https://phpst  
+         an.org/blog/s  
+         olving-phpsta  
+         n-no-value-ty  
+         pe-specified-  
+         in-iterable-t  
+         ype            
+  :111   Parameter #1   
+         $status of     
+         method         
+         App\Entity\Co  
+         ntract::setSt  
+         atus()         
+         expects        
+         string,        
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+  :141   Cannot call    
+         method         
+         getEmail() on  
+         App\Entity\Co  
+         llaborator|nu  
+         ll.            
+         ????             
+         method.nonObj  
+         ect            
+  :141   Parameter #1   
+         $collaborator  
+         Email of       
+         method         
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :142   Cannot call    
+         method         
+         getName() on   
+         App\Entity\Co  
+         llaborator|nu  
+         ll.            
+         ????             
+         method.nonObj  
+         ect            
+  :142   Parameter #2   
+         $collaborator  
+         Name of        
+         method         
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :143   Parameter #3   
+         $contractTitl  
+         e of method    
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :144   Parameter #4   
+         $contractDeta  
+         ils of method  
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :145   Parameter #5   
+         $contractRef   
+         of method      
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Collab  
+         RequestContro  
+         ller.php       
+ ------ --------------- 
+  :41    Parameter #1   
+         $userId of     
+         method         
+         App\Repositor  
+         y\CollabReque  
+         stRepository:  
+         :filterReques  
+         ts() expects   
+         int, int|null  
+         given.         
+         ????             
+         argument.type  
+  :41    Parameter #2   
+         $role of       
+         method         
+         App\Repositor  
+         y\CollabReque  
+         stRepository:  
+         :filterReques  
+         ts() expects   
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Collab  
+         oratorControl  
+         ler.php        
+ ------ --------------- 
+  :89    Parameter #1   
+         $directory of  
+         method         
+         Symfony\Compo  
+         nent\HttpFoun  
+         dation\File\U  
+         ploadedFile::  
+         move()         
+         expects        
+         string,        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll given.      
+         ????             
+         argument.type  
+  :168   Parameter #1   
+         $directory of  
+         method         
+         Symfony\Compo  
+         nent\HttpFoun  
+         dation\File\U  
+         ploadedFile::  
+         move()         
+         expects        
+         string,        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll given.      
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Contra  
+         ctController.  
+         php            
+ ------ --------------- 
+  :43    Parameter #1   
+         $userId of     
+         method         
+         App\Repositor  
+         y\ContractRep  
+         ository::filt  
+         erContracts()  
+         expects int,   
+         int|null       
+         given.         
+         ????             
+         argument.type  
+  :43    Parameter #2   
+         $role of       
+         method         
+         App\Repositor  
+         y\ContractRep  
+         ository::filt  
+         erContracts()  
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\DocuSi  
+         gnWebhookCont  
+         roller.php     
+ ------ --------------- 
+  :79    Cannot call    
+         method         
+         getRevisor()   
+         on             
+         App\Entity\Co  
+         llabRequest|n  
+         ull.           
+         ????             
+         method.nonObj  
+         ect            
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Manage  
+         r\ManagerColl  
+         abRequestCont  
+         roller.php     
+ ------ --------------- 
+  :117   Parameter #1   
+         $startDate of  
+         method         
+         App\Entity\Co  
+         ntract::setSt  
+         artDate()      
+         expects        
+         DateTimeInter  
+         face,          
+         DateTimeInter  
+         face|null      
+         given.         
+         ????             
+         argument.type  
+  :118   Parameter #1   
+         $endDate of    
+         method         
+         App\Entity\Co  
+         ntract::setEn  
+         dDate()        
+         expects        
+         DateTimeInter  
+         face,          
+         DateTimeInter  
+         face|null      
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Collab\Manage  
+         r\ManagerCont  
+         ractControlle  
+         r.php          
+ ------ --------------- 
+  :143   Cannot call    
+         method         
+         getEmail() on  
+         App\Entity\Co  
+         llaborator|nu  
+         ll.            
+         ????             
+         method.nonObj  
+         ect            
+  :143   Parameter #1   
+         $collaborator  
+         Email of       
+         method         
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :144   Cannot call    
+         method         
+         getName() on   
+         App\Entity\Co  
+         llaborator|nu  
+         ll.            
+         ????             
+         method.nonObj  
+         ect            
+  :144   Parameter #2   
+         $collaborator  
+         Name of        
+         method         
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :145   Parameter #3   
+         $contractTitl  
+         e of method    
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :146   Parameter #4   
+         $contractDeta  
+         ils of method  
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :147   Parameter #5   
+         $contractRef   
+         of method      
+         App\Service\D  
+         ocuSignServic  
+         e::sendContra  
+         ctToCollabora  
+         tor() expects  
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   CoursControll  
+         er.php         
+ ------ --------------- 
+  :85    If condition   
+         is always      
+         true.          
+         ????             
+         if.alwaysTrue  
+         ????  Because    
+         the type is    
+         coming from a  
+         PHPDoc, you    
+         can turn off   
+         this check by  
+         setting treat  
+         PhpDocTypesAs  
+         Certain:       
+         false in your  
+          phpstan.neon  
+         .              
+  :92    Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads???' results  
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :167   If condition   
+         is always      
+         true.          
+         ????             
+         if.alwaysTrue  
+         ????  Because    
+         the type is    
+         coming from a  
+         PHPDoc, you    
+         can turn off   
+         this check by  
+         setting treat  
+         PhpDocTypesAs  
+         Certain:       
+         false in your  
+          phpstan.neon  
+         .              
+  :174   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads???' results  
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :217   Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Forum\Comment  
+         Controller.ph  
+         p              
+ ------ --------------- 
+  :172   Cannot call    
+         method         
+         getId() on     
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :192   Cannot call    
+         method         
+         getId() on     
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :194   Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Forum\PostCon  
+         troller.php    
+ ------ --------------- 
+  :35    Parameter #1   
+         $string of     
+         function trim  
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :65    Call to an     
+         undefined      
+         method         
+         Doctrine\ORM\  
+         EntityReposit  
+         ory<App\Entit  
+         y\Post>::find  
+         PublishedPinn  
+         edFirst().     
+         ????             
+         method.notFou  
+         nd             
+  :105   Parameter #1   
+         $string of     
+         function trim  
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :125   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :142   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :155   Parameter #1   
+         $text of       
+         method         
+         App\Service\T  
+         extGearsServi  
+         ce::correct()  
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :189   Parameter #1   
+         $title of      
+         method         
+         App\Service\S  
+         pamDetectionS  
+         ervice::calcu  
+         lateScore()    
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :189   Parameter #2   
+         $content of    
+         method         
+         App\Service\S  
+         pamDetectionS  
+         ervice::calcu  
+         lateScore()    
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :334   Parameter #1   
+         $text of       
+         method         
+         App\Service\T  
+         extGearsServi  
+         ce::correct()  
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :368   Parameter #1   
+         $title of      
+         method         
+         App\Service\S  
+         pamDetectionS  
+         ervice::calcu  
+         lateScore()    
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :368   Parameter #2   
+         $content of    
+         method         
+         App\Service\S  
+         pamDetectionS  
+         ervice::calcu  
+         lateScore()    
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :381   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads/' results  
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :393   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :406   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads/' results  
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :418   Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/public/uplo  
+         ads' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :459   Parameter #2   
+         $token of      
+         method         
+         Symfony\Bundl  
+         e\FrameworkBu  
+         ndle\Controll  
+         er\AbstractCo  
+         ntroller::isC  
+         srfTokenValid  
+         () expects     
+         string|null,   
+         bool|float|in  
+         t|string|null  
+         given.         
+         ????             
+         argument.type  
+  :511   Cannot call    
+         method         
+         getUser() on   
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :517   Cannot call    
+         method         
+         setSolution()  
+         on             
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :518   Cannot call    
+         method         
+         setStatus()    
+         on             
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :519   Cannot call    
+         method         
+         setIsCommentL  
+         ocked() on     
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+  :523   Cannot call    
+         method         
+         getId() on     
+         App\Entity\Po  
+         st|null.       
+         ????             
+         method.nonObj  
+         ect            
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Forum\PostRea  
+         ctionControll  
+         er.php         
+ ------ --------------- 
+  :71    Parameter #1   
+         $postId of     
+         method         
+         App\Repositor  
+         y\PostReactio  
+         nRepository::  
+         countByPostAn  
+         dType()        
+         expects int,   
+         int|null       
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   FrontControll  
+         er.php         
+ ------ --------------- 
+  :115   Parameter #1   
+         $ids of        
+         method         
+         App\Repositor  
+         y\CoursRating  
+         Repository::g  
+         etAveragesFor  
+         CourseIds()    
+         expects array  
+         <int>, array<  
+         int|null> giv  
+         en.            
+         ????             
+         argument.type  
+  :168   Parameter #1   
+         $ids of        
+         method         
+         App\Repositor  
+         y\CoursRating  
+         Repository::g  
+         etAveragesFor  
+         CourseIds()    
+         expects array  
+         <int>, array<  
+         int,           
+         int|null> giv  
+         en.            
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   GoogleOAuthCo  
+         ntroller.php   
+ ------ --------------- 
+  :37    Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/config/goog  
+         le???' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :48    Binary         
+         operation "."  
+         between        
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll and         
+         '/config/goog  
+         le???' results   
+         in an error.   
+         ????             
+         binaryOp.inva  
+         lid            
+  :49    Access to      
+         constant       
+         DRIVE_FILE on  
+         an unknown     
+         class          
+         App\Controlle  
+         r\Drive.       
+         ????             
+         class.notFoun  
+         d              
+         ????  Learn more  
+         at             
+         https://phpst  
+         an.org/user-g  
+         uide/discover  
+         ing-symbols    
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   LeaderboardCo  
+         ntroller.php   
+ ------ --------------- 
+  :86    Parameter #1   
+         $string of     
+         function       
+         strtolower     
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   NotificationC  
+         ontroller.php  
+ ------ --------------- 
+  :99    Cannot call    
+         method         
+         format() on    
+         DateTime|null  
+         .              
+         ????             
+         method.nonObj  
+         ect            
+  :112   Cannot call    
+         method         
+         getId() on     
+         App\Entity\Us  
+         ers|null.      
+         ????             
+         method.nonObj  
+         ect            
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   OpenAIControl  
+         ler.php        
+ ------ --------------- 
+  :14    Property       
+         App\Controlle  
+         r\OpenAIContr  
+         oller::$openA  
+         iService has   
+         no type        
+         specified.     
+         ????             
+         missingType.p  
+         roperty        
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   PostModeratio  
+         nController.p  
+         hp             
+ ------ --------------- 
+  :116   Offset         
+         'filteredText  
+         ' on           
+         array{isProfa  
+         ne: bool,      
+         filteredText:  
+         string,        
+         profaneWords:  
+         int|null,      
+         raw: array}    
+         on left side   
+         of ?? always   
+         exists and is  
+         not nullable.  
+         ????             
+         nullCoalesce.  
+         offset         
+  :148   Parameter #1   
+         $content of    
+         method         
+         App\Entity\Me  
+         ssage::setCon  
+         tent()         
+         expects        
+         string,        
+         string|null    
+         given.         
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   TranslationCo  
+         ntroller.php   
+ ------ --------------- 
+  :53    Method         
+         App\Controlle  
+         r\Translation  
+         Controller::s  
+         plitTextIntoC  
+         hunks()        
+         return type    
+         has no value   
+         type           
+         specified in   
+         iterable type  
+         array.         
+         ????             
+         missingType.i  
+         terableValue   
+         ????  See:       
+         https://phpst  
+         an.org/blog/s  
+         olving-phpsta  
+         n-no-value-ty  
+         pe-specified-  
+         in-iterable-t  
+         ype            
+  :59    Argument of    
+         an invalid     
+         type list<str  
+         ing>|false su  
+         pplied for     
+         foreach, only  
+         iterables are  
+         supported.     
+         ????             
+         foreach.nonIt  
+         erable         
+ ------ --------------- 
+
+ -- ------------------- 
+     Error              
+ -- ------------------- 
+     Ignored error      
+     pattern #Property  
+     .*::\$id .* never  
+     assigned int# was  
+     not matched in     
+     reported errors.   
+     Ignored error      
+     pattern #Method    
+     App\\Entity\\Comm  
+     ent::getUpdatedAt  
+     \(\) should        
+     return             
+     DateTimeInterface  
+     but returns        
+     DateTimeInterface  
+     \|null# was not    
+     matched in         
+     reported errors.   
+ -- ------------------- 
+
+ [ERROR] Found 74      
+         errors        
+

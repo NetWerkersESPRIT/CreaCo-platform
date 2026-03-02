@@ -88,8 +88,9 @@ class CoursController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
                 try {
+                    $projectDir = $this->getParameter('kernel.project_dir');
                     $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/cours',
+                        (is_string($projectDir) ? $projectDir : '') . '/public/uploads/cours',
                         $newFilename
                     );
                 } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException) {
@@ -170,8 +171,9 @@ class CoursController extends AbstractController
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
                 try {
+                    $projectDir = $this->getParameter('kernel.project_dir');
                     $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/cours',
+                        (is_string($projectDir) ? $projectDir : '') . '/public/uploads/cours',
                         $newFilename
                     );
                 } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException) {
@@ -214,7 +216,7 @@ class CoursController extends AbstractController
         }
 
         // verif de token avant suppression
-        if ($this->isCsrfTokenValid('delete'.$cours->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$cours->getId(), (string)$request->request->get('_token'))) {
             // suppression de la categorie
             $coursRepository->remove($cours, true);
         }

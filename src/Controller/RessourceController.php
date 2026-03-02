@@ -35,7 +35,8 @@ final class RessourceController extends AbstractController
             return new JsonResponse(['error' => ['message' => 'Invalid file type']], 400);
         }
 
-        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/ressource_images';
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $uploadDir = (is_string($projectDir) ? $projectDir : '') . '/public/uploads/ressource_images';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -124,9 +125,9 @@ final class RessourceController extends AbstractController
 	                ]);
 	            }
 
-		            if ($nature === 'fichier' && $file) {
+		            if ($nature === 'fichier' && $file instanceof UploadedFile) {
 	                // Déterminer le type de ressource à partir du mime type
-	                $mimeType = $file->getMimeType();
+	                $mimeType = (string)$file->getMimeType();
 	                if (str_contains($mimeType, 'pdf')) {
 	                    $ressource->setType('PDF');
 	                } elseif (str_contains($mimeType, 'image')) {
@@ -245,8 +246,9 @@ final class RessourceController extends AbstractController
 	                }
 
 	                // Si un nouveau fichier a  e9t 0e9 envoy 0e9, on met  e0 jour le type
-	                if ($file) {
-	                    $mimeType = $file->getMimeType();
+	                // Si un nouveau fichier a  e9t 0e9 envoy 0e9, on met  e0 jour le type
+	                if ($file instanceof UploadedFile) {
+	                    $mimeType = (string)$file->getMimeType();
 	                    if (str_contains($mimeType, 'pdf')) {
 	                        $ressource->setType('PDF');
 	                    } elseif (str_contains($mimeType, 'image')) {

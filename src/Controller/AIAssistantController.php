@@ -11,8 +11,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Route('/ai')]
 class AIAssistantController extends AbstractController
 {
-    private $httpClient;
-    private $pythonApiUrl = 'http://127.0.0.1:5000';
+    private HttpClientInterface $httpClient;
+    private string $pythonApiUrl = 'http://127.0.0.1:5000';
 
     public function __construct(HttpClientInterface $httpClient)
     {
@@ -37,7 +37,9 @@ class AIAssistantController extends AbstractController
 
             $question = $data['question'];
             $courseId = $data['course_id'] ?? null;
-            $userId = $this->getUser()?->getId();
+            
+            $user = $this->getUser();
+            $userId = ($user instanceof \App\Entity\Users) ? $user->getId() : null;
 
             // Call Python AI service
             $response = $this->httpClient->request('POST', $this->pythonApiUrl . '/api/qa/ask', [

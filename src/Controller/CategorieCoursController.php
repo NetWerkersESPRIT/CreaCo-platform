@@ -124,7 +124,7 @@ class CategorieCoursController extends AbstractController
         }
 
         // verif de token avant suppression
-        if ($this->isCsrfTokenValid('delete'.$categorieCours->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$categorieCours->getId(), (string)$request->request->get('_token'))) {
             // suppression de la categorie de la BD
             $categorieCoursRepository->remove($categorieCours, true);
         }

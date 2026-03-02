@@ -32,8 +32,9 @@ final class PostController extends AbstractController
     {
         $query = $request->query->get('q');
         $user = $this->getUser();
-        $isAdmin = $user instanceof Users && strtolower(trim($user->getRole())) === 'admin';
+        $isAdmin = $user instanceof Users && strtolower(trim((string)$user->getRole())) === 'admin';
 
+        /** @var PostRepository $repo */
         $repo = $entityManager->getRepository(Post::class);
         $isAdmin = $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
 
@@ -102,7 +103,8 @@ final class PostController extends AbstractController
             $isAdmin = false;
             if ($user instanceof Users) {
                 $post->setUser($user);
-                $isAdmin = strtolower(trim($user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
+                $isAdmin = strtolower(trim((string)$user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
+
             } else {
                 $post->setUser(null);
             }

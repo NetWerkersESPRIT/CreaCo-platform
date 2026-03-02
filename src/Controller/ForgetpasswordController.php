@@ -36,7 +36,7 @@ final class ForgetpasswordController extends AbstractController
         MailerInterface $mailer,
         CacheInterface $cache
     ): Response {
-        $email = $request->request->get('email');
+        $email = (string)$request->request->get('email');
 
         $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
 
@@ -56,7 +56,7 @@ final class ForgetpasswordController extends AbstractController
 
         $emailMessage = (new TemplatedEmail())
             ->from('ricranim@gmail.com')
-            ->to($user->getEmail())
+            ->to((string)$user->getEmail())
             ->subject('CreaCo Platform - Réinitialisation de mot de passe')
             ->htmlTemplate('emails/password_reset.html.twig')
             ->context([
@@ -82,13 +82,14 @@ final class ForgetpasswordController extends AbstractController
     #[Route('/code_check', name: 'verify_code', methods: ['POST'])]
     public function verifyCode(Request $request, CacheInterface $cache): Response
     {
-        $code = $request->request->get('code');
-        $email = $request->request->get('email');
+        $code = (string)$request->request->get('code');
+        $email = (string)$request->request->get('email');
         $cacheKey = 'reset_code_' . hash('sha256', $email);
 
+        /** @var string|null $storedCode */
         $storedCode = $cache->get($cacheKey, fn() => null);
 
-        if (!$storedCode) {
+        if ($storedCode === null) {
             $this->addFlash('error', 'Expired code');
             return $this->redirectToRoute('verify_code_form', ['email' => $email]);
         }
@@ -115,10 +116,10 @@ final class ForgetpasswordController extends AbstractController
 
         if ($request->isMethod('POST')) {
 
-            $newPassword = $request->request->get('password');
-            $newPassword1 = $request->request->get('password1');
+            $newPassword = (string)$request->request->get('password');
+            $newPassword1 = (string)$request->request->get('password1');
 
-            if (!$newPassword || trim($newPassword) === '') {
+            if (trim($newPassword) === '') {
                 $this->addFlash('error', 'Please enter a password');
                 return $this->redirectToRoute('app_reset_password', ['email' => $email]);
             }

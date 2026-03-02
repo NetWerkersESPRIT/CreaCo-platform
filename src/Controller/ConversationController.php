@@ -33,7 +33,8 @@ class ConversationController extends AbstractController
         $isAdmin = $currentUser && $currentUser->getRole() === 'ROLE_ADMIN';
 
         // Authorization check
-        $isOwner = $conversation->getOwnerUser()->getId() === $sessionUserId;
+        $owner = $conversation->getOwnerUser();
+        $isOwner = $owner && $owner->getId() === $sessionUserId;
         $isAdmin = $currentUser && $currentUser->getRole() === 'ROLE_ADMIN';
 
         if (!$isOwner && !$isAdmin) {
@@ -47,7 +48,7 @@ class ConversationController extends AbstractController
                 // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
                 try {
                     // 1. Correct Content
-                    $correctedContent = $textGears->correct($content);
+                    $correctedContent = $textGears->correct((string)$content);
                     
                     // 2. Profanity Check (on corrected content)
                     $check = $profanity->check($correctedContent);
@@ -55,8 +56,8 @@ class ConversationController extends AbstractController
                     $message = new Message();
                     $message->setConversation($conversation);
                     $message->setSenderUser($currentUser);
-                    $message->setContent($check['filteredText'] ?? $correctedContent);
-                    $message->setIsProfane($check['isProfane'] ?? false);
+                    $message->setContent($check['filteredText']);
+                    $message->setIsProfane($check['isProfane']);
                     $message->setProfaneWords($check['profaneWords'] ?? 0);
                     $message->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
 
@@ -70,7 +71,7 @@ class ConversationController extends AbstractController
                     $message = new Message();
                     $message->setConversation($conversation);
                     $message->setSenderUser($currentUser);
-                    $message->setContent($content);
+                    $message->setContent((string)$content);
                 }
 
                 $em->persist($message);
@@ -83,7 +84,8 @@ class ConversationController extends AbstractController
         // Mark messages as read
         $hasChanges = false;
         foreach ($conversation->getMessages() as $msg) {
-            if ($msg->getSenderUser()->getId() !== $sessionUserId && !$msg->isRead()) {
+            $sender = $msg->getSenderUser();
+            if ($sender && $sender->getId() !== $sessionUserId && !$msg->isRead()) {
                 $msg->setIsRead(true);
                 $msg->setReadAt(new \DateTimeImmutable());
                 $hasChanges = true;
@@ -119,7 +121,8 @@ class ConversationController extends AbstractController
         $isAdmin = $currentUser && $currentUser->getRole() === 'ROLE_ADMIN';
 
         // Authorization check
-        $isOwner = $conversation->getOwnerUser()->getId() === $sessionUserId;
+        $owner = $conversation->getOwnerUser();
+        $isOwner = $owner && $owner->getId() === $sessionUserId;
         if (!$isOwner && !$isAdmin) {
             return new JsonResponse(['error' => 'Forbidden'], 403);
         }
@@ -132,7 +135,7 @@ class ConversationController extends AbstractController
         // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
         try {
             // 1. Correct Content
-            $correctedContent = $textGears->correct($content);
+            $correctedContent = $textGears->correct((string)$content);
             
             // 2. Profanity Check (on corrected content)
             $check = $profanity->check($correctedContent);
@@ -140,8 +143,8 @@ class ConversationController extends AbstractController
             $message = new Message();
             $message->setConversation($conversation);
             $message->setSenderUser($currentUser);
-            $message->setContent($check['filteredText'] ?? $correctedContent);
-            $message->setIsProfane($check['isProfane'] ?? false);
+            $message->setContent($check['filteredText']);
+            $message->setIsProfane($check['isProfane']);
             $message->setProfaneWords($check['profaneWords'] ?? 0);
             $message->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
 
@@ -155,7 +158,7 @@ class ConversationController extends AbstractController
             $message = new Message();
             $message->setConversation($conversation);
             $message->setSenderUser($currentUser);
-            $message->setContent($content);
+            $message->setContent((string)$content);
         }
         
         $em->persist($message);
@@ -168,20 +171,24 @@ class ConversationController extends AbstractController
             $notification->setUserid($recipient);
             $notification->setIsRead(false);
             $notification->setCreatedAt(new \DateTime());
-            $notification->setMessage('Nouveau message de ' . $currentUser->getUsername() . ' (Post: ' . $conversation->getPost()->getTitle() . ')');
+            $post = $conversation->getPost();
+            $postTitle = $post ? $post->getTitle() : 'N/A';
+            $senderName = $currentUser ? $currentUser->getUsername() : 'Unknown';
+            $notification->setMessage('Nouveau message de ' . $senderName . ' (Post: ' . $postTitle . ')');
             $notification->setType('MESSAGE');
             $notification->setTargetUrl($this->generateUrl('app_conversation_show', ['id' => $conversation->getId()]));
             $em->persist($notification);
             $em->flush();
         }
 
+        $sender = $message->getSenderUser();
         return new JsonResponse([
             'id' => $message->getId(),
             'content' => $message->getContent(),
-            'sender' => $message->getSenderUser()->getUsername(),
-            'isAdmin' => $message->getSenderUser()->getRole() === 'ROLE_ADMIN',
-            'createdAt' => $message->getCreatedAt()->format('H:i'),
-            'fullDate' => $message->getCreatedAt()->format('d M Y H:i'),
+            'sender' => $sender ? $sender->getUsername() : 'Unknown',
+            'isAdmin' => $sender && $sender->getRole() === 'ROLE_ADMIN',
+            'createdAt' => $message->getCreatedAt() ? $message->getCreatedAt()->format('H:i') : '',
+            'fullDate' => $message->getCreatedAt() ? $message->getCreatedAt()->format('d M Y H:i') : '',
         ]);
     }
 
@@ -198,7 +205,8 @@ class ConversationController extends AbstractController
         $currentUser = $em->getRepository(Users::class)->find($sessionUserId);
         $isAdmin = $currentUser && $currentUser->getRole() === 'ROLE_ADMIN';
 
-        $isOwner = $conversation->getOwnerUser()->getId() === $sessionUserId;
+        $owner = $conversation->getOwnerUser();
+        $isOwner = $owner && $owner->getId() === $sessionUserId;
         if (!$isOwner && !$isAdmin) {
             return new JsonResponse(['error' => 'Forbidden'], 403);
         }
@@ -223,7 +231,8 @@ class ConversationController extends AbstractController
         // Mark them as read if they are not from the current user
         $hasChanges = false;
         foreach ($newMessages as $msg) {
-            if ($msg->getSenderUser()->getId() !== $sessionUserId && !$msg->isRead()) {
+            $sender = $msg->getSenderUser();
+            if ($sender && $sender->getId() !== $sessionUserId && !$msg->isRead()) {
                 $msg->setIsRead(true);
                 $msg->setReadAt(new \DateTimeImmutable());
                 $hasChanges = true;
@@ -242,14 +251,15 @@ class ConversationController extends AbstractController
 
         $messagesData = [];
         foreach ($newMessages as $msg) {
+            $sender = $msg->getSenderUser();
             $messagesData[] = [
                 'id' => $msg->getId(),
                 'content' => $msg->getContent(),
-                'sender' => $msg->getSenderUser()->getUsername(),
-                'isAdmin' => $msg->getSenderUser()->getRole() === 'ROLE_ADMIN',
-                'createdAt' => $msg->getCreatedAt()->format('H:i'),
-                'fullDate' => $msg->getCreatedAt()->format('d M Y H:i'),
-                'isMe' => $msg->getSenderUser()->getId() === $sessionUserId
+                'sender' => $sender ? $sender->getUsername() : 'Unknown',
+                'isAdmin' => $sender && $sender->getRole() === 'ROLE_ADMIN',
+                'createdAt' => $msg->getCreatedAt() ? $msg->getCreatedAt()->format('H:i') : '',
+                'fullDate' => $msg->getCreatedAt() ? $msg->getCreatedAt()->format('d M Y H:i') : '',
+                'isMe' => $sender && $sender->getId() === $sessionUserId
             ];
         }
 
