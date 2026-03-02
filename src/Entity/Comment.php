@@ -34,14 +34,14 @@ class Comment
         choices: ["visible", "hidden", "solution", "pending"],
         message: "Statut invalide. Choisis: visible, hidden, solution, pending."
     )]
-    private ?string $status = "visible";
+    private string $status = "visible";
 
     #[ORM\Column]
     #[Assert\PositiveOrZero(message: "Le nombre de likes doit être >= 0.")]
     private int $likes = 0;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
@@ -96,7 +96,7 @@ class Comment
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -118,7 +118,7 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -129,12 +129,12 @@ class Comment
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
         return $this;

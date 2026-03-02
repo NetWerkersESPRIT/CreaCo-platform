@@ -41,7 +41,7 @@ class Post
         choices: ["draft", "published", "solved", "pending", "refused"],
         message: "Statut invalide. Choisis: draft, published, solved, pending, refused."
     )]
-    private ?string $status = "published";
+    private string $status = "published";
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $refusalReason = null;
@@ -53,7 +53,7 @@ class Post
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(options: ["default" => false])]
-    private ?bool $pinned = false;
+    private bool $pinned = false;
 
     #[ORM\Column(options: ["default" => false])]
     private bool $isCommentLocked = false;
@@ -155,7 +155,7 @@ class Post
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -210,7 +210,7 @@ class Post
         return $this;
     }
 
-    public function isPinned(): ?bool
+    public function isPinned(): bool
     {
         return $this->pinned;
     }
@@ -226,13 +226,13 @@ class Post
         return $this->isCommentLocked;
     }
 
-    public function setIsCommentLocked(bool $isCommentLocked): static
+    public function setIsCommentLocked(bool $isCommentLocked): self
     {
         $this->isCommentLocked = $isCommentLocked;
         return $this;
     }
 
-    public function setCommentLock(bool $isCommentLocked): static
+    public function setCommentLock(bool $isCommentLocked): self
     {
         $this->isCommentLocked = $isCommentLocked;
         return $this;
