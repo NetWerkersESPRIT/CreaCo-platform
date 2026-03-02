@@ -107,10 +107,10 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $ideas;
 
     /**
-     * @var Collection<int, Idea>
+     * @var Collection<int, IdeaUsage>
      */
-    #[ORM\ManyToMany(mappedBy: 'usedBy', targetEntity: Idea::class)]
-    private Collection $ideasUsed;
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: IdeaUsage::class, orphanRemoval: true)]
+    private Collection $ideaUsages;
 
     /**
      * @var Collection<int, Contract>
@@ -436,11 +436,33 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Idea>
+     * @return Collection<int, IdeaUsage>
      */
-    public function getIdeasUsed(): Collection
+    public function getIdeaUsages(): Collection
     {
-        return $this->ideasUsed;
+        return $this->ideaUsages;
+    }
+
+    public function addIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if (!$this->ideaUsages->contains($ideaUsage)) {
+            $this->ideaUsages->add($ideaUsage);
+            $ideaUsage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if ($this->ideaUsages->removeElement($ideaUsage)) {
+            // set the owning side to null (unless already changed)
+            if ($ideaUsage->getUser() === $this) {
+                $ideaUsage->setUser(null);
+            }
+        }
+
+        return $this;
     }
     /**
      * @return Collection<int, Contract>

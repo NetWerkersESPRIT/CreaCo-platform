@@ -99,7 +99,11 @@
         ],
         "phpstan": "phpstan analyse",
         "phpstan:collab": "phpstan analyse -c phpstan.collaboration.neon",
-        "test:collab": "vendor/bin/phpunit tests/Unit/Service/Collaboration"
+        "test:collab": "vendor/bin/phpunit tests/Unit/Service/Collaboration",
+        "doctrine:doctor": [
+            "php bin/console doctrine:schema:validate",
+            "php bin/console doctrine:migrations:diff --dry-run"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

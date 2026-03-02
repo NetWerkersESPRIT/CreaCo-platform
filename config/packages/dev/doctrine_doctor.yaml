@@ -1,0 +1,6 @@
+doctrine_doctor:
+    analyzers:
+        n_plus_one:
+            threshold: 5
+        slow_query:
+            threshold: 100
