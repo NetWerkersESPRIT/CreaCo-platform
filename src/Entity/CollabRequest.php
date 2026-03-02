@@ -86,7 +86,7 @@ class CollabRequest
     private ?string $aiRephrasedContent = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'collabRequestsCreated')]
-    #[ORM\JoinColumn(nullable: true, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?Users $creator = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'collabRequestsRevised')]
@@ -95,8 +95,7 @@ class CollabRequest
     private ?Users $revisor = null;
 
     #[ORM\ManyToOne(targetEntity: Collaborator::class, inversedBy: 'collabRequests')]
-    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
-    #[Assert\NotNull(message: 'Veuillez sélectionner un partenaire')]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?Collaborator $collaborator = null;
 
     #[ORM\OneToOne(targetEntity: Contract::class, mappedBy: 'collabRequest')]
