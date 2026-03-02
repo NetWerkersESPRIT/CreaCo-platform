@@ -28,7 +28,9 @@ class CoursRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.categorie', 'cat')
-            ->addSelect('cat');
+            ->addSelect('cat')
+            ->leftJoin('c.ressources', 'r')
+            ->addSelect('r');
 
         // Global Search
         if (!empty($filters['search'])) {
@@ -175,7 +177,9 @@ class CoursRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.categorie', 'cat')
-            ->addSelect('cat');
+            ->addSelect('cat')
+            ->leftJoin('c.ressources', 'r')
+            ->addSelect('r');
 
         if (!empty($filters['search'])) {
             $qb->andWhere('c.titre LIKE :search OR c.description LIKE :search')

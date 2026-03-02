@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "32e96f57d0a07993d7aa783d8d28a56d",
-=======
     "content-hash": "988dbad3f0ff6796a1f34bd5bc8d32f4",
->>>>>>> 115bc6acf1b4eee3228d6ebcb815eb370c7b31d7
     "packages": [
         {
             "name": "ahmed-bhs/doctrine-doctor",
@@ -10464,18 +10460,6 @@
         },
         {
             "name": "webmozart/assert",
-<<<<<<< HEAD
-            "version": "1.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webmozarts/assert.git",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/11cb2199493b2f8a3b53e7f19068fc6aac760991",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991",
-=======
             "version": "1.12.1",
             "source": {
                 "type": "git",
@@ -10486,16 +10470,12 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
                 "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
->>>>>>> 115bc6acf1b4eee3228d6ebcb815eb370c7b31d7
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
-<<<<<<< HEAD
-=======
                 "ext-date": "*",
                 "ext-filter": "*",
->>>>>>> 115bc6acf1b4eee3228d6ebcb815eb370c7b31d7
                 "php": "^7.2 || ^8.0"
             },
             "conflict": {
@@ -10534,15 +10514,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-<<<<<<< HEAD
-                "source": "https://github.com/webmozarts/assert/tree/1.11.0"
-            },
-            "time": "2022-06-03T18:03:27+00:00"
-=======
                 "source": "https://github.com/webmozarts/assert/tree/1.12.1"
             },
             "time": "2025-10-29T15:56:20+00:00"
->>>>>>> 115bc6acf1b4eee3228d6ebcb815eb370c7b31d7
         }
     ],
     "packages-dev": [
