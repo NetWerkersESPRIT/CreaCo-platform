@@ -1,10 +1,7 @@
 parameters:
-    level: 5
+    level: 8
     paths:
-        - src
-    symfony:
-        container_xml_path: var/cache/dev/App_KernelDevDebugContainer.xml
-    doctrine:
-        objectManagerLoader: tests/object-manager.php
-    checkGenericClassInNonGenericObjectType: false
-    checkMissingIterableValueType: false
+        - src/Entity
+    ignoreErrors:
+        - '#Property .*::\$id .* never assigned int#'
+        - '#Method App\\Entity\\Comment::getUpdatedAt\(\) should return DateTimeInterface but returns DateTimeInterface\|null#'

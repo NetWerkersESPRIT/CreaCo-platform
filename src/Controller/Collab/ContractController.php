@@ -5,6 +5,7 @@ namespace App\Controller\Collab;
 use App\Entity\Contract;
 use App\Entity\Notification;
 use App\Entity\Users;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Form\RejectionReasonType;
 use App\Repository\ContractRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -114,7 +115,7 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/sign', name: 'app_contract_sign', methods: ['POST'])]
-    public function sign(Contract $contract, EntityManagerInterface $em, Request $request): Response
+    public function sign(Contract $contract, EntityManagerInterface $em, Request $request, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -147,7 +148,7 @@ class ContractController extends AbstractController
         // Notify Revisor (Manager)
         $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
         if ($revisor) {
-            $notification = new Notification();
+            $notification = $factory->createNotification();
             $notification->setMessage("Contract '" . $contract->getTitle() . "' has been signed by the creator.");
             $notification->setUserId($revisor);
             $notification->setIsRead(false);
@@ -165,7 +166,7 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/complete', name: 'app_contract_complete', methods: ['POST'])]
-    public function complete(Contract $contract, EntityManagerInterface $em, Request $request): Response
+    public function complete(Contract $contract, EntityManagerInterface $em, Request $request, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -199,7 +200,7 @@ class ContractController extends AbstractController
         // Notify Revisor (Manager)
         $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
         if ($revisor) {
-            $notification = new Notification();
+            $notification = $factory->createNotification();
             $notification->setMessage("Contract '" . $contract->getTitle() . "' has been marked as completed by the creator.");
             $notification->setUserId($revisor);
             $notification->setIsRead(false);
@@ -217,7 +218,7 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/terminate', name: 'app_contract_terminate', methods: ['GET', 'POST'])]
-    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em): Response
+    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -258,7 +259,7 @@ class ContractController extends AbstractController
             // Notify Revisor (Manager)
             $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
             if ($revisor) {
-                $notification = new Notification();
+                $notification = $factory->createNotification();
                 $notification->setMessage("Contract '" . $contract->getTitle() . "' has been terminated by the creator.");
                 $notification->setUserId($revisor);
                 $notification->setIsRead(false);

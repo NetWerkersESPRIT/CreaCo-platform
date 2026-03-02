@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -30,6 +31,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Ignore]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -49,7 +51,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Reservation>
      */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reservations;
 
     /**
@@ -113,6 +115,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $ideasUsed;
 
     /**
+     * @var Collection<int, IdeaUsage>
+     */
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: IdeaUsage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $ideaUsages;
+
+    /**
      * @var Collection<int, Contract>
      */
     #[ORM\OneToMany(mappedBy: 'creator', targetEntity: Contract::class)]
@@ -124,8 +132,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
     private Collection $collaborators;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
-    private Collection $comments;
+/**
+     * @var Collection<int, Comment>
+     */
+     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
+     private Collection $comments;
 
     /**
      * @var Collection<int, Group>
@@ -136,7 +147,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, PostReaction>
      */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reactions;
 
     public function __construct()
@@ -152,6 +163,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->missionsCreated = new ArrayCollection();
         $this->ideas = new ArrayCollection();
         $this->ideasUsed = new ArrayCollection();
+        $this->ideaUsages = new ArrayCollection();
         $this->contracts = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
         $this->comments = new ArrayCollection();
@@ -215,12 +227,13 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[Ignore]
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(?string $password): static
+    public function setPassword(#[\SensitiveParameter] ?string $password): static
     {
         $this->password = $password;
 
@@ -441,6 +454,55 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getIdeasUsed(): Collection
     {
         return $this->ideasUsed;
+    }
+
+    public function addIdeaUsed(Idea $idea): static
+    {
+        if (!$this->ideasUsed->contains($idea)) {
+            $this->ideasUsed->add($idea);
+            $idea->addUsedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdeaUsed(Idea $idea): static
+    {
+        if ($this->ideasUsed->removeElement($idea)) {
+            $idea->removeUsedBy($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, IdeaUsage>
+     */
+    public function getIdeaUsages(): Collection
+    {
+        return $this->ideaUsages;
+    }
+
+    public function addIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if (!$this->ideaUsages->contains($ideaUsage)) {
+            $this->ideaUsages->add($ideaUsage);
+            $ideaUsage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdeaUsage(IdeaUsage $ideaUsage): static
+    {
+        if ($this->ideaUsages->removeElement($ideaUsage)) {
+            // set the owning side to null (unless already changed)
+            if ($ideaUsage->getUser() === $this) {
+                $ideaUsage->setUser(null);
+            }
+        }
+
+        return $this;
     }
     /**
      * @return Collection<int, Contract>

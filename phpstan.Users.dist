@@ -1,0 +1,12 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+parameters:
+    level: 9 # Niveau d'analyse (de 0 à 9, où 9 est le plus strict)
+    paths:
+        - src/Controller/AdminController.php
+        - src/Entity/Users.php
+        - src/Form/UserType.php
+        - src/Repository/UsersRepository.php
+    excludePaths:
+        - tests/* # Exclure les fichiers de test

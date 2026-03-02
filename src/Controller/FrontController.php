@@ -48,6 +48,18 @@ final class FrontController extends AbstractController
         ]);
     }
 
+    // READ LISTE DES COURS POUR VISITEURS
+    #[Route('/visitor/courses', name: 'app_visitor_courses', methods: ['GET'])]
+    public function visitorCourses(CoursRepository $coursRepo): Response
+    {
+        // On récupère seulement les cours publiés pour les visiteurs
+        $courses = $coursRepo->findBy(['statut' => 'published']);
+
+        return $this->render('front/visitor_courses/index.html.twig', [
+            'courses' => $courses,
+        ]);
+    }
+
     // READ LISTE DES COURS PAR CATEGORIE (et recherche/filtrage dans cette catégorie)
     #[Route('/category/{id}', name: 'app_front_category')]
     public function category(
@@ -238,6 +250,14 @@ final class FrontController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         if ($userRole === 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_cours_show', ['id' => $course->getId()]);
+        }
+
+        // REDIRECT VISITORS IF NOT LOGGED IN
+        $userId = $request->getSession()->get('user_id');
+        if (!$userId) {
+            return $this->render('front/auth_required.html.twig', [
+                'course' => $course
+            ]);
         }
 
         // INCREMENT VIEW COUNT

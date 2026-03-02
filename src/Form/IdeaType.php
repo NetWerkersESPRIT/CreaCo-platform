@@ -11,6 +11,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 
+/**
+ * @extends AbstractType<Idea>
+ */
 class IdeaType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

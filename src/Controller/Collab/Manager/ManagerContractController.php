@@ -4,6 +4,7 @@ namespace App\Controller\Collab\Manager;
 
 use App\Entity\Contract;
 use App\Entity\Notification;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Entity\Users;
 use App\Form\ContractType;
 use App\Repository\ContractRepository;
@@ -108,7 +109,8 @@ class ManagerContractController extends AbstractController
         EntityManagerInterface $em,
         Request $request,
         DocuSignService $docuSignService,
-        \App\Service\EmailService $emailService
+        \App\Service\EmailService $emailService,
+        CollaborationFactory $factory
     ): Response {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
@@ -158,7 +160,7 @@ class ManagerContractController extends AbstractController
             // Notify Creator
             $creator = $contract->getCreator();
             if ($creator) {
-                $notification = new Notification();
+                $notification = $factory->createNotification();
                 $notification->setMessage("A contract for '" . $contract->getTitle() . "' has been sent to the partner for signature.");
                 $notification->setUserId($creator);
                 $notification->setIsRead(false);

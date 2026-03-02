@@ -47,7 +47,7 @@ class CategorieCours
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date_de_modification = null;
 
-    #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Cours::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Cours::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $cours;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

@@ -109,6 +109,14 @@
 		</style>
 
 		{% block stylesheets %}{% endblock %}
+
+		{% if app.environment == 'dev' %}
+		<style>
+			/* Force Symfony Debug Bar Visibility */
+			.sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+			.sf-display-none { display: block !important; }
+		</style>
+		{% endif %}
 	</head>
 
 	<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
