@@ -87,9 +87,11 @@ try {
 
     // 2. Profanity Check (on corrected content)
     $check = $profanity->check($correctedContent);
-    $comment->setBody($check['filteredText'] ?? $correctedContent);
-    $comment->setIsProfane($check['isProfane'] ?? false);
-    $comment->setProfaneWords($check['profaneWords'] ?? 0);
+    $comment->setBody($check['filteredText']);
+    $comment->setIsProfane($check['isProfane']);
+    
+    $profaneWords = $check['profaneWords'] ?? 0;
+    $comment->setProfaneWords($profaneWords);
     
     // 3. Grammar Audit
     $comment->setGrammarErrors($textGears->grammarErrorCount($correctedContent));
@@ -140,15 +142,18 @@ try {
 
             // Moderation Pipeline: TextGears (Correction) -> Profanity Filter
             try {
+                $currentBody = $comment->getBody() ?? '';
                 // 1. Correct Content
-                $correctedContent = $textGears->correct($body);
+                $correctedContent = $textGears->correct($currentBody);
                 $comment->setBody($correctedContent);
 
                 // 2. Profanity Check (on corrected content)
                 $check = $profanity->check($correctedContent);
-                $comment->setBody($check['filteredText'] ?? $correctedContent);
-                $comment->setIsProfane($check['isProfane'] ?? false);
-                $comment->setProfaneWords($check['profaneWords'] ?? 0);
+                $comment->setBody($check['filteredText']);
+                $comment->setIsProfane($check['isProfane']);
+                
+                $profaneWords = $check['profaneWords'] ?? 0;
+                $comment->setProfaneWords($profaneWords);
                 
                 // 3. Grammar Audit
                 $comment->setGrammarErrors($textGears->grammarErrorCount($correctedContent));

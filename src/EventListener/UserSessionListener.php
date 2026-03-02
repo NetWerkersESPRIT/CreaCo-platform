@@ -49,7 +49,10 @@ class UserSessionListener implements EventSubscriberInterface
         if ($user) {
             $unreadCount = $this->notificationRepository->countUnreadForUser($user);
 
-            if (strtolower(trim($user->getRole() ?? '')) === 'role_admin' || $session->get('user_role') === 'ROLE_ADMIN') {
+            $userRole = (string)($user->getRole() ?? '');
+            $sessionRole = (string)($session->get('user_role') ?? '');
+
+            if (strtolower(trim($userRole)) === 'role_admin' || $sessionRole === 'ROLE_ADMIN') {
                 $pendingCount = $this->postRepository->countPending();
             }
         }

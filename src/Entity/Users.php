@@ -199,7 +199,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = [$this->role ?: 'ROLE_USER'];
+        /** @var non-falsy-string $role */
+        $role = $this->role ?: 'ROLE_USER';
+        $roles = [$role];
 
         return array_unique($roles);
     }

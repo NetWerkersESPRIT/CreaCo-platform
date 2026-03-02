@@ -113,7 +113,7 @@ final class PostController extends AbstractController
                 $post->setStatus('pending');
             }
 
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $post->getImageFile();
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -154,7 +154,7 @@ if ($pdfFile) {
                 $title = $post->getTitle();
                 $correctedTitle = $textGears->correct($title);
                 $checkTitle = $profanity->check($correctedTitle);
-                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+                $post->setTitle($checkTitle['filteredText']);
 
                 // 2. Content Moderation
                 $content = (string)$post->getContent();
@@ -167,10 +167,10 @@ if ($pdfFile) {
                 }
 
                 $checkContent = $profanity->check(strip_tags($correctedContent)); // Check plain text for profanity
-                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
+                $post->setContent($checkContent['isProfane'] ? $checkContent['filteredText'] : $correctedContent);
 
                 // 3. Aggregate Moderation Status
-                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $profaneFound = $checkTitle['isProfane'] || $checkContent['isProfane'];
                 $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
                 
                 $post->setIsProfane($profaneFound);
@@ -333,7 +333,7 @@ if ($pdfFile) {
                 $title = $post->getTitle();
                 $correctedTitle = $textGears->correct($title);
                 $checkTitle = $profanity->check($correctedTitle);
-                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+                $post->setTitle($checkTitle['filteredText']);
 
                 // 2. Content Moderation
                 $content = (string)$post->getContent();
@@ -346,10 +346,10 @@ if ($pdfFile) {
                 }
 
                 $checkContent = $profanity->check(strip_tags($correctedContent));
-                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
+                $post->setContent($checkContent['isProfane'] ? $checkContent['filteredText'] : $correctedContent);
 
                 // 3. Aggregate Moderation Status
-                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $profaneFound = $checkTitle['isProfane'] || $checkContent['isProfane'];
                 $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
                 
                 $post->setIsProfane($profaneFound);
@@ -373,7 +373,7 @@ if ($pdfFile) {
                 // Fallback: keep original title/content
             }
 
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $post->getImageFile();
             if ($imageFile) {
 
@@ -399,7 +399,7 @@ if ($pdfFile) {
                 }
             }
 
-            /** @var UploadedFile $pdfFile */
+            /** @var UploadedFile|null $pdfFile */
             $pdfFile = $post->getPdfFile();
             if ($pdfFile) {
                 if ($post->getPdfName()) {

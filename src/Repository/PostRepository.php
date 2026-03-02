@@ -54,11 +54,12 @@ class PostRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Post[]
+     * @return array<int, Post>
      */
     public function findUnnotifiedModerationPosts(\App\Entity\Users $user): array
     {
-        return $this->createQueryBuilder('p')
+        /** @var array<int, Post> $result */
+        $result = $this->createQueryBuilder('p')
             ->andWhere('p.user = :user')
             ->andWhere('p.isModerationNotified = :notified')
             ->andWhere('p.status IN (:statuses)')
@@ -67,5 +68,6 @@ class PostRepository extends ServiceEntityRepository
             ->setParameter('statuses', ['published', 'refused'])
             ->getQuery()
             ->getResult();
+        return $result;
     }
 }

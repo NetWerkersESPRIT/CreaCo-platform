@@ -16,6 +16,12 @@ class IdeaRepository extends ServiceEntityRepository
         parent::__construct($registry, Idea::class);
     }
 
+    /**
+     * @param array<string, int> $weights
+     * @param array<int> $trendingIds
+     * @param array<int> $usedIds
+     * @return array<int, Idea>
+     */
     public function findRankedIdeas(array $weights, array $trendingIds, array $usedIds, int $limit): array
     {
         $qb = $this->createQueryBuilder('i');

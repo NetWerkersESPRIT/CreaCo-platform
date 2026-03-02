@@ -25,7 +25,8 @@ final class EventController extends AbstractController
     #[Route('/event', name: 'event_list')]
     public function list(Request $request, EventRepository $repo): Response
     {
-        if (!in_array($request->getSession()->get('user_role'), ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_CONTENT_CREATOR'])) {
+        $sessionRole = $request->getSession()->get('user_role');
+        if (!is_string($sessionRole) || !in_array($sessionRole, ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_CONTENT_CREATOR'])) {
             $this->addFlash('warning', 'Access denied.');
             return $this->redirectToRoute('app_auth');
         }
@@ -39,7 +40,8 @@ final class EventController extends AbstractController
     #[Route('/event/new', name: 'event_new')]
     public function new(Request $request, EntityManagerInterface $em, MeetingLinkGenerator $generator, ImgbbService $imgbbService): Response
     {
-        if (!in_array($request->getSession()->get('user_role'), ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_CONTENT_CREATOR'])) {
+        $sessionRole = $request->getSession()->get('user_role');
+        if (!is_string($sessionRole) || !in_array($sessionRole, ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_CONTENT_CREATOR'])) {
             $this->addFlash('warning', 'Access denied.');
             return $this->redirectToRoute('app_auth');
         }
@@ -237,8 +239,11 @@ final class EventController extends AbstractController
         $reservation->setStatus($status);
 
         // Notificationsssssssssssss
+        /** @var \App\Entity\Users|null $member */
         $member = $reservation->getUser();
+        /** @var \App\Entity\Event|null $event */
         $event = $reservation->getEvent();
+        
         if ($member && $event) {
             $notification = new Notification();
             $statusText = ($status === 'validated') ? 'confirmed' : 'cancelled';
