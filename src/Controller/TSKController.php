@@ -150,7 +150,6 @@ final class TSKController extends AbstractController
             $missions = $missionRepository->findAll();
         } elseif ($userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-<<<<<<< HEAD
             if ($currentUser) {
                 $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
 
@@ -173,17 +172,6 @@ final class TSKController extends AbstractController
 
                 $missions = $qb->where($condition)
                     ->setParameter('userId', $userId)
-=======
-            if ($currentUser && !$currentUser->getGroups()->isEmpty()) {
-                $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
-                
-                $missions = $missionRepository->createQueryBuilder('m')
-                    ->innerJoin('m.assignedBy', 'u')
-                    ->leftJoin('u.groups', 'g')
-                    ->leftJoin('App\Entity\Group', 'go', 'WITH', 'go.owner = u')
-                    ->where('g.id IN (:groupIds) OR go.id IN (:groupIds)')
-                    ->setParameter('groupIds', $groupIds)
->>>>>>> origin/anesch22
                     ->getQuery()
                     ->getResult();
             } else {
@@ -371,33 +359,10 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-<<<<<<< HEAD
         // Only show if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
             if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
-=======
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            $assignedBy = $mission->getAssignedBy();
-            
-            $isCoworker = false;
-            if ($currentUser && $assignedBy) {
-                if ($assignedBy->getId() === $currentUser->getId()) {
-                    $isCoworker = true;
-                } else {
-                    foreach ($currentUser->getGroups() as $group) {
-                        if ($group->getMembers()->contains($assignedBy) || $group->getOwner() === $assignedBy) {
-                            $isCoworker = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            if (!$isCoworker) {
->>>>>>> origin/anesch22
                 throw $this->createAccessDeniedException('You do not have access to this mission.');
             }
         }
@@ -413,15 +378,9 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-<<<<<<< HEAD
         // Only allow edit if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-=======
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
->>>>>>> origin/anesch22
             if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
                 throw $this->createAccessDeniedException('You do not have access to edit this mission.');
             }
@@ -451,15 +410,9 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-<<<<<<< HEAD
         // Only allow delete if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-=======
-        // If user is a member, check if mission is from their group
-        if ($userRole === 'ROLE_MEMBER' && $userId) {
-            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
->>>>>>> origin/anesch22
             if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
                 throw $this->createAccessDeniedException('You do not have access to delete this mission.');
             }
@@ -605,17 +558,11 @@ final class TSKController extends AbstractController
             $allowed = false;
             if ($currentUser) {
                 $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
-<<<<<<< HEAD
                 if (
                     $this->isCoworker($currentUser, $missionOwner) ||
                     $this->isCoworker($currentUser, $task->getIssuedBy()) ||
                     $this->isCoworker($currentUser, $task->getAssumedBy())
                 ) {
-=======
-                if ($this->isCoworker($currentUser, $missionOwner) || 
-                    $this->isCoworker($currentUser, $task->getIssuedBy()) || 
-                    $this->isCoworker($currentUser, $task->getAssumedBy())) {
->>>>>>> origin/anesch22
                     $allowed = true;
                 }
             }
@@ -640,17 +587,11 @@ final class TSKController extends AbstractController
             $allowed = false;
             if ($currentUser) {
                 $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
-<<<<<<< HEAD
                 if (
                     $this->isCoworker($currentUser, $missionOwner) ||
                     $this->isCoworker($currentUser, $task->getIssuedBy()) ||
                     $this->isCoworker($currentUser, $task->getAssumedBy())
                 ) {
-=======
-                if ($this->isCoworker($currentUser, $missionOwner) || 
-                    $this->isCoworker($currentUser, $task->getIssuedBy()) || 
-                    $this->isCoworker($currentUser, $task->getAssumedBy())) {
->>>>>>> origin/anesch22
                     $allowed = true;
                 }
             }
@@ -701,17 +642,11 @@ final class TSKController extends AbstractController
             $allowed = false;
             if ($currentUser) {
                 $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
-<<<<<<< HEAD
                 if (
                     $this->isCoworker($currentUser, $missionOwner) ||
                     $this->isCoworker($currentUser, $task->getIssuedBy()) ||
                     $this->isCoworker($currentUser, $task->getAssumedBy())
                 ) {
-=======
-                if ($this->isCoworker($currentUser, $missionOwner) || 
-                    $this->isCoworker($currentUser, $task->getIssuedBy()) || 
-                    $this->isCoworker($currentUser, $task->getAssumedBy())) {
->>>>>>> origin/anesch22
                     $allowed = true;
                 }
             }
