@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "988dbad3f0ff6796a1f34bd5bc8d32f4",
+    "content-hash": "32e96f57d0a07993d7aa783d8d28a56d",
     "packages": [
         {
             "name": "ahmed-bhs/doctrine-doctor",
@@ -10460,22 +10460,20 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "1.12.1",
+            "version": "1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68"
+                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
-                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/11cb2199493b2f8a3b53e7f19068fc6aac760991",
+                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
-                "ext-date": "*",
-                "ext-filter": "*",
                 "php": "^7.2 || ^8.0"
             },
             "conflict": {
@@ -10514,9 +10512,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.12.1"
+                "source": "https://github.com/webmozarts/assert/tree/1.11.0"
             },
-            "time": "2025-10-29T15:56:20+00:00"
+            "time": "2022-06-03T18:03:27+00:00"
         }
     ],
     "packages-dev": [
