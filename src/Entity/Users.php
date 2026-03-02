@@ -132,8 +132,11 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'addedBy', targetEntity: Collaborator::class)]
     private Collection $collaborators;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
-    private Collection $comments;
+/**
+     * @var Collection<int, Comment>
+     */
+     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
+     private Collection $comments;
 
     /**
      * @var Collection<int, Group>
