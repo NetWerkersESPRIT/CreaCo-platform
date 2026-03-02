@@ -14,6 +14,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -27,7 +28,8 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private UserPasswordHasherInterface $passwordHasher
     ) {
     }
 
@@ -71,8 +73,8 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             throw new AuthenticationException('This is a Google user. Please login with Google.');
         }
 
-        // Manual password check (plain text as currently used in AuthController)
-        if ($password !== $user->getPassword()) {
+        // Secure password verification
+        if (!$this->passwordHasher->isPasswordValid($user, $password)) {
             throw new AuthenticationException('Invalid password.');
         }
 
@@ -98,17 +100,12 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
-
         /** @var Users $user */
         $user = $token->getUser();
         
         // Keep the user's manual session variables for compatibility
         $request->getSession()->set('user_id', $user->getId());
         $request->getSession()->set('user_role', $user->getRole());
-        $request->getSession()->set('groupid', $user->getGroupid());
         $request->getSession()->set('username', $user->getUsername());
 
         if ($user->getRole() === 'ROLE_ADMIN') {

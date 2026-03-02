@@ -104,6 +104,110 @@
 		</div>
 		{% endif %}
 
+		<!-- AI Assistant Widget -->
+		<div class="flex flex-wrap -mx-3 mb-6">
+			<div class="w-full max-w-full px-3 lg:w-2/3">
+				<div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border overflow-hidden">
+					<div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+						<div class="flex items-center justify-between">
+							<div>
+								<h6 class="mb-1">
+									<i class="fas fa-robot text-purple-700 mr-2"></i>AI Learning Assistant
+								</h6>
+								<p class="text-sm leading-normal text-slate-500">Ask questions about the course content and get instant answers</p>
+							</div>
+							<div id="aiServiceStatus" class="text-right">
+								<i class="fas fa-spinner fa-spin text-slate-400 text-xl"></i>
+								<p class="text-xs text-slate-400 mt-1">Checking...</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="flex-auto p-6">
+						<!-- Chat Box -->
+						<div id="aiChatBox" class="bg-gradient-to-b from-slate-50 to-white rounded-xl border border-slate-200 mb-4 p-4 max-h-96 overflow-y-auto">
+							<div id="chatMessages" class="space-y-4">
+								<div class="flex gap-3">
+									<div class="w-8 h-8 rounded-full bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center flex-shrink-0 text-white">
+										<i class="fas fa-robot text-xs"></i>
+									</div>
+									<div>
+										<p class="text-xs font-semibold text-slate-500 mb-1">AI Assistant</p>
+										<p class="text-sm text-slate-700 leading-relaxed">
+											Hello! I'm your AI learning assistant. Ask me anything about this course and I'll help you understand the material better.
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Input Form -->
+						<form id="aiQuestionForm" class="flex gap-2">
+							<input 
+								type="text" 
+								id="questionInput" 
+								placeholder="Ask a question about this course..."
+								class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+								autocomplete="off">
+							<button 
+								type="submit" 
+								id="askButton"
+								class="px-6 py-2 bg-gradient-to-tl from-purple-700 to-pink-500 text-white font-bold rounded-lg hover:scale-102 active:opacity-85 transition-all duration-200 flex items-center gap-2">
+								<i class="fas fa-paper-plane text-sm"></i>
+								<span class="hidden sm:inline">Ask</span>
+							</button>
+						</form>
+
+						<!-- Loading State -->
+						<div id="loadingState" class="hidden mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 text-center">
+							<i class="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
+							<span class="text-sm text-blue-700">Thinking...</span>
+						</div>
+
+						<!-- Error State -->
+						<div id="errorState" class="hidden mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+							<div class="flex gap-2">
+								<i class="fas fa-exclamation-circle text-red-600 flex-shrink-0 mt-0.5"></i>
+								<div>
+									<p class="text-sm font-semibold text-red-700">Error</p>
+									<p id="errorMessage" class="text-sm text-red-600"></p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Tips Sidebar -->
+			<div class="w-full max-w-full px-3 lg:w-1/3 mt-6 lg:mt-0">
+				<div class="relative flex flex-col min-w-0 break-words bg-gradient-to-br from-purple-50 to-pink-50 shadow-soft-xl rounded-2xl bg-clip-border border border-purple-200">
+					<div class="p-6">
+						<h6 class="mb-4 font-bold text-slate-700">
+							<i class="fas fa-lightbulb text-yellow-500 mr-1"></i>Tips for Better Answers
+						</h6>
+						<ul class="space-y-3">
+							<li class="flex gap-3">
+								<span class="text-purple-700 font-bold flex-shrink-0">1.</span>
+								<span class="text-sm text-slate-600">Be specific with your questions</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="text-purple-700 font-bold flex-shrink-0">2.</span>
+								<span class="text-sm text-slate-600">Ask about concepts you find confusing</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="text-purple-700 font-bold flex-shrink-0">3.</span>
+								<span class="text-sm text-slate-600">Request examples or explanations</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="text-purple-700 font-bold flex-shrink-0">4.</span>
+								<span class="text-sm text-slate-600">Use follow-up questions for clarification</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Resources Title -->
 		<div class="flex flex-wrap -mx-3 mb-4">
 			<div class="w-full max-w-full px-3">
@@ -199,4 +303,273 @@
 			{% endfor %}
 		</div>
 	</div>
+
+	<!-- AI Assistant JavaScript -->
+	<script>
+		const courseId = {{ course.id }};
+		const userId = {{ app.user ? app.user.id : 'null' }};
+
+		// Initialize AI Assistant on page load
+		document.addEventListener('DOMContentLoaded', async function() {
+			// Check AI service health
+			await checkAIServiceHealth();
+			
+			// Set up form submission
+			document.getElementById('aiQuestionForm').addEventListener('submit', handleQuestionSubmit);
+		});
+
+		/**
+		 * Check if AI service is available
+		 */
+		async function checkAIServiceHealth() {
+			const statusDiv = document.getElementById('aiServiceStatus');
+			try {
+				const response = await fetch('{{ path("app_ai_health") }}');
+				const data = await response.json();
+				
+				if (data.available && data.data.documents_count > 0) {
+					statusDiv.innerHTML = `
+						<i class="fas fa-check-circle text-green-600 text-xl"></i>
+						<p class="text-xs text-green-600 mt-1">AI Ready</p>
+					`;
+					document.getElementById('questionInput').disabled = false;
+					document.getElementById('askButton').disabled = false;
+				} else {
+					setAIStatus('offline');
+				}
+			} catch (error) {
+				console.error('AI Health Check Error:', error);
+				setAIStatus('offline');
+			}
+		}
+
+		/**
+		 * Set AI service status display
+		 */
+		function setAIStatus(status) {
+			const statusDiv = document.getElementById('aiServiceStatus');
+			if (status === 'offline') {
+				statusDiv.innerHTML = `
+					<i class="fas fa-times-circle text-red-600 text-xl"></i>
+					<p class="text-xs text-red-600 mt-1">Offline</p>
+				`;
+				document.getElementById('questionInput').disabled = true;
+				document.getElementById('askButton').disabled = true;
+				showError('AI service is currently offline. Please try again later.');
+			}
+		}
+
+		/**
+		 * Handle question form submission
+		 */
+		async function handleQuestionSubmit(e) {
+			e.preventDefault();
+			
+			const question = document.getElementById('questionInput').value.trim();
+			
+			if (!question) {
+				showError('Please enter a question');
+				return;
+			}
+			
+			// Add user question to chat
+			addMessageToChat('user', question);
+			
+			// Clear input
+			document.getElementById('questionInput').value = '';
+			
+			// Show loading state
+			showLoading(true);
+			
+			try {
+				const response = await fetch('{{ path("app_ai_ask_question") }}', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Requested-With': 'XMLHttpRequest'
+					},
+					body: JSON.stringify({
+						question: question,
+						course_id: courseId,
+						user_id: userId
+					})
+				});
+				
+				const data = await response.json();
+				showLoading(false);
+				
+				if (data.success) {
+					// Add AI response to chat
+					addMessageToChat('ai', data.answer);
+					
+					// Show sources if available
+					if (data.sources && data.sources.length > 0) {
+						showSources(data.sources, data.confidence);
+					}
+					
+					// Clear error state
+					hideError();
+				} else {
+					showError(data.error || 'Failed to get answer. Please try again.');
+				}
+			} catch (error) {
+				showLoading(false);
+				console.error('Error:', error);
+				showError('An error occurred. Please try again.');
+			}
+		}
+
+		/**
+		 * Add message to chat box
+		 */
+		function addMessageToChat(sender, message) {
+			const chatMessages = document.getElementById('chatMessages');
+			const messageDiv = document.createElement('div');
+			messageDiv.className = 'flex gap-3 animate-fadeIn';
+			
+			if (sender === 'user') {
+				messageDiv.innerHTML = `
+					<div class="flex-1 flex flex-col items-end">
+						<div class="bg-gradient-to-tl from-purple-700 to-pink-500 text-white rounded-lg rounded-tr-none px-4 py-2 max-w-xs md:max-w-sm lg:max-w-md">
+							<p class="text-sm leading-relaxed">${escapeHtml(message)}</p>
+						</div>
+						<p class="text-xs text-slate-400 mt-1">You</p>
+					</div>
+				`;
+			} else {
+				messageDiv.innerHTML = `
+					<div class="w-8 h-8 rounded-full bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center flex-shrink-0 text-white">
+						<i class="fas fa-robot text-xs"></i>
+					</div>
+					<div class="flex-1">
+						<p class="text-xs font-semibold text-slate-500 mb-1">AI Assistant</p>
+						<div class="bg-slate-100 rounded-lg rounded-tl-none px-4 py-2">
+							<p class="text-sm text-slate-700 leading-relaxed">${escapeHtml(message)}</p>
+						</div>
+					</div>
+				`;
+			}
+			
+			chatMessages.appendChild(messageDiv);
+			
+			// Scroll to bottom
+			const chatBox = document.getElementById('aiChatBox');
+			chatBox.scrollTop = chatBox.scrollHeight;
+		}
+
+		/**
+		 * Show answer sources
+		 */
+		function showSources(sources, confidence) {
+			const chatMessages = document.getElementById('chatMessages');
+			const sourcesDiv = document.createElement('div');
+			sourcesDiv.className = 'mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 animate-fadeIn';
+			
+			let sourcesHtml = `
+				<p class="text-xs font-semibold text-blue-700 mb-3">
+					<i class="fas fa-book-open mr-1"></i>Sources (Confidence: ${(confidence * 100).toFixed(0)}%)
+				</p>
+				<div class="space-y-2">
+			`;
+			
+			sources.forEach((source, index) => {
+				sourcesHtml += `
+					<div class="text-xs text-slate-600 p-2 bg-white rounded border border-blue-100">
+						<p class="font-semibold text-slate-700 mb-1">Source ${index + 1}</p>
+						<p class="text-slate-600 line-clamp-2">${escapeHtml(source.text)}</p>
+						<p class="text-blue-600 mt-1">Relevance: ${(source.similarity * 100).toFixed(0)}%</p>
+					</div>
+				`;
+			});
+			
+			sourcesHtml += `</div>`;
+			sourcesDiv.innerHTML = sourcesHtml;
+			chatMessages.appendChild(sourcesDiv);
+			
+			// Scroll to bottom
+			const chatBox = document.getElementById('aiChatBox');
+			chatBox.scrollTop = chatBox.scrollHeight;
+		}
+
+		/**
+		 * Show loading state
+		 */
+		function showLoading(show) {
+			const loadingDiv = document.getElementById('loadingState');
+			if (show) {
+				loadingDiv.classList.remove('hidden');
+			} else {
+				loadingDiv.classList.add('hidden');
+			}
+		}
+
+		/**
+		 * Show error message
+		 */
+		function showError(message) {
+			const errorDiv = document.getElementById('errorState');
+			document.getElementById('errorMessage').textContent = message;
+			errorDiv.classList.remove('hidden');
+		}
+
+		/**
+		 * Hide error message
+		 */
+		function hideError() {
+			const errorDiv = document.getElementById('errorState');
+			errorDiv.classList.add('hidden');
+		}
+
+		/**
+		 * Escape HTML to prevent XSS
+		 */
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+	</script>
+
+	<!-- CSS Animations -->
+	<style>
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(10px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.animate-fadeIn {
+			animation: fadeIn 0.3s ease-in-out forwards;
+		}
+
+		.line-clamp-2 {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		#aiChatBox {
+			scrollbar-width: thin;
+			scrollbar-color: rgba(148, 113, 188, 0.5) transparent;
+		}
+
+		#aiChatBox::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		#aiChatBox::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		#aiChatBox::-webkit-scrollbar-thumb {
+			background-color: rgba(148, 113, 188, 0.5);
+			border-radius: 3px;
+		}
+	</style>
 {% endblock %}

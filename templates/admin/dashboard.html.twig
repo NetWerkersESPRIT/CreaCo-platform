@@ -10,6 +10,68 @@
     .stat-card:hover {
         transform: translateY(-5px);
     }
+    /* AI Bot Custom Styling */
+    .glass-chat {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 1);
+        transform: scale(1);
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .chip {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .chip:hover {
+        transform: scale(1.05);
+        background: #4a5568 !important;
+        color: white !important;
+    }
+    /* User Requested Styles */
+    .ai-assistant-container {
+        bottom: 30px !important;
+        right: 30px !important;
+        left: auto !important;
+        position: fixed !important;
+    }
+    div#chat-window {
+        border-radius: 20px;
+        bottom: calc(100% + 16px) !important;
+        top: auto !important;
+        left: auto !important;
+        right: 0;
+        width: 380px;
+        height: 400px;
+        max-width: 90vw !important; /* ✅ Mobile safety */
+        /* Note: Opacity is controlled by JS toggle, but we set base here */
+    }
 </style>
 {% endblock %}
 
@@ -268,10 +330,72 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
+<div id="ai-assistant-wrapper">
+    <!-- 🤖 AI Assistant Bot -->
+    <div class="fixed z-[9999] ai-assistant-container m-4">
+        <!-- Chat Icon -->
+        <button id="chat-bot-toggle" class="group w-12 h-12 rounded-full bg-gradient-to-tl from-purple-700 to-pink-500 shadow-soft-2xl flex items-center justify-center text-white text-2xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none ring-4 ring-white/20">
+            <i class="fas fa-robot group-hover:rotate-12 transition-transform" id="chat-icon"></i>
+            <i class="fas fa-times hidden" id="close-icon"></i>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="absolute glass-chat rounded-3xl shadow-soft-2xl border border-white/40 flex flex-col scale-0 opacity-0 origin-bottom-right transition-all duration-500 ease-out pointer-events-none overflow-hidden" style="bottom: calc(100% + 16px); right: 0; width: 380px; height: 500px; max-width: 90vw;">
+            <!-- Header -->
+            <div class="p-5 bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mr-4 shadow-inner">
+                        <i class="fas fa-robot text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0 font-bold tracking-tight">System Assistant</h6>
+                        <p class="text-white/80 text-xs mb-0 flex items-center">
+                            <span class="pulse-dot"></span> Online Intelligence
+                        </p>
+                    </div>
+                </div>
+                <button id="clear-chat" class="mr-4 text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-trash-alt text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="chat-messages" class="flex-auto overflow-y-auto p-2 space-y-5 custom-scrollbar bg-slate-50/30">
+                <div class="flex items-start animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                        <i class="fas fa-robot text-purple-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-soft-xs text-sm text-slate-700 max-w-[85%] border border-slate-100 leading-relaxed">
+                        Hello <span class="font-bold text-purple-600">Admin</span>! I've loaded the latest system analytics. How can I assist you today?
+                    </div>
+                </div>
+                <!-- Action Chips Container -->
+                <div id="quick-actions" class="flex flex-wrap gap-2 mt-2">
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="Give me a general statistics overview">📊 Overview</span>
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="How many users and courses are there?">👥 Users & Courses</span>
+                    <span class="chip bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200" data-query="What is the forum engagement level?">💬 Forum Health</span>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 bg-white/50 border-t border-white/40">
+                <form id="chat-form" class="flex items-center gap-3">
+                    <div class="relative flex-auto">
+                        <input type="text" id="chat-input" placeholder="Ask about platform stats..." class="w-full bg-white border border-slate-200 rounded-2xl pl-4 pr-10 py-2 text-sm focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all outline-none" required>
+                    </div>
+                    <button type="submit" class="w-10 h-12 ml-2 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center text-white shadow-soft-md hover:shadow-soft-lg active:scale-95 transition-all outline-none">
+                        <i class="fas fa-location-arrow rotate-45"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -610,6 +734,161 @@
                 },
             },
         });
+    });
+
+    // 🤖 AI Assistant Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatToggle = document.getElementById('chat-bot-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatIcon = document.getElementById('chat-icon');
+        const closeIcon = document.getElementById('close-icon');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const clearBtn = document.getElementById('clear-chat');
+        const chips = document.querySelectorAll('.chip');
+
+        let isOpen = false;
+
+        chatToggle.addEventListener('click', () => {
+            isOpen = !isOpen;
+            if (isOpen) {
+                chatWindow.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                chatWindow.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
+                chatIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+                setTimeout(() => chatInput.focus(), 300);
+            } else {
+                chatWindow.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                chatWindow.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
+                chatIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+             chatMessages.innerHTML = `
+                <div class="flex items-start animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-1">
+                        <i class="fas fa-robot text-purple-600 text-xs"></i>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-soft-xs text-sm text-slate-700 max-w-[85%] border border-slate-100 leading-relaxed">
+                        Chat history cleared. How can I help you now?
+                    </div>
+                </div>
+             `;
+        });
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                sendMessage(chip.dataset.query);
+            });
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (message) sendMessage(message);
+        });
+
+        async function sendMessage(message) {
+            // Add user message
+            addMessage(message, 'user');
+            chatInput.value = '';
+
+            // Add loading message
+            const loadingId = 'loading-' + Date.now();
+            addLoadingMessage(loadingId);
+
+            try {
+                const response = await fetch('{{ path('admin_ai_chat') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                removeLoadingMessage(loadingId);
+
+                if (data.reply) {
+                    addMessage(data.reply, 'bot');
+                } else {
+                    addMessage('Sorry, something went wrong. ' + (data.error || 'System error.'), 'bot');
+                }
+            } catch (error) {
+                removeLoadingMessage(loadingId);
+                addMessage('Communication failure with the API.', 'bot');
+            }
+        }
+
+        function formatMarkdown(text) {
+            // Very simple markdown-lite
+            return text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-slate-800">$1</span>')
+                .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                .replace(/- (.*?)($|<br>)/g, '<li class="ml-4">$1</li>');
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = sender === 'user' 
+                ? 'flex items-start justify-end mt-4' 
+                : 'flex items-start mt-4 animate-fade-in';
+            
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (sender === 'user') {
+                div.innerHTML = `
+                    <div class="flex flex-col items-end max-w-[85%]">
+                        <div class="bg-gradient-to-tl from-purple-700 to-pink-500 text-white p-4 rounded-3xl rounded-tr-none shadow-soft-md text-sm leading-relaxed">
+                            ${text}
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-1 mr-1">${timestamp}</span>
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                        <i class="fas fa-robot text-purple-600 text-xs"></i>
+                    </div>
+                    <div class="flex flex-col max-w-[85%]">
+                        <div class="bg-white p-4 rounded-3xl rounded-tl-none shadow-soft-xs text-sm text-slate-700 border border-slate-100 leading-relaxed">
+                            ${formatMarkdown(text)}
+                        </div>
+                        <span class="text-[10px] text-slate-400 mt-1 ml-1">${timestamp}</span>
+                    </div>
+                `;
+            }
+
+            chatMessages.appendChild(div);
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        }
+
+        function addLoadingMessage(id) {
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex items-start mt-4';
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mr-2 mt-1">
+                    <i class="fas fa-robot text-slate-400 text-xs"></i>
+                </div>
+                <div class="bg-white/50 p-4 rounded-3xl rounded-tl-none border border-slate-100 h-10 flex items-center">
+                    <div class="flex space-x-1.5">
+                        <div class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
+                        <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        }
+
+        function removeLoadingMessage(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        }
     });
 </script>
 {% endblock %}

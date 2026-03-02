@@ -46,11 +46,19 @@ class Idea
     #[ORM\OneToMany(targetEntity: IdeaUsage::class, mappedBy: 'Idea')]
     private Collection $ideaUsages;
 
+    /**
+     * @var Collection<int, Users>
+     */
+    #[ORM\ManyToMany(targetEntity: Users::class, inversedBy: 'ideasUsed')]
+    private Collection $usedBy;
+
+
 
     public function __construct()
     {
         $this->missions = new ArrayCollection();
         $this->ideaUsages = new ArrayCollection();
+        $this->usedBy = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -186,6 +194,30 @@ class Idea
                 $ideaUsage->setIdea(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Users>
+     */
+    public function getUsedBy(): Collection
+    {
+        return $this->usedBy;
+    }
+
+    public function addUsedBy(Users $user): static
+    {
+        if (!$this->usedBy->contains($user)) {
+            $this->usedBy->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUsedBy(Users $user): static
+    {
+        $this->usedBy->removeElement($user);
 
         return $this;
     }

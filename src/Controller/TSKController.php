@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Group;
 use App\Entity\Idea;
 use App\Entity\Mission;
 use App\Entity\Task;
@@ -14,9 +15,7 @@ use App\Repository\MissionRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\MissionDescGenerator;
-use App\Service\IdeaCategoryClassifier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -37,31 +36,18 @@ final class TSKController extends AbstractController
             $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 6);
         }
 
-        $period = $request->query->get('trend_period', 'week');
-        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
+        $trendingIdeas = $recommendationService->getTrendingIdeas(6);
 
         return $this->render('tsk/index.html.twig', [
             'ideas' => $ideaRepository->findAll(),
             'recommended_ideas' => $recommendedIdeas,
             'trending_ideas' => $trendingIdeas,
-            'current_period' => $period,
-        ]);
-    }
-
-    #[Route('/idea/trending', name: 'app_idea_trending', methods: ['GET'])]
-    public function trendingIdeas(Request $request, \App\Service\IdeaRecommendationService $recommendationService): Response
-    {
-        $period = $request->query->get('period', 'week');
-        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
-
-        return $this->render('tsk/_trending_ideas.html.twig', [
-            'trending_ideas' => $trendingIdeas,
-            'current_period' => $period,
+            'current_period' => 'today',
         ]);
     }
 
     #[Route('/idea/new', name: 'app_idea_new', methods: ['GET', 'POST'])]
-    public function ideaNew(Request $request, EntityManagerInterface $entityManager, IdeaRepository $ideaRepository, IdeaCategoryClassifier $classifier): Response
+    public function ideaNew(Request $request, EntityManagerInterface $entityManager): Response
     {
         $idea = new Idea();
         $form = $this->createForm(IdeaType::class, $idea);
@@ -76,42 +62,6 @@ final class TSKController extends AbstractController
 
             if ($user) {
                 $idea->setCreator($user);
-            }
-
-            // Duplicate title check (case-insensitive)
-            $existing = $ideaRepository->createQueryBuilder('i')
-                ->where('LOWER(i.title) = LOWER(:title)')
-                ->setParameter('title', trim($idea->getTitle() ?? ''))
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-
-            if ($existing !== null) {
-                $form->get('title')->addError(new FormError('An idea with this title already exists. Please choose another one.'));
-                return $this->render('tsk/new.html.twig', [
-                    'idea' => $idea,
-                    'form' => $form,
-                ]);
-            }
-
-            // AI category classification
-            $existingCategories = array_column(
-                $entityManager->createQuery('SELECT DISTINCT i.category FROM App\Entity\Idea i')->getResult(),
-                'category'
-            );
-
-            $proposedCategory = $idea->getCategory() ?? '';
-            $resolvedCategory = $classifier->classify(
-                $idea->getTitle() ?? '',
-                $idea->getDescription() ?? '',
-                $proposedCategory,
-                $existingCategories
-            );
-
-            $idea->setCategory($resolvedCategory);
-
-            if ($resolvedCategory !== $proposedCategory) {
-                $this->addFlash('info', 'Category of \'' . ($idea->getTitle() ?? 'idea') . '\' has been changed to \'' . $resolvedCategory . '\'.');
             }
 
             $entityManager->persist($idea);
@@ -134,6 +84,17 @@ final class TSKController extends AbstractController
         return $this->render('tsk/new.html.twig', [
             'idea' => $idea,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/idea/trending', name: 'app_idea_trending', methods: ['GET'])]
+    public function trendingIdeas(Request $request, \App\Service\IdeaRecommendationService $recommendationService): Response
+    {
+        $period = $request->query->get('period', 'week');
+        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
+
+        return $this->render('tsk/_trending_ideas.html.twig', [
+            'trending_ideas' => $trendingIdeas,
         ]);
     }
 
@@ -184,24 +145,38 @@ final class TSKController extends AbstractController
     {
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
-        $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
 
         if ($userRole === 'ROLE_ADMIN') {
             $missions = $missionRepository->findAll();
-        } elseif ($currentUser) {
-            $qb = $missionRepository->createQueryBuilder('m')
-                ->innerJoin('m.assignedBy', 'u');
+        } elseif ($userId) {
+            $currentUser = $entityManager->getRepository(Users::class)->find($userId);
+            if ($currentUser) {
+                $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
 
-            $condition = 'u.id = :userId';
-            if ($currentUser->getGroupid()) {
-                $condition .= ' OR u.groupid = :groupId';
-                $qb->setParameter('groupId', $currentUser->getGroupid());
+                // Also include IDs of groups owned by the user
+                foreach ($entityManager->getRepository(Group::class)->findBy(['owner' => $currentUser]) as $ownedGroup) {
+                    $groupIds[] = $ownedGroup->getId();
+                }
+                $groupIds = array_unique($groupIds);
+
+                $qb = $missionRepository->createQueryBuilder('m')
+                    ->innerJoin('m.assignedBy', 'u')
+                    ->leftJoin('u.groups', 'g')
+                    ->leftJoin('App\Entity\Group', 'go', 'WITH', 'go.owner = u');
+
+                $condition = 'u.id = :userId';
+                if (!empty($groupIds)) {
+                    $condition .= ' OR g.id IN (:groupIds) OR go.id IN (:groupIds)';
+                    $qb->setParameter('groupIds', $groupIds);
+                }
+
+                $missions = $qb->where($condition)
+                    ->setParameter('userId', $userId)
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $missions = [];
             }
-
-            $missions = $qb->where($condition)
-                ->setParameter('userId', $userId)
-                ->getQuery()
-                ->getResult();
         } else {
             $missions = [];
         }
@@ -384,14 +359,10 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // Consistent visibility check: only show if admin, creator, or in same group
+        // Only show if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-            $creator = $mission->getAssignedBy();
-            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
-            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
-
-            if (!$isCreator && !$isSameGroup) {
+            if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
                 throw $this->createAccessDeniedException('You do not have access to this mission.');
             }
         }
@@ -407,14 +378,10 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // Consistent visibility check
+        // Only allow edit if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-            $creator = $mission->getAssignedBy();
-            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
-            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
-
-            if (!$isCreator && !$isSameGroup) {
+            if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
                 throw $this->createAccessDeniedException('You do not have access to edit this mission.');
             }
         }
@@ -443,14 +410,10 @@ final class TSKController extends AbstractController
         $userRole = $request->getSession()->get('user_role');
         $userId = $request->getSession()->get('user_id');
 
-        // Consistent visibility check
+        // Only allow delete if admin, creator, or in same group
         if ($userRole !== 'ROLE_ADMIN') {
             $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-            $creator = $mission->getAssignedBy();
-            $isCreator = $currentUser && $creator && $currentUser->getId() === $creator->getId();
-            $isSameGroup = $currentUser && $creator && $currentUser->getGroupid() && $currentUser->getGroupid() === $creator->getGroupid();
-
-            if (!$isCreator && !$isSameGroup) {
+            if (!$this->isCoworker($currentUser, $mission->getAssignedBy())) {
                 throw $this->createAccessDeniedException('You do not have access to delete this mission.');
             }
         }
@@ -474,14 +437,21 @@ final class TSKController extends AbstractController
 
         if ($userRole === 'ROLE_MEMBER' && $userId) {
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
-            if ($currentUser && $currentUser->getGroupid()) {
+            if ($currentUser && !$currentUser->getGroups()->isEmpty()) {
+                $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
                 $tasks = $taskRepository->createQueryBuilder('t')
                     ->leftJoin('t.belongTo', 'm')
                     ->leftJoin('m.assignedBy', 'ma')
                     ->leftJoin('t.issuedBy', 'ib')
                     ->leftJoin('t.assumedBy', 'ab')
-                    ->where('ma.groupid = :gid OR ib.groupid = :gid OR ab.groupid = :gid')
-                    ->setParameter('gid', $currentUser->getGroupid())
+                    ->leftJoin('ma.groups', 'mag')
+                    ->leftJoin('App\Entity\Group', 'mao', 'WITH', 'mao.owner = ma')
+                    ->leftJoin('ib.groups', 'ibg')
+                    ->leftJoin('App\Entity\Group', 'ibo', 'WITH', 'ibo.owner = ib')
+                    ->leftJoin('ab.groups', 'abg')
+                    ->leftJoin('App\Entity\Group', 'abo', 'WITH', 'abo.owner = ab')
+                    ->where('mag.id IN (:groupIds) OR mao.id IN (:groupIds) OR ibg.id IN (:groupIds) OR ibo.id IN (:groupIds) OR abg.id IN (:groupIds) OR abo.id IN (:groupIds)')
+                    ->setParameter('groupIds', $groupIds)
                     ->getQuery()
                     ->getResult();
             } else {
@@ -532,7 +502,24 @@ final class TSKController extends AbstractController
             }
         }
 
-        $form = $this->createForm(TaskType::class, $task);
+        $userRole = $request->getSession()->get('user_role');
+        $userId = $request->getSession()->get('user_id');
+        $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+
+        $groupIds = [];
+        if ($currentUser) {
+            $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
+            foreach ($entityManager->getRepository(Group::class)->findBy(['owner' => $currentUser]) as $ownedGroup) {
+                $groupIds[] = $ownedGroup->getId();
+            }
+            $groupIds = array_unique($groupIds);
+        }
+
+        $form = $this->createForm(TaskType::class, $task, [
+            'groupIds' => $groupIds,
+            'isAdmin' => ($userRole === 'ROLE_ADMIN'),
+            'currentUser' => $currentUser,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -570,14 +557,12 @@ final class TSKController extends AbstractController
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
             $allowed = false;
             if ($currentUser) {
-                $gid = $currentUser->getGroupid();
-                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
+                if (
+                    $this->isCoworker($currentUser, $missionOwner) ||
+                    $this->isCoworker($currentUser, $task->getIssuedBy()) ||
+                    $this->isCoworker($currentUser, $task->getAssumedBy())
+                ) {
                     $allowed = true;
                 }
             }
@@ -601,14 +586,12 @@ final class TSKController extends AbstractController
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
             $allowed = false;
             if ($currentUser) {
-                $gid = $currentUser->getGroupid();
-                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
+                if (
+                    $this->isCoworker($currentUser, $missionOwner) ||
+                    $this->isCoworker($currentUser, $task->getIssuedBy()) ||
+                    $this->isCoworker($currentUser, $task->getAssumedBy())
+                ) {
                     $allowed = true;
                 }
             }
@@ -617,7 +600,21 @@ final class TSKController extends AbstractController
             }
         }
 
-        $form = $this->createForm(TaskType::class, $task);
+        $groupIds = [];
+        $currentUser = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
+        if ($currentUser) {
+            $groupIds = $currentUser->getGroups()->map(fn($g) => $g->getId())->toArray();
+            foreach ($entityManager->getRepository(Group::class)->findBy(['owner' => $currentUser]) as $ownedGroup) {
+                $groupIds[] = $ownedGroup->getId();
+            }
+            $groupIds = array_unique($groupIds);
+        }
+
+        $form = $this->createForm(TaskType::class, $task, [
+            'groupIds' => $groupIds,
+            'isAdmin' => ($userRole === 'ROLE_ADMIN'),
+            'currentUser' => $currentUser,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -644,14 +641,12 @@ final class TSKController extends AbstractController
             $currentUser = $entityManager->getRepository(Users::class)->find($userId);
             $allowed = false;
             if ($currentUser) {
-                $gid = $currentUser->getGroupid();
-                if ($task->getBelongTo() && $task->getBelongTo()->getAssignedBy() && $task->getBelongTo()->getAssignedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getIssuedBy() && $task->getIssuedBy()->getGroupid() === $gid) {
-                    $allowed = true;
-                }
-                if ($task->getAssumedBy() && $task->getAssumedBy()->getGroupid() === $gid) {
+                $missionOwner = $task->getBelongTo() ? $task->getBelongTo()->getAssignedBy() : null;
+                if (
+                    $this->isCoworker($currentUser, $missionOwner) ||
+                    $this->isCoworker($currentUser, $task->getIssuedBy()) ||
+                    $this->isCoworker($currentUser, $task->getAssumedBy())
+                ) {
                     $allowed = true;
                 }
             }
@@ -701,5 +696,31 @@ final class TSKController extends AbstractController
         }
 
         return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function isCoworker(?Users $userA, ?Users $userB): bool
+    {
+        if (!$userA || !$userB) {
+            return false;
+        }
+
+        if ($userA->getId() === $userB->getId()) {
+            return true;
+        }
+
+        foreach ($userA->getGroups() as $group) {
+            if ($group->getMembers()->contains($userB) || ($group->getOwner() && $group->getOwner()->getId() === $userB->getId())) {
+                return true;
+            }
+        }
+
+        // Also check if userA is an owner of a group userB is in
+        foreach ($userB->getGroups() as $group) {
+            if ($group->getOwner() && $group->getOwner()->getId() === $userA->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

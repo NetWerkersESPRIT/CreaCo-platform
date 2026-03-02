@@ -42,6 +42,14 @@ class PublicContractController extends AbstractController
             throw $this->createNotFoundException("Contract not found or invalid link.");
         }
 
+        if ($contract->getStatus() !== 'SENT_TO_COLLABORATOR') {
+            $this->addFlash('error', 'This document is not currently open for signature.');
+            return $this->redirectToRoute('app_public_contract_signature_view', [
+                'contractNumber' => $contractNumber,
+                'token' => $token
+            ]);
+        }
+
         if ($contract->isSignedByCollaborator()) {
             $this->addFlash('warning', 'Document already signed.');
             return $this->redirectToRoute('app_public_contract_signature_view', [

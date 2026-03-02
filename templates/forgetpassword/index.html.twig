@@ -8,8 +8,8 @@
       rel="apple-touch-icon"
       sizes="76x76"
       href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Forget Password</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logocrea.png') }}"/>
+    <title>CreaCo | Forget Password</title>
     <!-- Fonts and icons -->
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
@@ -32,6 +32,14 @@
       defer
       data-site="YOUR_DOMAIN_HERE"
       src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
+    {% if app.environment == 'dev' %}
+    <style>
+      /* Force Symfony Debug Bar Visibility */
+      .sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
+      .sf-display-none { display: block !important; }
+    </style>
+    {% endif %}
   </head>
 
   <body

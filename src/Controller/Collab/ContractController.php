@@ -3,7 +3,9 @@
 namespace App\Controller\Collab;
 
 use App\Entity\Contract;
+use App\Entity\Notification;
 use App\Entity\Users;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Form\RejectionReasonType;
 use App\Repository\ContractRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,8 +37,19 @@ class ContractController extends AbstractController
             throw $this->createAccessDeniedException("Accès refusé aux managers sur cet espace.");
         }
 
+        $status = $request->query->get('status');
+        $search = $request->query->get('search');
+
+        $contracts = $repo->filterContracts($user->getId(), $user->getRole(), $status, $search);
+
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('contract/_list.html.twig', [
+                'contracts' => $contracts,
+            ]);
+        }
+
         return $this->render('contract/index.html.twig', [
-            'contracts' => $repo->findBy(['creator' => $user], ['createdAt' => 'DESC']),
+            'contracts' => $contracts,
         ]);
     }
 
@@ -102,7 +115,7 @@ class ContractController extends AbstractController
     }
 
     #[Route('/{id}/sign', name: 'app_contract_sign', methods: ['POST'])]
-    public function sign(Contract $contract, EntityManagerInterface $em, Request $request): Response
+    public function sign(Contract $contract, EntityManagerInterface $em, Request $request, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -132,13 +145,28 @@ class ContractController extends AbstractController
 
         $em->flush();
 
+        // Notify Revisor (Manager)
+        $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
+        if ($revisor) {
+            $notification = $factory->createNotification();
+            $notification->setMessage("Contract '" . $contract->getTitle() . "' has been signed by the creator.");
+            $notification->setUserId($revisor);
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $notification->setType('contract_signed');
+            $notification->setRelatedId($contract->getId());
+            $notification->setTargetUrl($this->generateUrl('app_manager_contract_show', ['id' => $contract->getId()]));
+            $em->persist($notification);
+            $em->flush();
+        }
+
         $this->addFlash('success', 'Contract signed successfully. It is now active.');
 
         return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
     }
 
     #[Route('/{id}/complete', name: 'app_contract_complete', methods: ['POST'])]
-    public function complete(Contract $contract, EntityManagerInterface $em, Request $request): Response
+    public function complete(Contract $contract, EntityManagerInterface $em, Request $request, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -169,13 +197,28 @@ class ContractController extends AbstractController
         $contract->setStatus('COMPLETED');
         $em->flush();
 
+        // Notify Revisor (Manager)
+        $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
+        if ($revisor) {
+            $notification = $factory->createNotification();
+            $notification->setMessage("Contract '" . $contract->getTitle() . "' has been marked as completed by the creator.");
+            $notification->setUserId($revisor);
+            $notification->setIsRead(false);
+            $notification->setCreatedAt(new \DateTime());
+            $notification->setType('contract_completed');
+            $notification->setRelatedId($contract->getId());
+            $notification->setTargetUrl($this->generateUrl('app_manager_contract_show', ['id' => $contract->getId()]));
+            $em->persist($notification);
+            $em->flush();
+        }
+
         $this->addFlash('success', 'Contract marked as finished.');
 
         return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
     }
 
     #[Route('/{id}/terminate', name: 'app_contract_terminate', methods: ['GET', 'POST'])]
-    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em): Response
+    public function terminate(Contract $contract, Request $request, EntityManagerInterface $em, CollaborationFactory $factory): Response
     {
         $session = $request->getSession();
         $userId = $session->get('user_id');
@@ -212,6 +255,21 @@ class ContractController extends AbstractController
             $contract->setStatus('TERMINATED');
 
             $em->flush();
+
+            // Notify Revisor (Manager)
+            $revisor = $contract->getCollabRequest() ? $contract->getCollabRequest()->getRevisor() : null;
+            if ($revisor) {
+                $notification = $factory->createNotification();
+                $notification->setMessage("Contract '" . $contract->getTitle() . "' has been terminated by the creator.");
+                $notification->setUserId($revisor);
+                $notification->setIsRead(false);
+                $notification->setCreatedAt(new \DateTime());
+                $notification->setType('contract_terminated');
+                $notification->setRelatedId($contract->getId());
+                $notification->setTargetUrl($this->generateUrl('app_manager_contract_show', ['id' => $contract->getId()]));
+                $em->persist($notification);
+                $em->flush();
+            }
 
             $this->addFlash('danger', 'Contract has been terminated.');
 

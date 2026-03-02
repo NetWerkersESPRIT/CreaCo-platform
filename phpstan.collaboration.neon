@@ -1,0 +1,22 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src/Entity/CollabRequest.php
+        - src/Entity/Collaborator.php
+        - src/Controller/Collab
+        - src/Controller/CollabAdminController.php
+        - src/Service/CollaborationAIService.php
+        - src/Repository/CollabRequestRepository.php
+        - src/Repository/CollaboratorRepository.php
+        - src/Form/CollabRequestType.php
+        - src/Form/CollaboratorType.php
+
+services:
+    -
+        class: App\PHPStan\NoEntityInstantiationInControllerRule
+        tags:
+            - phpstan.rules.rule

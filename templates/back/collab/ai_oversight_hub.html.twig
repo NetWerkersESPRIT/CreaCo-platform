@@ -1,0 +1,268 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}AI Oversight Hub - CreaCo Intelligence{% endblock %}
+{% block breadcrumb %}Collaborations / AI Oversight Hub{% endblock %}
+{% block page_title %}Intelligence Center – “AI Oversight Hub”{% endblock %}
+
+{% block body %}
+{% include 'collaborator/_nav.html.twig' %}
+
+<div class="flex flex-wrap -mx-3 mt-6">
+    <!-- KPI Cards -->
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 md:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4 text-center">
+                <div class="inline-block w-12 h-12 bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg text-center shadow-soft-2xl mb-2 flex items-center justify-center">
+                    <i class="ni ni-wand-06 text-white text-lg"></i>
+                </div>
+                <h5 class="mb-0 font-bold" id="kpi-usage">{{ stats.total_ai_usage }}</h5>
+                <p class="mb-0 text-sm font-semibold text-slate-500">AI Assist Usage</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 md:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4 text-center">
+                <div class="inline-block w-12 h-12 bg-gradient-to-tl from-blue-600 to-cyan-400 rounded-lg text-center shadow-soft-2xl mb-2 flex items-center justify-center">
+                    <i class="ni ni-bulb-61 text-white text-lg"></i>
+                </div>
+                <h5 class="mb-0 font-bold" id="kpi-clarity">{{ stats.avg_clarity }}%</h5>
+                <p class="mb-0 text-sm font-semibold text-slate-500">Clarity Average</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 md:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4 text-center">
+                <div class="inline-block w-12 h-12 bg-gradient-to-tl from-green-600 to-lime-400 rounded-lg text-center shadow-soft-2xl mb-2 flex items-center justify-center">
+                    <i class="ni ni-money-coins text-white text-lg"></i>
+                </div>
+                <h5 class="mb-0 font-bold" id="kpi-budget">{{ stats.avg_budget }}%</h5>
+                <p class="mb-0 text-sm font-semibold text-slate-500">Budget Realism</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 md:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4 text-center">
+                <div class="inline-block w-12 h-12 bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-lg text-center shadow-soft-2xl mb-2 flex items-center justify-center">
+                    <i class="ni ni-calendar-grid-58 text-white text-lg"></i>
+                </div>
+                <h5 class="mb-0 font-bold" id="kpi-timeline">{{ stats.avg_timeline }}%</h5>
+                <p class="mb-0 text-sm font-semibold text-slate-500">Timeline Feasibility</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-wrap -mx-3">
+    <!-- Quality Analytics Table -->
+    <div class="w-full max-w-full px-3 lg:w-8/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl flex justify-between items-center">
+                <h6>Collab Request Quality Analytics</h6>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-tight">{{ stats.requests_analyzed }} Missions Analyzed</span>
+            </div>
+            <div class="flex-auto px-0 pt-0 pb-2">
+                <div class="p-0 overflow-x-auto">
+                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead class="align-bottom text-left">
+                            <tr>
+                                <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Collaboration</th>
+                                <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Scores</th>
+                                <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">AI Usage</th>
+                                <th class="px-6 py-3 font-bold uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-tight-soft opacity-70">Acceptance %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0 cursor-pointer" onclick="toggleDetails({{ req.id }})">
+                                <td class="p-2 align-middle bg-transparent shadow-transparent">
+                                    <div class="flex px-4 py-1">
+                                        <div class="flex flex-col justify-center">
+                                            <h6 class="mb-0 text-sm leading-normal">{{ req.title }}</h6>
+                                            <p class="mb-0 text-xs leading-tight text-slate-400">By {{ req.creator ? req.creator.username : 'Guest' }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-2 align-middle bg-transparent shadow-transparent">
+                                    <div class="flex flex-col gap-1 px-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xxs font-bold text-slate-400 uppercase">Clarity</span>
+                                            <span class="text-xxs font-bold text-slate-700">{{ req.aiClarityScore|default(0) }}%</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xxs font-bold text-slate-400 uppercase">Budget</span>
+                                            <span class="text-xxs font-bold text-slate-700">{{ req.aiBudgetRealismScore|default(0) }}%</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-2 text-center align-middle bg-transparent shadow-transparent">
+                                    <span class="text-xs font-semibold leading-tight px-2 py-1 rounded-pill {{ req.aiUsageCount > 0 ? 'bg-fuchsia-100 text-fuchsia-800' : 'bg-gray-100 text-gray-800' }}">
+                                        {{ req.aiUsageCount }} assists
+                                    </span>
+                                </td>
+                                <td class="p-2 align-middle bg-transparent shadow-transparent">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 max-w-[60px]">
+                                            <div class="h-1.5 rounded-full bg-gradient-to-r {{ req.getOverallAcceptancePrediction() > 70 ? 'from-green-400 to-green-600' : req.getOverallAcceptancePrediction() > 40 ? 'from-yellow-400 to-yellow-600' : 'from-red-400 to-red-600' }}" style="width: {{ req.getOverallAcceptancePrediction() }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-bold">{{ req.getOverallAcceptancePrediction() }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Collapsible Details Row -->
+                            <tr id="details-{{ req.id }}" class="hidden bg-slate-50 border-b border-gray-100">
+                                <td colspan="4" class="p-6">
+                                    <div class="flex flex-wrap -mx-3">
+                                        <div class="w-full lg:w-1/2 px-3 mb-4 lg:mb-0">
+                                            <h6 class="text-xs font-bold uppercase text-slate-400 mb-3">AI Transformation Analytics</h6>
+                                            {% if req.aiUsageCount > 0 %}
+                                            <div class="relative p-4 bg-white border border-gray-200 rounded-xl">
+                                                <div class="flex flex-col gap-4">
+                                                    <div>
+                                                        <span class="text-xxs font-bold uppercase text-red-400">Original (Before)</span>
+                                                        <p class="text-xs italic text-slate-500 mt-1">"{{ req.aiOriginalContent|default('No record found') }}"</p>
+                                                    </div>
+                                                    <div class="border-t border-dashed border-gray-200 my-2"></div>
+                                                    <div>
+                                                        <span class="text-xxs font-bold uppercase text-green-500">Formal Rephrasing (After)</span>
+                                                        <p class="text-xs font-semibold text-slate-700 mt-1">"{{ req.aiRephrasedContent|default('No record found') }}"</p>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 pt-4 border-t border-gray-100">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-xs font-bold">Language Improvement Score</span>
+                                                        <span class="text-sm font-black text-fuchsia-600">+42%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% else %}
+                                            <div class="p-4 bg-white border border-dashed border-gray-300 rounded-xl text-center">
+                                                <p class="text-xs text-slate-400">No AI Assist usage recorded for this request.</p>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="w-full lg:w-1/2 px-3">
+                                            <h6 class="text-xs font-bold uppercase text-slate-400 mb-3">Feasibility & Reliability</h6>
+                                            <div class="p-4 bg-white border border-gray-200 rounded-xl h-full">
+                                                <div class="flex items-center mb-4">
+                                                    <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center mr-3 text-orange-600">
+                                                        <i class="ni ni-chart-bar-32"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="text-sm mb-0">Timeline Reliability</h6>
+                                                        <p class="text-xxs text-slate-400 uppercase">Confidence Meter</p>
+                                                    </div>
+                                                    <span class="ml-auto text-sm font-bold">{{ req.aiTimelineFeasibilityScore|default(0) }}%</span>
+                                                </div>
+                                                <p class="text-xs leading-relaxed text-slate-600">
+                                                    The AI estimates a <strong>{{ req.aiTimelineFeasibilityScore|default(50) > 60 ? 'high' : 'moderate' }}</strong> likelihood that this project can be completed within the specified dates ({{ req.startDate|date('d/m') }} - {{ req.endDate|date('d/m') }}).
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flagged Proposals Sidebar -->
+    <div class="w-full max-w-full px-3 lg:w-4/12">
+        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-slate-800 shadow-soft-xl rounded-2xl bg-clip-border text-white">
+            <div class="p-6 pb-0 mb-0 border-b-0 rounded-t-2xl">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-tl from-red-600 to-orange-400 flex items-center justify-center mr-3 shadow-soft-2xl animate-pulse">
+                        <i class="ni ni-notification-70 text-white"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white mb-0">Flagged Proposals</h6>
+                        <p class="text-xs text-slate-300 font-semibold uppercase tracking-tight">AI Automated Alert System</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-auto p-6">
+                {% if flagged_requests|length > 0 %}
+                <div class="space-y-4">
+                    {% for freq in flagged_requests %}
+                    <div class="p-4 rounded-xl bg-slate-700/50 border border-slate-600 hover:border-orange-400 transition-all group">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xxs font-black px-2 py-1 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 uppercase">{{ freq.aiFlags[0].type|default('RISK_DETECTED') }}</span>
+                            <span class="text-xxs font-bold text-slate-400">{{ freq.createdAt|date('d M') }}</span>
+                        </div>
+                        <h6 class="text-sm text-white mb-1">{{ freq.title }}</h6>
+                        <p class="text-xs text-slate-400 mb-3 line-clamp-2">"{{ freq.aiFlags[0].detail|default('Intelligence engine detected inconsistencies in this proposal.') }}"</p>
+                        
+                        <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-600">
+                            <button class="px-3 py-1 text-xxs font-bold rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all">Correction Request</button>
+                            <a href="{{ path('app_manager_collab_request_show', {id: freq.id}) }}" class="px-3 py-1 text-xxs font-bold rounded-lg bg-fuchsia-600 hover:bg-fuchsia-700 text-white transition-all">Direct Edit</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="py-12 text-center">
+                    <i class="ni ni-check-bold text-green-400 text-3xl mb-3"></i>
+                    <p class="text-slate-400 text-sm">All proposals currently meet the intelligence quality standards. No active flags.</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-8 p-4 bg-gradient-to-br from-fuchsia-600/20 to-purple-600/20 rounded-xl border border-white/10">
+                    <h6 class="text-xs font-black uppercase text-fuchsia-400 mb-2">AI Oversight Summary</h6>
+                    <ul class="text-xs text-slate-300 space-y-2 mb-0 list-none p-0">
+                        <li class="flex items-center"><i class="ni ni-tag mr-2 text-fuchsia-500"></i> Most common flag: <strong>Vague Payment</strong></li>
+                        <li class="flex items-center"><i class="ni ni-chart-pie-35 mr-2 text-fuchsia-500"></i> Global acceptance trend: <strong>Up 12%</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+function toggleDetails(requestId) {
+    const detailsRow = document.getElementById('details-' + requestId);
+    if (detailsRow.classList.contains('hidden')) {
+        // Close others first (accordion style)
+        document.querySelectorAll('[id^="details-"]').forEach(row => row.classList.add('hidden'));
+        detailsRow.classList.remove('hidden');
+    } else {
+        detailsRow.classList.add('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate KPI counters
+    animateValue("kpi-usage", 0, {{ stats.total_ai_usage }}, 1000);
+    animateValue("kpi-clarity", 0, {{ stats.avg_clarity }}, 1000, '%');
+    animateValue("kpi-budget", 0, {{ stats.avg_budget }}, 1000, '%');
+    animateValue("kpi-timeline", 0, {{ stats.avg_timeline }}, 1000, '%');
+});
+
+function animateValue(id, start, end, duration, suffix = '') {
+    const obj = document.getElementById(id);
+    if (!obj) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+</script>
+{% endblock %}
+
+{% endblock %}

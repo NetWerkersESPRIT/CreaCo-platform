@@ -42,10 +42,12 @@ class CollabRequestType extends AbstractType
             ->add('startDate', DateType::class, [
                 'label' => 'Start date',
                 'widget' => 'single_text',
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
             ->add('endDate', DateType::class, [
                 'label' => 'End date',
                 'widget' => 'single_text',
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
             ->add('deliverables', TextareaType::class, [
                 'label' => 'Expected deliverables',

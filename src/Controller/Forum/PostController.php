@@ -157,10 +157,17 @@ if ($pdfFile) {
                 $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
 
                 // 2. Content Moderation
-                $content = trim((string)$post->getContent());
-                $correctedContent = $textGears->correct($content);
-                $checkContent = $profanity->check($correctedContent);
-                $post->setContent($checkContent['filteredText'] ?? $correctedContent);
+                $content = (string)$post->getContent();
+                $isHtml = $content !== strip_tags($content);
+                
+                if ($isHtml) {
+                    $correctedContent = $content; // Skip correction for HTML to avoid breaking tags
+                } else {
+                    $correctedContent = $textGears->correct(trim($content));
+                }
+
+                $checkContent = $profanity->check(strip_tags($correctedContent)); // Check plain text for profanity
+                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
 
                 // 3. Aggregate Moderation Status
                 $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
@@ -329,10 +336,17 @@ if ($pdfFile) {
                 $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
 
                 // 2. Content Moderation
-                $content = trim((string)$post->getContent());
-                $correctedContent = $textGears->correct($content);
-                $checkContent = $profanity->check($correctedContent);
-                $post->setContent($checkContent['filteredText'] ?? $correctedContent);
+                $content = (string)$post->getContent();
+                $isHtml = $content !== strip_tags($content);
+
+                if ($isHtml) {
+                    $correctedContent = $content;
+                } else {
+                    $correctedContent = $textGears->correct(trim($content));
+                }
+
+                $checkContent = $profanity->check(strip_tags($correctedContent));
+                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
 
                 // 3. Aggregate Moderation Status
                 $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);

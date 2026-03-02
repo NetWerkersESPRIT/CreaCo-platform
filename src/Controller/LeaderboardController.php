@@ -39,6 +39,7 @@ final class LeaderboardController extends AbstractController
         $userStats = null;
         $userRank = null;
         $userBadges = [];
+        $allBadges = [];
         if ($currentUser) {
             $userStats = $gamificationService->getUserStats($currentUser);
 
@@ -52,6 +53,43 @@ final class LeaderboardController extends AbstractController
 
             $userBadges = $gamificationService->getUserBadges($currentUser);
         }
+        // load all badge definitions for sticker display
+        $badgeRepo = $entityManager->getRepository(\App\Entity\Badge::class);
+        $allBadgeEntities = $badgeRepo->findAll();
+
+        // map codes to filenames in uploads folder
+        $fileMap = [
+            'explorateur' => 'explorer.png',
+            'finisseur' => 'finisher.png',
+            'maitre_cours' => 'course_master.png',
+            'janvier_streaker' => 'january.png',
+            'février_streaker' => 'february.png',
+            'mars_streaker' => 'march.png',
+            'avril_streaker' => 'april.png',
+            'mai_streaker' => 'may.png',
+            'juin_streaker' => 'june.png',
+            'juillet_streaker' => 'july.png',
+            'août_streaker' => 'august.png',
+            'septembre_streaker' => 'september.png',
+            'octobre_streaker' => 'october.png',
+            'novembre_streaker' => 'november.png',
+            'décembre_streaker' => 'december.png',
+        ];
+
+        // Add file mapping to user badges
+        foreach ($userBadges as &$badge) {
+            $badge['file'] = $fileMap[$badge['code']] ?? 'default.png';
+        }
+
+        foreach ($allBadgeEntities as $badgeEntity) {
+            $code = $badgeEntity->getCode();
+            $file = $fileMap[$code] ?? preg_replace('/[^a-z0-9_\-]/', '', str_replace(' ', '_', strtolower($code))) . '.png';
+            $allBadges[] = [
+                'code' => $code,
+                'name' => $badgeEntity->getName(),
+                'file' => $file,
+            ];
+        }
 
         return $this->render('front/leaderboard/index.html.twig', [
             'leaderboard' => $leaderboard,
@@ -59,6 +97,7 @@ final class LeaderboardController extends AbstractController
             'userStats' => $userStats,
             'userRank' => $userRank,
             'userBadges' => $userBadges,
+            'allBadges' => $allBadges,
         ]);
     }
 }

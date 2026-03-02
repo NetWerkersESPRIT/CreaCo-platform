@@ -1,0 +1,14 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+parameters:
+    level: 9 # Niveau d'analyse (de 0 à 9, où 9 est le plus strict)
+    paths:
+        - src/Controller/EventController.php
+        - src/Entity/Event.php
+        - src/EventListener
+        - src/Form/EventType.php
+        - src/Repository/EventRepository.php
+        - src/Service/EventDescGenerator.php
+    excludePaths:
+        - tests/* # Exclure les fichiers de test

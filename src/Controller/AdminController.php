@@ -10,12 +10,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AdminController extends AbstractController
 {
     #[Route('/admin/dashboard', name: 'app_admin_dashboard')]
     public function dashboard(
-        Request $request, 
+        Request $request,
         EntityManagerInterface $em,
         \App\Repository\UsersRepository $userRepo,
         \App\Repository\IdeaRepository $ideaRepo,
@@ -39,13 +40,13 @@ final class AdminController extends AbstractController
         $thisYear = new \DateTime('first day of January this year');
 
         // Helper to get stats
-        $getStats = function($repo, $dateField = 'createdAt') use ($today, $thisMonth, $thisYear) {
+        $getStats = function ($repo, $dateField = 'createdAt') use ($today, $thisMonth, $thisYear) {
             $qb = $repo->createQueryBuilder('e');
             return [
                 'total' => (int) $repo->createQueryBuilder('e')->select('count(e.id)')->getQuery()->getSingleScalarResult(),
                 'today' => (int) $repo->createQueryBuilder('e')->select('count(e.id)')->where("e.$dateField >= :today")->setParameter('today', $today)->getQuery()->getSingleScalarResult(),
                 'month' => (int) $repo->createQueryBuilder('e')->select('count(e.id)')->where("e.$dateField >= :month")->setParameter('month', $thisMonth)->getQuery()->getSingleScalarResult(),
-                'year'  => (int) $repo->createQueryBuilder('e')->select('count(e.id)')->where("e.$dateField >= :year")->setParameter('year', $thisYear)->getQuery()->getSingleScalarResult(),
+                'year' => (int) $repo->createQueryBuilder('e')->select('count(e.id)')->where("e.$dateField >= :year")->setParameter('year', $thisYear)->getQuery()->getSingleScalarResult(),
             ];
         };
 
@@ -72,11 +73,11 @@ final class AdminController extends AbstractController
         for ($i = 6; $i >= 0; $i--) {
             $date = (new \DateTime())->modify("-$i days");
             $forumHistoricalLabels[] = $date->format('D d M');
-            
+
             $dayStart = (clone $date)->setTime(0, 0, 0);
             $dayEnd = (clone $date)->setTime(23, 59, 59);
 
-            $forumHistoricalPosts[] = (int)$postRepo->createQueryBuilder('p')
+            $forumHistoricalPosts[] = (int) $postRepo->createQueryBuilder('p')
                 ->select('count(p.id)')
                 ->where('p.createdAt BETWEEN :start AND :end')
                 ->setParameter('start', $dayStart)
@@ -84,7 +85,7 @@ final class AdminController extends AbstractController
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            $forumHistoricalComments[] = (int)$commentRepo->createQueryBuilder('c')
+            $forumHistoricalComments[] = (int) $commentRepo->createQueryBuilder('c')
                 ->select('count(c.id)')
                 ->where('c.createdAt BETWEEN :start AND :end')
                 ->setParameter('start', $dayStart)
@@ -92,7 +93,7 @@ final class AdminController extends AbstractController
                 ->getQuery()
                 ->getSingleScalarResult();
         }
-        
+
         return $this->render('admin/dashboard.html.twig', [
             'recentUsers' => $recentUsers,
             'workflowStats' => $workflowStats,
@@ -133,7 +134,8 @@ final class AdminController extends AbstractController
     public function edit(
         Users $user,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
     ): Response {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             return $this->redirectToRoute('app_auth');
@@ -149,6 +151,9 @@ final class AdminController extends AbstractController
             $newPassword = $form->get('password')->getData();
             if (empty($newPassword)) {
                 $user->setPassword($oldPassword);
+            } else {
+                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($hashedPassword);
             }
             $em->flush();
 

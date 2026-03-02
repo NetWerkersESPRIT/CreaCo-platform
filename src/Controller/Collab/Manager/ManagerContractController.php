@@ -3,6 +3,8 @@
 namespace App\Controller\Collab\Manager;
 
 use App\Entity\Contract;
+use App\Entity\Notification;
+use App\Service\Collaboration\CollaborationFactory;
 use App\Entity\Users;
 use App\Form\ContractType;
 use App\Repository\ContractRepository;
@@ -13,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\DocuSignService;
 
 #[Route('/manager/contract')]
 class ManagerContractController extends AbstractController
@@ -28,8 +31,19 @@ class ManagerContractController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
+        $status = $request->query->get('status');
+        $search = $request->query->get('search');
+
+        $contracts = $repo->filterContracts($userId, $userRole, $status, $search);
+
+        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->render('manager/contract/_list.html.twig', [
+                'contracts' => $contracts,
+            ]);
+        }
+
         return $this->render('manager/contract/index.html.twig', [
-            'contracts' => $repo->findForRevisor($userId),
+            'contracts' => $contracts,
         ]);
     }
 
@@ -87,9 +101,17 @@ class ManagerContractController extends AbstractController
         ]);
     }
 
+    // ...
+
     #[Route('/{id}/send', name: 'app_manager_contract_send', methods: ['POST'])]
-    public function send(Contract $contract, EntityManagerInterface $em, Request $request): Response
-    {
+    public function send(
+        Contract $contract,
+        EntityManagerInterface $em,
+        Request $request,
+        DocuSignService $docuSignService,
+        \App\Service\EmailService $emailService,
+        CollaborationFactory $factory
+    ): Response {
         $session = $request->getSession();
         $userRole = $session->get('user_role');
         $userId = $session->get('user_id');
@@ -109,11 +131,52 @@ class ManagerContractController extends AbstractController
             return $this->redirectToRoute('app_manager_contract_index');
         }
 
-        $contract->setStatus('SENT_TO_COLLABORATOR');
-        $contract->setSentAt(new \DateTime());
-        $em->flush();
+        // Generate absolute URL for return
+        $returnUrl = $this->generateUrl('app_public_contract_signature_view', [
+            'contractNumber' => $contract->getContractNumber(),
+            'token' => $contract->getSignatureToken()
+        ], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $this->addFlash('success', 'The contract has been sent for signature.');
+        try {
+            // Attempt to send via DocuSign
+            $envelopeId = $docuSignService->sendContractToCollaborator(
+                $contract->getCollaborator()->getEmail(),
+                $contract->getCollaborator()->getName(),
+                $contract->getTitle(),
+                $contract->getTerms(),
+                $contract->getContractNumber(),
+                $returnUrl
+            );
+
+            // Successfully sent
+            $contract->setStatus('SENT_TO_COLLABORATOR');
+            $contract->setSentAt(new \DateTime());
+            $contract->setDocusignEnvelopeId($envelopeId);
+            $em->flush();
+
+            // SEND FORMAL BRANDED EMAIL WITH CONTEXT
+            $emailService->sendFormalContractNotice($contract);
+
+            // Notify Creator
+            $creator = $contract->getCreator();
+            if ($creator) {
+                $notification = $factory->createNotification();
+                $notification->setMessage("A contract for '" . $contract->getTitle() . "' has been sent to the partner for signature.");
+                $notification->setUserId($creator);
+                $notification->setIsRead(false);
+                $notification->setCreatedAt(new \DateTime());
+                $notification->setType('contract_sent');
+                $notification->setRelatedId($contract->getId());
+                $notification->setTargetUrl($this->generateUrl('app_contract_show', ['id' => $contract->getId()]));
+                $em->persist($notification);
+                $em->flush();
+            }
+
+            $this->addFlash('success', 'The contract and formal notice have been sent successfully to the partner.');
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Failed to dispatch document or notice: ' . $e->getMessage());
+        }
+
         return $this->redirectToRoute('app_manager_contract_index');
     }
 }
