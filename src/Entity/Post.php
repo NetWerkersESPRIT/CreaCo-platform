@@ -104,7 +104,7 @@ class Post
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $comments;
 
     #[ORM\OneToOne(mappedBy: 'post', targetEntity: Conversation::class, cascade: ['persist', 'remove'])]
@@ -122,7 +122,7 @@ class Post
     /**
      * @var Collection<int, PostReaction>
      */
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reactions;
 
     #[ORM\Column(nullable: true, options: ["default" => 0])]

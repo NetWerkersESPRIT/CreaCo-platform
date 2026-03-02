@@ -49,7 +49,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Reservation>
      */
-    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reservations;
 
     /**
@@ -115,7 +115,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, IdeaUsage>
      */
-    #[ORM\OneToMany(mappedBy: 'User', targetEntity: IdeaUsage::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'User', targetEntity: IdeaUsage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $ideaUsages;
 
     /**
@@ -142,7 +142,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, PostReaction>
      */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reactions;
 
     public function __construct()

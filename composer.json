@@ -7,7 +7,6 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "ahmed-bhs/doctrine-doctor": "^1.0",
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
@@ -57,8 +56,7 @@
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^2.9",
-        "webmozart/assert": "1.11"
+        "vich/uploader-bundle": "^2.9"
     },
     "config": {
         "allow-plugins": {
@@ -66,7 +64,10 @@
             "symfony/flex": true,
             "symfony/runtime": true
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2.12"
+        }
     },
     "autoload": {
         "psr-4": {
@@ -127,6 +128,7 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*",
+        "webmozart/assert": "^1.11",
         "zenstruck/foundry": "^2.9"
     }
 }
