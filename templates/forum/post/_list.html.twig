@@ -108,22 +108,22 @@
 					onclick="handleMainReaction({{ post.id }})" 
 					class="flex items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all border-0 shadow-none cursor-pointer {{ userReaction ? 'text-fuchsia-600 active-glow' : 'text-slate-600' }}">
 
-					{% if userReaction == 'like' %}
+					{% if userReaction|lower == 'like' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5 h-5 mr-2" alt="👍">
 						<span class="text-xs font-bold">Like</span>
-					{% elseif userReaction == 'love' %}
+					{% elseif userReaction|lower == 'love' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-5 h-5 mr-2" alt="❤️">
 						<span class="text-xs font-bold">Love</span>
-					{% elseif userReaction == 'haha' %}
+					{% elseif userReaction|lower == 'haha' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-5 h-5 mr-2" alt="😂">
 						<span class="text-xs font-bold">Haha</span>
-					{% elseif userReaction == 'wow' %}
+					{% elseif userReaction|lower == 'wow' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-5 h-5 mr-2" alt="😮">
 						<span class="text-xs font-bold">Wow</span>
-					{% elseif userReaction == 'sad' %}
+					{% elseif userReaction|lower == 'sad' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-5 h-5 mr-2" alt="😢">
 						<span class="text-xs font-bold">Sad</span>
-					{% elseif userReaction == 'angry' %}
+					{% elseif userReaction|lower == 'angry' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-5 h-5 mr-2" alt="😡">
 						<span class="text-xs font-bold">Angry</span>
 					{% else %}

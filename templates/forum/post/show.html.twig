@@ -247,7 +247,14 @@
 							<!-- Comments Count -->
 							<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
 								<i class="far fa-comment-dots text-slate-400"></i>
-								<span>{{ post.comments|length }}
+								<span>
+									{% set count = 0 %}
+									{% for c in post.comments %}
+										{% if c.status in ['visible', 'solution'] or (app_user and c.user == app_user) or isAdmin %}
+											{% set count = count + 1 %}
+										{% endif %}
+									{% endfor %}
+									{{ count }}
 									Replies</span>
 							</div>
 						</div>
@@ -366,6 +373,13 @@
 								Solution
 							</span>
 						{% endif %}
+
+						{% if comment.status == 'pending' %}
+							<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-orange-600 bg-orange-100 rounded-lg uppercase">
+								<i class="fas fa-clock mr-1"></i>
+								Pending Approval
+							</span>
+						{% endif %}
 					</div>
 
 					<div class="text-sm text-slate-600 leading-relaxed font-normal">
@@ -436,7 +450,9 @@
 					{% if comment.replies|length > 0 %}
 						<div class="ml-6 mt-2">
 							{% for reply in comment.replies %}
-								{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+								{% if reply.status in ['visible', 'solution'] or (app_user and reply.user == app_user) or isAdmin %}
+									{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+								{% endif %}
 							{% endfor %}
 						</div>
 					{% endif %}

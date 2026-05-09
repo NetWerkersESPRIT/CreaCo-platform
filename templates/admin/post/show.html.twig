@@ -30,9 +30,15 @@
 									<i class="fas fa-calendar-alt"></i>
 									{{ post.createdAt|date('F j, Y, g:i a') }}
 								</span>
-								<span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-lg text-[10px]">
-									{{ post.status|upper }}
-								</span>
+								{% if post.status == 'published' %}
+									<span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-lg text-[10px]">
+										PUBLISHED
+									</span>
+								{% else %}
+									<span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-lg text-[10px]">
+										{{ post.status|upper }}
+									</span>
+								{% endif %}
 								{% if post.isSpam %}
 									<span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-lg text-[10px]">
 										<i class="fas fa-robot mr-1"></i>
@@ -87,16 +93,29 @@
 
 					<!-- Footer: Moderation Actions -->
 					<div class="pt-6 border-t border-gray-100 flex flex-wrap items-center justify-end gap-4">
+						{% if post.status == 'published' %}
+							<form action="{{ path('admin_post_refuse', {'id': post.id}) }}" method="POST" class="m-0" id="retract-post-form">
+								<input type="hidden" name="rejection_reason" value="Retracted for investigation (Spam flag)">
+								<button type="button" onclick="confirmAction('Retract Post?', 'This post is already published. Do you want to move it back to moderation?', 'warning', 'Yes, Retract').then(confirmed => { if(confirmed) document.getElementById('retract-post-form').submit(); })" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-orange-500 to-yellow-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
+									<i class="fas fa-undo mr-2"></i>
+									Retract to Pending
+								</button>
+							</form>
+						{% endif %}
+
 						<button type="button" onclick="openRefusalModal()" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-red-600 to-rose-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
 							<i class="fas fa-times-circle mr-2"></i>
 							Refuse Post
 						</button>
-						<form action="{{ path('admin_post_approve', {'id': post.id}) }}" method="POST" class="m-0" id="approve-post-form">
-							<button type="button" onclick="confirmAction('Approve Post?', 'Are you sure you want to approve this post? It will become visible to all users.', 'question', 'Yes, Approve').then(confirmed => { if(confirmed) document.getElementById('approve-post-form').submit(); })" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
-								<i class="fas fa-check-circle mr-2"></i>
-								Approve Post
-							</button>
-						</form>
+
+						{% if post.status != 'published' %}
+							<form action="{{ path('admin_post_approve', {'id': post.id}) }}" method="POST" class="m-0" id="approve-post-form">
+								<button type="button" onclick="confirmAction('Approve Post?', 'Are you sure you want to approve this post? It will become visible to all users.', 'question', 'Yes, Approve').then(confirmed => { if(confirmed) document.getElementById('approve-post-form').submit(); })" class="px-8 py-3 text-xs font-bold text-white bg-gradient-to-tl from-green-600 to-lime-400 rounded-xl shadow-soft-md hover:scale-105 transition-all uppercase border-0 cursor-pointer">
+									<i class="fas fa-check-circle mr-2"></i>
+									Approve Post
+								</button>
+							</form>
+						{% endif %}
 					</div>
 				</div>
 			</div>

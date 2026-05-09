@@ -41,7 +41,7 @@ class Post
         choices: ["draft", "published", "solved", "pending", "refused"],
         message: "Statut invalide. Choisis: draft, published, solved, pending, refused."
     )]
-    private string $status = "published";
+    private string $status = "pending";
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $refusalReason = null;
