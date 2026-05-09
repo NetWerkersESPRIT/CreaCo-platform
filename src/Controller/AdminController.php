@@ -148,11 +148,13 @@ final class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var string|null $newPassword */
             $newPassword = $form->get('password')->getData();
             if (empty($newPassword)) {
                 $user->setPassword($oldPassword);
             } else {
-                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                // Ensure $newPassword is a string for hashPassword
+                $hashedPassword = $passwordHasher->hashPassword($user, (string) $newPassword);
                 $user->setPassword($hashedPassword);
             }
             $em->flush();

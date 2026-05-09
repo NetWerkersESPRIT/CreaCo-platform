@@ -17,10 +17,10 @@ class IdeaRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array<string, int> $weights
+     * @param array<string, float|int> $weights
      * @param array<int> $trendingIds
      * @param array<int> $usedIds
-     * @return array<int, Idea>
+     * @return array<Idea>
      */
     public function findRankedIdeas(array $weights, array $trendingIds, array $usedIds, int $limit): array
     {
@@ -51,12 +51,15 @@ class IdeaRepository extends ServiceEntityRepository
         }
 
         // 3. Add the calculated score to the selection and sort by it
-        return $qb->addSelect("($scoreFormula) as HIDDEN score")
+        /** @var array<Idea> $result */
+        $result = $qb->addSelect("($scoreFormula) as HIDDEN score")
             ->orderBy('score', 'DESC')
             ->addOrderBy('i.id', 'DESC') // Secondary sort for consistency
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
     //    /**

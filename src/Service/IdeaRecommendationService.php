@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Users;
+use App\Entity\Idea;
 use App\Repository\IdeaRepository;
 use Doctrine\DBAL\Connection;
 
@@ -14,6 +15,9 @@ class IdeaRecommendationService
     ) {
     }
 
+    /**
+     * @return array<Idea>
+     */
     public function getHybridRecommendations(Users $user, int $limit = 10): array
     {
         // 1. Get User's Top Categories (The "Personal" Score)
@@ -36,6 +40,9 @@ class IdeaRecommendationService
         );
     }
 
+    /**
+     * @return array<Idea>
+     */
     public function getTrendingIdeas(int $limit = 5, string $period = 'week'): array
     {
         $days = match ($period) {
@@ -71,6 +78,9 @@ class IdeaRecommendationService
         return $orderedIdeas;
     }
 
+    /**
+     * @return array<string, float|int>
+     */
     private function getUserCategoryWeights(Users $user): array
     {
         $sql = "SELECT i.category, COUNT(iu.id) as weight
@@ -79,7 +89,7 @@ JOIN idea_usage iu ON iu.idea_id = i.id
 WHERE iu.user_id = :userId
 GROUP BY i.category";
 
-        /** @var array<string, int> $result */
+        /** @var array<string, float|int> $result */
         $result = $this->connection->fetchAllKeyValue($sql, ['userId' => $user->getId()]);
         return $result;
     }
