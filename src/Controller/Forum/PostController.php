@@ -43,13 +43,9 @@ final class PostController extends AbstractController
             $qb->where('p.title LIKE :query OR p.content LIKE :query')
                 ->setParameter('query', '%' . $query . '%');
             
-            if ($isAdmin) {
-                $qb->andWhere('p.status IN (:statuses)')
-                    ->setParameter('statuses', ['published', 'solved', 'pending']);
-            } else {
-                $qb->andWhere('p.status IN (:statuses)')
-                    ->setParameter('statuses', ['published', 'solved']);
-            }
+            // Only show published and solved posts to regular users
+            $qb->andWhere('p.status IN (:statuses)')
+                ->setParameter('statuses', ['published', 'solved']);
             
             // Apply pinning logic even in search if possible, or just date
             $posts = $qb->orderBy('p.pinned', 'DESC')
@@ -57,14 +53,8 @@ final class PostController extends AbstractController
                        ->getQuery()
                        ->getResult();
         } else {
-            if ($isAdmin) {
-                $posts = $repo->findBy(
-                    ['status' => ['published', 'solved', 'pending']], 
-                    ['pinned' => 'DESC', 'createdAt' => 'DESC']
-                );
-            } else {
-                $posts = $repo->findPublishedPinnedFirst();
-            }
+            // Only show published posts to regular users
+            $posts = $repo->findPublishedPinnedFirst();
         }
 
         $this->checkModerationNotifications($entityManager);
@@ -257,7 +247,7 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         // Block access to pending/refused posts for unauthorized users
-        if (!in_array($post->getStatus(), ['published', 'solved']) && !$isAdmin && !$isOwner) {
+        if (in_array($post->getStatus(), ['pending', 'refused']) && !$isAdmin && !$isOwner) {
             throw $this->createAccessDeniedException('This post is pending moderation or has been refused.');
         }
 
@@ -267,12 +257,31 @@ if ($pdfFile) {
 
         $this->checkModerationNotifications($em);
 
+        $commentRepo = $em->getRepository(Comment::class);
+        $qb = $commentRepo->createQueryBuilder('c')
+            ->where('c.post = :post')
+            ->andWhere('c.parentComment IS NULL')
+            ->setParameter('post', $post)
+            ->orderBy('c.createdAt', 'ASC');
+
+        if (!$isAdmin) {
+            if ($user) {
+                $qb->andWhere('c.status IN (:visible_statuses) OR (c.user = :current_user AND c.status = :pending_status)')
+                   ->setParameter('visible_statuses', ['visible', 'solution'])
+                   ->setParameter('current_user', $user)
+                   ->setParameter('pending_status', 'pending');
+            } else {
+                $qb->andWhere('c.status IN (:visible_statuses)')
+                   ->setParameter('visible_statuses', ['visible', 'solution']);
+            }
+        } else {
+            $qb->andWhere('c.status IN (:all_statuses)')
+               ->setParameter('all_statuses', ['visible', 'solution', 'pending', 'hidden']);
+        }
+
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
-            'comments' => $em->getRepository(Comment::class)->findBy(
-                ['post' => $post, 'parentComment' => null, 'status' => ['visible', 'solution']],
-                ['createdAt' => 'ASC']
-            ),
+            'comments' => $qb->getQuery()->getResult(),
             'commentForm' => $commentForm->createView(),
         ]);
     }
