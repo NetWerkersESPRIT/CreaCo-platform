@@ -373,6 +373,13 @@
 					</div>
 
 					<div class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+						{% set isCommentLiked = app_user ? comment.isLikedByUser(app_user) : false %}
+						<button onclick="handleCommentLike({{ comment.id }})" id="comment-like-btn-{{ comment.id }}" class="bg-transparent border-0 p-0 text-xs font-semibold uppercase cursor-pointer transition-all flex items-center {{ isCommentLiked ? 'text-fuchsia-600' : 'text-slate-500 hover:text-fuchsia-600' }}">
+							<i class="{{ isCommentLiked ? 'fas' : 'far' }} fa-heart mr-2 transition-colors"></i>
+							<span>Like</span>
+							<span id="comment-like-count-{{ comment.id }}" class="ml-1 text-[10px]">{{ comment.likes > 0 ? comment.likes : '' }}</span>
+						</button>
+
 						{% if not post.isCommentLocked and app_user %}
 							<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center">
 								<i class="fas fa-reply mr-2 transition-colors"></i>
@@ -653,6 +660,44 @@ btn.classList.add('text-slate-600');
 } catch (err) {
 console.error('Reaction failed', err);
 }
+}
+
+async function handleCommentLike(commentId) {
+	const btn = document.getElementById(`comment-like-btn-${commentId}`);
+	const countSpan = document.getElementById(`comment-like-count-${commentId}`);
+	const icon = btn.querySelector('i');
+
+	try {
+		const response = await fetch(`/comment/${commentId}/like`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (response.status === 401) {
+			window.location.href = "{{ path('app_auth') }}";
+			return;
+		}
+
+		const data = await response.json();
+		if (data.success) {
+			countSpan.textContent = data.likes > 0 ? data.likes : '';
+			if (data.isLiked) {
+				btn.classList.add('text-fuchsia-600');
+				btn.classList.remove('text-slate-500', 'hover:text-fuchsia-600');
+				icon.classList.remove('far');
+				icon.classList.add('fas');
+			} else {
+				btn.classList.remove('text-fuchsia-600');
+				btn.classList.add('text-slate-500', 'hover:text-fuchsia-600');
+				icon.classList.remove('fas');
+				icon.classList.add('far');
+			}
+		}
+	} catch (err) {
+		console.error('Comment like failed', err);
+	}
 }
 
 // Long-press support for mobile

@@ -5,6 +5,7 @@ namespace App\Controller\Forum;
 use App\Entity\Comment;
 use App\Entity\Post;
 use App\Entity\Users;
+use App\Entity\CommentLike;
 use App\Form\CommentType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -198,5 +199,41 @@ try {
         }
 
         return $this->redirectToRoute('app_post_show', ['id' => $postId]);
+    }
+
+    #[Route('/comment/{id}/like', name: 'app_comment_like', methods: ['POST'])]
+    public function like(Request $request, Comment $comment, EntityManagerInterface $em): Response
+    {
+        $user = $this->getCurrentUser($request, $em);
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $likeRepo = $em->getRepository(CommentLike::class);
+        $like = $likeRepo->findOneBy([
+            'comment' => $comment,
+            'user' => $user
+        ]);
+
+        if ($like) {
+            $em->remove($like);
+            $comment->setLikes(max(0, $comment->getLikes() - 1));
+            $isLiked = false;
+        } else {
+            $like = new CommentLike();
+            $like->setComment($comment);
+            $like->setUser($user);
+            $em->persist($like);
+            $comment->setLikes($comment->getLikes() + 1);
+            $isLiked = true;
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'likes' => $comment->getLikes(),
+            'isLiked' => $isLiked
+        ]);
     }
 }
