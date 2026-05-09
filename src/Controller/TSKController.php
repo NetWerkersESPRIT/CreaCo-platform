@@ -101,13 +101,13 @@ final class TSKController extends AbstractController
         }
 
         if ($request->query->has('m_title')) {
-            $mission->setTitle($request->query->get('m_title'));
+            $mission->setTitle((string)$request->query->get('m_title'));
         }
         if ($request->query->has('m_desc')) {
-            $mission->setDescription($request->query->get('m_desc'));
+            $mission->setDescription((string)$request->query->get('m_desc'));
         }
         if ($request->query->has('m_state')) {
-            $mission->setState($request->query->get('m_state'));
+            $mission->setState((string)$request->query->get('m_state'));
         }
 
         $dateParam = $request->query->get('date');
@@ -137,9 +137,9 @@ final class TSKController extends AbstractController
             if (!$mission->getDescription() && $mission->getImplementIdea()) {
                 $idea = $mission->getImplementIdea();
                 $aiDesc = $generator->generate(
-                    $mission->getTitle(),
-                    $idea->getTitle(),
-                    $idea->getDescription(),
+                    (string)$mission->getTitle(),
+                    (string)$idea->getTitle(),
+                    (string)$idea->getDescription(),
                     $idea->getCategory()
                 );
                 $mission->setDescription($aiDesc);
@@ -207,7 +207,7 @@ final class TSKController extends AbstractController
         $ideaDescription = $idea ? $idea->getDescription() : null;
         $ideaCategory = $idea ? $idea->getCategory() : null;
 
-        $aiDesc = $generator->generate($title, $ideaTitle, $ideaDescription, $ideaCategory);
+        $aiDesc = $generator->generate((string)$title, (string)$ideaTitle, $ideaDescription, $ideaCategory);
 
         return $this->json(['description' => $aiDesc]);
     }
@@ -302,7 +302,7 @@ final class TSKController extends AbstractController
             }
         }
 
-        if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $mission->getId(), (string)$request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
             $this->addFlash('success', 'Mission deleted successfully!');
@@ -365,10 +365,10 @@ final class TSKController extends AbstractController
 
         // Restore task form data from query parameters (when returning from mission creation)
         if ($request->query->has('title')) {
-            $task->setTitle($request->query->get('title'));
+            $task->setTitle((string)$request->query->get('title'));
         }
         if ($request->query->has('description')) {
-            $task->setDescription($request->query->get('description'));
+            $task->setDescription((string)$request->query->get('description'));
         }
         if ($request->query->has('t_date') && $request->query->has('t_time')) {
             try {
@@ -573,7 +573,7 @@ final class TSKController extends AbstractController
     #[Route('/task/{id}', name: 'app_task_delete', methods: ['POST'])]
     public function taskDelete(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $task->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $task->getId(), (string)$request->request->get('_token'))) {
             $entityManager->remove($task);
             $entityManager->flush();
             $this->addFlash('success', 'Task deleted successfully!');

@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use App\Entity\CommentLike;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -73,9 +73,16 @@ class Comment
     #[ORM\Column(options: ["default" => 0])]
     private int $grammarErrors = 0;
 
+    /**
+     * @var Collection<int, CommentLike>
+     */
+    #[ORM\OneToMany(targetEntity: CommentLike::class, mappedBy: 'comment', cascade: ['remove'])]
+    private Collection $commentLikes;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
+        $this->commentLikes = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
@@ -231,5 +238,45 @@ class Comment
     {
         $this->grammarErrors = $grammarErrors;
         return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentLike>
+     */
+    public function getCommentLikes(): Collection
+    {
+        return $this->commentLikes;
+    }
+
+    public function addCommentLike(CommentLike $commentLike): static
+    {
+        if (!$this->commentLikes->contains($commentLike)) {
+            $this->commentLikes->add($commentLike);
+            $commentLike->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentLike(CommentLike $commentLike): static
+    {
+        if ($this->commentLikes->removeElement($commentLike)) {
+            if ($commentLike->getComment() === $this) {
+                $commentLike->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isLikedByUser(?Users $user): bool
+    {
+        if (!$user) return false;
+        foreach ($this->commentLikes as $like) {
+            if ($like->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
     }
 }

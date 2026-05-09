@@ -74,7 +74,7 @@ final class CollabAdminController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $collaborator->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $collaborator->getId(), (string)$request->request->get('_token'))) {
             $em->remove($collaborator);
             $em->flush();
             $this->addFlash('success', 'Collaborator deleted successfully.');
@@ -90,7 +90,7 @@ final class CollabAdminController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $collabRequest->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $collabRequest->getId(), (string)$request->request->get('_token'))) {
             $em->remove($collabRequest);
             $em->flush();
             $this->addFlash('success', 'Collaboration request deleted successfully.');
@@ -106,7 +106,7 @@ final class CollabAdminController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $contract->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $contract->getId(), (string)$request->request->get('_token'))) {
             $em->remove($contract);
             $em->flush();
             $this->addFlash('success', 'Contract deleted successfully.');

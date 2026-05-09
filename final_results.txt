@@ -1,0 +1,84 @@
+ ------ --------------- 
+  Line   ConversationC  
+         ontroller.php  
+ ------ --------------- 
+  :51    Parameter #1   
+         $text of       
+         method         
+         App\Service\T  
+         extGearsServi  
+         ce::correct()  
+         expects        
+         string,        
+         float|int<min  
+         , -1>|int<1,   
+         max>|string|t  
+         rue given.     
+         ????             
+         argument.type  
+  :138   Parameter #1   
+         $text of       
+         method         
+         App\Service\T  
+         extGearsServi  
+         ce::correct()  
+         expects        
+         string,        
+         float|int<min  
+         , -1>|int<1,   
+         max>|string|t  
+         rue given.     
+         ????             
+         argument.type  
+ ------ --------------- 
+
+ ------ --------------- 
+  Line   Forgetpasswor  
+         dController.p  
+         hp             
+ ------ --------------- 
+  :59    Parameter #1   
+         ...$addresses  
+         of method      
+         Symfony\Compo  
+         nent\Mime\Ema  
+         il::to()       
+         expects        
+         string|Symfon  
+         y\Component\M  
+         ime\Address,   
+         string|null    
+         given.         
+         ????             
+         argument.type  
+  :91    Negated        
+         boolean        
+         expression is  
+         always true.   
+         ????             
+         booleanNot.al  
+         waysTrue       
+         ????  Because    
+         the type is    
+         coming from a  
+         PHPDoc, you    
+         can turn off   
+         this check by  
+         setting treat  
+         PhpDocTypesAs  
+         Certain:       
+         false in your  
+          phpstan.neon  
+         .              
+  :96    Unreachable    
+         statement -    
+         code above     
+         always         
+         terminates.    
+         ????             
+         deadCode.unre  
+         achable        
+ ------ --------------- 
+
+ [ERROR] Found 5 errors
+
