@@ -139,6 +139,12 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, orphanRemoval: true)]
     private Collection $reactions;
 
+    /**
+     * @var Collection<int, HelpTicket>
+     */
+    #[ORM\OneToMany(mappedBy: 'creator', targetEntity: HelpTicket::class)]
+    private Collection $helpTickets;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -157,6 +163,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         $this->comments = new ArrayCollection();
         $this->groups = new ArrayCollection();
         $this->reactions = new ArrayCollection();
+        $this->helpTickets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -448,6 +455,14 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function getContracts(): Collection
     {
         return $this->contracts;
+    }
+
+    /**
+     * @return Collection<int, HelpTicket>
+     */
+    public function getHelpTickets(): Collection
+    {
+        return $this->helpTickets;
     }
 
     /**

@@ -91,6 +91,34 @@ final class LeaderboardController extends AbstractController
             ];
         }
 
+        // Also include any static sticker files found in the uploads folder
+        $stickerDir = $this->getParameter('kernel.project_dir') . '/public/uploads/badge_stickers';
+        if (is_dir($stickerDir)) {
+            $files = scandir($stickerDir);
+            foreach ($files as $f) {
+                if (in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg', 'svg', 'gif'])) {
+                    // skip if already present by filename
+                    $exists = false;
+                    foreach ($allBadges as $ab) {
+                        if (isset($ab['file']) && $ab['file'] === $f) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                    if ($exists) {
+                        continue;
+                    }
+
+                    $codeFromFile = pathinfo($f, PATHINFO_FILENAME);
+                    $allBadges[] = [
+                        'code' => $codeFromFile,
+                        'name' => ucfirst(str_replace(['_', '-'], ' ', $codeFromFile)),
+                        'file' => $f,
+                    ];
+                }
+            }
+        }
+
         return $this->render('front/leaderboard/index.html.twig', [
             'leaderboard' => $leaderboard,
             'currentUser' => $currentUser,

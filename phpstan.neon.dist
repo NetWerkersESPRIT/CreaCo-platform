@@ -1,0 +1,14 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+parameters:
+    level: 5
+    paths:
+        - src/Controller/Collab/Admin
+        - src/Controller/Collab/Manager
+        - src/Controller/Forum
+        - src/EventSubscriber
+        - src/Service
+        - src/Entity
+        - src/Repository
+
+        

@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Support Request Details | CreaCo{% endblock %}
+
+{% block body %}
+    <div class="w-full px-6 py-6 mx-auto">
+        <div class="flex flex-col gap-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-xl font-bold text-slate-900">Support Request</h4>
+                    <p class="text-sm text-slate-500">Track the admin reply and your original message.</p>
+                </div>
+                <a href="{{ path('app_help_ticket_index') }}" class="inline-flex items-center rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Back to my requests</a>
+            </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-3">
+            <div class="lg:col-span-2 rounded-3xl bg-white p-6 shadow-soft-xl border border-slate-200">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h5 class="text-lg font-semibold text-slate-900">{{ ticket.subject }}</h5>
+                        <p class="mt-1 text-sm text-slate-500">{{ ticket.course ? ticket.course.titre : 'General question' }}</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {% if ticket.status == 'Closed' %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-700{% endif %}">{{ ticket.status }}</span>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                    <div class="rounded-3xl bg-slate-50 p-5">
+                        <h6 class="mb-3 text-sm font-semibold text-slate-700">Your message</h6>
+                        <p class="text-sm leading-7 text-slate-600 whitespace-pre-line">{{ ticket.message }}</p>
+                    </div>
+
+                    <div class="rounded-3xl bg-white p-5 border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h6 class="text-sm font-semibold text-slate-700">Priority</h6>
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {% if ticket.priority == 'High' %}bg-red-100 text-red-700{% elseif ticket.priority == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">{{ ticket.priority }}</span>
+                        </div>
+                        <p class="text-sm text-slate-500">Created on {{ ticket.createdAt ? ticket.createdAt|date('d M Y H:i') : '-' }}</p>
+                        <p class="text-sm text-slate-500">Last updated on {{ ticket.updatedAt ? ticket.updatedAt|date('d M Y H:i') : '-' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white p-6 shadow-soft-xl border border-slate-200">
+                <h6 class="mb-4 text-sm font-semibold text-slate-700">Admin response</h6>
+                {% if ticket.adminResponse %}
+                    <div class="rounded-3xl bg-slate-50 p-5 text-sm leading-7 text-slate-600 whitespace-pre-line">{{ ticket.adminResponse }}</div>
+                {% else %}
+                    <p class="text-sm text-slate-500">The administration has not replied to this request yet. You will be notified once a response is available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

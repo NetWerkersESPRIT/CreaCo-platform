@@ -6,6 +6,7 @@ use App\Entity\Cours;
 use App\Form\CoursType;
 use App\Repository\CoursRepository;
 use App\Repository\CategorieCoursRepository;
+use App\Repository\HelpTicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class CoursController extends AbstractController
 {
     #[Route('/', name: 'app_cours_index', methods: ['GET'])]
-    public function index(Request $request, CoursRepository $coursRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request, CoursRepository $coursRepository, PaginatorInterface $paginator, HelpTicketRepository $helpTicketRepository): Response
     {
         if ($request->getSession()->get('user_role') !== 'ROLE_ADMIN') {
             throw $this->createAccessDeniedException('Access denied. Admin role required.');
@@ -43,6 +44,11 @@ class CoursController extends AbstractController
             10
         );
         $courseStats = $coursRepository->getStatistics();
+        $helpTicketStats = [
+            'total' => $helpTicketRepository->count([]),
+            'pending' => $helpTicketRepository->countByStatus('Pending'),
+            'urgent' => $helpTicketRepository->countByPriority('High'),
+        ];
 
         return $this->render('back/cours/index.html.twig', [
             'cours' => $cours,
@@ -50,6 +56,7 @@ class CoursController extends AbstractController
             'sort' => $sort,
             'search' => $filters['search'],
             'courseStats' => $courseStats,
+            'helpTicketStats' => $helpTicketStats,
         ]);
     }
 

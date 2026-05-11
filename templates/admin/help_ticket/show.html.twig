@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Help Request Review | Admin | CreaCo{% endblock %}
+
+{% block body %}
+    <div class="w-full px-6 py-6 mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h4 class="text-xl font-bold text-slate-900">Review Help Request</h4>
+                <p class="text-sm text-slate-500">Respond directly and update the ticket status.</p>
+            </div>
+            <a href="{{ path('app_admin_help_ticket_index') }}" class="inline-flex items-center rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Back to requests</a>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-3">
+            <div class="lg:col-span-2 rounded-3xl bg-white p-6 shadow-soft-xl border border-slate-200">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h5 class="text-lg font-semibold text-slate-900">{{ ticket.subject }}</h5>
+                        <p class="mt-1 text-sm text-slate-500">From {{ ticket.creator.username }} | {{ ticket.course ? ticket.course.titre : 'General request' }}</p>
+                    </div>
+                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {% if ticket.priority == 'High' %}bg-red-100 text-red-700{% elseif ticket.priority == 'Medium' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">{{ ticket.priority }}</span>
+                </div>
+
+                <div class="mt-6 space-y-6">
+                    <div class="rounded-3xl bg-slate-50 p-5">
+                        <h6 class="text-sm font-semibold text-slate-700">Request details</h6>
+                        <p class="mt-3 text-sm leading-7 text-slate-600 whitespace-pre-line">{{ ticket.message }}</p>
+                    </div>
+
+                    <div class="rounded-3xl bg-white p-5 border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-sm text-slate-500">Created on {{ ticket.createdAt ? ticket.createdAt|date('d M Y H:i') : '-' }}</p>
+                            <p class="text-sm text-slate-500">Updated on {{ ticket.updatedAt ? ticket.updatedAt|date('d M Y H:i') : '-' }}</p>
+                        </div>
+                        {% if ticket.adminResponse %}
+                            <div class="mt-4 rounded-3xl bg-slate-50 p-5 text-sm leading-7 text-slate-600 whitespace-pre-line">
+                                {{ ticket.adminResponse }}
+                            </div>
+                        {% else %}
+                            <p class="text-sm text-slate-500">No response has been written yet. Use the form to send a direct reply.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white p-6 shadow-soft-xl border border-slate-200">
+                <h6 class="mb-4 text-sm font-semibold text-slate-700">Reply to creator</h6>
+                {{ form_start(form, {attr: {class: 'space-y-4'}}) }}
+                    <div>
+                        {{ form_label(form.adminResponse, 'Admin Response', {'label_attr': {'class': 'text-sm font-semibold text-slate-700'}}) }}
+                        {{ form_widget(form.adminResponse) }}
+                        {{ form_errors(form.adminResponse) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.status, 'Status', {'label_attr': {'class': 'text-sm font-semibold text-slate-700'}}) }}
+                        {{ form_widget(form.status) }}
+                        {{ form_errors(form.status) }}
+                    </div>
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-tl from-purple-700 to-pink-500 px-4 py-3 text-sm font-semibold text-white transition hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-purple-200">
+                        <i class="fas fa-paper-plane"></i>
+                        Save response
+                    </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

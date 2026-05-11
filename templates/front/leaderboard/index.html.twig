@@ -193,50 +193,50 @@
                     </div>
 
                     {% if userBadges is defined %}
+                        {# Build lookup structures for owned badges and metadata #}
+                        {% set ownedCodes = [] %}
+                        {% set ownedMeta = {} %}
+                        {% for b in userBadges %}
+                            {% set ownedCodes = ownedCodes|merge([b.code]) %}
+                            {% set ownedMeta = ownedMeta|merge({ (b.code): (b.metadata is defined ? b.metadata : null) }) %}
+                        {% endfor %}
+
                         <div class="mt-8 pt-6 border-t border-gray-200">
                             <h6 class="mb-5 font-bold text-lg flex items-center">
-                                <i class="fas fa-medal text-yellow-500 mr-2 text-xl"></i>Your Badges Earned
+                                <i class="fas fa-medal text-yellow-500 mr-2 text-xl"></i>Your Badges
                             </h6>
-                            {% if userBadges is not empty %}
-                                <div class="flex flex-wrap gap-3 justify-center">
-                                    {% for badge in userBadges %}
-                                        <div class="earned-badge group relative" 
-                                             data-badge-name="{{ badge.name }}"
-                                             title="{{ badge.name }}">
-                                            <div class="relative w-16 h-16 cursor-pointer transition-all duration-300 transform hover:scale-110">
-                                                <!-- Badge background glow -->
-                                                <div class="absolute -inset-1 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-                                                
-                                                <!-- Badge container -->
-                                                <div class="relative w-full h-full bg-white rounded-full shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center overflow-hidden border-2 border-purple-300 group-hover:border-pink-400">
-                                                    <img src="{{ asset('uploads/badge_stickers/' ~ badge.file) }}"
-                                                         alt="{{ badge.name }}"
-                                                         class="w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-110">
-                                                </div>
-                                                
-                                                <!-- Earned badge checkmark -->
+
+                            <div class="flex flex-wrap gap-3 justify-center">
+                                {% for badge in allBadges %}
+                                    {% set owned = badge.code in ownedCodes %}
+                                    <div class="earned-badge group relative" 
+                                         data-badge-name="{{ badge.name }}"
+                                         title="{{ badge.name }}">
+                                        <div class="relative w-16 h-16 cursor-pointer transition-all duration-300 transform hover:scale-110">
+                                            <div class="absolute -inset-1 bg-gradient-to-r from-purple-300 to-pink-300 rounded-full blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+
+                                            <div class="relative w-full h-full bg-white rounded-full shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center overflow-hidden border-2 {% if owned %}border-purple-300 group-hover:border-pink-400{% else %}border-gray-300{% endif %}">
+                                                <img src="{{ asset('uploads/badge_stickers/' ~ badge.file) }}"
+                                                     alt="{{ badge.name }}"
+                                                     class="w-full h-full object-cover object-center transition-all duration-300 {% if not owned %}opacity-40 grayscale group-hover:opacity-50{% else %}group-hover:scale-110{% endif %}">
+                                            </div>
+
+                                            {% if owned %}
                                                 <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md animate-pulse">
                                                     ✓
                                                 </div>
-                                            </div>
-                                            
-                                            <!-- Tooltip -->
-                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                                                {{ badge.name }}
-                                                {% if badge.metadata.month is defined %}
-                                                    <br><span class="text-xs opacity-75">{{ ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][badge.metadata.month] }} {{ badge.metadata.year }}</span>
-                                                {% endif %}
-                                            </div>
+                                            {% endif %}
                                         </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-dashed border-slate-300">
-                                    <i class="fas fa-star text-4xl text-slate-300 mb-3"></i>
-                                    <p class="text-sm text-slate-600 font-semibold">No badges yet!</p>
-                                    <p class="text-xs text-slate-500 mt-1">Open resources and complete courses to unlock amazing badges.</p>
-                                </div>
-                            {% endif %}
+
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                            {{ badge.name }}
+                                            {% if owned and ownedMeta[badge.code] is defined and ownedMeta[badge.code].month is defined %}
+                                                <br><span class="text-xs opacity-75">{{ ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][ownedMeta[badge.code].month] }} {{ ownedMeta[badge.code].year }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     {% endif %}
                 </div>

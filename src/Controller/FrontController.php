@@ -7,6 +7,9 @@ use App\Repository\CoursRepository;
 use App\Repository\RessourceRepository;
 use App\Entity\CategorieCours;
 use App\Entity\Cours;
+use App\Entity\HelpTicket;
+use App\Entity\Users;
+use App\Form\HelpTicketType;
 use App\Service\GamificationService;
 use App\Repository\CoursRatingRepository;
 use App\Entity\CoursRating;
@@ -225,7 +228,7 @@ final class FrontController extends AbstractController
     }
 
     // READ LISTE DES RESSOURCES PAR COURS (avec filtrage par type et recherche)
-    #[Route('/course/{id}', name: 'app_front_course')]
+    #[Route('/course/{id}', name: 'app_front_course', methods: ['GET', 'POST'])]
     public function course(
         \Symfony\Component\HttpFoundation\Request $request,
         Cours $course,
@@ -255,13 +258,54 @@ final class FrontController extends AbstractController
 
          $ressources = $resRepo->findWithFilters($filters);
 
-         // Get user progress for this course
+         // Get user progress and help ticket form for this course
          $progressData = null;
+         $helpTicketForm = null;
          $userId = $request->getSession()->get('user_id');
-         if ($userId && $gamificationService) {
-             $user = $em->getRepository(\App\Entity\Users::class)->find($userId);
-             if ($user) {
-                 $progressData = $gamificationService->getUserCourseProgress($user, $course);
+         $formUser = null;
+
+         if ($userId) {
+             $formUser = $em->getRepository(Users::class)->find($userId);
+             if ($formUser) {
+                 if ($gamificationService) {
+                     $progressData = $gamificationService->getUserCourseProgress($formUser, $course);
+                 }
+
+                 $helpTicket = new HelpTicket();
+                 $form = $this->createForm(HelpTicketType::class, $helpTicket);
+                 $form->handleRequest($request);
+
+                 if ($form->isSubmitted() && $form->isValid()) {
+                     $helpTicket->setCreator($formUser);
+                     $helpTicket->setCourse($course);
+                     $helpTicket->setStatus('Pending');
+                     $helpTicket->setCreatedAt(new \DateTimeImmutable());
+                     $helpTicket->setUpdatedAt(new \DateTimeImmutable());
+                     $em->persist($helpTicket);
+                     $em->flush();
+
+                     $admins = $em->getRepository(Users::class)->findBy(['role' => 'ROLE_ADMIN']);
+                     foreach ($admins as $admin) {
+                         $notification = new \App\Entity\Notification();
+                         $notification->setMessage(sprintf('New support request from %s: %s', $formUser->getUsername(), $helpTicket->getSubject()));
+                         $notification->setIsRead(false);
+                         $notification->setCreatedAt(new \DateTime());
+                         $notification->setUserId($admin);
+                         $notification->setTargetUrl($this->generateUrl('app_admin_help_ticket_show', ['id' => $helpTicket->getId()]));
+                         $notification->setType('support');
+                         $notification->setRelatedId($helpTicket->getId());
+                         $notification->setStatus('Pending');
+                         $em->persist($notification);
+                     }
+
+                     $em->flush();
+
+                     $this->addFlash('success', 'Votre demande a été envoyée au support. Nous vous répondrons rapidement.');
+
+                     return $this->redirectToRoute('app_front_course', ['id' => $course->getId()]);
+                 }
+
+                 $helpTicketForm = $form->createView();
              }
          }
 
@@ -270,7 +314,8 @@ final class FrontController extends AbstractController
              'ressources' => $ressources,
              'search' => $search,
              'current_type' => $type,
-             'progress' => $progressData
+             'progress' => $progressData,
+             'help_ticket_form' => $helpTicketForm,
          ]);
     }
 }
