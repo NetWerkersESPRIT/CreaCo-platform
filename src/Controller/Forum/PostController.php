@@ -499,10 +499,24 @@ if ($pdfFile) {
             throw $this->createAccessDeniedException('Only administrators can pin posts.');
         }
 
-        $post->setPinned(!$post->isPinned());
+        $isCurrentlyPinned = $post->isPinned();
+
+        if (!$isCurrentlyPinned) {
+            // Unpin all other posts first to ensure only one post is pinned
+            $repo = $em->getRepository(Post::class);
+            $pinnedPosts = $repo->findBy(['pinned' => true]);
+            foreach ($pinnedPosts as $pinnedPost) {
+                $pinnedPost->setPinned(false);
+            }
+            $post->setPinned(true);
+            $this->addFlash('success', 'Post pinned! Previous pinned post has been unpinned.');
+        } else {
+            $post->setPinned(false);
+            $this->addFlash('success', 'Post unpinned.');
+        }
+
         $em->flush();
 
-        $this->addFlash('success', $post->isPinned() ? 'Post pinned!' : 'Post unpinned.');
         return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_post_show', ['id' => $post->getId()]));
     }
 
