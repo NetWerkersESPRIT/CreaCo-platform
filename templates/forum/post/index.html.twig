@@ -14,6 +14,18 @@
 		<div
 			class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
 
+			<!-- Back Button for Visitors (Only show if not logged in) -->
+			{% if not app.user and not app.session.get('user_id') %}
+				<div class="mb-4">
+					<a href="{{ path('app_visitor') }}" class="inline-flex items-center text-sm font-bold text-slate-600 hover:text-fuchsia-500 transition-all group">
+						<div class="flex items-center justify-center w-8 h-8 bg-white shadow-soft-md rounded-lg mr-3 group-hover:scale-110 transition-all">
+							<i class="fas fa-arrow-left text-[10px]"></i>
+						</div>
+						Back to Welcome Page
+					</a>
+				</div>
+			{% endif %}
+
 			<!-- Forum Header & Unified Search -->
 			<div class="mb-6">
 				<div class="relative flex flex-wrap justify-between items-center bg-white shadow-soft-xl rounded-2xl p-6 mb-4 gap-4">

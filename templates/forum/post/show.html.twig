@@ -19,10 +19,19 @@
 		<!-- Main Content (Centered & Wide) -->
 		<div class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
 
-			<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1">
-				<i class="fas fa-arrow-left mr-1"></i>
-				Back to Forum
-			</a>
+			<div class="flex items-center gap-4 mb-4 ml-1">
+				<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase transition-all">
+					<i class="fas fa-arrow-left mr-1"></i>
+					Back to Forum
+				</a>
+				{% if not app.user and not app.session.get('user_id') %}
+					<span class="text-slate-300 text-xs">|</span>
+					<a href="{{ path('app_visitor') }}" class="text-xs font-bold text-slate-400 hover:text-fuchsia-500 uppercase transition-all">
+						<i class="fas fa-home mr-1"></i>
+						Welcome Page
+					</a>
+				{% endif %}
+			</div>
 
 			<div
 				class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
