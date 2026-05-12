@@ -170,11 +170,27 @@
 									<span class="text-xs font-bold">Share</span>
 								</button>
 
-								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-56 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+									<button type="button" onclick="shareOnTwitter('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fab fa-twitter mr-2 w-4 text-sky-500"></i>
+										Share on Twitter
+									</button>
+
+									<button type="button" onclick="shareOnWhatsApp('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fab fa-whatsapp mr-2 w-4 text-green-500"></i>
+										Share on WhatsApp
+									</button>
 
 									<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
 										<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
 										Copy Link
+									</button>
+
+									<div class="border-t border-gray-100 my-1"></div>
+
+									<button type="button" onclick="generateQRCode('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fas fa-qrcode mr-2 w-4 text-slate-700"></i>
+										Generate QR Code
 									</button>
 								</div>
 							</div>
@@ -509,6 +525,37 @@ showCopied('Link copied to clipboard.');
 showError('Could not copy link. Please copy it manually.');
 console.error('Copy failed', err);
 }
+}
+
+const BASE_NETLIFY_URL = 'https://creaconetworkerss.netlify.app'; // Corrected Netlify URL
+
+function shareOnTwitter(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title}`);
+window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function shareOnWhatsApp(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title} - `);
+window.open(`https://api.whatsapp.com/send?text=${text}${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function generateQRCode(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+Swal.fire({
+title: 'QR Code for: ' + title,
+imageUrl: qrUrl,
+imageWidth: 200,
+imageHeight: 200,
+imageAlt: 'QR Code',
+confirmButtonText: 'Close',
+buttonsStyling: false,
+customClass: {
+confirmButton: 'px-6 py-2 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md'
+}
+});
 }
 
 // Close dropdowns on outside click or ESC

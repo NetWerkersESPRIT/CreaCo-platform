@@ -135,6 +135,37 @@ console.error('Copy failed', err);
 }
 }
 
+const BASE_NETLIFY_URL = 'https://creaconetworkerss.netlify.app'; // Corrected Netlify URL
+
+function shareOnTwitter(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title}`);
+window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function shareOnWhatsApp(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title} - `);
+window.open(`https://api.whatsapp.com/send?text=${text}${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function generateQRCode(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+Swal.fire({
+title: 'QR Code for: ' + title,
+imageUrl: qrUrl,
+imageWidth: 200,
+imageHeight: 200,
+imageAlt: 'QR Code',
+confirmButtonText: 'Close',
+buttonsStyling: false,
+customClass: {
+confirmButton: 'px-6 py-2 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md'
+}
+});
+}
+
 // Close dropdowns on outside click or ESC
 document.addEventListener('click', function (e) {
 if (! e.target.closest('.relative')) {

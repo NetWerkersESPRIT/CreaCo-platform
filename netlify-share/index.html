@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creaco Forum - Shared Post</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        .header {
+            border-bottom: 2px solid #ce2d7c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        h1 {
+            color: #ce2d7c;
+            margin: 0;
+            font-size: 24px;
+        }
+        .meta {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+        .content {
+            font-size: 18px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1 id="title">Loading...</h1>
+            <div class="meta">Posted by <span id="username">...</span></div>
+        </div>
+        <div class="content" id="content">
+            Please wait while we load the post content...
+        </div>
+        <div class="footer">
+            &copy; 2026 Creaco Forum - Shared via Creaco App
+        </div>
+    </div>
+
+    <script>
+        // Function to get URL parameters
+        function getParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Display post data
+        window.onload = () => {
+            const title = getParam('title') || 'No Title';
+            const content = getParam('content') || 'No content provided.';
+            const username = getParam('username') || 'Anonymous';
+
+            document.getElementById('title').innerText = decodeURIComponent(title);
+            document.getElementById('content').innerText = decodeURIComponent(content);
+            document.getElementById('username').innerText = decodeURIComponent(username);
+
+            // Update page title
+            document.title = decodeURIComponent(title) + " - Creaco Forum";
+        };
+    </script>
+</body>
+</html>
