@@ -3,6 +3,40 @@
 
 {% block javascripts %}
   {{ parent() }}
+  <style>
+    .avatar-tab-btn { transition: all 0.2s; }
+    .avatar-tab-btn.active {
+      background: linear-gradient(to right, #7c3aed, #ec4899);
+      color: white;
+    }
+    .avatar-tab-btn:not(.active) {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .avatar-tab-panel { display: none; }
+    .avatar-tab-panel.active { display: block; }
+    #dicebear-style-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .style-chip {
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background: #f1f5f9;
+      color: #475569;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .style-chip:hover { border-color: #a855f7; color: #7c3aed; }
+    .style-chip.selected { border-color: #7c3aed; background: #f3e8ff; color: #7c3aed; }
+  </style>
   <script>
     function confirmRemoval(memberId, username) {
       Swal.fire({
@@ -23,6 +57,193 @@
         }
       });
     }
+
+    // ─── Shared state ───────────────────────────────────────────────────────────
+    let currentImageUrl = '';
+    let currentAvatarStyle = 'adventurer';
+
+    const DICEBEAR_STYLES = [
+      'adventurer', 'adventurer-neutral', 'avataaars', 'avataaars-neutral',
+      'big-ears', 'big-ears-neutral', 'big-smile', 'bottts', 'bottts-neutral',
+      'croodles', 'croodles-neutral', 'dylan', 'fun-emoji', 'glass',
+      'icons', 'identicon', 'initials', 'lorelei', 'lorelei-neutral',
+      'micah', 'miniavs', 'notionists', 'notionists-neutral', 'open-peeps',
+      'personas', 'pixel-art', 'pixel-art-neutral', 'rings', 'shapes', 'thumbs'
+    ];
+
+    function dicebearUrl(style, seed) {
+      return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=256`;
+    }
+
+    // ─── Avatar picker modal ─────────────────────────────────────────────────────
+    function openAvatarPicker() {
+      const initialSeed = '{{ app_user.username }}';
+      const initialStyle = currentAvatarStyle;
+      const initialUrl = dicebearUrl(initialStyle, initialSeed);
+      currentImageUrl = initialUrl;
+
+      const styleChips = DICEBEAR_STYLES.map(s =>
+        `<span class="style-chip${s === initialStyle ? ' selected' : ''}" onclick="pickStyle('${s}',this)">${s}</span>`
+      ).join('');
+
+      Swal.fire({
+        title: 'Choose Your Avatar',
+        width: 560,
+        html: `
+          <div style="font-family:inherit">
+            <!-- Tabs -->
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <button class="avatar-tab-btn active" 
+                style="flex:1;padding:8px 12px;border-radius:10px;border:none;cursor:default;font-weight:700;font-size:12px;background:#f3e8ff;color:#7c3aed">
+                🎲 DiceBear Avatar Generator
+              </button>
+            </div>
+
+            <!-- ── DiceBear tab ── -->
+            <div id="panel-dice" class="avatar-tab-panel active">
+              <div style="display:flex;justify-content:center;margin-bottom:16px">
+                <div style="width:140px;height:140px;border-radius:16px;overflow:hidden;border:3px solid #a855f7;box-shadow:0 8px 30px rgba(168,85,247,.3);background:#f8f4ff;position:relative">
+                  <img id="dice-preview" src="${initialUrl}" style="width:100%;height:100%;object-fit:cover;transition:opacity .3s">
+                  <div id="dice-loader" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,.7);align-items:center;justify-content:center">
+                    <div style="width:36px;height:36px;border:4px solid #a855f7;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Seed input -->
+              <div style="margin-bottom:12px;text-align:left">
+                <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Seed Text (any word or name)</label>
+                <div style="display:flex;gap:8px">
+                  <input id="dice-seed" type="text" value="${initialSeed}"
+                    placeholder="Type anything…"
+                    style="flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;transition:border-color .2s"
+                    oninput="previewDicebear()"
+                    onfocus="this.style.borderColor='#a855f7'"
+                    onblur="this.style.borderColor='#e2e8f0'">
+                  <button onclick="randomiseDicebear()" title="Randomise"
+                    style="padding:10px 14px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:18px;line-height:1">
+                    🔀
+                  </button>
+                </div>
+              </div>
+
+              <!-- Style grid -->
+              <div style="text-align:left;margin-bottom:8px">
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:#94a3b8">Style</label>
+              </div>
+              <div id="dicebear-style-grid">${styleChips}</div>
+            </div>
+
+
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '✅ Use as Avatar',
+        cancelButtonText: 'Cancel',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'inline-block px-8 py-3 font-bold text-center text-white uppercase transition-all bg-gradient-to-tl from-purple-700 to-pink-500 rounded-xl shadow-soft-md text-xs mr-2',
+          cancelButton: 'inline-block px-8 py-3 font-bold text-center text-slate-700 uppercase transition-all bg-gray-100 rounded-xl shadow-soft-md text-xs'
+        },
+        didOpen: () => {
+          // Attach onload/onerror to the initial preview image so currentImageUrl
+          // is set immediately when the modal opens (before the user types anything).
+          _doPreviewDicebear();
+        },
+        preConfirm: () => {
+          if (!currentImageUrl) {
+            Swal.showValidationMessage('Please generate or pick an avatar first.');
+            return false;
+          }
+          return true;
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          saveAvatar(currentImageUrl);
+        }
+      });
+    }
+
+
+
+    // ─── DiceBear helpers ────────────────────────────────────────────────────────
+    let _diceDebounce = null;
+
+    function pickStyle(style, el) {
+      currentAvatarStyle = style;
+      document.querySelectorAll('.style-chip').forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      previewDicebear();
+    }
+
+    function previewDicebear() {
+      // Debounce — avoid firing on every keystroke
+      if (_diceDebounce) clearTimeout(_diceDebounce);
+      _diceDebounce = setTimeout(_doPreviewDicebear, 300);
+    }
+
+    function _doPreviewDicebear() {
+      const seed = document.getElementById('dice-seed').value.trim() || 'default';
+      const url  = dicebearUrl(currentAvatarStyle, seed);
+      const img  = document.getElementById('dice-preview');
+      const loader = document.getElementById('dice-loader');
+      if (!img) return;
+
+      loader.style.display = 'flex';
+      img.style.opacity = '0.4';
+
+      // DiceBear returns SVG — set directly on the img element.
+      // SVGs load fast so this is reliable without a preloader.
+      img.onload  = () => { img.style.opacity = '1'; loader.style.display = 'none'; currentImageUrl = url; };
+      img.onerror = () => { img.style.opacity = '1'; loader.style.display = 'none'; };
+      img.src = url;
+    }
+
+    function randomiseDicebear() {
+      const randomSeed = Math.random().toString(36).substring(2, 10);
+      const styleIndex = Math.floor(Math.random() * DICEBEAR_STYLES.length);
+      currentAvatarStyle = DICEBEAR_STYLES[styleIndex];
+
+      // Update style chip selection
+      document.querySelectorAll('.style-chip').forEach((c, i) => {
+        c.classList.toggle('selected', i === styleIndex);
+      });
+
+      const seedInput = document.getElementById('dice-seed');
+      if (seedInput) seedInput.value = randomSeed;
+
+      previewDicebear();
+    }
+
+
+
+    // ─── Save avatar ─────────────────────────────────────────────────────────────
+    function saveAvatar(url) {
+      Swal.fire({
+        title: 'Saving…',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      fetch('{{ path("app_profile_update_avatar") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: url })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('profile-avatar-preview').src = url;
+          Swal.fire('Saved!', 'Your avatar has been updated.', 'success');
+        } else {
+          Swal.fire('Error', data.error || 'Failed to update avatar.', 'error');
+        }
+      })
+      .catch(() => Swal.fire('Error', 'An unexpected error occurred.', 'error'));
+    }
+
+    // Legacy alias kept for any old references
+    window.openImageGenerator = openAvatarPicker;
   </script>
 {% endblock %}
 
@@ -45,9 +266,16 @@
               <div
                 class="text-base ease-soft-in-out h-18.5 w-18.5 relative inline-flex items-center justify-center rounded-xl text-white transition-all duration-200">
                 <img
-                  src="../assets/img/bruce-mars.jpg"
+                  src="{{ app_user.image ?: asset('styles/image/Avatar.png') }}"
                   alt="profile_image"
+                  id="profile-avatar-preview"
                   class="w-full shadow-soft-sm rounded-xl" />
+                <button
+                  onclick="openAvatarPicker()"
+                  title="Change Avatar"
+                  style="position:absolute;bottom:-8px;right:-8px;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);border:2px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(124,58,237,.4);font-size:13px;">
+                  ✏️
+                </button>
               </div>
             </div>
             <div class="flex-none w-auto max-w-full px-3 my-auto">
@@ -64,8 +292,12 @@
                 <ul
                   class="relative flex flex-wrap p-1 list-none bg-transparent rounded-xl">
                   <li class="flex-auto text-center">
-                   <a href="{{ path('app_profile_edit') }}" class="inline-block px-6 py-2 font-bold text-center uppercase align-middle transition-all bg-transparent border rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
-                   Edit Profile</a>
+                    <a href="{{ path('app_profile_edit') }}" class="inline-block px-6 py-2 font-bold text-center uppercase align-middle transition-all bg-transparent border rounded-lg cursor-pointer border-fuchsia-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-fuchsia-500">
+                    Edit Profile</a>
+                  </li>
+                  <li class="flex-auto text-center">
+                    <button type="button" onclick="openAvatarPicker()" class="inline-block px-6 py-2 font-bold text-center text-white uppercase align-middle transition-all rounded-lg cursor-pointer bg-gradient-to-tl from-purple-700 to-pink-500 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs">
+                    🎨 Change Avatar</button>
                   </li>
                   {% if app_user.role == 'ROLE_CONTENT_CREATOR' %}
                   <li class="flex-auto text-center">
@@ -103,9 +335,11 @@
                       <tr>
                         <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                           <div class="flex px-2 py-1">
-                            <div>
-                              <img src="../assets/img/team-2.jpg" class="inline-flex items-center justify-center mr-4 text-white transition-all duration-200 ease-soft-in-out text-sm h-9 w-9 rounded-xl" alt="user1" />
-                            </div>
+                              <div class="inline-block w-9 h-9 overflow-hidden rounded-xl shadow-soft-xs mr-4">
+                                <img src="{{ member.image ?: 'https://ui-avatars.com/api/?name=' ~ member.username|url_encode ~ '&background=random&color=fff' }}" 
+                                  class="w-full h-full object-cover" 
+                                  alt="{{ member.username }}" />
+                              </div>
                             <div class="flex flex-col justify-center">
                               <h6 class="mb-0 leading-normal text-sm">{{ member.username }}</h6>
                               <p class="mb-0 leading-tight text-xs text-slate-400">{{ member.email }}</p>

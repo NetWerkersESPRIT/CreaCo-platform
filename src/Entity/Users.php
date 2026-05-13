@@ -37,7 +37,8 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $role = null;
 
-
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $image = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numtel = null;
@@ -248,6 +249,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(string $role): static
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }
