@@ -400,4 +400,26 @@ class CollabRequest
         }
         return (int) (($this->aiClarityScore + $this->aiBudgetRealismScore + $this->aiTimelineFeasibilityScore) / 3);
     }
+
+    public function getContract(): ?Contract
+    {
+        return $this->contract;
+    }
+
+    public function setContract(?Contract $contract): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($contract === null && $this->contract !== null) {
+            $this->contract->setCollabRequest(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($contract !== null && $contract->getCollabRequest() !== $this) {
+            $contract->setCollabRequest($this);
+        }
+
+        $this->contract = $contract;
+
+        return $this;
+    }
 }

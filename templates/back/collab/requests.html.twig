@@ -1,78 +1,92 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Collab Requests Overview - Admin{% endblock %}
+{% block title %}Collaboration Requests{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Collaboration
+    </li>
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Requests
+    </li>
+{% endblock %}
+
+{% block page_title %}Collaboration Requests{% endblock %}
 
 {% block body %}
 <div class="w-full px-6 py-6 mx-auto">
-    <div class="flex flex-wrap -mx-3 mb-6 items-center">
-        <div class="w-full md:w-1/2 px-3">
-            <h5 class="mb-0 font-bold text-slate-700">Collab Requests Overview</h5>
-            <p class="text-xs text-slate-400 mb-0">Monitor incoming collaboration proposals and oversee modification requests.</p>
-        </div>
-        <div class="w-full md:w-1/2 px-3 flex justify-end space-x-4 mt-4 md:mt-0">
-            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease-soft md:w-64">
-                <span class="text-sm ease-soft leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
-                    <i class="fas fa-search"></i>
-                </span>
-                <input type="text" class="pl-8.75 text-sm focus:shadow-soft-primary-outline ease-soft w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none focus:transition-shadow" placeholder="Search by title, creator, or..." />
-            </div>
+    <div class="flex flex-wrap -mx-3 mb-4">
+        <div class="w-full px-3 flex justify-end">
+            <button class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+                <i class="fas fa-filter mr-2"></i> Filter Requests
+            </button>
         </div>
     </div>
 
-    <div class="flex-auto px-0 pt-0 pb-2">
-        <div class="p-0 overflow-x-auto">
-            <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                <thead class="align-bottom">
-                    <tr>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Request Title</th>
-                        <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Partner Entity</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Budget</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Submitted On</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Admin Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in requests %}
-                        <tr class="group hover:bg-gray-50 transition-colors">
-                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <div class="flex px-4 py-1">
-                                    <div class="flex flex-col justify-center w-10 h-10 mr-4 rounded-xl bg-pink-50 group-hover:bg-white items-center shadow-sm">
-                                        <i class="ni ni-chat-round text-pink-500"></i>
-                                    </div>
-                                    <div class="flex flex-col justify-center">
-                                        <h6 class="mb-0 text-sm leading-normal font-bold text-slate-700">{{ request.title }}</h6>
-                                        <p class="mb-0 text-[10px] leading-tight text-slate-400 font-bold uppercase">ID: {{ request.id }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-sm">
-                                <span class="text-xs font-bold leading-tight text-purple-600">{{ request.collaborator.companyName }}</span>
-                            </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <span class="text-xs font-bold leading-tight text-slate-600">{{ request.budget|number_format(0, '.', ' ') }} DT</span>
-                            </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <span class="bg-gradient-to-tl {{ request.status == 'APPROVED' ? 'from-green-600 to-lime-400' : (request.status == 'PENDING' ? 'from-purple-600 to-pink-500' : 'from-red-600 to-pink-500') }} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ request.status }}</span>
-                            </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <span class="text-xs font-bold leading-tight text-slate-400">{{ request.createdAt|date('Y-m-d') }}</span>
-                            </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                <div class="flex justify-center items-center space-x-3">
-                                    <a href="{{ path('admin_collab_request_show', {'id': request.id}) }}" class="text-slate-400 hover:text-purple-600 transition-colors" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-8 text-slate-400 italic">No collaboration requests found.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="flex flex-wrap -mx-3">
+        <div class="w-full px-3">
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 bg-white rounded-t-2xl">
+                    <h6 class="mb-0">Incoming Proposals Pipeline</h6>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-0 overflow-x-auto">
+                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                            <thead class="align-bottom">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Proposal & Ref</th>
+                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Initiator</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Budget</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Phase</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Submitted</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in requests %}
+                                    <tr>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <div class="flex px-4 py-1">
+                                                <div class="flex flex-col justify-center">
+                                                    <h6 class="mb-0 text-sm leading-normal font-bold">{{ request.title }}</h6>
+                                                    <p class="mb-0 text-xs leading-tight text-slate-400">RQS-{{ request.id }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <p class="mb-0 text-xs font-bold leading-tight">{{ request.collaborator.companyName }}</p>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <span class="text-xs font-bold leading-tight text-slate-700">{{ request.budget|number_format(0, '.', ' ') }} DT</span>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            {% if request.status == 'PENDING' %}
+                                                <span class="bg-gradient-to-tl from-gray-900 to-slate-800 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Pending Review</span>
+                                            {% elseif request.status == 'APPROVED' %}
+                                                <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Approved</span>
+                                            {% else %}
+                                                <span class="bg-gradient-to-tl from-slate-600 to-slate-300 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ request.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <span class="text-xs font-bold leading-tight text-slate-400">{{ request.createdAt|date('d/m/Y') }}</span>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <div class="flex justify-center space-x-2">
+                                                <a href="{{ path('admin_collab_request_show', {'id': request.id}) }}" class="text-xs font-semibold leading-tight text-slate-400"> Review </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-6 text-slate-400 italic">No requests found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
