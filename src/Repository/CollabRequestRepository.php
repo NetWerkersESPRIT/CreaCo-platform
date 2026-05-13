@@ -98,4 +98,14 @@ class CollabRequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countByStatus(string $status): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('count(r.id)')
+            ->where('r.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Collaboration Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Collaboration
+    </li>
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Dashboard
+    </li>
+{% endblock %}
+
+{% block page_title %}Collaboration Management{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <!-- Statistics Cards -->
+    <div class="flex flex-wrap -mx-3 mb-6">
+        <!-- Total Partners -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-sm font-semibold leading-normal">Total Partners</p>
+                                <h5 class="mb-0 font-bold">
+                                    {{ stats.partners.total }}
+                                    <span class="text-xs leading-normal font-weight-bolder text-lime-500">{{ stats.partners.active }} Active</span>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                                <i class="ni leading-none ni-world-2 text-lg relative top-3.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Contracts -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-sm font-semibold leading-normal">Active Contracts</p>
+                                <h5 class="mb-0 font-bold">
+                                    {{ stats.contracts.signed }}
+                                    <span class="text-xs leading-normal font-weight-bolder text-lime-500">Signed</span>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                                <i class="ni leading-none ni-paper-diploma text-lg relative top-3.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Value -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-sm font-semibold leading-normal">Portfolio Value</p>
+                                <h5 class="mb-0 font-bold">
+                                    {{ stats.revenue|number_format(0, '.', ' ') }} DT
+                                    <span class="text-xs leading-normal font-weight-bolder text-lime-500">Total</span>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                                <i class="ni leading-none ni-money-coins text-lg relative top-3.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
+            <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="flex-auto p-4">
+                    <div class="flex flex-row -mx-3">
+                        <div class="flex-none w-2/3 max-w-full px-3">
+                            <div>
+                                <p class="mb-0 font-sans text-sm font-semibold leading-normal">Pending Reviews</p>
+                                <h5 class="mb-0 font-bold">
+                                    {{ stats.requests.pending }}
+                                    <span class="text-xs leading-normal font-weight-bolder text-{{ stats.requests.pending > 0 ? 'pink' : 'lime' }}-500">Requests</span>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="px-3 text-right basis-1/3">
+                            <div class="inline-block w-12 h-12 text-center rounded-lg bg-gradient-to-tl from-purple-700 to-pink-500">
+                                <i class="ni leading-none ni-notification-70 text-lg relative top-3.5 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3">
+        <!-- Main Table: Pending Reviews -->
+        <div class="w-full max-w-full px-3 lg:w-8/12">
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 bg-white rounded-t-2xl">
+                    <div class="flex justify-between items-center">
+                        <h6 class="mb-0">Requests Awaiting Review</h6>
+                        <a href="{{ path('admin_collab_requests') }}" class="text-xs font-bold text-slate-400 uppercase">View All</a>
+                    </div>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-0 overflow-x-auto">
+                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                            <thead class="align-bottom">
+                                <tr>
+                                    <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Initiator</th>
+                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Proposal</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in requests_to_review %}
+                                    <tr>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <div class="flex px-4 py-1">
+                                                <div class="flex flex-col justify-center">
+                                                    <h6 class="mb-0 text-sm leading-normal font-bold">{{ request.collaborator.companyName }}</h6>
+                                                    <p class="mb-0 text-xs leading-tight text-slate-400">{{ request.createdAt|date('d/m/Y') }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <p class="mb-0 text-xs font-bold leading-tight">{{ request.title|slice(0, 40) }}...</p>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <span class="bg-gradient-to-tl from-purple-700 to-pink-500 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ request.status }}</span>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <a href="{{ path('admin_collab_requests') }}" class="text-xs font-semibold leading-tight text-slate-400"> Review </a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-6 text-slate-400 italic">No pending reviews.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Recent Partners & Actions -->
+        <div class="w-full max-w-full px-3 lg:w-4/12">
+            <!-- Strategic Actions Card -->
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-4">
+                    <h6 class="mb-4">Quick Actions</h6>
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="{{ path('admin_collab_collaborator_new') }}" class="p-4 rounded-xl bg-gray-50 text-center hover:bg-gray-100 transition-all">
+                            <i class="ni ni-fat-add text-purple-700 mb-2 block text-xl"></i>
+                            <span class="text-xs font-bold text-slate-600 uppercase">New Partner</span>
+                        </a>
+                        <a href="{{ path('admin_collab_contracts') }}" class="p-4 rounded-xl bg-gray-50 text-center hover:bg-gray-100 transition-all">
+                            <i class="ni ni-archive-2 text-pink-500 mb-2 block text-xl"></i>
+                            <span class="text-xs font-bold text-slate-600 uppercase">Contracts</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Partners -->
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-4">
+                    <h6 class="mb-4">Recent Partners</h6>
+                    <div class="space-y-4">
+                        {% for partner in recent_partners %}
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center mr-3">
+                                    <span class="text-white font-bold text-sm">{{ partner.companyName|slice(0, 1)|upper }}</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 text-sm">{{ partner.companyName }}</h6>
+                                    <p class="mb-0 text-xs text-slate-400">{{ partner.domain }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ path('admin_collab_collaborators') }}" class="block w-full mt-6 text-center text-xs font-bold text-purple-700 uppercase">View Directory</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
