@@ -19,10 +19,19 @@
 		<!-- Main Content (Centered & Wide) -->
 		<div class="w-full max-w-full px-3 lg:w-10/12 mx-auto">
 
-			<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase mb-4 inline-block transition-all ml-1">
-				<i class="fas fa-arrow-left mr-1"></i>
-				Back to Forum
-			</a>
+			<div class="flex items-center gap-4 mb-4 ml-1">
+				<a href="{{ path('forum_index') }}" class="text-xs font-bold text-slate-400 hover:text-purple-700 uppercase transition-all">
+					<i class="fas fa-arrow-left mr-1"></i>
+					Back to Forum
+				</a>
+				{% if not app.user and not app.session.get('user_id') %}
+					<span class="text-slate-300 text-xs">|</span>
+					<a href="{{ path('app_visitor') }}" class="text-xs font-bold text-slate-400 hover:text-fuchsia-500 uppercase transition-all">
+						<i class="fas fa-home mr-1"></i>
+						Welcome Page
+					</a>
+				{% endif %}
+			</div>
 
 			<div
 				class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border mb-6">
@@ -170,11 +179,27 @@
 									<span class="text-xs font-bold">Share</span>
 								</button>
 
-								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-56 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+									<button type="button" onclick="shareOnTwitter('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fab fa-twitter mr-2 w-4 text-sky-500"></i>
+										Share on Twitter
+									</button>
+
+									<button type="button" onclick="shareOnWhatsApp('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fab fa-whatsapp mr-2 w-4 text-green-500"></i>
+										Share on WhatsApp
+									</button>
 
 									<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
 										<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
 										Copy Link
+									</button>
+
+									<div class="border-t border-gray-100 my-1"></div>
+
+									<button type="button" onclick="generateQRCode('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+										<i class="fas fa-qrcode mr-2 w-4 text-slate-700"></i>
+										Generate QR Code
 									</button>
 								</div>
 							</div>
@@ -247,7 +272,14 @@
 							<!-- Comments Count -->
 							<div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-soft-xs border border-gray-100 text-slate-600 text-xs font-bold uppercase tracking-wider">
 								<i class="far fa-comment-dots text-slate-400"></i>
-								<span>{{ post.comments|length }}
+								<span>
+									{% set count = 0 %}
+									{% for c in post.comments %}
+										{% if c.status in ['visible', 'solution'] or (app_user and c.user == app_user) or isAdmin %}
+											{% set count = count + 1 %}
+										{% endif %}
+									{% endfor %}
+									{{ count }}
 									Replies</span>
 							</div>
 						</div>
@@ -366,6 +398,13 @@
 								Solution
 							</span>
 						{% endif %}
+
+						{% if comment.status == 'pending' %}
+							<span class="ml-2 px-2 py-0.5 text-[9px] font-bold text-orange-600 bg-orange-100 rounded-lg uppercase">
+								<i class="fas fa-clock mr-1"></i>
+								Pending Approval
+							</span>
+						{% endif %}
 					</div>
 
 					<div class="text-sm text-slate-600 leading-relaxed font-normal">
@@ -373,6 +412,13 @@
 					</div>
 
 					<div class="flex items-center mt-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+						{% set isCommentLiked = app_user ? comment.isLikedByUser(app_user) : false %}
+						<button onclick="handleCommentLike({{ comment.id }})" id="comment-like-btn-{{ comment.id }}" class="bg-transparent border-0 p-0 text-xs font-semibold uppercase cursor-pointer transition-all flex items-center {{ isCommentLiked ? 'text-fuchsia-600' : 'text-slate-500 hover:text-fuchsia-600' }}">
+							<i class="{{ isCommentLiked ? 'fas' : 'far' }} fa-heart mr-2 transition-colors"></i>
+							<span>Like</span>
+							<span id="comment-like-count-{{ comment.id }}" class="ml-1 text-[10px]">{{ comment.likes > 0 ? comment.likes : '' }}</span>
+						</button>
+
 						{% if not post.isCommentLocked and app_user %}
 							<button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="bg-transparent border-0 p-0 text-xs font-semibold text-slate-500 hover:text-purple-600 uppercase cursor-pointer transition-all flex items-center">
 								<i class="fas fa-reply mr-2 transition-colors"></i>
@@ -429,7 +475,9 @@
 					{% if comment.replies|length > 0 %}
 						<div class="ml-6 mt-2">
 							{% for reply in comment.replies %}
-								{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+								{% if reply.status in ['visible', 'solution'] or (app_user and reply.user == app_user) or isAdmin %}
+									{{ macros.render_comment(reply, post, app_user, depth + 1) }}
+								{% endif %}
 							{% endfor %}
 						</div>
 					{% endif %}
@@ -486,6 +534,37 @@ showCopied('Link copied to clipboard.');
 showError('Could not copy link. Please copy it manually.');
 console.error('Copy failed', err);
 }
+}
+
+const BASE_NETLIFY_URL = 'https://creaconetworkerss.netlify.app'; // Corrected Netlify URL
+
+function shareOnTwitter(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title}`);
+window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function shareOnWhatsApp(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const text = encodeURIComponent(`Check out this post on CreaCo Forum: ${title} - `);
+window.open(`https://api.whatsapp.com/send?text=${text}${encodeURIComponent(shareUrl)}`, '_blank');
+}
+
+function generateQRCode(title, content, username) {
+const shareUrl = `${BASE_NETLIFY_URL}/?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&username=${encodeURIComponent(username)}`;
+const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+Swal.fire({
+title: 'QR Code for: ' + title,
+imageUrl: qrUrl,
+imageWidth: 200,
+imageHeight: 200,
+imageAlt: 'QR Code',
+confirmButtonText: 'Close',
+buttonsStyling: false,
+customClass: {
+confirmButton: 'px-6 py-2 text-xs font-bold text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md'
+}
+});
 }
 
 // Close dropdowns on outside click or ESC
@@ -653,6 +732,44 @@ btn.classList.add('text-slate-600');
 } catch (err) {
 console.error('Reaction failed', err);
 }
+}
+
+async function handleCommentLike(commentId) {
+	const btn = document.getElementById(`comment-like-btn-${commentId}`);
+	const countSpan = document.getElementById(`comment-like-count-${commentId}`);
+	const icon = btn.querySelector('i');
+
+	try {
+		const response = await fetch(`/comment/${commentId}/like`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (response.status === 401) {
+			window.location.href = "{{ path('app_auth') }}";
+			return;
+		}
+
+		const data = await response.json();
+		if (data.success) {
+			countSpan.textContent = data.likes > 0 ? data.likes : '';
+			if (data.isLiked) {
+				btn.classList.add('text-fuchsia-600');
+				btn.classList.remove('text-slate-500', 'hover:text-fuchsia-600');
+				icon.classList.remove('far');
+				icon.classList.add('fas');
+			} else {
+				btn.classList.remove('text-fuchsia-600');
+				btn.classList.add('text-slate-500', 'hover:text-fuchsia-600');
+				icon.classList.remove('fas');
+				icon.classList.add('far');
+			}
+		}
+	} catch (err) {
+		console.error('Comment like failed', err);
+	}
 }
 
 // Long-press support for mobile

@@ -58,7 +58,7 @@ class Cours
     #[Assert\NotNull(message: "La catégorie est obligatoire")]
     private ?CategorieCours $categorie = null;
 
-    #[ORM\OneToMany(mappedBy: 'cours', targetEntity: Ressource::class, cascade: ['remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'cours', targetEntity: Ressource::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $ressources;
 
     #[ORM\Column(nullable: true)]

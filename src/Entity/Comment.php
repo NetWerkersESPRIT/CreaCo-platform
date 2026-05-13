@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use App\Entity\CommentLike;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -34,14 +34,14 @@ class Comment
         choices: ["visible", "hidden", "solution", "pending"],
         message: "Statut invalide. Choisis: visible, hidden, solution, pending."
     )]
-    private ?string $status = "visible";
+    private string $status = "visible";
 
     #[ORM\Column]
     #[Assert\PositiveOrZero(message: "Le nombre de likes doit être >= 0.")]
     private int $likes = 0;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    private \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
@@ -73,9 +73,16 @@ class Comment
     #[ORM\Column(options: ["default" => 0])]
     private int $grammarErrors = 0;
 
+    /**
+     * @var Collection<int, CommentLike>
+     */
+    #[ORM\OneToMany(targetEntity: CommentLike::class, mappedBy: 'comment', cascade: ['remove'])]
+    private Collection $commentLikes;
+
     public function __construct()
     {
         $this->replies = new ArrayCollection();
+        $this->commentLikes = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
@@ -96,7 +103,7 @@ class Comment
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -118,7 +125,7 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -129,12 +136,12 @@ class Comment
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
         return $this;
@@ -231,5 +238,45 @@ class Comment
     {
         $this->grammarErrors = $grammarErrors;
         return $this;
+    }
+
+    /**
+     * @return Collection<int, CommentLike>
+     */
+    public function getCommentLikes(): Collection
+    {
+        return $this->commentLikes;
+    }
+
+    public function addCommentLike(CommentLike $commentLike): static
+    {
+        if (!$this->commentLikes->contains($commentLike)) {
+            $this->commentLikes->add($commentLike);
+            $commentLike->setComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentLike(CommentLike $commentLike): static
+    {
+        if ($this->commentLikes->removeElement($commentLike)) {
+            if ($commentLike->getComment() === $this) {
+                $commentLike->setComment(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isLikedByUser(?Users $user): bool
+    {
+        if (!$user) return false;
+        foreach ($this->commentLikes as $like) {
+            if ($like->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
     }
 }

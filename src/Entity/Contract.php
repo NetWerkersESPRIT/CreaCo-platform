@@ -77,15 +77,15 @@ class Contract
     private ?\DateTimeInterface $sentAt = null;
 
     #[ORM\OneToOne(targetEntity: CollabRequest::class, inversedBy: 'contract')]
-    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(nullable: false, onDelete: "RESTRICT")]
     private ?CollabRequest $collabRequest = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'contracts')]
-    #[ORM\JoinColumn(nullable: true, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?Users $creator = null;
 
     #[ORM\ManyToOne(targetEntity: Collaborator::class, inversedBy: 'contracts')]
-    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     private ?Collaborator $collaborator = null;
 
     public function __construct()

@@ -22,122 +22,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class TSKController extends AbstractController
 {
-
-    #[Route('/idea', name: 'app_idea_index', methods: ['GET'])]
-    public function ideaIndex(Request $request, IdeaRepository $ideaRepository, \App\Service\IdeaRecommendationService $recommendationService, EntityManagerInterface $entityManager): Response
-    {
-        $session = $request->getSession();
-        $userId = $session->get('user_id');
-        $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-
-        if (!$user) {
-            $recommendedIdeas = $ideaRepository->findBy([], ['id' => 'DESC'], 6);
-        } else {
-            $recommendedIdeas = $recommendationService->getHybridRecommendations($user, 6);
-        }
-
-        $trendingIdeas = $recommendationService->getTrendingIdeas(6);
-
-        return $this->render('tsk/index.html.twig', [
-            'ideas' => $ideaRepository->findAll(),
-            'recommended_ideas' => $recommendedIdeas,
-            'trending_ideas' => $trendingIdeas,
-            'current_period' => 'today',
-        ]);
-    }
-
-    #[Route('/idea/new', name: 'app_idea_new', methods: ['GET', 'POST'])]
-    public function ideaNew(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $idea = new Idea();
-        $form = $this->createForm(IdeaType::class, $idea);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $idea->setCreatedAt(new \DateTimeImmutable());
-
-            $session = $request->getSession();
-            $userId = $session->get('user_id');
-            $user = $userId ? $entityManager->getRepository(Users::class)->find($userId) : null;
-
-            if ($user) {
-                $idea->setCreator($user);
-            }
-
-            $entityManager->persist($idea);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Idée créée avec succès !');
-
-            if ($request->query->get('from_mission')) {
-                return $this->redirectToRoute('app_mission_new', [
-                    'idea_id' => $idea->getId(),
-                    'm_title' => $request->query->get('m_title'),
-                    'm_desc' => $request->query->get('m_desc'),
-                    'm_state' => $request->query->get('m_state'),
-                ]);
-            }
-
-            return $this->redirectToRoute('app_idea_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('tsk/new.html.twig', [
-            'idea' => $idea,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/idea/trending', name: 'app_idea_trending', methods: ['GET'])]
-    public function trendingIdeas(Request $request, \App\Service\IdeaRecommendationService $recommendationService): Response
-    {
-        $period = $request->query->get('period', 'week');
-        $trendingIdeas = $recommendationService->getTrendingIdeas(6, $period);
-
-        return $this->render('tsk/_trending_ideas.html.twig', [
-            'trending_ideas' => $trendingIdeas,
-        ]);
-    }
-
-    #[Route('/idea/{id}', name: 'app_idea_show', methods: ['GET'])]
-    public function ideaShow(Idea $idea): Response
-    {
-        return $this->render('tsk/show.html.twig', [
-            'idea' => $idea,
-        ]);
-    }
-
-    #[Route('/idea/{id}/edit', name: 'app_idea_edit', methods: ['GET', 'POST'])]
-    public function ideaEdit(Request $request, Idea $idea, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(IdeaType::class, $idea);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Idea updated successfully!');
-
-            return $this->redirectToRoute('app_idea_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('tsk/edit.html.twig', [
-            'idea' => $idea,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/idea/{id}', name: 'app_idea_delete', methods: ['POST'])]
-    public function ideaDelete(Request $request, Idea $idea, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $idea->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($idea);
-            $entityManager->flush();
-            $this->addFlash('success', 'Idea deleted successfully!');
-        }
-
-        return $this->redirectToRoute('app_idea_index', [], Response::HTTP_SEE_OTHER);
-    }
-
     // --- MISSION ---
 
     #[Route('/mission', name: 'app_mission_index', methods: ['GET'])]
@@ -217,13 +101,13 @@ final class TSKController extends AbstractController
         }
 
         if ($request->query->has('m_title')) {
-            $mission->setTitle($request->query->get('m_title'));
+            $mission->setTitle((string)$request->query->get('m_title'));
         }
         if ($request->query->has('m_desc')) {
-            $mission->setDescription($request->query->get('m_desc'));
+            $mission->setDescription((string)$request->query->get('m_desc'));
         }
         if ($request->query->has('m_state')) {
-            $mission->setState($request->query->get('m_state'));
+            $mission->setState((string)$request->query->get('m_state'));
         }
 
         $dateParam = $request->query->get('date');
@@ -253,9 +137,9 @@ final class TSKController extends AbstractController
             if (!$mission->getDescription() && $mission->getImplementIdea()) {
                 $idea = $mission->getImplementIdea();
                 $aiDesc = $generator->generate(
-                    $mission->getTitle(),
-                    $idea->getTitle(),
-                    $idea->getDescription(),
+                    (string)$mission->getTitle(),
+                    (string)$idea->getTitle(),
+                    (string)$idea->getDescription(),
                     $idea->getCategory()
                 );
                 $mission->setDescription($aiDesc);
@@ -323,7 +207,7 @@ final class TSKController extends AbstractController
         $ideaDescription = $idea ? $idea->getDescription() : null;
         $ideaCategory = $idea ? $idea->getCategory() : null;
 
-        $aiDesc = $generator->generate($title, $ideaTitle, $ideaDescription, $ideaCategory);
+        $aiDesc = $generator->generate((string)$title, (string)$ideaTitle, $ideaDescription, $ideaCategory);
 
         return $this->json(['description' => $aiDesc]);
     }
@@ -418,7 +302,7 @@ final class TSKController extends AbstractController
             }
         }
 
-        if ($this->isCsrfTokenValid('delete' . $mission->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $mission->getId(), (string)$request->request->get('_token'))) {
             $entityManager->remove($mission);
             $entityManager->flush();
             $this->addFlash('success', 'Mission deleted successfully!');
@@ -481,10 +365,10 @@ final class TSKController extends AbstractController
 
         // Restore task form data from query parameters (when returning from mission creation)
         if ($request->query->has('title')) {
-            $task->setTitle($request->query->get('title'));
+            $task->setTitle((string)$request->query->get('title'));
         }
         if ($request->query->has('description')) {
-            $task->setDescription($request->query->get('description'));
+            $task->setDescription((string)$request->query->get('description'));
         }
         if ($request->query->has('t_date') && $request->query->has('t_time')) {
             try {
@@ -689,7 +573,7 @@ final class TSKController extends AbstractController
     #[Route('/task/{id}', name: 'app_task_delete', methods: ['POST'])]
     public function taskDelete(Request $request, Task $task, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $task->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $task->getId(), (string)$request->request->get('_token'))) {
             $entityManager->remove($task);
             $entityManager->flush();
             $this->addFlash('success', 'Task deleted successfully!');

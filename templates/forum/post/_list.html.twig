@@ -108,22 +108,22 @@
 					onclick="handleMainReaction({{ post.id }})" 
 					class="flex items-center px-4 py-2 hover:bg-gray-50 rounded-xl transition-all border-0 shadow-none cursor-pointer {{ userReaction ? 'text-fuchsia-600 active-glow' : 'text-slate-600' }}">
 
-					{% if userReaction == 'like' %}
+					{% if userReaction|lower == 'like' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f44d.png" class="w-5 h-5 mr-2" alt="👍">
 						<span class="text-xs font-bold">Like</span>
-					{% elseif userReaction == 'love' %}
+					{% elseif userReaction|lower == 'love' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2764.png" class="w-5 h-5 mr-2" alt="❤️">
 						<span class="text-xs font-bold">Love</span>
-					{% elseif userReaction == 'haha' %}
+					{% elseif userReaction|lower == 'haha' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f602.png" class="w-5 h-5 mr-2" alt="😂">
 						<span class="text-xs font-bold">Haha</span>
-					{% elseif userReaction == 'wow' %}
+					{% elseif userReaction|lower == 'wow' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f62e.png" class="w-5 h-5 mr-2" alt="😮">
 						<span class="text-xs font-bold">Wow</span>
-					{% elseif userReaction == 'sad' %}
+					{% elseif userReaction|lower == 'sad' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f622.png" class="w-5 h-5 mr-2" alt="😢">
 						<span class="text-xs font-bold">Sad</span>
-					{% elseif userReaction == 'angry' %}
+					{% elseif userReaction|lower == 'angry' %}
 						<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f621.png" class="w-5 h-5 mr-2" alt="😡">
 						<span class="text-xs font-bold">Angry</span>
 					{% else %}
@@ -201,10 +201,27 @@
 					<i class="fas fa-share text-xs text-slate-400 group-hover:text-purple-700 transition-colors mr-2"></i>
 					<span class="text-xs font-bold">Share</span>
 				</button>
-				<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+				<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-56 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
+					<button type="button" onclick="shareOnTwitter('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+						<i class="fab fa-twitter mr-2 w-4 text-sky-500"></i>
+						Share on Twitter
+					</button>
+
+					<button type="button" onclick="shareOnWhatsApp('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+						<i class="fab fa-whatsapp mr-2 w-4 text-green-500"></i>
+						Share on WhatsApp
+					</button>
+
 					<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
 						<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
 						Copy Link
+					</button>
+
+					<div class="border-t border-gray-100 my-1"></div>
+
+					<button type="button" onclick="generateQRCode('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
+						<i class="fas fa-qrcode mr-2 w-4 text-slate-700"></i>
+						Generate QR Code
 					</button>
 				</div>
 			</div>

@@ -67,6 +67,11 @@ class PostReactionController extends AbstractController
 
         $em->flush();
 
+        // Update total likes count in post table for JavaFX compatibility
+        $totalLikes = $reactionRepo->count(['post' => $post]);
+        $post->setLikes($totalLikes);
+        $em->flush();
+
         // Get updated counts
         $counts = $reactionRepo->countByPostAndType($post->getId());
 

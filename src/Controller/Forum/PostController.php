@@ -32,8 +32,9 @@ final class PostController extends AbstractController
     {
         $query = $request->query->get('q');
         $user = $this->getUser();
-        $isAdmin = $user instanceof Users && strtolower(trim($user->getRole())) === 'admin';
+        $isAdmin = $user instanceof Users && strtolower(trim((string)$user->getRole())) === 'admin';
 
+        /** @var PostRepository $repo */
         $repo = $entityManager->getRepository(Post::class);
         $isAdmin = $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
 
@@ -42,13 +43,9 @@ final class PostController extends AbstractController
             $qb->where('p.title LIKE :query OR p.content LIKE :query')
                 ->setParameter('query', '%' . $query . '%');
             
-            if ($isAdmin) {
-                $qb->andWhere('p.status IN (:statuses)')
-                    ->setParameter('statuses', ['published', 'solved', 'pending']);
-            } else {
-                $qb->andWhere('p.status IN (:statuses)')
-                    ->setParameter('statuses', ['published', 'solved']);
-            }
+            // Only show published and solved posts to regular users
+            $qb->andWhere('p.status IN (:statuses)')
+                ->setParameter('statuses', ['published', 'solved']);
             
             // Apply pinning logic even in search if possible, or just date
             $posts = $qb->orderBy('p.pinned', 'DESC')
@@ -56,14 +53,8 @@ final class PostController extends AbstractController
                        ->getQuery()
                        ->getResult();
         } else {
-            if ($isAdmin) {
-                $posts = $repo->findBy(
-                    ['status' => ['published', 'solved', 'pending']], 
-                    ['pinned' => 'DESC', 'createdAt' => 'DESC']
-                );
-            } else {
-                $posts = $repo->findPublishedPinnedFirst();
-            }
+            // Only show published posts to regular users
+            $posts = $repo->findPublishedPinnedFirst();
         }
 
         $this->checkModerationNotifications($entityManager);
@@ -102,7 +93,7 @@ final class PostController extends AbstractController
             $isAdmin = false;
             if ($user instanceof Users) {
                 $post->setUser($user);
-                $isAdmin = strtolower(trim($user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
+                $isAdmin = strtolower(trim((string)$user->getRole())) === 'role_admin' || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
             } else {
                 $post->setUser(null);
             }
@@ -113,7 +104,7 @@ final class PostController extends AbstractController
                 $post->setStatus('pending');
             }
 
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $post->getImageFile();
             if ($imageFile) {
                 $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -121,8 +112,9 @@ final class PostController extends AbstractController
                 $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
                 try {
+                    $projectDir = $this->getParameter('kernel.project_dir');
                     $imageFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $projectDir . '/public/uploads',
                         $newFilename
                     );
                     $post->setImageName($newFilename);
@@ -154,7 +146,7 @@ if ($pdfFile) {
                 $title = $post->getTitle();
                 $correctedTitle = $textGears->correct($title);
                 $checkTitle = $profanity->check($correctedTitle);
-                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+                $post->setTitle($checkTitle['filteredText']);
 
                 // 2. Content Moderation
                 $content = (string)$post->getContent();
@@ -167,10 +159,10 @@ if ($pdfFile) {
                 }
 
                 $checkContent = $profanity->check(strip_tags($correctedContent)); // Check plain text for profanity
-                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
+                $post->setContent($checkContent['isProfane'] ? $checkContent['filteredText'] : $correctedContent);
 
                 // 3. Aggregate Moderation Status
-                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $profaneFound = $checkTitle['isProfane'] || $checkContent['isProfane'];
                 $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
                 
                 $post->setIsProfane($profaneFound);
@@ -255,7 +247,7 @@ if ($pdfFile) {
         $isOwner = $user && $post->getUser() === $user;
 
         // Block access to pending/refused posts for unauthorized users
-        if (!in_array($post->getStatus(), ['published', 'solved']) && !$isAdmin && !$isOwner) {
+        if (in_array($post->getStatus(), ['pending', 'refused']) && !$isAdmin && !$isOwner) {
             throw $this->createAccessDeniedException('This post is pending moderation or has been refused.');
         }
 
@@ -265,12 +257,31 @@ if ($pdfFile) {
 
         $this->checkModerationNotifications($em);
 
+        $commentRepo = $em->getRepository(Comment::class);
+        $qb = $commentRepo->createQueryBuilder('c')
+            ->where('c.post = :post')
+            ->andWhere('c.parentComment IS NULL')
+            ->setParameter('post', $post)
+            ->orderBy('c.createdAt', 'ASC');
+
+        if (!$isAdmin) {
+            if ($user) {
+                $qb->andWhere('c.status IN (:visible_statuses) OR (c.user = :current_user AND c.status = :pending_status)')
+                   ->setParameter('visible_statuses', ['visible', 'solution'])
+                   ->setParameter('current_user', $user)
+                   ->setParameter('pending_status', 'pending');
+            } else {
+                $qb->andWhere('c.status IN (:visible_statuses)')
+                   ->setParameter('visible_statuses', ['visible', 'solution']);
+            }
+        } else {
+            $qb->andWhere('c.status IN (:all_statuses)')
+               ->setParameter('all_statuses', ['visible', 'solution', 'pending', 'hidden']);
+        }
+
         return $this->render('forum/post/show.html.twig', [
             'post' => $post,
-            'comments' => $em->getRepository(Comment::class)->findBy(
-                ['post' => $post, 'parentComment' => null, 'status' => ['visible', 'solution']],
-                ['createdAt' => 'ASC']
-            ),
+            'comments' => $qb->getQuery()->getResult(),
             'commentForm' => $commentForm->createView(),
         ]);
     }
@@ -333,7 +344,7 @@ if ($pdfFile) {
                 $title = $post->getTitle();
                 $correctedTitle = $textGears->correct($title);
                 $checkTitle = $profanity->check($correctedTitle);
-                $post->setTitle($checkTitle['filteredText'] ?? $correctedTitle);
+                $post->setTitle($checkTitle['filteredText']);
 
                 // 2. Content Moderation
                 $content = (string)$post->getContent();
@@ -346,10 +357,10 @@ if ($pdfFile) {
                 }
 
                 $checkContent = $profanity->check(strip_tags($correctedContent));
-                $post->setContent($checkContent['isProfane'] ? ($checkContent['filteredText'] ?? $correctedContent) : $correctedContent);
+                $post->setContent($checkContent['isProfane'] ? $checkContent['filteredText'] : $correctedContent);
 
                 // 3. Aggregate Moderation Status
-                $profaneFound = ($checkTitle['isProfane'] ?? false) || ($checkContent['isProfane'] ?? false);
+                $profaneFound = $checkTitle['isProfane'] || $checkContent['isProfane'];
                 $totalProfaneWords = ($checkTitle['profaneWords'] ?? 0) + ($checkContent['profaneWords'] ?? 0);
                 
                 $post->setIsProfane($profaneFound);
@@ -373,7 +384,7 @@ if ($pdfFile) {
                 // Fallback: keep original title/content
             }
 
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $post->getImageFile();
             if ($imageFile) {
 
@@ -399,7 +410,7 @@ if ($pdfFile) {
                 }
             }
 
-            /** @var UploadedFile $pdfFile */
+            /** @var UploadedFile|null $pdfFile */
             $pdfFile = $post->getPdfFile();
             if ($pdfFile) {
                 if ($post->getPdfName()) {
@@ -488,10 +499,24 @@ if ($pdfFile) {
             throw $this->createAccessDeniedException('Only administrators can pin posts.');
         }
 
-        $post->setPinned(!$post->isPinned());
+        $isCurrentlyPinned = $post->isPinned();
+
+        if (!$isCurrentlyPinned) {
+            // Unpin all other posts first to ensure only one post is pinned
+            $repo = $em->getRepository(Post::class);
+            $pinnedPosts = $repo->findBy(['pinned' => true]);
+            foreach ($pinnedPosts as $pinnedPost) {
+                $pinnedPost->setPinned(false);
+            }
+            $post->setPinned(true);
+            $this->addFlash('success', 'Post pinned! Previous pinned post has been unpinned.');
+        } else {
+            $post->setPinned(false);
+            $this->addFlash('success', 'Post unpinned.');
+        }
+
         $em->flush();
 
-        $this->addFlash('success', $post->isPinned() ? 'Post pinned!' : 'Post unpinned.');
         return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_post_show', ['id' => $post->getId()]));
     }
 

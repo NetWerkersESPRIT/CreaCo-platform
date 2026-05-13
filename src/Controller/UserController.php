@@ -32,8 +32,11 @@ final class UserController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
-            $user->setPassword($hashedPassword);
+            $plainPassword = $user->getPassword();
+            if ($plainPassword !== null) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setPassword($hashedPassword);
+            }
 
             $em->persist($user);
             $em->flush();
@@ -75,7 +78,7 @@ final class UserController extends AbstractController
     #[Route('/profile', name: 'app_profile')]
     public function index(Request $request, UsersRepository $userRepository, EntityManagerInterface $em): Response
     {
-        $session = $request->getSession();
+        $session = $request->hasSession() ? $request->getSession() : null;
         $userId = $session ? $session->get('user_id') : null;
 
         if (!$userId) {
@@ -122,7 +125,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/signup/google', name: 'google_signup_start')]
-    public function googleSignupStart(ClientRegistry $clientRegistry)
+    public function googleSignupStart(ClientRegistry $clientRegistry): Response
     {
         return $clientRegistry
             ->getClient('google_signup')
@@ -133,7 +136,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/signup/google/check', name: 'google_signup_check')]
-    public function googleSignupCheck() {}
+    public function googleSignupCheck(): void {}
 
     #[Route('/add-member', name: 'app_add_member', methods: ['GET', 'POST'])]
     public function addMember(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
@@ -179,8 +182,11 @@ final class UserController extends AbstractController
             if ($existingUser) {
                 $this->addFlash('error', 'A user with this email already exists. Use "Add Existing Member" instead.');
             } else {
-                $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
-                $user->setPassword($hashedPassword);
+                $plainPassword = $user->getPassword();
+                if ($plainPassword !== null) {
+                    $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                    $user->setPassword($hashedPassword);
+                }
                 
                 $group->addMember($user);
                 $em->persist($user);
@@ -322,7 +328,7 @@ final class UserController extends AbstractController
         $session = $request->getSession();
         $currentUserId = $session->get('user_id');
 
-        if (!$currentUserId || $notification->getUserId()->getId() !== (int)$currentUserId) {
+        if (!$currentUserId || !($user = $notification->getUserId()) || $user->getId() !== (int)$currentUserId) {
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
@@ -338,14 +344,11 @@ final class UserController extends AbstractController
         $user = $notification->getUserId();
         
         // Add user to group
-        $group->addMember($user);
-        
-        // Update notification - or in this case, delete it as requested
-        $em->remove($notification);
-        
-        // Populate legacy groupid
-        if (!$user->getGroupid()) {
-            $user->setGroupid($group->getId());
+        if ($user instanceof Users) {
+            $group->addMember($user);
+            
+            // Update notification - or in this case, delete it as requested
+            $em->remove($notification);
         }
 
         $em->flush();
@@ -359,7 +362,7 @@ final class UserController extends AbstractController
         $session = $request->getSession();
         $currentUserId = $session->get('user_id');
 
-        if (!$currentUserId || $notification->getUserId()->getId() !== (int)$currentUserId) {
+        if (!$currentUserId || !($user = $notification->getUserId()) || $user->getId() !== (int)$currentUserId) {
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
@@ -385,7 +388,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_profile');
         }
 
-        if (!$this->isCsrfTokenValid('detach' . $member->getId(), $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('detach' . $member->getId(), (string)$request->request->get('_token'))) {
             $this->addFlash('error', 'Invalid CSRF token');
             return $this->redirectToRoute('app_profile');
         }
