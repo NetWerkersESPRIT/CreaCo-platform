@@ -35,6 +35,7 @@ class ManagerCollabDashboardController extends AbstractController
             'active_contracts' => $contractRepo->countActiveForRevisor($userId),
             'total_budget' => $contractRepo->getTotalBudgetForRevisor($userId),
             'pending_requests' => $requestRepo->countPendingByRevisor($userId),
+            'velocity_data' => $contractRepo->getVelocityData(),
         ];
 
         // "Executive Control Tower": Specific KPIs for Admin
@@ -47,7 +48,6 @@ class ManagerCollabDashboardController extends AbstractController
             $stats['ai_accuracy'] = $contractRepo->getAiPredictionAccuracy();
 
             // New Real Metrics
-            $stats['velocity_data'] = $contractRepo->getVelocityData();
             $stats['ai_confidence'] = $contractRepo->getAiConfidenceDistribution();
             $stats['velocity_comparison'] = $contractRepo->getSignatureVelocityComparison();
         }

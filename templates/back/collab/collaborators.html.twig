@@ -1,70 +1,85 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des Collaborateurs{% endblock %}
+{% block title %}Partners Directory{% endblock %}
 
-{% block breadcrumb %}
+{% block breadcrumbs %}
     <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
-        Collaborateurs
+        Collaboration
+    </li>
+    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']" aria-current="page">
+        Partners
     </li>
 {% endblock %}
 
-{% block page_title %}Gestion des Collaborateurs{% endblock %}
+{% block page_title %}Partners Directory{% endblock %}
 
 {% block body %}
-<div class="flex flex-wrap -mx-3">
-    <div class="flex-none w-full max-w-full px-3">
-        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
-            <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex justify-between items-center">
-                <h6>Liste des Collaborateurs</h6>
-            </div>
-            <div class="flex-auto px-0 pt-0 pb-2">
-                <div class="p-0 overflow-x-auto">
-                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                        <thead class="align-bottom">
-                            <tr>
-                                <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Nom / Entreprise</th>
-                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Email</th>
-                                <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Téléphone</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Statut</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for collaborator in collaborators %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3 mb-4">
+        <div class="w-full px-3 flex justify-end">
+            <a href="{{ path('admin_collab_collaborator_new') }}" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 hover:scale-102 active:opacity-85 hover:shadow-soft-xs whitespace-nowrap">
+                <i class="fas fa-plus mr-2"></i> Register New Partner
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3">
+        <div class="w-full px-3">
+            <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 bg-white rounded-t-2xl">
+                    <h6 class="mb-0">All Strategic Partners</h6>
+                </div>
+                <div class="flex-auto px-0 pt-0 pb-2">
+                    <div class="p-0 overflow-x-auto">
+                        <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                            <thead class="align-bottom">
                                 <tr>
-                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                        <div class="flex px-2 py-1">
-                                            <div class="flex flex-col justify-center">
-                                                <h6 class="mb-0 text-sm leading-normal">{{ collaborator.name }}</h6>
-                                                <p class="mb-0 text-xs leading-tight text-slate-400">{{ collaborator.companyName }}</p>
+                                    <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Partner Entity</th>
+                                    <th class="px-6 py-3 pl-2 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Domain</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Joined</th>
+                                    <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for partner in collaborators %}
+                                    <tr>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <div class="flex px-4 py-1">
+                                                <div class="flex flex-col justify-center">
+                                                    <h6 class="mb-0 text-sm leading-normal font-bold">{{ partner.companyName }}</h6>
+                                                    <p class="mb-0 text-xs leading-tight text-slate-400">{{ partner.email }}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                        <p class="mb-0 text-xs font-semibold leading-tight">{{ collaborator.email }}</p>
-                                    </td>
-                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                        <p class="mb-0 text-xs font-semibold leading-tight">{{ collaborator.phone|default('-') }}</p>
-                                    </td>
-                                    <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent text-center">
-                                        <span class="bg-gradient-to-tl {% if collaborator.status == 'ACTIVE' %}from-green-600 to-lime-400{% else %}from-slate-600 to-slate-300{% endif %} px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ collaborator.status }}</span>
-                                    </td>
-                                    <td class="p-2 text-center align-middle bg-transparent border-b shadow-transparent">
-                                        <form method="post" action="{{ path('admin_collab_collaborator_delete', {'id': collaborator.id}) }}" onsubmit="return confirm('Etes-vous sûr de vouloir supprimer ce collaborateur ?');" style="display:inline-block;">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collaborator.id) }}">
-                                            <button class="text-xs font-semibold leading-tight text-red-500 bg-gray-100 px-3 py-1 rounded-lg border-0 cursor-pointer">
-                                                <i class="ni ni-fat-delete mr-1"></i> Supprimer
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="5" class="p-4 text-center">Aucun collaborateur trouvé</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                        </td>
+                                        <td class="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <p class="mb-0 text-xs font-bold leading-tight">{{ partner.domain }}</p>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            {% if partner.status == 'ACTIVE' %}
+                                                <span class="bg-gradient-to-tl from-green-600 to-lime-400 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">Active</span>
+                                            {% else %}
+                                                <span class="bg-gradient-to-tl from-slate-600 to-slate-300 px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white">{{ partner.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <span class="text-xs font-bold leading-tight text-slate-400">{{ partner.createdAt|date('d/m/Y') }}</span>
+                                        </td>
+                                        <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                            <div class="flex justify-center space-x-2">
+                                                <a href="{{ path('admin_collab_collaborator_show', {'id': partner.id}) }}" class="text-xs font-semibold leading-tight text-slate-400"> View </a>
+                                                <a href="{{ path('admin_collab_collaborator_edit', {'id': partner.id}) }}" class="text-xs font-semibold leading-tight text-slate-400"> Edit </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-400 italic">No partners found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

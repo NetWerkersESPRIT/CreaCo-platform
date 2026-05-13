@@ -70,4 +70,14 @@ class CollaboratorRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countByStatus(string $status): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('count(c.id)')
+            ->where('c.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
