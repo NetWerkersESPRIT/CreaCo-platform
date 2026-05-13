@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Collaborations Hub - Admin{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full px-3">
+            <nav aria-label="breadcrumb">
+                <ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+                    <li class="text-sm leading-normal">
+                        <a class="opacity-50 text-slate-700" href="javascript:;">Pages</a>
+                    </li>
+                    <li class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-300 before:content-['/']" aria-current="page">
+                        Collaborations
+                    </li>
+                </ol>
+                <h6 class="mb-0 font-bold capitalize">Collaborations Hub</h6>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Top 3 Panels -->
+    <div class="flex flex-wrap -mx-3">
+        <!-- Partners Panel -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 animate-fade-in-up stagger-1">
+            <a href="{{ path('admin_collab_collaborators') }}" class="block group">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:shadow-soft-2xl transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-sm font-semibold leading-normal text-slate-600">Partners</p>
+                                    <h5 class="mb-0 font-bold text-4xl text-slate-700">
+                                        {{ stats.partners.total }}
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gray-100 group-hover:bg-gradient-to-tl group-hover:from-purple-700 group-hover:to-pink-500 transition-all">
+                                    <i class="ni ni-world text-lg relative top-2.5 text-slate-700 group-hover:text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mt-4 space-x-2">
+                            <div class="px-3 py-1 bg-pink-50 rounded-lg text-center flex-1">
+                                <p class="text-[10px] font-bold text-pink-500 uppercase mb-0">Active</p>
+                                <span class="font-bold text-slate-700">{{ stats.partners.active }}</span>
+                            </div>
+                            <div class="px-3 py-1 bg-gray-50 rounded-lg text-center flex-1">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-0">Inactive</p>
+                                <span class="font-bold text-slate-700">{{ stats.partners.inactive }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Contracts Panel -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 animate-fade-in-up stagger-2">
+            <a href="{{ path('admin_collab_contracts') }}" class="block group">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:shadow-soft-2xl transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-sm font-semibold leading-normal text-slate-600">Contracts</p>
+                                    <h5 class="mb-0 font-bold text-4xl text-slate-700">
+                                        {{ stats.contracts.total }}
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gray-100 group-hover:bg-gradient-to-tl group-hover:from-purple-700 group-hover:to-pink-500 transition-all">
+                                    <i class="ni ni-paper-diploma text-lg relative top-2.5 text-slate-700 group-hover:text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mt-4 space-x-2">
+                            <div class="px-2 py-1 bg-pink-50 rounded-lg text-center flex-1">
+                                <p class="text-[10px] font-bold text-pink-500 uppercase mb-0">Signed</p>
+                                <span class="font-bold text-slate-700">{{ stats.contracts.signed }}</span>
+                            </div>
+                            <div class="px-2 py-1 bg-purple-50 rounded-lg text-center flex-1">
+                                <p class="text-[10px] font-bold text-purple-500 uppercase mb-0">Pending</p>
+                                <span class="font-bold text-slate-700">{{ stats.contracts.pending }}</span>
+                            </div>
+                            <div class="px-2 py-1 bg-red-50 rounded-lg text-center flex-1">
+                                <p class="text-[10px] font-bold text-red-500 uppercase mb-0">Expired</p>
+                                <span class="font-bold text-slate-700">{{ stats.contracts.expired }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Collab Requests Panel -->
+        <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 lg:w-1/3 animate-fade-in-up stagger-3">
+            <a href="{{ path('admin_collab_requests') }}" class="block group">
+                <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border hover:shadow-soft-2xl transition-all duration-300">
+                    <div class="flex-auto p-4">
+                        <div class="flex flex-row -mx-3">
+                            <div class="flex-none w-2/3 max-w-full px-3">
+                                <div>
+                                    <p class="mb-0 font-sans text-sm font-semibold leading-normal text-slate-600">Collab Requests</p>
+                                    <h5 class="mb-0 font-bold text-4xl text-slate-700">
+                                        {{ stats.requests.total }}
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="px-3 text-right basis-1/3">
+                                <div class="inline-block w-12 h-12 text-center rounded-lg bg-gray-100 group-hover:bg-gradient-to-tl group-hover:from-purple-700 group-hover:to-pink-500 transition-all">
+                                    <i class="ni ni-chat-round text-lg relative top-2.5 text-slate-700 group-hover:text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mt-4 space-x-1">
+                            <div class="px-1 py-1 bg-purple-50 rounded text-center flex-1">
+                                <p class="text-[8px] font-bold text-purple-500 uppercase mb-0">Pend.</p>
+                                <span class="font-bold text-slate-700 text-xs">{{ stats.requests.pending }}</span>
+                            </div>
+                            <div class="px-1 py-1 bg-pink-50 rounded text-center flex-1">
+                                <p class="text-[8px] font-bold text-pink-500 uppercase mb-0">Appr.</p>
+                                <span class="font-bold text-slate-700 text-xs">{{ stats.requests.approved }}</span>
+                            </div>
+                            <div class="px-1 py-1 bg-gray-50 rounded text-center flex-1">
+                                <p class="text-[8px] font-bold text-slate-400 uppercase mb-0">Rej.</p>
+                                <span class="font-bold text-slate-700 text-xs">{{ stats.requests.rejected }}</span>
+                            </div>
+                            <div class="px-1 py-1 bg-blue-50 rounded text-center flex-1">
+                                <p class="text-[8px] font-bold text-blue-400 uppercase mb-0">Rev.</p>
+                                <span class="font-bold text-slate-700 text-xs">{{ stats.requests.revision }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Secondary Stats Row -->
+    <div class="flex flex-wrap -mx-3 mt-6">
+        <div class="w-full px-3 mb-6 lg:w-4/12 animate-fade-in-up stagger-1">
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 h-full border border-gray-100">
+                <p class="text-xs font-bold uppercase opacity-60 mb-1 text-slate-500">Total Revenue Secured</p>
+                <h3 class="font-bold text-3xl mb-1 text-slate-700">{{ stats.revenue|number_format(0, '.', ' ') }} DT</h3>
+                <p class="text-xs font-bold text-pink-500">
+                    <i class="fa fa-caret-up mr-1"></i> 12% vs last month
+                </p>
+            </div>
+        </div>
+        <div class="w-full px-3 mb-6 lg:w-4/12 animate-fade-in-up stagger-2">
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 h-full border border-gray-100">
+                <p class="text-xs font-bold uppercase opacity-60 mb-1 text-slate-500">Avg. Time to Sign</p>
+                <h3 class="font-bold text-3xl mb-1 text-slate-700">{{ stats.avg_time }} hrs</h3>
+                <p class="text-xs font-bold text-purple-500">
+                    <i class="fa fa-caret-down mr-1"></i> 8% faster than last month
+                </p>
+            </div>
+        </div>
+        <div class="w-full px-3 mb-6 lg:w-4/12 animate-fade-in-up stagger-3">
+            <div class="bg-yellow-50 border border-yellow-200 shadow-soft-xl rounded-2xl p-6 h-full">
+                <p class="text-xs font-bold uppercase text-yellow-700 mb-1">ACTION NEEDED</p>
+                <h3 class="font-bold text-3xl text-yellow-800 mb-1">{{ stats.requests.pending }}</h3>
+                <p class="text-xs text-yellow-700">
+                    {{ stats.requests.pending }} pending requests requiring decision.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lists Row -->
+    <div class="flex flex-wrap -mx-3 mt-6">
+        <!-- Recent Partners -->
+        <div class="w-full px-3 mb-6 lg:w-3/12 animate-fade-in-up stagger-1">
+            <div class="bg-white shadow-soft-xl rounded-2xl h-full flex flex-col">
+                <div class="p-4 pb-0">
+                    <h6 class="font-bold flex items-center text-slate-700">
+                        <span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
+                        Recent partners
+                    </h6>
+                </div>
+                <div class="flex-auto p-4">
+                    {% for partner in recent_partners %}
+                        <div class="flex items-center mb-4 last:mb-0">
+                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mr-3 shadow-sm">
+                                <span class="font-bold text-purple-500 text-xs">{{ partner.companyName|slice(0, 1)|upper }}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h6 class="mb-0 text-xs font-bold text-slate-700">{{ partner.companyName }}</h6>
+                                <p class="mb-0 text-[10px] text-slate-400 font-semibold uppercase">{{ partner.domain }}</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-100 text-pink-500 uppercase">{{ partner.status }}</span>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400 italic">No recent partners.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Contracts -->
+        <div class="w-full px-3 mb-6 lg:w-5/12 animate-fade-in-up stagger-2">
+            <div class="bg-white shadow-soft-xl rounded-2xl h-full flex flex-col">
+                <div class="p-4 pb-0">
+                    <h6 class="font-bold flex items-center text-slate-700">
+                        <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span>
+                        Recent contracts
+                    </h6>
+                </div>
+                <div class="flex-auto p-4">
+                    {% for contract in recent_contracts %}
+                        <div class="flex items-center mb-4 last:mb-0 group">
+                            <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center mr-3">
+                                <i class="ni ni-single-copy-04 text-green-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="mb-0 text-[10px] text-slate-400 font-bold uppercase">{{ contract.contractNumber }}</p>
+                                <h6 class="mb-0 text-xs font-bold text-slate-700">{{ contract.title|slice(0, 40) }}...</h6>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-pink-100 text-pink-500 uppercase">{{ contract.status }}</span>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400 italic text-center py-4">No recent contracts.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Requests to review -->
+        <div class="w-full px-3 mb-6 lg:w-4/12 animate-fade-in-up stagger-3">
+            <div class="bg-white shadow-soft-xl rounded-2xl h-full flex flex-col border-l-4 border-purple-500">
+                <div class="p-4 pb-0">
+                    <h6 class="font-bold flex items-center text-slate-700">
+                        <span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
+                        Requests to review
+                    </h6>
+                </div>
+                <div class="flex-auto p-4">
+                    {% for request in requests_to_review %}
+                        <div class="flex items-center mb-4 last:mb-0 group cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all" 
+                             onclick="window.location.href='{{ path('admin_collab_requests') }}'">
+                            <div class="flex-1">
+                                <h6 class="mb-0 text-xs font-bold text-slate-700">{{ request.title|slice(0, 30) }}...</h6>
+                                <p class="mb-0 text-[10px] text-slate-400 font-semibold">By {{ request.collaborator.companyName }}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-[10px] text-slate-300 group-hover:text-purple-500"></i>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="ni ni-check-bold text-4xl text-green-200 mb-2"></i>
+                            <p class="text-xs text-slate-400">Everything up to date!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

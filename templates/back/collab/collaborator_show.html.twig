@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partner Details - Admin{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3 mb-6 items-center">
+        <div class="w-full px-3">
+            <h5 class="mb-0 font-bold text-slate-700">{{ partner.companyName }}</h5>
+            <p class="text-xs text-slate-400 mb-0">Partner profile and activity history.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3">
+        <div class="w-full lg:w-4/12 px-3 mb-6">
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 h-full">
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 rounded-2xl bg-gradient-to-tl from-purple-700 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-soft-2xl">
+                        <span class="text-white text-4xl font-bold">{{ partner.companyName|slice(0, 1)|upper }}</span>
+                    </div>
+                    <h5 class="font-bold text-slate-700 mb-1">{{ partner.companyName }}</h5>
+                    <p class="text-sm text-slate-400 font-semibold uppercase">{{ partner.domain }}</p>
+                    <span class="bg-gradient-to-tl {{ partner.status == 'ACTIVE' ? 'from-green-600 to-lime-400' : 'from-slate-600 to-slate-300' }} px-3 text-xs rounded-1.8 py-1.5 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white mt-2">
+                        {{ partner.status }}
+                    </span>
+                </div>
+
+                <div class="border-t border-gray-100 pt-6">
+                    <h6 class="text-[10px] font-bold text-slate-400 uppercase mb-4">Contact Details</h6>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-slate-300 w-6"></i>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 mb-0">POINT OF CONTACT</p>
+                                <p class="text-sm font-bold text-slate-700 mb-0">{{ partner.name }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-slate-300 w-6"></i>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 mb-0">EMAIL ADDRESS</p>
+                                <p class="text-sm font-bold text-slate-700 mb-0">{{ partner.email }}</p>
+                            </div>
+                        </div>
+                        {% if partner.phone %}
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-slate-300 w-6"></i>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 mb-0">PHONE NUMBER</p>
+                                    <p class="text-sm font-bold text-slate-700 mb-0">{{ partner.phone }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if partner.website %}
+                            <div class="flex items-center">
+                                <i class="fas fa-globe text-slate-300 w-6"></i>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 mb-0">WEBSITE</p>
+                                    <a href="{{ partner.website }}" target="_blank" class="text-sm font-bold text-purple-500 hover:underline mb-0">{{ partner.website }}</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col space-y-3">
+                    <a href="{{ path('admin_collab_collaborator_edit', {'id': partner.id}) }}" class="block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-gradient-to-tl from-purple-700 to-pink-500 border-0 rounded-lg cursor-pointer shadow-soft-md leading-pro text-xs ease-soft-in hover:shadow-soft-2xl active:opacity-85 tracking-tight-soft">
+                        EDIT PROFILE
+                    </a>
+                    <a href="{{ path('admin_collab_collaborators') }}" class="block w-full px-6 py-3 font-bold text-center text-slate-700 uppercase align-middle transition-all bg-transparent border-solid border-1 border-slate-700 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in hover:bg-slate-700 hover:text-white active:opacity-85 tracking-tight-soft">
+                        BACK TO LIST
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-8/12 px-3">
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6 mb-6">
+                <h6 class="font-bold text-slate-700 mb-4">Partner Description</h6>
+                <div class="bg-gray-50 rounded-xl p-4 text-sm text-slate-600 leading-relaxed italic">
+                    {{ partner.description|default('No description provided.')|nl2br }}
+                </div>
+            </div>
+
+            <div class="bg-white shadow-soft-xl rounded-2xl p-6">
+                <h6 class="font-bold text-slate-700 mb-4">Collaboration History</h6>
+                <div class="p-0 overflow-x-auto">
+                    <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
+                        <thead class="align-bottom">
+                            <tr>
+                                <th class="px-2 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Type</th>
+                                <th class="px-2 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Subject</th>
+                                <th class="px-2 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Status</th>
+                                <th class="px-2 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in partner.contracts %}
+                                <tr>
+                                    <td class="p-2 text-xs font-bold leading-tight border-b text-blue-500">CONTRACT</td>
+                                    <td class="p-2 text-xs font-bold leading-tight border-b text-slate-700">{{ contract.title|slice(0, 30) }}...</td>
+                                    <td class="p-2 text-center text-xs font-bold leading-tight border-b">
+                                        <span class="text-{{ contract.status == 'SIGNED' ? 'green' : 'purple' }}-500 uppercase">{{ contract.status }}</span>
+                                    </td>
+                                    <td class="p-2 text-center text-xs font-bold leading-tight border-b text-slate-400">{{ contract.createdAt|date('d/m/Y') }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for request in partner.collabRequests %}
+                                <tr>
+                                    <td class="p-2 text-xs font-bold leading-tight border-b text-pink-500">REQUEST</td>
+                                    <td class="p-2 text-xs font-bold leading-tight border-b text-slate-700">{{ request.title|slice(0, 30) }}...</td>
+                                    <td class="p-2 text-center text-xs font-bold leading-tight border-b">
+                                        <span class="text-{{ request.status == 'APPROVED' ? 'green' : 'purple' }}-500 uppercase">{{ request.status }}</span>
+                                    </td>
+                                    <td class="p-2 text-center text-xs font-bold leading-tight border-b text-slate-400">{{ request.createdAt|date('d/m/Y') }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% if partner.contracts is empty and partner.collabRequests is empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-xs italic text-slate-400">No activity history.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

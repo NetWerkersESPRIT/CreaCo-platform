@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="zips">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/vendor/google/apiclient-services/generator/tests/filesys/testdata/zips/a-c.zip!/" />
+      <root url="jar://$PROJECT_DIR$/vendor/google/apiclient-services/generator/tests/filesys/testdata/zips/d-e.zip!/" />
+      <root url="jar://$PROJECT_DIR$/vendor/google/apiclient-services/generator/tests/filesys/testdata/zips/a-d.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

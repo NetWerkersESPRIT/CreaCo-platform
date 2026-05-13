@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full px-3">
+            <h5 class="mb-0 font-bold text-slate-700">{{ title }}</h5>
+            <p class="text-xs text-slate-400 mb-0">Fill in the partner details to manage their collaboration status.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3">
+        <div class="w-full max-w-full px-3 lg:w-8/12 mx-auto">
+            <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-soft-xl rounded-2xl bg-clip-border">
+                <div class="p-6 pb-0 mb-0 bg-white border-b-0 rounded-t-2xl">
+                    <h6 class="font-bold text-slate-700">Partner Information</h6>
+                </div>
+                <div class="flex-auto p-6">
+                    {{ form_start(form, {'attr': {'class': 'role-form'}}) }}
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="w-full max-w-full px-3 mb-4 md:w-1/2">
+                                <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Contact Name</label>
+                                {{ form_widget(form.name, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow'}}) }}
+                                {{ form_errors(form.name) }}
+                            </div>
+                            <div class="w-full max-w-full px-3 mb-4 md:w-1/2">
+                                <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Company Name</label>
+                                {{ form_widget(form.companyName, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow'}}) }}
+                                {{ form_errors(form.companyName) }}
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="w-full max-w-full px-3 mb-4 md:w-1/2">
+                                <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email Address</label>
+                                {{ form_widget(form.email, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow'}}) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                            <div class="w-full max-w-full px-3 mb-4 md:w-1/2">
+                                <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Domain / Sector</label>
+                                {{ form_widget(form.domain, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow'}}) }}
+                                {{ form_errors(form.domain) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Website URL</label>
+                            {{ form_widget(form.website, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow'}}) }}
+                            {{ form_errors(form.website) }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Description</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:outline-none focus:transition-shadow', 'rows': '4'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="flex justify-end mt-6 space-x-3">
+                            <a href="{{ path('admin_collab_collaborators') }}" class="inline-block px-6 py-3 font-bold text-center text-slate-700 uppercase align-middle transition-all bg-transparent border-solid border-1 border-slate-700 rounded-lg cursor-pointer leading-pro text-xs ease-soft-in hover:bg-slate-700 hover:text-white active:opacity-85 tracking-tight-soft">
+                                Cancel
+                            </a>
+                            <button type="submit" class="inline-block px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500 leading-pro text-xs ease-soft-in hover:shadow-soft-2xl active:opacity-85 tracking-tight-soft">
+                                Save Partner
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

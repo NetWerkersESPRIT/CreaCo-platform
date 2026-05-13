@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="___unzip___package">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/vendor/google/apiclient-services/generator/tests/testdata/bundle/___unzip___package.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
