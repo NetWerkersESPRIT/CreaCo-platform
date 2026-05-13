@@ -29,11 +29,23 @@ class PostModerationController extends AbstractController
         }
 
         $showSpam = $request->query->getBoolean('spam', false);
+        $pendingStatuses = ['pending', 'PENDING', 'draft', 'DRAFT', 'PENDING_VISITOR', 'FLAGGED'];
+        $qb = $postRepository->createQueryBuilder('p');
         
         if ($showSpam) {
-            $posts = $postRepository->findBy(['isSpam' => true], ['createdAt' => 'DESC']);
+            // Specialized view: Show ALL posts flagged as spam, regardless of status
+            $posts = $qb->where('p.isSpam = :isSpam')
+                ->setParameter('isSpam', true)
+                ->orderBy('p.createdAt', 'DESC')
+                ->getQuery()
+                ->getResult();
         } else {
-            $posts = $postRepository->findPending();
+            // Main view: Show ALL posts needing action (Pending/Draft), including spam
+            $posts = $qb->where('p.status IN (:statuses)')
+                ->setParameter('statuses', $pendingStatuses)
+                ->orderBy('p.createdAt', 'DESC')
+                ->getQuery()
+                ->getResult();
         }
 
         return $this->render('admin/post/pending.html.twig', [
@@ -49,7 +61,7 @@ class PostModerationController extends AbstractController
             return $this->redirectToRoute('app_auth');
         }
 
-        if ($post->getStatus() !== 'pending') {
+        if (!in_array($post->getStatus(), ['pending', 'draft'])) {
             $this->addFlash('warning', 'This post is already moderated.');
             return $this->redirectToRoute('admin_post_pending');
         }
@@ -177,5 +189,12 @@ class PostModerationController extends AbstractController
     public function countPending(PostRepository $repo): Response
     {
         return new Response((string)$repo->countPending());
+    }
+
+    #[Route('/post/{id}', name: 'admin_post_redirect', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function redirectSingularPost(Post $post): Response
+    {
+        // Redirect from /admin/posts/post/{id} to /admin/posts/pending/{id}
+        return $this->redirectToRoute('admin_post_pending_show', ['id' => $post->getId()], 301);
     }
 }

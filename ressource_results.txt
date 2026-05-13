@@ -1,0 +1,16 @@
+ ------ --------------- 
+  Line   RessourceCont  
+         roller.php     
+ ------ --------------- 
+  :38    Cannot cast    
+         array|bool|fl  
+         oat|int|strin  
+         g|UnitEnum|nu  
+         ll to string.  
+         ????             
+         cast.string    
+ ------ --------------- 
+
+
+ [ERROR] Found 1 error 
+
