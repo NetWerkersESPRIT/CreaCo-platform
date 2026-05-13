@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 class SentimentService
 {
     private const API_URL = 'https://api.apiverve.com/v1/sentimentanalysis';
-    private const FALLBACK_API_URL = 'https://api.apiverve.com/v1/sentiment';
 
     public function __construct(
         private readonly HttpClientInterface $http,
@@ -32,31 +31,8 @@ class SentimentService
             return ['label' => 'NEUTRAL', 'score' => 0.0, 'error' => null];
         }
 
-        // --- 1. Try Main Endpoint ---
-        $result = $this->callApi(self::API_URL, $text);
-        
-        // --- 2. Fallback to Secondary Endpoint if needed ---
-        if ($result['error'] || $result['label'] === 'NEUTRAL') {
-            $result = $this->callApi(self::FALLBACK_API_URL, $text);
-        }
-
-        // --- 3. Final Keyword Fallback (In case of API total blackout or quota) ---
-        if ($result['error']) {
-            $angryWords = ['angry', 'hate', 'stupid', 'unacceptable', 'frustrated', 'terrible', 'bad', 'worst'];
-            foreach ($angryWords as $word) {
-                if (stripos($text, $word) !== false) {
-                    return ['label' => 'NEGATIVE', 'score' => 0.9, 'error' => 'Keyword Fallback'];
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    private function callApi(string $url, string $text): array
-    {
         try {
-            $response = $this->http->request('GET', $url, [
+            $response = $this->http->request('GET', self::API_URL, [
                 'headers' => [
                     'X-API-Key' => $this->sentimentApiKey,
                     'Accept' => 'application/json',
@@ -65,19 +41,66 @@ class SentimentService
                 'timeout' => 5
             ]);
 
+            if ($response->getStatusCode() !== 200) {
+                throw new \Exception('API returned status ' . $response->getStatusCode());
+            }
+
             $data = $response->toArray();
-            $this->logger->info("SentimentService: Result from $url", ['data' => $data]);
+            $this->logger->info("SentimentService Result", ['data' => $data]);
 
             if (($data['status'] ?? '') === 'ok' || ($data['status'] ?? '') === 'success') {
                 $sentimentData = $data['data'] ?? [];
+                
+                // ApiVerve can return 'sentimentText' or 'label'
+                // Some versions return a string directly in 'sentiment'
+                $sentimentText = strtolower(
+                    $sentimentData['sentimentText'] ?? 
+                    $sentimentData['label'] ?? 
+                    (is_string($sentimentData['sentiment'] ?? null) ? $sentimentData['sentiment'] : 'neutral')
+                );
+                
+                // Score detection
+                $score = (float)(
+                    $sentimentData['normalizedScore'] ?? 
+                    $sentimentData['score'] ?? 
+                    $sentimentData['comparative'] ?? 
+                    0.0
+                );
+
+                $label = 'NEUTRAL';
+                if (str_contains($sentimentText, 'negative') || $score < -0.1) {
+                    $label = 'NEGATIVE';
+                    // The UI needs a positive score > 0.4 to trigger the warning
+                    $score = abs($score) > 0 ? abs($score) : 0.75;
+                } elseif (str_contains($sentimentText, 'positive') || $score > 0.1) {
+                    $label = 'POSITIVE';
+                    $score = abs($score);
+                }
+
                 return [
-                    'label' => strtoupper($sentimentData['label'] ?? 'NEUTRAL'),
-                    'score' => (float)($sentimentData['score'] ?? 0.0),
+                    'label' => $label,
+                    'score' => $score,
                     'error' => null
                 ];
             }
-            return ['label' => 'NEUTRAL', 'score' => 0, 'error' => 'API Status Failure'];
+
+            throw new \Exception('API status failure');
         } catch (\Throwable $e) {
+            $this->logger->error("SentimentService Error: " . $e->getMessage());
+
+            // --- EMERGENCY KEYWORD FALLBACK ---
+            // If the API fails, we check for obvious negative words to still show the warning
+            $angryWords = ['sick', 'exhausting', 'tired', 'hate', 'terrible', 'frustrated', 'stupid', 'bad', 'worst', 'crisis'];
+            foreach ($angryWords as $word) {
+                if (stripos($text, $word) !== false) {
+                    return [
+                        'label' => 'NEGATIVE',
+                        'score' => 0.9,
+                        'error' => 'Keyword Fallback: ' . $e->getMessage()
+                    ];
+                }
+            }
+
             return ['label' => 'NEUTRAL', 'score' => 0, 'error' => $e->getMessage()];
         }
     }

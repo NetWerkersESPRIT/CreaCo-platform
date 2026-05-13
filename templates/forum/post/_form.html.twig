@@ -185,11 +185,14 @@ data.score * 100
 debugDiv.style.color = data.label === 'NEGATIVE' ? '#ef4444' : '#10b981';
 }
 
-if (data.label === 'NEGATIVE' || data.label === 'ANGRY' || (data.score > 0.4 && data.label !== 'POSITIVE')) {
-calmBot.classList.remove('hidden');
-} else {
-calmBot.classList.add('hidden');
-}
+                const label = (data.label || '').toUpperCase();
+                const score = parseFloat(data.score || 0);
+
+                if (label === 'NEGATIVE' || label === 'ANGRY' || (score > 0.4 && label !== 'POSITIVE')) {
+                    calmBot.classList.remove('hidden');
+                } else {
+                    calmBot.classList.add('hidden');
+                }
 } else {
 if (debugDiv) 
 debugDiv.textContent = 'API Error: ' + response.status;
