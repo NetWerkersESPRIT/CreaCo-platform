@@ -5,7 +5,7 @@
 		<div class="p-4 pb-0">
 			<div class="flex items-center">
 				<div class="avatar avatar-xs me-2">
-					<img src="https://ui-avatars.com/api/?name={{ post.user ? post.user.username|capitalize : 'User' }}&background=f5f5f5&color=cb0c9f" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
+					<img src="{{ post.user and post.user.image ? post.user.image : 'https://ui-avatars.com/api/?name=' ~ (post.user ? post.user.username|url_encode : 'User') ~ '&background=random&color=fff' }}" class="w-10 h-10 rounded-full border border-gray-100 shadow-soft-xs" alt="user1">
 				</div>
 				<div class="flex flex-col ml-3">
 					<div class="flex items-center mb-0.5">

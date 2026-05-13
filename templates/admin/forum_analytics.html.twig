@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forum Analytics | Admin{% endblock %}
+
+{% block body %}
+<div class="flex flex-wrap -mx-3">
+    <!-- Header Card -->
+    <div class="w-full max-w-full px-3 mb-6 sm:flex-0 shrink-0">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-full max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Overview</p>
+                            <h5 class="mb-0 font-bold">Forum Community Analytics</h5>
+                            <p class="text-sm leading-normal text-slate-400">
+                                Tracking quantitative engagement and user activity.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards (Testing with very basic FA icons) -->
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-0 lg:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-full max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Total Posts</p>
+                            <h5 class="mb-0 font-bold">{{ totalPosts }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-0 lg:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-full max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Comments</p>
+                            <h5 class="mb-0 font-bold">{{ totalComments }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-0 lg:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-full max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Total Likes</p>
+                            <h5 class="mb-0 font-bold">{{ totalReactions }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-0 lg:w-1/4">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="flex flex-row -mx-3">
+                    <div class="flex-none w-full max-w-full px-3">
+                        <div>
+                            <p class="mb-0 font-sans font-semibold leading-normal text-sm">Active Users</p>
+                            <h5 class="mb-0 font-bold">{{ activeUsersCount }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-wrap -mx-3 mt-6">
+    <!-- Activity Chart -->
+    <div class="w-full max-w-full px-3 mb-6 lg:w-full">
+        <div class="relative flex flex-col min-w-0 break-words bg-white shadow-soft-xl rounded-2xl bg-clip-border">
+            <div class="flex-auto p-4">
+                <div class="mb-4">
+                    <h6 class="font-bold">Forum Engagement (Last 7 Days)</h6>
+                    <p class="text-sm leading-normal">
+                        Daily tracking of posts and replies
+                    </p>
+                </div>
+                <div class="h-[700px]">
+                    <canvas id="activityChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        
+        const labels = {{ chartLabels|raw }};
+        const posts = {{ postsData|raw }};
+        const comments = {{ commentsData|raw }};
+
+        // Create gradients
+        const gradientStroke1 = ctx.createLinearGradient(0, 650, 0, 50);
+        gradientStroke1.addColorStop(1, 'rgba(203, 12, 159, 0.2)');
+        gradientStroke1.addColorStop(0.2, 'rgba(203, 12, 159, 0.0)');
+        gradientStroke1.addColorStop(0, 'rgba(203, 12, 159, 0)');
+
+        const gradientStroke2 = ctx.createLinearGradient(0, 650, 0, 50);
+        gradientStroke2.addColorStop(1, 'rgba(58, 65, 111, 0.2)');
+        gradientStroke2.addColorStop(0.2, 'rgba(58, 65, 111, 0.0)');
+        gradientStroke2.addColorStop(0, 'rgba(58, 65, 111, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Forum Posts',
+                        data: posts,
+                        borderColor: '#cb0c9f',
+                        borderWidth: 3,
+                        backgroundColor: gradientStroke1,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#cb0c9f',
+                        pointBorderColor: 'transparent',
+                    },
+                    {
+                        label: 'Comments & Replies',
+                        data: comments,
+                        borderColor: '#3a416f',
+                        borderWidth: 3,
+                        backgroundColor: gradientStroke2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3a416f',
+                        pointBorderColor: 'transparent',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            display: true,
+                            drawOnChartArea: true,
+                            drawTicks: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            display: true,
+                            padding: 10,
+                            color: '#b2b9bf',
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    },
+                    x: {
+                        grid: {
+                            drawBorder: false,
+                            display: false,
+                            drawOnChartArea: false,
+                            drawTicks: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            display: true,
+                            color: '#b2b9bf',
+                            padding: 20,
+                            font: {
+                                size: 11,
+                                family: "Open Sans",
+                                style: 'normal',
+                                lineHeight: 2
+                            },
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
