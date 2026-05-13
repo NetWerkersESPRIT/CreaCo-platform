@@ -17,6 +17,7 @@ use App\Repository\GroupRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 
 final class UserController extends AbstractController
@@ -452,4 +453,32 @@ final class UserController extends AbstractController
             'app_user' => $user
         ]);
     }
+
+    #[Route('/profile/update-avatar', name: 'app_profile_update_avatar', methods: ['POST'])]
+    public function updateAvatar(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $session = $request->getSession();
+        $userId = $session->get('user_id');
+        if (!$userId) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
+        $user = $em->getRepository(Users::class)->find($userId);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $imageUrl = $data['imageUrl'] ?? null;
+
+        if (!$imageUrl) {
+            return new JsonResponse(['error' => 'No image URL provided'], 400);
+        }
+
+        $user->setImage($imageUrl);
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Avatar updated successfully!']);
+    }
+
 }

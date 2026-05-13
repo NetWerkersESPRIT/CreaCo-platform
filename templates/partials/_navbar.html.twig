@@ -343,8 +343,10 @@ updateBadge(unreadCount);
 								</div>
 
 								<div class="w-auto max-w-full px-3 ml-auto -mx-3 text-right flex-0 hover:scale-102 transition-all duration-200 ease-in-out hover:border-4 hover:border-pink-500 hover:rounded-xl rounded-full">
-									<a href="{{ path('app_profile') }}">
-										<img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/soft-ui-dashboard/assets/img/drake.jpg" alt="avatar image" class="inline-flex items-center justify-center w-12 h-12 text-white transition-all duration-200 ease-in-out text-sm rounded-full"/>
+									<a href="{{ path('app_profile') }}" class="inline-block w-12 h-12 overflow-hidden rounded-full shadow-soft-sm">
+										<img src="{{ app_user.image ?: 'https://ui-avatars.com/api/?name=' ~ app_user.username|url_encode ~ '&background=random&color=fff' }}" 
+											alt="avatar" 
+											class="w-full h-full object-cover"/>
 									</a>
 								</div>
 							</div>

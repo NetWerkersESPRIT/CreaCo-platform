@@ -186,8 +186,18 @@
 			</main>
 
 			{% block javascripts %}
-				{# 1. Load the main dashboard script without 'async' to ensure it's ready #}
+				{# 1. Load core dependencies before the main dashboard script #}
+				<script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
 				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5"></script>
+				<script>
+					// Global safety for dashboard scripts that might crash on missing elements
+					window.addEventListener('error', function(e) {
+						if (e.filename && (e.filename.includes('sidenav-burger') || e.filename.includes('perfect-scrollbar'))) {
+							console.warn('Caught expected dashboard script error, preventing page halt:', e.message);
+							e.preventDefault();
+						}
+					}, true);
+				</script>
 
 				<script>
 					document.addEventListener('DOMContentLoaded', () => { // --- 1. SMART DROPDOWN TOGGLE (The "Hybrid" Fix) ---
