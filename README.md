@@ -1,11 +1,11 @@
-# 🚀 NetWerkers - Gestion Intelligente de Projets & Événements (Symfony Edition)
+# 🚀 CREACO - Gestion Intelligente de Projets & Événements (Symfony Edition)
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)](https://www.php.net/)
 [![Symfony Version](https://img.shields.io/badge/Symfony-6.4-black.svg)](https://symfony.com/)
 [![Composer](https://img.shields.io/badge/Composer-2.x-blue.svg)](https://getcomposer.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**NetWerkers** est une plateforme web moderne développée avec Symfony 6.4, conçue pour centraliser et simplifier la gestion des projets, des missions et des événements. En tirant parti de l'intelligence artificielle (Groq/Gemini) et d'intégrations tierces puissantes (Google Calendar, DocuSign, SendGrid), elle offre une solution robuste pour la collaboration d'équipe.
+**NetWerkers** est une plateforme web moderne développée avec Symfony 6.4, conçue pour centraliser et simplifier la gestion des projets, des missions et des événements. En tirant parti de l'intelligence artificielle (Groq/Gemini,...) et d'intégrations tierces puissantes (Google Calendar, DocuSign, SendGrid,...), elle offre une solution robuste pour la collaboration d'équipe.
 
 ---
 
