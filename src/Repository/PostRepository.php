@@ -22,6 +22,8 @@ class PostRepository extends ServiceEntityRepository
     public function findPublishedPinnedFirst(): array
     {
         return $this->createQueryBuilder('p')
+            ->leftJoin('p.user', 'u') // ✅ PERFORMANCE: Join user to avoid N+1 queries in lists
+            ->addSelect('u')
             ->andWhere('p.status IN (:statuses)')
             ->setParameter('statuses', ['published', 'solved'])
             ->orderBy('p.pinned', 'DESC')

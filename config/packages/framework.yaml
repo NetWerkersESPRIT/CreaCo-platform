@@ -14,6 +14,16 @@ framework:
         cookie_secure: auto
         cookie_samesite: lax
 
+    # ✅ PERFORMANCE: Enabled system and app cache pools
+    cache:
+        app: cache.adapter.filesystem
+        system: cache.adapter.system
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.app
+            doctrine.system_cache_pool:
+                adapter: cache.system
+
     #esi: true
     #fragments: true
     php_errors:

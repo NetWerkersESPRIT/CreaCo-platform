@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 {% block title %}Edit Profile{% endblock %}
 
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/face-id.css') }}" rel="stylesheet"/>
+{% endblock %}
+
 {% block body %}
       <div class="w-full px-6 mx-auto -mt-4">
         <div
@@ -44,6 +48,26 @@
                     
                     <div class="mt-8 border-t pt-6">
                       <h6 class="mb-4 text-slate-700">Security Settings</h6>
+                      
+                      <!-- Face ID Registration Section -->
+                      <div class="mb-8 p-4 rounded-xl border border-dashed border-fuchsia-300 bg-fuchsia-50/30">
+                        <div class="flex items-center justify-between mb-4">
+                          <div>
+                            <h7 class="font-bold text-sm text-slate-700">Face ID Authentication</h7>
+                            <p class="text-xs text-slate-500">Enable faster login by registering your face.</p>
+                          </div>
+                          {% if app.user.faceDescriptor %}
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-md uppercase">Active</span>
+                          {% else %}
+                            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-md uppercase">Not Set</span>
+                          {% endif %}
+                        </div>
+
+                        <button type="button" id="btn-face-register" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 border-0 flex items-center justify-center gap-2">
+                          {{ app.user.faceDescriptor ? 'Update Face ID' : 'Register Face ID' }}
+                        </button>
+                      </div>
+
                       <p class="text-xs text-slate-500 mb-4 italic">Leave blank if you don't want to change your password.</p>
                       
                       <div class="mb-4">
@@ -80,4 +104,26 @@
           </div>
         </div>
       </div>
+    <!-- AI Face ID Modal -->
+    {# Modal is already included in base.html.twig #}
+{% endblock %}
+
+{% block javascripts %}
+	<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+	<script src="{{ asset('assets/js/face-unlock.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const imageInput = document.querySelector('input[name="profile[image]"]');
+      const navAvatar = document.getElementById('navbar-avatar');
+      
+      if (imageInput && navAvatar) {
+        imageInput.addEventListener('input', function() {
+          const url = this.value.trim();
+          if (url) {
+            navAvatar.src = url;
+          }
+        });
+      }
+    });
+  </script>
 {% endblock %}

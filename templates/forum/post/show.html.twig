@@ -12,6 +12,56 @@
 {% endblock %}
 
 {% block body %}
+    <style>
+        .share-dropdown-menu:not(.hidden) {
+            display: flex !important;
+        }
+        .share-dropdown-menu {
+            min-width: auto !important;
+            white-space: nowrap !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 8px 12px !important;
+            background: white !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+            border: 1.5px solid rgba(0,0,0,0.05) !important;
+        }
+
+        .share-btn {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 1.5px solid #E0E0E0 !important;
+            background: white !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            color: #666 !important;
+            text-decoration: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            outline: none !important;
+        }
+        .share-btn i, .share-btn svg { font-size: 14px !important; }
+        
+        .twitter-btn i, .twitter-btn svg { color: #1DA1F2 !important; }
+        .twitter-btn:hover { background: #1DA1F2 !important; border-color: #1DA1F2 !important; }
+        .twitter-btn:hover i, .twitter-btn:hover svg { color: white !important; }
+
+        .whatsapp-btn i { color: #25D366 !important; }
+        .whatsapp-btn:hover { background: #25D366 !important; border-color: #25D366 !important; }
+        .whatsapp-btn:hover i { color: white !important; }
+
+        .link-btn:hover { background: #666 !important; border-color: #666 !important; }
+        .link-btn:hover i { color: white !important; }
+
+        .qr-btn:hover { background: #666 !important; border-color: #666 !important; }
+        .qr-btn:hover i { color: white !important; }
+    </style>
 	{% set postUrl = url('app_post_show', {'id': post.id}) %}
 
 	<div
@@ -84,39 +134,46 @@
 
 					<div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
 						<div class="flex flex-wrap items-center gap-3">
-							{% set likedPosts = app.session.get('liked_posts', []) %}
+							
+                            <!-- AI Tools (OpenRouter) -->
+							<div class="flex items-center gap-2 border-r border-gray-200 pr-3">
+								<button type="button" onclick="callOpenRouter('explain', {{ post.id }})" class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-tl from-indigo-500 to-purple-500 text-white rounded-lg border-0 cursor-pointer hover:shadow-soft-md transition-all text-[10px] font-bold uppercase tracking-wider">
+									<i class="fas fa-robot"></i> Explain
+								</button>
+								<button type="button" onclick="callOpenRouter('solution', {{ post.id }})" class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-tl from-indigo-500 to-purple-500 text-white rounded-lg border-0 cursor-pointer hover:shadow-soft-md transition-all text-[10px] font-bold uppercase tracking-wider">
+									<i class="fas fa-lightbulb"></i> Solution
+								</button>
+							</div>
+
+                            {% set likedPosts = app.session.get('liked_posts', []) %}
+
 							{% set isLiked = post.id in likedPosts %}
 
 							<!-- Share Button -->
 							<div class="relative inline-block text-left">
 								<button type="button" onclick="toggleShareDropdown('shareDropdown-{{ post.id }}')" class="bg-transparent flex items-center px-2 py-2 text-slate-500 hover:text-purple-700 transition-all border-0 cursor-pointer group">
-									<span class="text-xs font-medium mr-2">↪</span>
+									<i class="fas fa-share text-xs mr-2"></i>
 									<span class="text-xs font-bold tracking-tight">Share</span>
 								</button>
-                                <!-- ... dropdown content omitted for brevity but preserved in file ... -->
 
-								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 bottom-full mb-2 w-56 bg-white border border-gray-100 rounded-xl shadow-soft-2xl z-50 py-2 text-left animate-fade-in">
-									<button type="button" onclick="shareOnTwitter('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fab fa-twitter mr-2 w-4 text-sky-500"></i>
-										Share on Twitter
-									</button>
+								<div id="shareDropdown-{{ post.id }}" class="share-dropdown-menu hidden absolute left-0 top-full mt-2 z-50 animate-fade-in">
+                                    <button type="button" onclick="shareOnTwitter('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="share-btn twitter-btn" title="Share on Twitter">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                        </svg>
+                                    </button>
 
-									<button type="button" onclick="shareOnWhatsApp('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fab fa-whatsapp mr-2 w-4 text-green-500"></i>
-										Share on WhatsApp
-									</button>
+                                    <button type="button" onclick="shareOnWhatsApp('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="share-btn whatsapp-btn" title="Share on WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
 
-									<button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fas fa-link mr-2 w-4 text-purple-700"></i>
-										Copy Link
-									</button>
+                                    <button type="button" onclick="copyPageUrl('{{ postUrl|e('js') }}', 'shareDropdown-{{ post.id }}')" class="share-btn link-btn" title="Copy Link">
+                                        <i class="fas fa-link"></i>
+                                    </button>
 
-									<div class="border-t border-gray-100 my-1"></div>
-
-									<button type="button" onclick="generateQRCode('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-gray-50 flex items-center border-0 bg-transparent cursor-pointer">
-										<i class="fas fa-qrcode mr-2 w-4 text-slate-700"></i>
-										Generate QR Code
-									</button>
+                                    <button type="button" onclick="generateQRCode('{{ post.title|e('js') }}', '{{ post.content|striptags|slice(0, 160)|e('js') }}', '{{ post.user ? post.user.username|e('js') : 'Anonymous' }}')" class="share-btn qr-btn" title="Generate QR Code">
+                                        <i class="fas fa-qrcode"></i>
+                                    </button>
 								</div>
 							</div>
 
@@ -164,6 +221,8 @@
 							<div class="flex items-center gap-2 px-4 py-1.5 bg-[#f8f9fa] rounded-full border border-gray-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider shadow-none">
 								<i class="fas fa-comment text-slate-500"></i>
 								<span>
+                                    {% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
+						            {% set isPostOwner = app_user and post.user == app_user %}
 									{% set count = 0 %}
 									{% for c in post.comments %}
 										{% if c.status in ['visible', 'solution'] or (app_user and c.user == app_user) or isAdmin %}
@@ -176,8 +235,6 @@
 
 						<!-- Admin/Owner Actions (Icons only, rounded) -->
 						<div class="flex items-center gap-2">
-                            {% set isAdmin = is_granted('ROLE_ADMIN') or app.session.get('user_role') == 'ROLE_ADMIN' %}
-						    {% set isPostOwner = app_user and post.user == app_user %}
 
 							{% if isAdmin %}
 								<form action="{{ path('app_post_pin', {'id': post.id}) }}" method="POST" class="m-0" id="pin-form">
@@ -258,16 +315,19 @@
                                             </button>
                                             
                                             {{ form_widget(commentForm.body, {'attr': {
-                                                'class': 'grow bg-transparent border-0 focus:ring-0 text-sm py-2 px-3 text-slate-700 min-h-[40px] focus:outline-none',
+                                                'class': 'grow bg-transparent border-0 focus:ring-0 text-sm py-2 px-3 text-slate-700 min-h-[40px] focus:outline-none comment-textarea',
                                                 'placeholder': 'Add a comment...',
                                                 'rows': '1'
                                             }}) }}
 
                                             <div class="flex items-center gap-2">
-                                                <span class="bg-slate-200 text-slate-500 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">GIF</span>
+                                                <button type="button" onclick="openGifPicker(this)" class="bg-slate-200 text-slate-500 hover:bg-slate-300 transition-colors border-0 cursor-pointer text-[10px] font-bold px-2 py-1 rounded uppercase flex items-center">
+                                                    <i class="fas fa-magic mr-1"></i> GIF
+                                                </button>
                                                 <button type="submit" class="bg-transparent border-0 text-fuchsia-600 font-bold text-sm hover:scale-110 transition-transform cursor-pointer px-2">Post</button>
                                             </div>
                                         </div>
+
                                     </div>
                                     <div class="text-[10px] text-red-500 mt-1 ml-14">
                                         {{ form_errors(commentForm.body) }}
@@ -322,7 +382,7 @@
 						{% endif %}
 					</div>
 
-					<div class="text-sm text-slate-600 leading-relaxed font-normal">
+					<div class="text-sm text-slate-600 leading-relaxed font-normal comment-body-content">
 						{{ comment.body|nl2br }}
 					</div>
 
@@ -510,6 +570,154 @@ submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
 
 return true;
 }
+
+// --- OpenRouter AI Integration ---
+function callOpenRouter(action, postId) {
+    Swal.fire({
+        title: 'Asking AI...',
+        text: 'Please wait while we process the content.',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    const content = document.querySelector('.post-body').innerText;
+
+    fetch('/api/forum/ai/' + action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) throw new Error(data.error);
+        
+        // Show result in a nice modal
+        Swal.fire({
+            title: action === 'explain' ? 'AI Explanation' : 'AI Solution',
+            html: `<div style="text-align:left; font-size:14px; line-height:1.6; color:#334155; padding:10px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; max-height:400px; overflow-y:auto;">${data.result.replace(/\n/g, '<br>')}</div>`,
+            icon: 'info',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'Got it!',
+            cancelButtonText: '<i class="fas fa-copy"></i> Copy',
+            denyButtonText: '<i class="fas fa-comment"></i> Post',
+            customClass: {
+                confirmButton: 'inline-block px-4 py-2 mx-1 font-bold text-center text-white uppercase bg-gradient-to-tl from-purple-700 to-pink-500 rounded-lg shadow-soft-md text-[10px]',
+                cancelButton: 'inline-block px-4 py-2 mx-1 font-bold text-center text-slate-700 uppercase bg-gray-100 hover:bg-gray-200 rounded-lg shadow-soft-md text-[10px]',
+                denyButton: 'inline-block px-4 py-2 mx-1 font-bold text-center text-white uppercase bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-soft-md text-[10px]'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isDenied) {
+                // Post as comment
+                const textarea = document.querySelector('.comment-textarea');
+                if (textarea) {
+                    textarea.value += (textarea.value ? '\n\n' : '') + data.result;
+                    textarea.focus();
+                    textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Copy to clipboard
+                navigator.clipboard.writeText(data.result).then(() => {
+                    Swal.fire({
+                        title: 'Copied!',
+                        text: 'AI response copied to clipboard',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                });
+            }
+        });
+    })
+    .catch(err => {
+        Swal.fire('Error', err.message || 'Failed to get AI response.', 'error');
+    });
+}
+
+// --- Klipy GIF Integration ---
+function openGifPicker(btnElement) {
+    const textarea = btnElement.closest('.relative').querySelector('textarea');
+
+    Swal.fire({
+        title: 'Choose a GIF',
+        html: `
+            <input type="text" id="swal-gif-search" class="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 text-sm" placeholder="Search GIFs...">
+            <div id="swal-gif-grid" class="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto p-2 bg-gray-50 rounded-lg">
+                <div class="col-span-3 text-center text-gray-500 text-sm py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Loading trending GIFs...</div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        didOpen: () => {
+            const searchInput = document.getElementById('swal-gif-search');
+            const grid = document.getElementById('swal-gif-grid');
+            let timeout = null;
+
+            const loadGifs = (query = '') => {
+                const url = query ? '/api/forum/gifs/search?q=' + encodeURIComponent(query) : '/api/forum/gifs/trending';
+                grid.innerHTML = '<div class="col-span-3 text-center text-gray-500 text-sm py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
+                
+                fetch(url)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.gifs || data.gifs.length === 0) {
+                            grid.innerHTML = '<div class="col-span-3 text-center text-gray-500 text-sm py-4">No GIFs found</div>';
+                            return;
+                        }
+                        
+                        grid.innerHTML = data.gifs.map(gifUrl => `
+                            <img src="${gifUrl}" class="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity" 
+                                 onclick="insertGif('${gifUrl}')">
+                        `).join('');
+                    });
+            };
+
+            // Expose insert function globally so onclick can access it
+            window.insertGif = (url) => {
+                const gifTag = ` [gif]${url}[/gif] `;
+                textarea.value += gifTag;
+                textarea.focus();
+                Swal.close();
+            };
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => loadGifs(e.target.value), 500);
+            });
+
+            loadGifs();
+        }
+    });
+}
+
+// Parse GIF tags in comments on load and handle AI drafts
+document.addEventListener('DOMContentLoaded', () => {
+    // Draft logic from list view
+    const postId = {{ post.id }};
+    const draft = sessionStorage.getItem('ai_draft_' + postId);
+    if (draft) {
+        const textarea = document.querySelector('.comment-textarea');
+        if (textarea) {
+            textarea.value = draft;
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        sessionStorage.removeItem('ai_draft_' + postId);
+    }
+
+    // GIF parsing
+    document.querySelectorAll('.comment-body-content').forEach(el => {
+        let html = el.innerHTML;
+        // Regex to find [gif]...[/gif]
+        const gifRegex = /\[gif\](https?:\/\/[^\[]+)\[\/gif\]/g;
+        if (gifRegex.test(html)) {
+            html = html.replace(gifRegex, '<img src="$1" class="max-h-48 rounded-lg mt-3 block shadow-soft-sm border border-gray-100">');
+            el.innerHTML = html;
+        }
+    });
+});
+
 	</script>
 
 	<style>

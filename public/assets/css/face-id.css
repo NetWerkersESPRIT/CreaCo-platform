@@ -1,0 +1,455 @@
+/* 
+ * CreaCo Face ID Futuristic Design System
+ */
+
+:root {
+    --creaco-purple: #7b2cbf;
+    --creaco-pink: #d90429;
+    --creaco-neon-blue: #00f5ff;
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+.face-id-overlay {
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--glass-border);
+}
+
+.camera-frame {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 16 / 9;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(123, 44, 191, 0.3);
+    border: 2px solid transparent;
+    background: #000;
+}
+
+/* Glowing animated border */
+.camera-frame.scanning {
+    animation: border-glow 2s infinite alternate;
+    border-color: var(--creaco-neon-blue);
+}
+
+@keyframes border-glow {
+    from { box-shadow: 0 0 10px var(--creaco-neon-blue), inset 0 0 10px var(--creaco-neon-blue); }
+    to { box-shadow: 0 0 30px var(--creaco-purple), inset 0 0 20px var(--creaco-purple); }
+}
+
+/* Scanning Line */
+.scanning-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, transparent, var(--creaco-neon-blue), transparent);
+    box-shadow: 0 0 15px var(--creaco-neon-blue);
+    z-index: 10;
+    animation: scan 2.5s ease-in-out infinite;
+    display: none;
+}
+
+.camera-frame.scanning .scanning-line {
+    display: block;
+}
+
+@keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* Futuristic HUD elements */
+.hud-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-color: var(--creaco-neon-blue);
+    border-style: solid;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.top-left { top: 20px; left: 20px; border-width: 3px 0 0 3px; }
+.top-right { top: 20px; right: 20px; border-width: 3px 3px 0 0; }
+.bottom-left { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; }
+.bottom-right { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; }
+
+/* Status Animations */
+.face-status-text {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
+    animation: pulse-text 1.5s infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.98); }
+}
+
+.success-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 255, 127, 0.2);
+    border: 5px solid #00ff7f;
+    border-radius: 50%;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-circle.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.success-circle i {
+    color: #00ff7f;
+    font-size: 50px;
+}
+
+/* Glassmorphism Buttons */
+.btn-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium Face ID Button */
+.btn-face-premium {
+    background: linear-gradient(135deg, #7b2cbf 0%, #d90429 50%, #00f5ff 100%);
+    background-size: 200% 200%;
+    animation: gradient-move 5s ease infinite;
+    color: white !important;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(123, 44, 191, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-face-premium:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0, 245, 255, 0.4);
+}
+
+@keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.pulse-glow-blue {
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0% { box-shadow: 0 0 0 0 rgba(0, 245, 255, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 245, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 245, 255, 0); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.input-error-glow {
+    border-color: #ff0055 !important;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.3) !important;
+}
+
+/* Immersive Fullscreen Mode */
+.face-id-immersive {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: #0a0e1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    overflow: hidden;
+    gap: 20px;
+}
+
+.face-id-immersive.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 100000;
+}
+
+/* Background Glow Blobs */
+.face-id-immersive::before,
+.face-id-immersive::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.face-id-immersive::before {
+    background: rgba(139, 70, 255, 0.15);
+    left: -100px;
+    top: 20%;
+}
+
+.face-id-immersive::after {
+    background: rgba(255, 70, 160, 0.10);
+    right: -100px;
+    bottom: 20%;
+}
+
+/* Noise Overlay */
+.noise-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Header Section */
+.header-section {
+    text-align: center;
+    z-index: 10;
+}
+
+.guidance-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 28px;
+    letter-spacing: 6px;
+    color: white;
+    text-transform: uppercase;
+    margin: 0;
+    font-weight: normal;
+}
+
+.guidance-subtitle {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #00E5FF;
+    text-transform: uppercase;
+    margin-top: 6px;
+    font-family: inherit;
+}
+
+/* Camera Container */
+.immersive-frame {
+    width: 640px;
+    aspect-ratio: 16 / 9;
+    background: #0d1220;
+    border-radius: 16px;
+    border: 1.5px solid rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.08);
+    position: relative;
+    padding: 12px;
+    z-index: 10;
+}
+
+/* Corner Brackets */
+.corner-brackets {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.corner-brackets::before,
+.corner-brackets::after,
+.immersive-frame::before,
+.immersive-frame::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: #00E5FF;
+    border-style: solid;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Top Left */
+.immersive-frame::before {
+    top: -2px;
+    left: -2px;
+    border-width: 2px 0 0 2px;
+    border-radius: 4px 0 0 0;
+}
+
+/* Top Right */
+.immersive-frame::after {
+    top: -2px;
+    right: -2px;
+    border-width: 2px 2px 0 0;
+    border-radius: 0 4px 0 0;
+}
+
+/* Bottom Left */
+.corner-brackets::before {
+    bottom: -2px;
+    left: -2px;
+    border-width: 0 0 2px 2px;
+    border-radius: 0 0 0 4px;
+}
+
+/* Bottom Right */
+.corner-brackets::after {
+    bottom: -2px;
+    right: -2px;
+    border-width: 0 2px 2px 0;
+    border-radius: 0 0 4px 0;
+}
+
+/* Video Element */
+.video-element {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    display: block;
+    object-fit: cover;
+}
+
+/* Video Color Overlay */
+.video-overlay {
+    position: absolute;
+    inset: 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(139, 70, 255, 0.15), rgba(255, 70, 160, 0.10));
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* Progress Step Indicator */
+.step-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    z-index: 10;
+}
+
+.step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    background: #00E5FF;
+    border-color: #00E5FF;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    letter-spacing: 3px;
+    font-size: 12px;
+    padding: 12px 32px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+    z-index: 10;
+}
+
+.btn-cancel:hover {
+    border-color: #00E5FF;
+    color: #00E5FF;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+/* Scanning Line */
+.scanning-line {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: #00E5FF;
+    box-shadow: 0 0 15px #00E5FF;
+    z-index: 25;
+    animation: scan-new 3s ease-in-out infinite;
+    opacity: 0.7;
+}
+
+@keyframes scan-new {
+    0% { transform: translateY(0); opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { transform: translateY(340px); opacity: 0; }
+}
+
+.success-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 229, 255, 0.2);
+    border: 2px solid #00E5FF;
+    border-radius: 50%;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-circle.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.success-circle i {
+    color: #00E5FF;
+    font-size: 40px;
+}

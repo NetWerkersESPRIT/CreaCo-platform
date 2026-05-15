@@ -86,21 +86,55 @@
         `<span class="style-chip${s === initialStyle ? ' selected' : ''}" onclick="pickStyle('${s}',this)">${s}</span>`
       ).join('');
 
+      // Track active tab
+      let activeAvatarTab = 'upload';
+
       Swal.fire({
-        title: 'Choose Your Avatar',
-        width: 560,
+        title: 'Update Profile Picture',
+        width: 580,
         html: `
           <div style="font-family:inherit">
-            <!-- Tabs -->
-            <div style="display:flex;gap:8px;margin-bottom:16px">
-              <button class="avatar-tab-btn active" 
-                style="flex:1;padding:8px 12px;border-radius:10px;border:none;cursor:default;font-weight:700;font-size:12px;background:#f3e8ff;color:#7c3aed">
-                🎲 DiceBear Avatar Generator
+            <!-- Tab buttons -->
+            <div style="display:flex;gap:8px;margin-bottom:20px">
+              <button id="tab-btn-upload" onclick="switchAvatarTab('upload')"
+                style="flex:1;padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:12px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;transition:all .2s">
+                📷 Upload Photo
+              </button>
+              <button id="tab-btn-dice" onclick="switchAvatarTab('dice')"
+                style="flex:1;padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:12px;background:#f1f5f9;color:#64748b;transition:all .2s">
+                🎲 DiceBear Generator
               </button>
             </div>
 
+            <!-- ── Upload tab ── -->
+            <div id="panel-upload" style="display:block">
+              <!-- Drop zone -->
+              <div id="upload-dropzone"
+                onclick="document.getElementById('photo-file-input').click()"
+                ondragover="event.preventDefault();this.style.borderColor='#a855f7';this.style.background='#faf5ff'"
+                ondragleave="this.style.borderColor='#e2e8f0';this.style.background='#fafafa'"
+                ondrop="handlePhotoDrop(event)"
+                style="border:2px dashed #e2e8f0;border-radius:16px;padding:32px 20px;text-align:center;cursor:pointer;background:#fafafa;transition:all .2s;margin-bottom:16px">
+                <div id="upload-placeholder">
+                  <div style="font-size:40px;margin-bottom:8px">📁</div>
+                  <p style="margin:0;font-weight:700;color:#334155;font-size:14px">Click to browse or drag & drop</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#94a3b8">JPG, PNG, GIF, WEBP — max 5 MB</p>
+                </div>
+                <div id="upload-preview-wrap" style="display:none;flex-direction:column;align-items:center;gap:12px">
+                  <img id="upload-preview-img"
+                    style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #a855f7;box-shadow:0 8px 30px rgba(168,85,247,.3)">
+                  <span id="upload-file-name" style="font-size:12px;color:#64748b;font-weight:600"></span>
+                  <button onclick="event.stopPropagation();clearPhotoUpload()"
+                    style="padding:5px 14px;border-radius:100px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:11px;font-weight:700;cursor:pointer">
+                    ✕ Remove
+                  </button>
+                </div>
+              </div>
+              <input id="photo-file-input" type="file" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+            </div>
+
             <!-- ── DiceBear tab ── -->
-            <div id="panel-dice" class="avatar-tab-panel active">
+            <div id="panel-dice" style="display:none">
               <div style="display:flex;justify-content:center;margin-bottom:16px">
                 <div style="width:140px;height:140px;border-radius:16px;overflow:hidden;border:3px solid #a855f7;box-shadow:0 8px 30px rgba(168,85,247,.3);background:#f8f4ff;position:relative">
                   <img id="dice-preview" src="${initialUrl}" style="width:100%;height:100%;object-fit:cover;transition:opacity .3s">
@@ -110,7 +144,6 @@
                 </div>
               </div>
 
-              <!-- Seed input -->
               <div style="margin-bottom:12px;text-align:left">
                 <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Seed Text (any word or name)</label>
                 <div style="display:flex;gap:8px">
@@ -127,18 +160,15 @@
                 </div>
               </div>
 
-              <!-- Style grid -->
               <div style="text-align:left;margin-bottom:8px">
                 <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:#94a3b8">Style</label>
               </div>
               <div id="dicebear-style-grid">${styleChips}</div>
             </div>
-
-
           </div>
         `,
         showCancelButton: true,
-        confirmButtonText: '✅ Use as Avatar',
+        confirmButtonText: '✅ Save Photo',
         cancelButtonText: 'Cancel',
         buttonsStyling: false,
         customClass: {
@@ -146,13 +176,11 @@
           cancelButton: 'inline-block px-8 py-3 font-bold text-center text-slate-700 uppercase transition-all bg-gray-100 rounded-xl shadow-soft-md text-xs'
         },
         didOpen: () => {
-          // Attach onload/onerror to the initial preview image so currentImageUrl
-          // is set immediately when the modal opens (before the user types anything).
           _doPreviewDicebear();
         },
         preConfirm: () => {
           if (!currentImageUrl) {
-            Swal.showValidationMessage('Please generate or pick an avatar first.');
+            Swal.showValidationMessage('Please select or generate a photo first.');
             return false;
           }
           return true;
@@ -162,6 +190,84 @@
           saveAvatar(currentImageUrl);
         }
       });
+    }
+
+    // ─── Tab switcher ────────────────────────────────────────────────────────────
+    function switchAvatarTab(tab) {
+      activeAvatarTab = tab;
+      const uploadPanel = document.getElementById('panel-upload');
+      const dicePanel   = document.getElementById('panel-dice');
+      const uploadBtn   = document.getElementById('tab-btn-upload');
+      const diceBtn     = document.getElementById('tab-btn-dice');
+      if (!uploadPanel) return;
+
+      if (tab === 'upload') {
+        uploadPanel.style.display = 'block';
+        dicePanel.style.display   = 'none';
+        uploadBtn.style.background = 'linear-gradient(135deg,#7c3aed,#ec4899)';
+        uploadBtn.style.color      = '#fff';
+        diceBtn.style.background   = '#f1f5f9';
+        diceBtn.style.color        = '#64748b';
+        // Reset currentImageUrl to uploaded one if available
+        const preview = document.getElementById('upload-preview-img');
+        if (preview && preview.src && !preview.src.endsWith('undefined')) {
+          currentImageUrl = preview.src;
+        } else {
+          currentImageUrl = '';
+        }
+      } else {
+        uploadPanel.style.display = 'none';
+        dicePanel.style.display   = 'block';
+        diceBtn.style.background  = 'linear-gradient(135deg,#7c3aed,#ec4899)';
+        diceBtn.style.color       = '#fff';
+        uploadBtn.style.background = '#f1f5f9';
+        uploadBtn.style.color      = '#64748b';
+        _doPreviewDicebear();
+      }
+    }
+
+    // ─── Photo upload helpers ─────────────────────────────────────────────────────
+    function handlePhotoSelect(event) {
+      const file = event.target.files[0];
+      if (file) readAndPreviewPhoto(file);
+    }
+
+    function handlePhotoDrop(event) {
+      event.preventDefault();
+      const dropzone = document.getElementById('upload-dropzone');
+      if (dropzone) { dropzone.style.borderColor='#e2e8f0'; dropzone.style.background='#fafafa'; }
+      const file = event.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) readAndPreviewPhoto(file);
+    }
+
+    function readAndPreviewPhoto(file) {
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.showValidationMessage('File is too large. Maximum size is 5 MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentImageUrl = e.target.result;
+        const placeholder  = document.getElementById('upload-placeholder');
+        const previewWrap  = document.getElementById('upload-preview-wrap');
+        const previewImg   = document.getElementById('upload-preview-img');
+        const fileName     = document.getElementById('upload-file-name');
+        if (placeholder)  placeholder.style.display  = 'none';
+        if (previewWrap)  previewWrap.style.display   = 'flex';
+        if (previewImg)   previewImg.src = e.target.result;
+        if (fileName)     fileName.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearPhotoUpload() {
+      currentImageUrl = '';
+      const placeholder = document.getElementById('upload-placeholder');
+      const previewWrap = document.getElementById('upload-preview-wrap');
+      const fileInput   = document.getElementById('photo-file-input');
+      if (placeholder)  placeholder.style.display  = 'block';
+      if (previewWrap)  previewWrap.style.display   = 'none';
+      if (fileInput)    fileInput.value = '';
     }
 
 
@@ -233,7 +339,15 @@
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          document.getElementById('profile-avatar-preview').src = url;
+          const newUrl = data.newUrl || url;
+          document.getElementById('profile-avatar-preview').src = newUrl;
+          
+          // Sync with navbar if it exists
+          const navAvatar = document.getElementById('navbar-avatar');
+          if (navAvatar) {
+            navAvatar.src = newUrl;
+          }
+
           Swal.fire('Saved!', 'Your avatar has been updated.', 'success');
         } else {
           Swal.fire('Error', data.error || 'Failed to update avatar.', 'error');
@@ -269,7 +383,7 @@
                   src="{{ app_user.image ?: asset('styles/image/Avatar.png') }}"
                   alt="profile_image"
                   id="profile-avatar-preview"
-                  class="w-full shadow-soft-sm rounded-xl" />
+                  class="w-full h-full object-cover shadow-soft-sm rounded-xl" />
                 <button
                   onclick="openAvatarPicker()"
                   title="Change Avatar"

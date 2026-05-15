@@ -25,6 +25,7 @@
     <link
       href="../assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5"
       rel="stylesheet" />
+    <link href="{{ asset('assets/css/face-id.css') }}" rel="stylesheet"/>
 
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
@@ -172,10 +173,22 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
+                        <input type="hidden" name="face_descriptor_signup" id="face_descriptor_signup">
+                        
+                        <div class="mb-4">
+                           <button type="button" id="btn-face-signup" class="inline-block w-full px-6 py-3 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-purple-700 to-pink-500 border-0 flex items-center justify-center gap-2">
+                             <span id="face-signup-text">Scan & Secure with Face ID</span>
+                             <i id="face-signup-check" class="fas fa-check-circle hidden text-green-300"></i>
+                           </button>
+                        </div>
+
                         <button type="submit" class="w-full mr-3 inline-block px-6 py-3 font-bold text-center bg-gradient-to-tl from-purple-700 to-pink-500 uppercase align-middle transition-all rounded-lg cursor-pointer leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-150 bg-x-25 hover:scale-102 active:opacity-85 hover:shadow-soft-xs text-white">
                         Sign up</button>
 
                     {{ form_end(form) }}
+
+                    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+                    <script src="{{ asset('assets/js/face-unlock.js') }}"></script>
 
                 {% endblock %}
                   <form role="form text-left">
@@ -213,6 +226,8 @@
       </footer>
       <!-- -------- END FOOTER 3 w/ COMPANY DESCRIPTION WITH LINKS & SOCIAL ICONS & COPYRIGHT ------- -->
     </main>
+    <!-- AI Face ID Modal -->
+    {% include 'partials/_face_id_modal.html.twig' %}
   </body>
   <!-- plugin for scrollbar  -->
   <script src="../assets/js/plugins/perfect-scrollbar.min.js" async></script>

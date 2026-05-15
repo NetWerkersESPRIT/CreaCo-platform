@@ -151,6 +151,9 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $reactions;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $faceDescriptor = null;
+
     public function __construct()
     {
         $this->reservations = new ArrayCollection();
@@ -567,6 +570,18 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->groups->removeElement($group)) {
             $group->removeMember($this);
         }
+
+        return $this;
+    }
+
+    public function getFaceDescriptor(): ?array
+    {
+        return $this->faceDescriptor;
+    }
+
+    public function setFaceDescriptor(?array $faceDescriptor): static
+    {
+        $this->faceDescriptor = $faceDescriptor;
 
         return $this;
     }
