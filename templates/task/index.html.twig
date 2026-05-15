@@ -9,7 +9,7 @@
 	::-webkit-scrollbar {
 		display: none;
 	}
-	/* Soft UI Dashboards Styles for jKanban */
+	/* Soft UI Kanban Styles (Reverted Colors) */
 	.kanban-container {
 		width: auto !important;
 		padding: 1rem;
@@ -17,6 +17,7 @@
 		align-items: stretch !important;
 		gap: 1.5rem;
 		overflow-x: auto;
+		background: transparent !important;
 	}
 	.kanban-board {
 		background: #f8f9fa !important;
@@ -29,10 +30,11 @@
 		flex-direction: column !important;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 		border: 1px solid rgba(226, 232, 240, 0.8) !important;
+		transition: all 0.2s ease;
 	}
 	.kanban-drag {
 		flex-grow: 1 !important;
-		min-height: 200px;
+		min-height: 400px;
 	}
 	.kanban-board header {
 		padding: 0 0 1rem !important;
@@ -60,52 +62,37 @@
 		user-select: none;
 		white-space: normal;
 	}
+	.kanban-item:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+	}
 	.kanban-item:active {
 		cursor: grabbing;
 	}
+	/* Column Top Borders */
+	.kanban-board.todo header { border-top: 4px solid #64748b; border-radius: 4px 4px 0 0; }
+	.kanban-board.working header { border-top: 4px solid #17ad37; border-radius: 4px 4px 0 0; }
+	.kanban-board.done header { border-top: 4px solid #cb0c9f; border-radius: 4px 4px 0 0; }
+
 	.gu-mirror {
 		position: fixed !important;
 		margin: 0 !important;
 		z-index: 9999 !important;
 		opacity: 0.8;
 		transform: scale(1.05);
+		background: #ffffff !important;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+		border-radius: 1rem !important;
 		transition: none !important;
 	}
-	/* Locked completed tasks */
 	.kanban-item.task-locked {
 		opacity: 0.7;
 		cursor: not-allowed !important;
 		background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
 	}
-	.kanban-item.task-locked:hover {
-		border-color: #6c757d !important;
-		transform: none;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-	}
-	.kanban-item.task-locked::after {
-		content: '\f023';
-		font-family: 'Font Awesome 5 Free';
-		font-weight: 900;
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
+	.kanban-item.task-locked i.fa-lock {
 		color: #6c757d;
-		font-size: 0.75rem;
-	}
-	.kanban-container * {
-		box-sizing: border-box;
-	}
-	.kanban-board.todo header {
-		border-top: 4px solid #64748b;
-		border-radius: 4px 4px 0 0;
-	}
-	.kanban-board.doing header {
-		border-top: 4px solid #21d4fd;
-		border-radius: 4px 4px 0 0;
-	}
-	.kanban-board.done header {
-		border-top: 4px solid #82d616;
-		border-radius: 4px 4px 0 0;
+		margin-left: 0.5rem;
 	}
 
 	/* Custom Card Content Styling */
@@ -141,6 +128,7 @@
 		text-transform: uppercase;
 		background: #f8f9fa;
 	}
+</style>
 </style>
 {{ parent() }}{% endblock %}{% block body %}
 <div class="flex flex-wrap -mx-3 mt-6">
@@ -475,7 +463,7 @@ columns["{{ task.state }}"].push({
             `
 });
 } else {
-console.warn("Task  {{ task.id }}has an unknown state:  {{ task.state }}");
+console.warn("Task   {{ task.id }}has an unknown state:   {{ task.state }}");
 }
 {% endfor %}
 

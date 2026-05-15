@@ -205,14 +205,58 @@
 			body {
 				overflow-x: hidden;
 				width: 100%;
+				background-color: #f8f9fa !important;
+				color: #67748e !important;
+			}
+
+			:root {
+				--meta-bg: #f8f9fa;
+				--meta-card: #ffffff;
+				--meta-border: #e2e8f0;
+				--meta-accent: #cb0c9f;
+				--meta-glow: rgba(203, 12, 159, 0.1);
+			}
+
+			.meta-card {
+				background: #ffffff !important;
+				border: 1px solid #e2e8f0 !important;
+				border-radius: 1rem !important;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+				transition: all 0.3s ease;
+			}
+
+			.meta-card:hover {
+				border-color: #cb0c9f !important;
+				transform: translateY(-2px);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+			}
+
+			.meta-input {
+				background: #ffffff !important;
+				border: 1px solid #d2d6da !important;
+				color: #495057 !important;
+				transition: all 0.2s ease;
+			}
+
+			.meta-input:focus {
+				border-color: #cb0c9f !important;
+				box-shadow: 0 0 0 2px rgba(203, 12, 159, 0.2) !important;
+			}
+
+			.meta-gradient-text {
+				background: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+			}
+
+			.meta-badge {
+				background-color: #f8f9fa !important;
+				border: 1px solid #e2e8f0 !important;
+				color: #67748e !important;
 			}
 		</style>
 
-
-		{% block stylesheets %}
-			<link href="{{ asset('assets/css/face-id.css') }}" rel="stylesheet"/>
-		{% endblock %}
-
+		{% block stylesheets %}{% endblock %}
 		{% if app.environment == 'dev' %}
 			<style>
 				/* Force Symfony Debug Bar Visibility */
@@ -385,6 +429,7 @@ if (! grid)
 return;
 
 
+
 grid.innerHTML = '';
 let firstCard = null,
 secondCard = null,
@@ -404,12 +449,15 @@ if (winModal)
 winModal.classList.add('hidden');
 
 
+
 if (motivationalModal) 
 motivationalModal.classList.add('hidden');
 
 
+
 if (gameMainCard) 
 gameMainCard.style.setProperty('display', 'flex', 'important');
+
 
 
 const shuffled = [... gameIcons].sort(() => 0.5 - Math.random());
@@ -421,6 +469,7 @@ card.innerHTML = `<div class="front">${value}</div><div class="back"><i class="f
 card.addEventListener('click', () => {
 if (lockBoard || card === firstCard || card.classList.contains('matched')) 
 return;
+
 
 
 card.classList.add('flipped');
@@ -443,6 +492,7 @@ if (gameMainCard)
 gameMainCard.style.setProperty('display', 'none', 'important');
 
 
+
 winModal.classList.remove('hidden');
 winModal.style.setProperty('display', 'flex', 'important');
 }, 500);
@@ -453,8 +503,10 @@ if (firstCard)
 firstCard.classList.remove('flipped');
 
 
+
 if (secondCard) 
 secondCard.classList.remove('flipped');
+
 
 
 firstCard = null;
@@ -497,11 +549,13 @@ fetchMotivationalPhrase();
 });
 
 
+
 if (playAgainBtn) 
 playAgainBtn.addEventListener('click', () => {
 motivationalModal.style.setProperty('display', 'none', 'important');
 window.initMemoryGame();
 });
+
 
 
 if (closeGameFinalBtn) 
@@ -511,7 +565,9 @@ if (typeof transformCalmBot === 'function')
 transformCalmBot();
 
 
+
 });
+
 
 
 if (backBtn) 
@@ -529,6 +585,7 @@ if (! phraseEl)
 return;
 
 
+
 fetch('/data/motivational_phrases.json').then(res => res.json()).then(phrases => {
 phraseEl.textContent = `"${
 phrases[Math.floor(Math.random() * phrases.length)]
@@ -540,10 +597,5 @@ phraseEl.textContent = `"You're doing amazing!"`;
 });
 			</script>
 
-			<!-- AI Face ID System -->
-			<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-			<script src="{{ asset('assets/js/face-unlock.js') }}"></script>
-			<!-- AI Face ID Modal -->
-			{% include 'partials/_face_id_modal.html.twig' %}
 		</body>
 	</html>
