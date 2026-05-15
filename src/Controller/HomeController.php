@@ -25,6 +25,14 @@ final class HomeController extends AbstractController
         MissionRepository $missionRepo,
         TaskRepository $taskRepo
     ): Response {
+        // Session Repair: If user is authenticated via Symfony but session variables are missing, restore them.
+        $user = $this->getUser();
+        if ($user && !$request->getSession()->get('user_id')) {
+            $request->getSession()->set('user_id', $user->getId());
+            $request->getSession()->set('user_role', $user->getRole());
+            $request->getSession()->set('username', $user->getUsername());
+        }
+
         $allowedRoles = ['ROLE_CONTENT_CREATOR', 'ROLE_MANAGER', 'ROLE_MEMBER', 'ROLE_ADMIN'];
         $userRole = $request->getSession()->get('user_role');
         if (!in_array($userRole, $allowedRoles)) {

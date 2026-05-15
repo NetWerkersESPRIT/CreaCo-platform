@@ -18,12 +18,21 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use App\Security\LoginFormAuthenticator;
 
 
 final class UserController extends AbstractController
 {
     #[Route('/user/new', name: 'app_useradd')]
-    public function createuser(Request $request, EntityManagerInterface $em, UsersRepository $userRepository, UserPasswordHasherInterface $passwordHasher): Response
+    public function createuser(
+        Request $request, 
+        EntityManagerInterface $em, 
+        UsersRepository $userRepository, 
+        UserPasswordHasherInterface $passwordHasher,
+        UserAuthenticatorInterface $authenticator,
+        LoginFormAuthenticator $formAuthenticator
+    ): Response
     {
         $user = new Users();
 
@@ -39,6 +48,13 @@ final class UserController extends AbstractController
             }
 
             $em->persist($user);
+
+            // Save Face ID descriptor if provided during signup
+            $faceDescriptor = $request->request->get('face_descriptor_signup');
+            if ($faceDescriptor) {
+                $user->setFaceDescriptor(json_decode($faceDescriptor, true));
+            }
+
             $em->flush();
 
             // 🎉 Welcome notification for the new user
@@ -67,7 +83,20 @@ final class UserController extends AbstractController
             }
 
             $em->flush();
-            return $this->redirectToRoute('app_auth');
+
+            // Auto-login after signup
+            $authenticator->authenticateUser(
+                $user,
+                $formAuthenticator,
+                $request
+            );
+
+            // Set session variables for custom logic
+            $request->getSession()->set('user_id', $user->getId());
+            $request->getSession()->set('user_role', $user->getRole());
+            $request->getSession()->set('username', $user->getUsername());
+
+            return $this->redirectToRoute('app_home', ['signup_success' => 1]);
         }
 
         return $this->render('user/new.html.twig', [
@@ -78,17 +107,19 @@ final class UserController extends AbstractController
     #[Route('/profile', name: 'app_profile')]
     public function index(Request $request, UsersRepository $userRepository, EntityManagerInterface $em): Response
     {
-        $session = $request->hasSession() ? $request->getSession() : null;
-        $userId = $session ? $session->get('user_id') : null;
+        /** @var Users $currentUser */
+        $currentUser = $this->getUser();
 
-        if (!$userId) {
+        if (!$currentUser) {
             $this->addFlash('warning', 'Access restricted.');
             return $this->redirectToRoute('app_auth');
         }
 
-        $currentUser = $userRepository->find($userId);
-        if (!$currentUser) {
-            return $this->redirectToRoute('app_auth');
+        // Session Repair: Ensure manual session variables match authenticated user
+        if ($request->hasSession() && !$request->getSession()->get('user_id')) {
+            $request->getSession()->set('user_id', $currentUser->getId());
+            $request->getSession()->set('user_role', $currentUser->getRole());
+            $request->getSession()->set('username', $currentUser->getUsername());
         }
 
         $groupMembers = [];
@@ -141,13 +172,12 @@ final class UserController extends AbstractController
     #[Route('/add-member', name: 'app_add_member', methods: ['GET', 'POST'])]
     public function addMember(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
-        $session = $request->getSession();
-        $userId = $session->get('user_id');
-        if (!$userId) {
+        /** @var Users $currentUser */
+        $currentUser = $this->getUser();
+        
+        if (!$currentUser) {
             return $this->redirectToRoute('app_auth');
         }
-
-        $currentUser = $em->getRepository(Users::class)->find($userId);
         if (!$currentUser || $currentUser->getRole() !== 'ROLE_CONTENT_CREATOR') {
              // Only creators can add members to their group
             $this->addFlash('error', 'Only content creators can add members.');
@@ -413,13 +443,8 @@ final class UserController extends AbstractController
     #[Route('/profile/edit', name: 'app_profile_edit')]
     public function editProfile(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
     {
-        $session = $request->getSession();
-        $userId = $session->get('user_id');
-        if (!$userId) {
-            return $this->redirectToRoute('app_auth');
-        }
-
-        $user = $em->getRepository(Users::class)->find($userId);
+        /** @var Users $user */
+        $user = $this->getUser();
         if (!$user) {
             return $this->redirectToRoute('app_auth');
         }
@@ -457,15 +482,10 @@ final class UserController extends AbstractController
     #[Route('/profile/update-avatar', name: 'app_profile_update_avatar', methods: ['POST'])]
     public function updateAvatar(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $session = $request->getSession();
-        $userId = $session->get('user_id');
-        if (!$userId) {
-            return new JsonResponse(['error' => 'Unauthorized'], 403);
-        }
-
-        $user = $em->getRepository(Users::class)->find($userId);
+        /** @var Users $user */
+        $user = $this->getUser();
         if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], 404);
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -475,10 +495,31 @@ final class UserController extends AbstractController
             return new JsonResponse(['error' => 'No image URL provided'], 400);
         }
 
+        // If the image is a Base64 data URL, upload it to ImgBB
+        if (str_starts_with($imageUrl, 'data:image')) {
+            $base64Data = substr($imageUrl, strpos($imageUrl, ',') + 1);
+            $imgBbKey = $_ENV['IMGBB_API_KEY'] ?? 'e806606be4c4cd35235e41b81ddf2b8f';
+            
+            $client = \Symfony\Component\HttpClient\HttpClient::create();
+            $response = $client->request('POST', 'https://api.imgbb.com/1/upload', [
+                'body' => [
+                    'key' => $imgBbKey,
+                    'image' => $base64Data
+                ]
+            ]);
+            
+            $imgBbData = $response->toArray(false);
+            if (isset($imgBbData['success']) && $imgBbData['success']) {
+                $imageUrl = $imgBbData['data']['url'];
+            } else {
+                return new JsonResponse(['error' => 'Failed to upload image to remote server.'], 500);
+            }
+        }
+
         $user->setImage($imageUrl);
         $em->flush();
 
-        return new JsonResponse(['success' => true, 'message' => 'Avatar updated successfully!']);
+        return new JsonResponse(['success' => true, 'message' => 'Avatar updated successfully!', 'newUrl' => $imageUrl]);
     }
 
 }

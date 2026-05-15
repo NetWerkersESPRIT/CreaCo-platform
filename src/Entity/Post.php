@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[ORM\Table(name: "post")]
+#[ORM\Index(name: "idx_post_status", columns: ["status"])]
+#[ORM\Index(name: "idx_post_created_at", columns: ["created_at"])]
+#[ORM\Index(name: "idx_post_pinned", columns: ["pinned"])]
 class Post
 {
     #[ORM\Id]
@@ -104,7 +108,7 @@ class Post
     /**
      * @var Collection<int, Comment>
      */
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true, fetch: "EXTRA_LAZY")]
     private Collection $comments;
 
     #[ORM\OneToOne(mappedBy: 'post', targetEntity: Conversation::class, cascade: ['persist', 'remove'])]
@@ -122,7 +126,7 @@ class Post
     /**
      * @var Collection<int, PostReaction>
      */
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: PostReaction::class, cascade: ['persist', 'remove'], orphanRemoval: true, fetch: "EXTRA_LAZY")]
     private Collection $reactions;
 
     #[ORM\Column(nullable: true, options: ["default" => 0])]
@@ -130,6 +134,9 @@ class Post
 
     #[ORM\Column(options: ["default" => false])]
     private bool $isSpam = false;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isSeen = false;
 
     public function __construct()
     {
@@ -454,6 +461,17 @@ class Post
     public function setIsSpam(bool $isSpam): static
     {
         $this->isSpam = $isSpam;
+        return $this;
+    }
+
+    public function isSeen(): bool
+    {
+        return $this->isSeen;
+    }
+
+    public function setIsSeen(bool $isSeen): static
+    {
+        $this->isSeen = $isSeen;
         return $this;
     }
 }

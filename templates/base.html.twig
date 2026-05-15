@@ -30,7 +30,10 @@
 		<!-- CreaCo Alert Helpers -->
 		<script src="{{ asset('assets/js/alerts.js') }}"></script>
 		<!-- Main Styling -->
-		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet"/>
+		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet" data-turbo-track="reload"/>
+
+        {# ✅ PERFORMANCE: Added ImportMap for optimized JS module loading and Turbo activation #}
+        {{ importmap('app') }}
 
 		<style>
 			@keyframes fadeInUp {
@@ -106,9 +109,102 @@
 			.hover-scale:hover {
 				transform: scale(1.03);
 			}
+
+			/* Global Sidebar & Topbar Enhancements */
+			.sidenav-active-pill {
+				background: linear-gradient(135deg, rgba(155, 70, 255, 0.1), rgba(255, 70, 160, 0.1)) !important;
+				border-left: 3px solid transparent !important;
+				border-image: linear-gradient(to bottom, #9B46FF, #FF46A0) 1 !important;
+			}
+
+			.sidenav-icon-bounce:hover {
+				transform: scale(1.15);
+				transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+			}
+
+			.section-label-gradient {
+				background: linear-gradient(135deg, #9B46FF, #FF46A0);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				font-weight: 800 !important;
+			}
+
+			@keyframes bell-wiggle {
+				0%, 100% { transform: rotate(0); }
+				25% { transform: rotate(-10deg); }
+				75% { transform: rotate(10deg); }
+			}
+
+			.bell-animate {
+				animation: bell-wiggle 0.5s ease-in-out;
+			}
+
+			/* Sidebar fix */
+			.sidebar {
+				position: fixed !important;
+				top: 0;
+				left: 0;
+				width: 240px;
+				height: 100vh;
+				overflow-y: auto;
+				overflow-x: hidden;
+				z-index: 1000 !important;
+				scrollbar-width: thin;
+				scrollbar-color: #E0D0FF transparent;
+				background: white !important;
+			}
+
+			/* Hide scrollbar visually but keep it functional */
+			.sidebar::-webkit-scrollbar {
+				width: 4px;
+			}
+			.sidebar::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			.sidebar::-webkit-scrollbar-thumb {
+				background: #E0D0FF;
+				border-radius: 999px;
+			}
+
+			/* Main content must NOT be affected */
+			.main-content {
+				margin-left: 240px !important;
+				padding-top: 100px !important;
+				min-height: 100vh;
+				overflow-y: auto;
+                scrollbar-width: none; /* Firefox */
+			}
+            
+            .main-content::-webkit-scrollbar {
+                display: none; /* Chrome/Safari */
+            }
+
+			/* Topbar stays above sidebar */
+			.topbar {
+				position: fixed !important;
+				top: 0;
+				left: 240px !important;
+                right: 0 !important;
+				width: calc(100% - 240px) !important;
+				z-index: 999 !important;
+				height: 80px !important;
+				background: rgba(255, 255, 255, 0.8) !important;
+				backdrop-filter: blur(10px);
+                margin: 0 !important;
+                padding-right: 0 !important;
+			}
+
+            body {
+                overflow-x: hidden;
+                width: 100%;
+            }
+
 		</style>
 
-		{% block stylesheets %}{% endblock %}
+
+		{% block stylesheets %}
+			<link href="{{ asset('assets/css/face-id.css') }}" rel="stylesheet"/>
+		{% endblock %}
 
 		{% if app.environment == 'dev' %}
 		<style>
@@ -119,13 +215,14 @@
 		{% endif %}
 	</head>
 
-	<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500">
+	<body class="m-0 font-sans antialiased font-normal text-base leading-default bg-gray-50 text-slate-500" data-turbo="true">
 		{% if app_user %}
 			{% include 'partials/_sidebar.html.twig' %}
 		{% endif %}
 
 		<main
-			class="ease-soft-in-out {% if app_user %}xl:ml-68.5{% endif %} relative h-full max-h-screen rounded-xl transition-all duration-200">
+			class="main-content ease-soft-in-out {% if app_user %}xl:ml-[240px]{% endif %} relative h-full max-h-screen rounded-xl transition-all duration-200">
+
 			<!-- Navbar -->
 			{% if app_user %}
 				{% include 'partials/_navbar.html.twig' %}
@@ -416,5 +513,10 @@ phraseEl.textContent = `"You're doing amazing!"`;
 });
 			</script>
 
+			<!-- AI Face ID System -->
+			<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+			<script src="{{ asset('assets/js/face-unlock.js') }}"></script>
+			<!-- AI Face ID Modal -->
+			{% include 'partials/_face_id_modal.html.twig' %}
 		</body>
 	</html>

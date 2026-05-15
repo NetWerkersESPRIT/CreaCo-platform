@@ -1,0 +1,309 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enter the Metaverse | CreaCo Coworking{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --meta-purple: #9B46FF;
+            --meta-pink: #FF46A0;
+            --meta-blue: #00D2FF;
+            --meta-glass: rgba(255, 255, 255, 0.7);
+            --meta-border: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Full-width Immersive Section */
+        .metaverse-section {
+            position: relative;
+            width: 100%;
+            min-height: 85vh;
+            border-radius: 40px;
+            overflow: hidden;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 40px 100px rgba(155, 70, 255, 0.05);
+            border: 1px solid rgba(155, 70, 255, 0.1);
+            margin-bottom: 40px;
+        }
+
+        /* 1. Animated Gradient Background */
+        .meta-background {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 10% 10%, rgba(155, 70, 255, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 90%, rgba(0, 210, 255, 0.05) 0%, transparent 40%);
+            z-index: 1;
+        }
+
+        /* 2. Floating Neon Glows */
+        .neon-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .glow-1 { width: 500px; height: 500px; background: var(--meta-purple); top: -200px; right: -100px; animation: float-glow 10s infinite alternate; }
+        .glow-2 { width: 400px; height: 400px; background: var(--meta-blue); bottom: -150px; left: -100px; animation: float-glow 15s infinite alternate-reverse; }
+
+        @keyframes float-glow {
+            from { transform: translate(0, 0); }
+            to { transform: translate(50px, 80px); }
+        }
+
+        /* 3. Main Hero Layout */
+        .meta-hero {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            padding: 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* --- LEFT SIDE --- */
+        .meta-content {
+            text-align: left;
+            animation: fadeInLeft 1s ease-out;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(155, 70, 255, 0.08);
+            border: 1px solid rgba(155, 70, 255, 0.2);
+            border-radius: 100px;
+            color: var(--meta-purple);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .online-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #10b981;
+            animation: pulse-green 2s infinite;
+        }
+
+        .meta-title {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.1;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .meta-title span {
+            display: block;
+            background: linear-gradient(135deg, var(--meta-purple), var(--meta-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meta-description {
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        /* PREMIUM LAUNCH BUTTON */
+        .btn-meta-launch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem 3rem;
+            background: #1e293b;
+            color: white !important;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(30, 41, 59, 0.2);
+            text-decoration: none;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn-meta-launch:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: #000;
+            box-shadow: 0 30px 60px rgba(155, 70, 255, 0.2);
+        }
+
+        .btn-meta-launch i { margin-left: 12px; transition: transform 0.3s ease; }
+        .btn-meta-launch:hover i { transform: translateX(8px); }
+
+        .btn-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-meta-launch:hover .btn-shine { left: 100%; }
+
+        /* --- RIGHT SIDE --- */
+        .meta-visual {
+            position: relative;
+            animation: fadeInRight 1.2s ease-out;
+        }
+
+        .visual-frame {
+            position: relative;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.05);
+        }
+
+        .visual-img {
+            width: 100%;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Floating Overlays */
+        .floating-card {
+            position: absolute;
+            bottom: -30px;
+            right: -30px;
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 20;
+            border: 1px solid #f1f5f9;
+        }
+
+        .avatar-group { display: flex; -space-x: 10px; }
+        .avatar-small { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; }
+
+        /* Animations */
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+        /* Ensure parent containers don't hide content */
+        .main-content { min-height: 100vh; }
+
+        /* Truly Immersive: Hide standard dashboard headers for this page */
+        nav[navbar-main] ol, nav[navbar-main] h6 {
+            display: none !important;
+        }
+        .w-full.px-6.py-6.mx-auto {
+            padding-top: 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="metaverse-section">
+    <!-- Ambient Effects -->
+    <div class="meta-background"></div>
+    <div class="neon-glow glow-1"></div>
+    <div class="neon-glow glow-2"></div>
+
+    <div class="meta-hero">
+        <!-- Text Content -->
+        <div class="meta-content">
+            <div class="meta-badge">
+                <div class="online-dot"></div>
+                <span>42 Creators Live</span>
+            </div>
+
+            <h1 class="meta-title">
+                Enter the
+                <span>CreaCo Metaverse</span>
+            </h1>
+
+            <p class="meta-description">
+                Unlock the future of collaboration. Our virtual coworking space 
+                provides a high-performance environment for creators to connect, 
+                share ideas, and build together in real-time.
+            </p>
+
+            <a href="{{ work_adventure_url }}" target="_blank" class="btn-meta-launch shadow-soft-xl">
+                <div class="btn-shine"></div>
+                <span>Start Collaborating</span>
+                <i class="fas fa-rocket"></i>
+            </a>
+
+            <div class="mt-10 flex items-center gap-6">
+                <div class="flex flex-col">
+                    <span class="text-slate-800 font-bold">Spatial Audio</span>
+                    <span class="text-xs text-slate-500">Crystal clear voice chat</span>
+                </div>
+                <div class="w-px h-10 bg-slate-200"></div>
+                <div class="flex flex-col">
+                    <span class="text-slate-800 font-bold">Real-time Presence</span>
+                    <span class="text-xs text-slate-500">Never work alone again</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Content -->
+        <div class="meta-visual">
+            <div class="visual-frame">
+                <img src="{{ asset('metaverse_coworking_preview.png') }}" class="visual-img" alt="Coworking Metaverse Preview">
+                
+                <div class="floating-card">
+                    <div class="bg-purple-100 p-2 rounded-xl">
+                        <i class="fas fa-users text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 m-0">Active Team</p>
+                        <div class="avatar-group mt-1">
+                            <img src="https://i.pravatar.cc/150?u=1" class="avatar-small">
+                            <img src="https://i.pravatar.cc/150?u=2" class="avatar-small">
+                            <img src="https://i.pravatar.cc/150?u=3" class="avatar-small">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('CreaCo Metaverse Hub Initialized');
+        });
+    </script>
+{% endblock %}

@@ -197,4 +197,12 @@ class PostModerationController extends AbstractController
         // Redirect from /admin/posts/post/{id} to /admin/posts/pending/{id}
         return $this->redirectToRoute('admin_post_pending_show', ['id' => $post->getId()], 301);
     }
+
+    #[Route('/{id}/mark-seen', name: 'admin_post_mark_seen', methods: ['POST'])]
+    public function markSeen(Post $post, EntityManagerInterface $em): Response
+    {
+        $post->setIsSeen(true);
+        $em->flush();
+        return $this->json(['success' => true]);
+    }
 }

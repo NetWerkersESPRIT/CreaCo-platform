@@ -28,45 +28,50 @@ use App\Service\SpamDetectionService;
 final class PostController extends AbstractController
 {
     #[Route('', name: 'forum_index', methods: ['GET'])]
-    public function index(Request $request, EntityManagerInterface $entityManager): Response
+    public function index(Request $request, EntityManagerInterface $entityManager, \Knp\Component\Pager\PaginatorInterface $paginator): Response
     {
         $query = $request->query->get('q');
         $user = $this->getUser();
-        $isAdmin = $user instanceof Users && strtolower(trim((string)$user->getRole())) === 'admin';
-
+        
         /** @var PostRepository $repo */
         $repo = $entityManager->getRepository(Post::class);
         $isAdmin = $this->isGranted('ROLE_ADMIN') || $request->getSession()->get('user_role') === 'ROLE_ADMIN';
 
+        $qb = $repo->createQueryBuilder('p')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('u');
+
         if ($query) {
-            $qb = $repo->createQueryBuilder('p');
-            $qb->where('p.title LIKE :query OR p.content LIKE :query')
+            $qb->andWhere('p.title LIKE :query OR p.content LIKE :query')
                 ->setParameter('query', '%' . $query . '%');
-            
-            // Only show published and solved posts to regular users
+        }
+
+        // Only show published and solved posts to regular users
+        if (!$isAdmin) {
             $qb->andWhere('p.status IN (:statuses)')
                 ->setParameter('statuses', ['published', 'solved']);
-            
-            // Apply pinning logic even in search if possible, or just date
-            $posts = $qb->orderBy('p.pinned', 'DESC')
-                       ->addOrderBy('p.createdAt', 'DESC')
-                       ->getQuery()
-                       ->getResult();
-        } else {
-            // Only show published posts to regular users
-            $posts = $repo->findPublishedPinnedFirst();
         }
+
+        $qb->orderBy('p.pinned', 'DESC')
+           ->addOrderBy('p.createdAt', 'DESC');
+
+        // ✅ PERFORMANCE: Added Pagination to reduce load time and memory usage
+        $pagination = $paginator->paginate(
+            $qb,
+            $request->query->getInt('page', 1),
+            10
+        );
 
         $this->checkModerationNotifications($entityManager);
 
         if ($request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
             return $this->render('forum/post/_list.html.twig', [
-                'posts' => $posts,
+                'posts' => $pagination,
             ]);
         }
 
         return $this->render('forum/post/index.html.twig', [
-            'posts' => $posts,
+            'posts' => $pagination,
         ]);
     }
 

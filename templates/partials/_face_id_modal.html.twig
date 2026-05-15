@@ -1,0 +1,51 @@
+<!-- AI Face ID Immersive Modal -->
+<div id="face-id-immersive" class="face-id-immersive">
+    <!-- Background Noise & Glows will be handled in CSS via pseudo-elements -->
+    <div class="noise-overlay"></div>
+
+    <!-- Title Section -->
+    <div class="header-section">
+        <h2 id="guidance-title" class="guidance-title">VERIFICATION REQUIRED</h2>
+        <p id="guidance-instruction" class="guidance-subtitle">CENTER YOUR FACE</p>
+    </div>
+
+    <!-- Camera Container -->
+    <div class="immersive-frame">
+        <!-- Corner Brackets -->
+        <div class="corner-brackets"></div>
+        
+        <!-- Camera Feed -->
+        <video id="webcam-immersive" autoplay muted playsinline class="video-element"></video>
+        
+        <!-- Video Color Overlay -->
+        <div class="video-overlay"></div>
+
+        <!-- Initial Loader -->
+        <div id="face-loader-immersive" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50 transition-opacity duration-500">
+            <div class="w-16 h-16 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
+            <p class="mt-4 text-cyan-500 font-bold tracking-widest animate-pulse">LOADING AI MODELS...</p>
+        </div>
+
+        <!-- Scanning Line -->
+        <div class="scanning-line"></div>
+        
+        <!-- Success Overlay -->
+        <div id="success-anim-immersive" class="success-circle">
+            <i class="fas fa-check-circle"></i>
+        </div>
+    </div>
+    
+    <!-- Progress Steps -->
+    <div class="step-dots">
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+    </div>
+    
+    <!-- Cancel Button -->
+    <button id="btn-cancel-immersive" class="btn-cancel">
+        SKIP / CANCEL
+    </button>
+</div>

@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
+<nav class="topbar relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all shadow-none duration-250 ease-soft-in rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main navbar-scroll="true">
 	<div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
 		<nav>
 			{% set breadcrumb_mapping = {
@@ -29,7 +29,7 @@
 					{% endblock %}
 				</li>
 			</ol>
-			<h6 class="mb-0 font-bold capitalize">
+			<h6 class="mb-0 font-bold capitalize text-gradient" style="font-size: 28px;">
 				{% block page_title %}
 					{{ module_name }}
 				{% endblock %}
@@ -39,7 +39,20 @@
 		<div
 			class="flex items-center mt-2 grow sm:mt-0 md:mr-0 lg:flex lg:basis-auto justify-between gap-4">
 			<!-- Spacing for right alignment -->
-			<div class="flex items-center md:ml-auto md:pr-4"></div>
+			<div class="flex items-center md:ml-auto md:pr-4">
+				<!-- Virtual Coworking Quick Access -->
+				<a href="{{ path('app_coworking_space') }}" class="mr-4 group relative inline-flex items-center justify-center px-6 py-2 overflow-hidden font-bold text-white transition-all duration-300 bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl hover:shadow-lg hover:scale-105 active:scale-95">
+					<span class="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+					<i class="ni ni-world-2 mr-2 relative z-10"></i>
+					<span class="relative z-10 text-xs uppercase tracking-wider">Join Coworking Space</span>
+					<div class="absolute -right-1 -top-1">
+						<span class="flex h-3 w-3">
+							<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+							<span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+						</span>
+					</div>
+				</a>
+			</div>
 
 			<!-- User Info & Actions (Right Side) -->
 
@@ -47,18 +60,20 @@
 			<div
 				class="relative flex items-center" id="notif-wrapper" style="margin-right:1.25rem;">
 
+				{% set serverUnreadCount = get_unread_notif_count() %}
 				<!-- Bell Button -->
-				<button id="notifBtn" type="button" aria-expanded="false" style="position:relative; background:#fff; margin-left:1rem; display:flex; width:3rem; height:3rem; align-items:center; justify-content:center; border-radius:0.9rem; border:none; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,.12); transition:transform .2s, box-shadow .2s;" onmouseover="this.style.transform='scale(1.07)';this.style.boxShadow='0 8px 28px rgba(124,58,237,.25)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'">
+				<button id="notifBtn" type="button" onclick="toggleNotifDropdown(event)" aria-expanded="false" class="{{ serverUnreadCount > 0 ? 'bell-animate' : '' }}" style="position:relative; background:#fff; margin-left:1rem; display:flex; width:3rem; height:3rem; align-items:center; justify-content:center; border-radius:0.9rem; border:none; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,.12); transition:transform .2s, box-shadow .2s;" onmouseover="this.style.transform='scale(1.07)';this.style.boxShadow='0 8px 28px rgba(124,58,237,.25)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'">
+
 					<i class="fa fa-bell" style="font-size:1.15rem; background:linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent;"></i>
 					<!-- Unread Badge -->
-					<span id="notif-badge" style="display:none; position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px; border:2px solid #fff; box-shadow:0 2px 8px rgba(124,58,237,.4);">0</span>
+					<span id="notif-badge" style="{{ serverUnreadCount > 0 ? 'display:inline-flex;' : 'display:none;' }} position:absolute; top:-5px; right:-5px; min-width:20px; height:20px; padding:0 5px; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px; border:2px solid #fff; box-shadow:0 2px 8px rgba(124,58,237,.4); pointer-events:none;">{{ serverUnreadCount }}</span>
 				</button>
 
 				<!-- Dropdown Panel -->
 				<div
 					id="notifDropdown" style="display:none; opacity:0; transform:translateY(-8px) scale(0.97); transition:opacity .2s ease, transform .2s ease;
 																														       position:absolute; right:0; top:calc(100% + 12px);
-																														       width:420px; max-width:90vw; z-index:9999;
+																														       width:420px; max-width:90vw; z-index:99999;
 																														       background:#fff; border-radius:20px;
 																														       border:1px solid rgba(124,58,237,.12);
 																														       box-shadow:0 24px 64px rgba(0,0,0,.16), 0 4px 24px rgba(124,58,237,.08);
@@ -70,7 +85,7 @@
 								<i class="fa fa-bell" style="color:#fff; font-size:0.9rem;"></i>
 							</div>
 							<span style="font-weight:700; font-size:1rem; color:#1e293b; letter-spacing:-.01em;">Notifications</span>
-							<span id="notif-header-badge" style="display:none; align-items:center; justify-content:center; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px;"></span>
+							<span id="notif-header-badge" style="{{ serverUnreadCount > 0 ? 'display:inline-flex;' : 'display:none;' }} align-items:center; justify-content:center; padding:2px 8px; font-size:0.68rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#7c3aed,#ec4899); border-radius:999px;">{{ serverUnreadCount }}</span>
 						</div>
 						<a href="{{ path('app_notifications') }}" style="font-size:0.82rem; font-weight:600; background:linear-gradient(135deg,#7c3aed,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; white-space:nowrap;">
 							View all →
@@ -98,54 +113,56 @@
 				</div>
 
 				<script>
-					(function () {
-var btn = document.getElementById('notifBtn');
-var dropdown = document.getElementById('notifDropdown');
-var wrapper = document.getElementById('notif-wrapper');
-var container = document.getElementById('notif-list-container');
-var emptyState = document.getElementById('notif-empty-state');
-var headerBadge = document.getElementById('notif-header-badge');
-var badge = document.getElementById('notif-badge');
+					function openNotifDropdown() {
+						var dropdown = document.getElementById('notifDropdown');
+						var btn = document.getElementById('notifBtn');
+						if (!dropdown || !btn) return;
 
-if (! btn || ! dropdown) 
-return;
+						dropdown.style.display = 'block';
+						requestAnimationFrame(function () {
+							dropdown.style.opacity = '1';
+							dropdown.style.transform = 'translateY(0) scale(1)';
+						});
+						btn.setAttribute('aria-expanded', 'true');
+						loadNotifications();
+					}
+
+					function closeNotifDropdown() {
+						var dropdown = document.getElementById('notifDropdown');
+						var btn = document.getElementById('notifBtn');
+						if (!dropdown || !btn) return;
+
+						dropdown.style.opacity = '0';
+						dropdown.style.transform = 'translateY(-8px) scale(0.97)';
+						setTimeout(function () {
+							dropdown.style.display = 'none';
+						}, 200);
+						btn.setAttribute('aria-expanded', 'false');
+					}
+
+					function toggleNotifDropdown(e) {
+						if (e) e.stopPropagation();
+						var btn = document.getElementById('notifBtn');
+						var isOpen = btn && btn.getAttribute('aria-expanded') === 'true';
+						if (isOpen) {
+							closeNotifDropdown();
+						} else {
+							openNotifDropdown();
+						}
+					}
+
+					// Global click to close
+					document.addEventListener('click', function (e) {
+						var wrapper = document.getElementById('notif-wrapper');
+						if (wrapper && !wrapper.contains(e.target)) {
+							closeNotifDropdown();
+						}
+					});
 
 
 
-function openDropdown() {
-dropdown.style.display = 'block';
-requestAnimationFrame(function () {
-dropdown.style.opacity = '1';
-dropdown.style.transform = 'translateY(0) scale(1)';
-});
-btn.setAttribute('aria-expanded', 'true');
-}
 
-function closeDropdown() {
-dropdown.style.opacity = '0';
-dropdown.style.transform = 'translateY(-8px) scale(0.97)';
-setTimeout(function () {
-dropdown.style.display = 'none';
-}, 200);
-btn.setAttribute('aria-expanded', 'false');
-}
 
-btn.addEventListener('click', function (e) {
-e.stopPropagation();
-var isOpen = btn.getAttribute('aria-expanded') === 'true';
-if (isOpen) {
-closeDropdown();
-} else {
-openDropdown();
-loadNotifications();
-}
-});
-
-document.addEventListener('click', function (e) {
-if (wrapper && ! wrapper.contains(e.target)) {
-closeDropdown();
-}
-});
 
 function timeAgo(dateStr) {
 var diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -193,123 +210,131 @@ grad: 'linear-gradient(135deg,#7c3aed,#ec4899)'
 }
 
 function updateBadge(count) {
-if (count > 0) {
-badge.textContent = count;
-badge.style.display = 'inline-flex';
-headerBadge.textContent = count;
-headerBadge.style.display = 'inline-flex';
-} else {
-badge.style.display = 'none';
-headerBadge.style.display = 'none';
-}
+    var badge = document.getElementById('notif-badge');
+    var headerBadge = document.getElementById('notif-header-badge');
+    if (!badge || !headerBadge) return;
+
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+        headerBadge.textContent = count;
+        headerBadge.style.display = 'inline-flex';
+    } else {
+        badge.style.display = 'none';
+        headerBadge.style.display = 'none';
+    }
 }
 
 function markAsRead(id, itemEl, redirectUrl) {
-fetch('/notifications/api/' + id + '/read', {
-method: 'POST',
-headers: {
-'X-Requested-With': 'XMLHttpRequest'
-}
-}).then(function (r) {
-return r.json();
-}).then(function () { // Update item visual to read state
-itemEl.style.background = '#fff';
-itemEl.style.border = '1px solid #f1f5f9';
-itemEl.style.borderLeft = '3px solid transparent';
-var msg = itemEl.querySelector('p');
-if (msg) {
-msg.style.fontWeight = '400';
-msg.style.color = '#475569';
-}
-var dot = itemEl.querySelector('.notif-unread-dot');
-if (dot) 
-dot.remove();
+    var badge = document.getElementById('notif-badge');
+    
+    // Optimistic UI update
+    if (itemEl) {
+        itemEl.style.background = '#fff';
+        itemEl.style.border = '1px solid #f1f5f9';
+        itemEl.style.borderLeft = '3px solid transparent';
+        var msg = itemEl.querySelector('p');
+        if (msg) {
+            msg.style.fontWeight = '400';
+            msg.style.color = '#475569';
+        }
+        var dot = itemEl.querySelector('.notif-unread-dot');
+        if (dot) dot.remove();
+    }
 
-// Decrement badge
-var currentCount = parseInt(badge.textContent) || 0;
-updateBadge(Math.max(0, currentCount - 1));
-if (redirectUrl) 
-window.location = redirectUrl;
+    fetch('/notifications/api/' + id + '/read', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    }).finally(function () {
+        if (badge) {
+            var currentCount = parseInt(badge.textContent) || 0;
+            updateBadge(Math.max(0, currentCount - 1));
+        }
 
-}).catch(function () {
-if (redirectUrl) 
-window.location = redirectUrl;
-
-});
+        if (redirectUrl && redirectUrl !== '#' && redirectUrl !== '') {
+            window.location.href = redirectUrl;
+        }
+    });
 }
 
 function loadNotifications() {
-fetch('{{ path("app_api_notifications_latest") }}').then(function (r) {
-return r.ok ? r.json() : [];
-}).then(function (data) { // Remove all existing notif items
-container.querySelectorAll('.notif-item').forEach(function (el) {
-el.remove();
-});
+    var container = document.getElementById('notif-list-container');
+    var emptyState = document.getElementById('notif-empty-state');
+    if (!container || !emptyState) return;
 
-if (! data || data.length === 0) {
-emptyState.style.display = 'flex';
-return;
+    fetch('{{ path("app_api_notifications_latest") }}').then(function (r) {
+        return r.ok ? r.json() : [];
+    }).then(function (data) { 
+        container.querySelectorAll('.notif-item').forEach(function (el) {
+            el.remove();
+        });
+
+        if (!data || data.length === 0) {
+            emptyState.style.display = 'flex';
+            return;
+        }
+        emptyState.style.display = 'none';
+
+
+        var unreadCount = 0;
+        data.forEach(function (n) {
+            var isUnread = !n.isRead;
+            if (isUnread) unreadCount++;
+
+            var ico = iconForType(n.type);
+            var item = document.createElement('div');
+            item.className = 'notif-item';
+            item.setAttribute('data-id', n.id);
+            item.setAttribute('data-url', n.targetUrl || '');
+            item.setAttribute('data-unread', isUnread ? 'true' : 'false');
+            
+            item.style.cssText = [
+                'display:flex',
+                'align-items:flex-start',
+                'gap:12px',
+                'padding:12px 14px',
+                'border-radius:14px',
+                'cursor:pointer',
+                'border:1px solid ' + (isUnread ? 'rgba(124,58,237,.2)' : '#f1f5f9'),
+                'background:' + (isUnread ? 'linear-gradient(135deg,#fdf4ff,#fce7f3)' : '#fff'),
+                'border-left:3px solid ' + (isUnread ? '#7c3aed' : 'transparent'),
+                'transition:background .15s, border-color .15s'
+            ].join(';');
+
+            item.innerHTML = '<div style="flex-shrink:0;margin-top:2px;width:36px;height:36px;border-radius:10px;background:' + ico.grad + ';display:flex;align-items:center;justify-content:center;">' + 
+                             '<i class="fa ' + ico.icon + '" style="color:#fff;font-size:0.85rem;"></i>' + 
+                             '</div>' + 
+                             '<div style="flex:1;min-width:0;">' + 
+                             '<p style="margin:0 0 4px;font-size:0.84rem;font-weight:' + (isUnread ? '600' : '400') + ';color:' + (isUnread ? '#1e293b' : '#475569') + ';line-height:1.4;white-space:normal;">' + n.message + '</p>' + 
+                             '<span style="font-size:0.72rem;color:#94a3b8;"><i class="fa fa-clock" style="margin-right:3px;"></i>' + timeAgo(n.createdAt) + '</span>' + 
+                             '</div>' + 
+                             (isUnread ? '<span class="notif-unread-dot" style="flex-shrink:0;margin-top:6px;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>' : '');
+
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                var id = this.getAttribute('data-id');
+                var url = this.getAttribute('data-url');
+                var unread = this.getAttribute('data-unread') === 'true';
+                
+                if (unread) {
+                    markAsRead(id, this, url);
+                } else if (url && url !== '#' && url !== '') {
+                    window.location.href = url;
+                }
+            });
+
+            container.insertBefore(item, emptyState);
+        });
+
+        // Sync badges
+        updateBadge(unreadCount);
+    }).catch(function () {});
 }
-emptyState.style.display = 'none';
 
-var unreadCount = 0;
-data.forEach(function (n) {
-var isUnread = ! n.isRead;
-if (isUnread) 
-unreadCount++;
-
-
-var ico = iconForType(n.type);
-
-var item = document.createElement('div');
-item.className = 'notif-item';
-item.dataset.notifId = n.id;
-item.style.cssText = [
-'display:flex',
-'align-items:flex-start',
-'gap:12px',
-'padding:12px 14px',
-'border-radius:14px',
-'cursor:pointer',
-'border:1px solid ' + (
-isUnread ? 'rgba(124,58,237,.2)' : '#f1f5f9'
-),
-'background:' + (
-isUnread ? 'linear-gradient(135deg,#fdf4ff,#fce7f3)' : '#fff'
-),
-'border-left:3px solid ' + (
-isUnread ? '#7c3aed' : 'transparent'
-),
-'transition:background .15s, border-color .15s'
-].join(';');
-
-// Click: mark as read first, then redirect (IIFE to capture variables)
-(function (notifId, el, url, unread) {
-el.addEventListener('click', function () {
-if (unread) {
-markAsRead(notifId, el, url);
-} else if (url) {
-window.location = url;
-}
-});
-})(n.id, item, n.targetUrl, isUnread);
-
-item.innerHTML = '<div style="flex-shrink:0;margin-top:2px;width:36px;height:36px;border-radius:10px;background:' + ico.grad + ';display:flex;align-items:center;justify-content:center;">' + '<i class="fa ' + ico.icon + '" style="color:#fff;font-size:0.85rem;"></i>' + '</div>' + '<div style="flex:1;min-width:0;">' + '<p style="margin:0 0 4px;font-size:0.84rem;font-weight:' + (
-isUnread ? '600' : '400'
-) + ';color:' + (
-isUnread ? '#1e293b' : '#475569'
-) + ';line-height:1.4;white-space:normal;">' + n.message + '</p>' + '<span style="font-size:0.72rem;color:#94a3b8;"><i class="fa fa-clock" style="margin-right:3px;"></i>' + timeAgo(n.createdAt) + '</span>' + '</div>' + (
-isUnread ? '<span class="notif-unread-dot" style="flex-shrink:0;margin-top:6px;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></span>' : ''
-);
-
-container.insertBefore(item, emptyState);
-});
-
-// Sync badges
-updateBadge(unreadCount);
-}).catch(function () {});
-}
-})();
+// Initial sync in background
+loadNotifications();
 				</script>
 			</div>
 
@@ -342,10 +367,11 @@ updateBadge(unreadCount);
 									{% endif %}
 								</div>
 
-								<div class="w-auto max-w-full px-3 ml-auto -mx-3 text-right flex-0 hover:scale-102 transition-all duration-200 ease-in-out hover:border-4 hover:border-pink-500 hover:rounded-xl rounded-full">
+								<div class="w-auto max-w-full px-3 ml-auto -mx-3 text-right flex-0 hover:scale-102 transition-all duration-200 ease-in-out">
 									<a href="{{ path('app_profile') }}" class="inline-block w-12 h-12 overflow-hidden rounded-full shadow-soft-sm">
 										<img src="{{ app_user.image ?: 'https://ui-avatars.com/api/?name=' ~ app_user.username|url_encode ~ '&background=random&color=fff' }}" 
 											alt="avatar" 
+											id="navbar-avatar"
 											class="w-full h-full object-cover"/>
 									</a>
 								</div>
@@ -357,13 +383,11 @@ updateBadge(unreadCount);
 					<li>
 						<a href="{{ path('app_logout') }}">
 							<button type="button" class="relative bg-gradient-to-tl p-2 from-red-500 to-pink-500 shadow-soft-2xl ml-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white bg-center stroke-0 text-center hover:scale-105 transition-transform">
-								<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25px" height="25px" viewbox="0 0 18 18">
-									<path d="M11.75,11.5c-.414,0-.75,.336-.75,.75v2.5c0,.138-.112,.25-.25,.25H5.448l1.725-1.069c.518-.322,.827-.878,.827-1.487V5.557c0-.609-.31-1.166-.827-1.487l-1.725-1.069h5.302c.138,0,.25,.112,.25,.25v2.5c0,.414,.336,.75,.75,.75s.75-.336,.75-.75V3.25c0-.965-.785-1.75-1.75-1.75H4.25c-.965,0-1.75,.785-1.75,1.75V14.75c0,.965,.785,1.75,1.75,1.75h6.5c.965,0,1.75-.785,1.75-1.75v-2.5c0-.414-.336-.75-.75-.75Z" fill="rgba(255, 255, 255, 1)"></path>
-									<path d="M17.78,8.47l-2.75-2.75c-.293-.293-.768-.293-1.061,0s-.293,.768,0,1.061l1.47,1.47h-4.189c-.414,0-.75,.336-.75,.75s.336,.75,.75,.75h4.189l-1.47,1.47c-.293,.293-.293,.768,0,1.061,.146,.146,.338,.22,.53,.22s.384-.073,.53-.22l2.75-2.75c.293-.293,.293-.768,0-1.061Z" fill="rgba(255, 255, 255, 1)" data-color="color-2"></path>
-								</svg>
+								<i class="fa fa-sign-out-alt" style="color:#fff; font-size:1.3rem;"></i>
 							</button>
 						</a>
 					</li>
+
 				{% endif %}
 			</ul>
 		</div>
