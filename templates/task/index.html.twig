@@ -12,12 +12,11 @@
 	/* Soft UI Dashboards Styles for jKanban */
 	.kanban-container {
 		width: auto !important;
-		display: flex;
-		gap: 1.5rem;
 		padding: 1rem;
-		{
-			#justify-content: center;#
-		}
+		display: flex !important;
+		align-items: stretch !important;
+		gap: 1.5rem;
+		overflow-x: auto;
 	}
 	.kanban-board {
 		background: #f8f9fa !important;
@@ -25,8 +24,15 @@
 		padding: 1.25rem !important;
 		margin-right: 0 !important;
 		width: 350px !important;
+		min-width: 350px !important;
+		display: flex !important;
+		flex-direction: column !important;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 		border: 1px solid rgba(226, 232, 240, 0.8) !important;
+	}
+	.kanban-drag {
+		flex-grow: 1 !important;
+		min-height: 200px;
 	}
 	.kanban-board header {
 		padding: 0 0 1rem !important;
@@ -34,9 +40,6 @@
 		border-bottom: 1px solid #e2e8f0;
 		display: flex;
 		align-items: center;
-		{
-			#justify-content: center;#
-		}
 	}
 	.kanban-title-board {
 		font-size: 0.875rem !important;
@@ -52,13 +55,21 @@
 		padding: 1rem !important;
 		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 		border: 1px solid transparent !important;
-		transition: all 0.2s ease;
-		cursor: pointer;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		cursor: grab;
+		user-select: none;
+		white-space: normal;
 	}
-	.kanban-item:hover {
-		border-color: #cb0c9f !important;
-		transform: translateY(-2px);
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+	.kanban-item:active {
+		cursor: grabbing;
+	}
+	.gu-mirror {
+		position: fixed !important;
+		margin: 0 !important;
+		z-index: 9999 !important;
+		opacity: 0.8;
+		transform: scale(1.05);
+		transition: none !important;
 	}
 	/* Locked completed tasks */
 	.kanban-item.task-locked {
@@ -130,7 +141,8 @@
 		text-transform: uppercase;
 		background: #f8f9fa;
 	}
-</style>{% endblock %}{% block body %}
+</style>
+{{ parent() }}{% endblock %}{% block body %}
 <div class="flex flex-wrap -mx-3 mt-6">
 	<div
 		class="w-full max-w-full px-3">
@@ -272,7 +284,9 @@
 		</div>
 	</div>
 </div>{% endblock %}{% block javascripts %}
+{{ parent() }}
 <script src="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.js"></script>
+
 <script>
 	const activeStatuses = new Set();
 
@@ -435,30 +449,35 @@ const columns = {
 'todo': [],
 'in_progress': [],
 'completed': []
-};{% for task in tasks %}columns["{{ task.state }}"].push({
+};{% for task in tasks %}if (columns["{{ task.state }}"]) {
+columns["{{ task.state }}"].push({
 'id': "{{ task.id }}",
 'class': "{{ task.state == 'completed' ? 'task-locked' : '' }}",
 'draggable': {{ task.state == 'completed' ? 'false' : 'true' }},
 'missionState': "{{ task.belongTo ? task.belongTo.state : 'none' }}",
 'title': `
-                        <div class="task-card-header">
-                            <div class="flex items-center">
-                                <i class="fas fa-user-circle text-slate-300 mr-1" style="font-size: 10px;"></i>
-                                <span class="text-[10px] font-bold text-slate-400 capitalize">{{ task.assumedBy ? task.assumedBy.username|slice(0, 10)|e('js') : 'Not assigned' }}</span>
-                            </div>
-                        </div>
-                        <h6 class="task-card-title">{{ task.title|e('js') }}</h6>
-                        <span class="hidden kanban-mission-state">{{ task.belongTo ? task.belongTo.state : 'none' }}</span>
-                        <span class="hidden task-card-issuer">{{ task.issuedBy ? task.issuedBy.username|e('js') : 'N/A' }}</span>
-                        <div class="task-card-footer">
-                            <div class="flex items-center">
-                                <i class="far fa-clock mr-1" style="font-size: 10px;"></i>
-                                <span>{{ task.timeLimit ? task.timeLimit|date('d M') : 'N/A' }}</span>
-                            </div>
-                            <span class="ml-auto task-card-badge">{{ task.belongTo ? task.belongTo.title|slice(0, 10)|e('js') : 'PROJECT' }}</span>
-                        </div>
-                    `
-});{% endfor %}
+                <div class="task-card-header">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-slate-300 mr-1" style="font-size: 10px;"></i>
+                        <span class="text-[10px] font-bold text-slate-400 capitalize">{{ task.assumedBy ? task.assumedBy.username|slice(0, 10)|e('js') : 'Not assigned' }}</span>
+                    </div>
+                </div>
+                <h6 class="task-card-title">{{ task.title|e('js') }}</h6>
+                <span class="hidden kanban-mission-state">{{ task.belongTo ? task.belongTo.state : 'none' }}</span>
+                <span class="hidden task-card-issuer">{{ task.issuedBy ? task.issuedBy.username|e('js') : 'N/A' }}</span>
+                <div class="task-card-footer">
+                    <div class="flex items-center">
+                        <i class="far fa-clock mr-1" style="font-size: 10px;"></i>
+                        <span>{{ task.timeLimit ? task.timeLimit|date('d M') : 'N/A' }}</span>
+                    </div>
+                    <span class="ml-auto task-card-badge">{{ task.belongTo ? task.belongTo.title|slice(0, 10)|e('js') : 'PROJECT' }}</span>
+                </div>
+            `
+});
+} else {
+console.warn("Task  {{ task.id }}has an unknown state:  {{ task.state }}");
+}
+{% endfor %}
 
 // Initialize Kanban
 const kanban = new jKanban({

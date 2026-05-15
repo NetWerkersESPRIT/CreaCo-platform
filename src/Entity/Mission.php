@@ -44,7 +44,7 @@ class Mission
     /**
      * @var Collection<int, Task>
      */
-    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'belongTo')]
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'belongTo', cascade: ['remove'], orphanRemoval: true)]
     private Collection $tasks;
 
     #[ORM\Column(type: 'datetime', nullable: true)]

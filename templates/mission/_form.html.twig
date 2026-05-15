@@ -209,6 +209,7 @@ if (!response.ok)
 throw new Error('Failed to get recommendation');
 
 
+
 return response.json();
 }).then(data => {
 this.disabled = false;

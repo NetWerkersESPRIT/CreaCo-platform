@@ -30,10 +30,11 @@
 		<!-- CreaCo Alert Helpers -->
 		<script src="{{ asset('assets/js/alerts.js') }}"></script>
 		<!-- Main Styling -->
-		<link href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet" data-turbo-track="reload"/>
+		<link
+		href="{{ asset('assets/css/soft-ui-dashboard-tailwind.css') }}?v=1.0.5" rel="stylesheet" data-turbo-track="reload"/>
 
-        {# ✅ PERFORMANCE: Added ImportMap for optimized JS module loading and Turbo activation #}
-        {{ importmap('app') }}
+		{# ✅ PERFORMANCE: Added ImportMap for optimized JS module loading and Turbo activation #}
+		{{ importmap('app') }}
 
 		<style>
 			@keyframes fadeInUp {
@@ -130,9 +131,16 @@
 			}
 
 			@keyframes bell-wiggle {
-				0%, 100% { transform: rotate(0); }
-				25% { transform: rotate(-10deg); }
-				75% { transform: rotate(10deg); }
+				0,
+				100% {
+					transform: rotate(0);
+				}
+				25% {
+					transform: rotate(-10deg);
+				}
+				75% {
+					transform: rotate(10deg);
+				}
 			}
 
 			.bell-animate {
@@ -172,33 +180,32 @@
 				padding-top: 100px !important;
 				min-height: 100vh;
 				overflow-y: auto;
-                scrollbar-width: none; /* Firefox */
+				scrollbar-width: none; /* Firefox */
 			}
-            
-            .main-content::-webkit-scrollbar {
-                display: none; /* Chrome/Safari */
-            }
+
+			.main-content::-webkit-scrollbar {
+				display: none; /* Chrome/Safari */
+			}
 
 			/* Topbar stays above sidebar */
 			.topbar {
 				position: fixed !important;
 				top: 0;
 				left: 240px !important;
-                right: 0 !important;
+				right: 0 !important;
 				width: calc(100% - 240px) !important;
 				z-index: 999 !important;
 				height: 80px !important;
 				background: rgba(255, 255, 255, 0.8) !important;
 				backdrop-filter: blur(10px);
-                margin: 0 !important;
-                padding-right: 0 !important;
+				margin: 0 !important;
+				padding-right: 0 !important;
 			}
 
-            body {
-                overflow-x: hidden;
-                width: 100%;
-            }
-
+			body {
+				overflow-x: hidden;
+				width: 100%;
+			}
 		</style>
 
 
@@ -207,11 +214,17 @@
 		{% endblock %}
 
 		{% if app.environment == 'dev' %}
-		<style>
-			/* Force Symfony Debug Bar Visibility */
-			.sf-toolbar { display: block !important; visibility: visible !important; z-index: 999999 !important; }
-			.sf-display-none { display: block !important; }
-		</style>
+			<style>
+				/* Force Symfony Debug Bar Visibility */
+				.sf-toolbar {
+					display: block !important;
+					visibility: visible !important;
+					z-index: 999999 !important;
+				}
+				.sf-display-none {
+					display: block !important;
+				}
+			</style>
 		{% endif %}
 	</head>
 
@@ -288,12 +301,12 @@
 				<script src="{{ asset('assets/js/soft-ui-dashboard-tailwind.js') }}?v=1.0.5"></script>
 				<script>
 					// Global safety for dashboard scripts that might crash on missing elements
-					window.addEventListener('error', function(e) {
-						if (e.filename && (e.filename.includes('sidenav-burger') || e.filename.includes('perfect-scrollbar'))) {
-							console.warn('Caught expected dashboard script error, preventing page halt:', e.message);
-							e.preventDefault();
-						}
-					}, true);
+window.addEventListener('error', function (e) {
+if (e.filename && (e.filename.includes('sidenav-burger') || e.filename.includes('perfect-scrollbar'))) {
+console.warn('Caught expected dashboard script error, preventing page halt:', e.message);
+e.preventDefault();
+}
+}, true);
 				</script>
 
 				<script>
@@ -371,6 +384,7 @@ const gameMainCard = document.getElementById('game-main-card');
 if (! grid) 
 return;
 
+
 grid.innerHTML = '';
 let firstCard = null,
 secondCard = null,
@@ -389,11 +403,14 @@ const gameIcons = [
 if (winModal) 
 winModal.classList.add('hidden');
 
+
 if (motivationalModal) 
 motivationalModal.classList.add('hidden');
 
+
 if (gameMainCard) 
 gameMainCard.style.setProperty('display', 'flex', 'important');
+
 
 const shuffled = [... gameIcons].sort(() => 0.5 - Math.random());
 shuffled.forEach((value) => {
@@ -404,6 +421,7 @@ card.innerHTML = `<div class="front">${value}</div><div class="back"><i class="f
 card.addEventListener('click', () => {
 if (lockBoard || card === firstCard || card.classList.contains('matched')) 
 return;
+
 
 card.classList.add('flipped');
 if (! firstCard) {
@@ -424,6 +442,7 @@ setTimeout(() => {
 if (gameMainCard) 
 gameMainCard.style.setProperty('display', 'none', 'important');
 
+
 winModal.classList.remove('hidden');
 winModal.style.setProperty('display', 'flex', 'important');
 }, 500);
@@ -433,8 +452,10 @@ setTimeout(() => {
 if (firstCard) 
 firstCard.classList.remove('flipped');
 
+
 if (secondCard) 
 secondCard.classList.remove('flipped');
+
 
 firstCard = null;
 secondCard = null;
@@ -475,11 +496,13 @@ motivationalModal.style.setProperty('display', 'flex', 'important');
 fetchMotivationalPhrase();
 });
 
+
 if (playAgainBtn) 
 playAgainBtn.addEventListener('click', () => {
 motivationalModal.style.setProperty('display', 'none', 'important');
 window.initMemoryGame();
 });
+
 
 if (closeGameFinalBtn) 
 closeGameFinalBtn.addEventListener('click', () => {
@@ -487,7 +510,9 @@ overlay.style.setProperty('display', 'none', 'important');
 if (typeof transformCalmBot === 'function') 
 transformCalmBot();
 
+
 });
+
 
 if (backBtn) 
 backBtn.addEventListener('click', () => {
@@ -498,9 +523,11 @@ overlay.style.display = 'none';
 });
 
 
+
 function fetchMotivationalPhrase() {
 if (! phraseEl) 
 return;
+
 
 fetch('/data/motivational_phrases.json').then(res => res.json()).then(phrases => {
 phraseEl.textContent = `"${

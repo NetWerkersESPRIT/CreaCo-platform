@@ -38,6 +38,7 @@ class Task
     private ?Users $assumedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Mission $belongTo = null;
 
     #[ORM\Column(nullable: true)]

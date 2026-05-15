@@ -1,146 +1,156 @@
 {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-    <div class="mb-4">
-        {{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-        {% set title_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.title.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-        {{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Task title'}}) }}
-        {% if not form.title.vars.valid %}
-            {% for error in form.title.vars.errors %}
-                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                    {{ form.title.vars.label }} : {{ error.message }}
-                </label>
-            {% endfor %}
-        {% endif %}
-    </div>
+<div class="mb-4">
+	{{ form_label(form.title, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+	{% set title_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.title.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+	{{ form_widget(form.title, {'attr': {'class': title_class, 'placeholder': 'Task title'}}) }}
+	{% if not form.title.vars.valid %}
+		{% for error in form.title.vars.errors %}
+			<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+				{{ form.title.vars.label }}
+				:
+				{{ error.message }}
+			</label>
+		{% endfor %}
+	{% endif %}
+</div>
 
-    <div class="mb-4">
-        {{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-        {% set desc_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.description.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-        {{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Detailed description', 'rows': '5'}}) }}
-        {% if not form.description.vars.valid %}
-            {% for error in form.description.vars.errors %}
-                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                    {{ form.description.vars.label }} : {{ error.message }}
-                </label>
-            {% endfor %}
-        {% endif %}
-    </div>
+<div class="mb-4">
+	{{ form_label(form.description, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+	{% set desc_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.description.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+	{{ form_widget(form.description, {'attr': {'class': desc_class, 'placeholder': 'Detailed description', 'rows': '5'}}) }}
+	{% if not form.description.vars.valid %}
+		{% for error in form.description.vars.errors %}
+			<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+				{{ form.description.vars.label }}
+				:
+				{{ error.message }}
+			</label>
+		{% endfor %}
+	{% endif %}
+</div>
 
-    <div class="mb-4">
-        {{ form_label(form.timeLimit, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-        <div class="flex flex-wrap -mx-3">
-            <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
-                {% set date_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.timeLimit.date.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-                {{ form_widget(form.timeLimit.date, {'attr': {'class': date_class, 'placeholder': 'Date', 'min': "now"|date('Y-m-d')}}) }}
-                {% if not form.timeLimit.date.vars.valid %}
-                    {% for error in form.timeLimit.date.vars.errors %}
-                        <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                            Date : {{ error.message }}
-                        </label>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
-                {% set time_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.timeLimit.time.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-                {{ form_widget(form.timeLimit.time, {'attr': {'class': time_class, 'placeholder': 'Time'}}) }}
-                {% if not form.timeLimit.time.vars.valid %}
-                    {% for error in form.timeLimit.time.vars.errors %}
-                        <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                            Time : {{ error.message }}
-                        </label>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-        {% if not form.timeLimit.vars.valid and form.timeLimit.vars.errors|length > 0 %}
-            {% for error in form.timeLimit.vars.errors %}
-                <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                    {{ error.message }}
-                </label>
-            {% endfor %}
-        {% endif %}
-    </div>
+<div class="mb-4">
+	{{ form_label(form.timeLimit, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+	<div class="flex flex-wrap -mx-3">
+		<div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+			{% set date_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.timeLimit.date.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+			{{ form_widget(form.timeLimit.date, {'attr': {'class': date_class, 'placeholder': 'Date', 'min': "now"|date('Y-m-d')}}) }}
+			{% if not form.timeLimit.date.vars.valid %}
+				{% for error in form.timeLimit.date.vars.errors %}
+					<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+						Date :
+						{{ error.message }}
+					</label>
+				{% endfor %}
+			{% endif %}
+		</div>
+		<div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+			{% set time_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.timeLimit.time.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+			{{ form_widget(form.timeLimit.time, {'attr': {'class': time_class, 'placeholder': 'Time'}}) }}
+			{% if not form.timeLimit.time.vars.valid %}
+				{% for error in form.timeLimit.time.vars.errors %}
+					<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+						Time :
+						{{ error.message }}
+					</label>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+	{% if not form.timeLimit.vars.valid and form.timeLimit.vars.errors|length > 0 %}
+		{% for error in form.timeLimit.vars.errors %}
+			<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+				{{ error.message }}
+			</label>
+		{% endfor %}
+	{% endif %}
+</div>
 
-    <div class="flex flex-wrap -mx-3 mb-4">
-        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
-            {{ form_label(form.belongTo, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-            {% set belong_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.belongTo.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-            {{ form_widget(form.belongTo, {'attr': {'class': belong_class}}) }}
-            {% if not form.belongTo.vars.valid %}
-                {% for error in form.belongTo.vars.errors %}
-                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                        {{ form.belongTo.vars.label }} : {{ error.message }}
-                    </label>
-                {% endfor %}
-            {% endif %}
-        </div>
-        <div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
-            {{ form_label(form.assumedBy, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
-            {% set assumed_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.assumedBy.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
-            {{ form_widget(form.assumedBy, {'attr': {'class': assumed_class}}) }}
-            {% if not form.assumedBy.vars.valid %}
-                {% for error in form.assumedBy.vars.errors %}
-                    <label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
-                        {{ form.assumedBy.vars.label }} : {{ error.message }}
-                    </label>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
+<div class="flex flex-wrap -mx-3 mb-4">
+	<div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+		{{ form_label(form.belongTo, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+		{% set belong_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.belongTo.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+		{{ form_widget(form.belongTo, {'attr': {'class': belong_class}}) }}
+		{% if not form.belongTo.vars.valid %}
+			{% for error in form.belongTo.vars.errors %}
+				<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+					{{ form.belongTo.vars.label }}
+					:
+					{{ error.message }}
+				</label>
+			{% endfor %}
+		{% endif %}
+	</div>
+	<div class="w-full max-w-full px-3 shrink-0 md:w-6/12 md:flex-none">
+		{{ form_label(form.assumedBy, null, {'label_attr': {'class': 'mb-2 ml-1 font-bold text-xs text-slate-700'}}) }}
+		{% set assumed_class = 'focus:shadow-soft-primary-outline text-sm leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:outline-none ' ~ (not form.assumedBy.vars.valid ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-fuchsia-300') %}
+		{{ form_widget(form.assumedBy, {'attr': {'class': assumed_class}}) }}
+		{% if not form.assumedBy.vars.valid %}
+			{% for error in form.assumedBy.vars.errors %}
+				<label class="text-red-600 text-xxs mt-1 ml-1 font-bold uppercase tracking-tight block">
+					{{ form.assumedBy.vars.label }}
+					:
+					{{ error.message }}
+				</label>
+			{% endfor %}
+		{% endif %}
+	</div>
+</div>
 
-    <div class="text-center">
-        <button class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
-            {{ button_label|default('Save') }}
-        </button>
-    </div>
+<div class="text-center">
+	<button class="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer active:opacity-85 hover:scale-102 hover:shadow-soft-xs leading-pro text-xs ease-soft-in tracking-tight-soft shadow-soft-md bg-gradient-to-tl from-purple-700 to-pink-500">
+		{{ button_label|default('Save') }}
+	</button>
+</div>
 {{ form_end(form) }}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const missionSelect = document.querySelector('select[name="task[belongTo]"]');
-        
-        if (missionSelect) {
-            // Add "Create New Mission" option
-            const createOption = document.createElement('option');
-            createOption.value = '__create_new__';
-            createOption.textContent = '➕ Create New Mission';
-            createOption.style.fontWeight = 'bold';
-            createOption.style.color = '#9333ea';
-            missionSelect.insertBefore(createOption, missionSelect.firstChild.nextSibling);
-            
-            // Handle selection change
-            missionSelect.addEventListener('change', function() {
-                if (this.value === '__create_new__') {
-                    // Capture current form data
-                    const titleInput = document.querySelector('input[name="task[title]"]');
-                    const descInput = document.querySelector('textarea[name="task[description]"]');
-                    const dateLimitInput = document.querySelector('input[name="task[timeLimit][date]"]');
-                    const timeLimitInput = document.querySelector('input[name="task[timeLimit][time]"]');
-                    const assumedBySelect = document.querySelector('select[name="task[assumedBy]"]');
-                    
-                    // Build query parameters
-                    const params = new URLSearchParams();
-                    params.append('return_to', 'task');
-                    
-                    if (titleInput && titleInput.value) {
-                        params.append('t_title', titleInput.value);
-                    }
-                    if (descInput && descInput.value) {
-                        params.append('t_desc', descInput.value);
-                    }
-                    if (dateLimitInput && dateLimitInput.value) {
-                        params.append('t_date', dateLimitInput.value);
-                    }
-                    if (timeLimitInput && timeLimitInput.value) {
-                        params.append('t_time', timeLimitInput.value);
-                    }
-                    if (assumedBySelect && assumedBySelect.value) {
-                        params.append('t_assumedBy', assumedBySelect.value);
-                    }
-                    
-                    // Redirect to mission creation
-                    window.location.href = `/mission/new?${params.toString()}`;
-                }
-            });
-        }
-    });
+	document.addEventListener('DOMContentLoaded', function () {
+const missionSelect = document.querySelector('select[name="task[belongTo]"]');
+
+if (missionSelect) { // Add "Create New Mission" option
+const createOption = document.createElement('option');
+createOption.value = '__create_new__';
+createOption.textContent = '➕ Create New Mission';
+createOption.style.fontWeight = 'bold';
+createOption.style.color = '#9333ea';
+missionSelect.insertBefore(createOption, missionSelect.firstChild.nextSibling);
+
+// Handle selection change
+missionSelect.addEventListener('change', function () {
+if (this.value === '__create_new__') { // Capture current form data
+const titleInput = document.querySelector('input[name="task[title]"]');
+const descInput = document.querySelector('textarea[name="task[description]"]');
+const dateLimitInput = document.querySelector('input[name="task[timeLimit][date]"]');
+const timeLimitInput = document.querySelector('input[name="task[timeLimit][time]"]');
+const assumedBySelect = document.querySelector('select[name="task[assumedBy]"]');
+
+// Build query parameters
+const params = new URLSearchParams();
+params.append('return_to', 'task');
+
+if (titleInput && titleInput.value) {
+params.append('t_title', titleInput.value);
+}
+if (descInput && descInput.value) {
+params.append('t_desc', descInput.value);
+}
+if (dateLimitInput && dateLimitInput.value) {
+params.append('t_date', dateLimitInput.value);
+}
+if (timeLimitInput && timeLimitInput.value) {
+params.append('t_time', timeLimitInput.value);
+}
+if (assumedBySelect && assumedBySelect.value) {
+params.append('t_assumedBy', assumedBySelect.value);
+}
+
+// Redirect to mission creation
+window.location.href = `/mission/new?${
+params.toString()
+}`;
+}
+});
+}
+});
 </script>
